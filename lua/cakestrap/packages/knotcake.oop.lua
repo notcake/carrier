@@ -36,8 +36,14 @@ OOP.Class:Assimilate (OOP.Class )
 
 include ("knotcake.oop/enum.lua")
 
+include ("knotcake.oop/icloneable.lua")
+include ("knotcake.oop/event.lua")
+include ("knotcake.oop/idisposable.lua")
+
 function OOP.Initialize (destinationTable)
-	destinationTable.Class = OOP.Class
+	destinationTable.Object = OOP.Object
+	destinationTable.Class  = OOP.Class
+	destinationTable.Enum   = OOP.Enum
 end
 
 return OOP

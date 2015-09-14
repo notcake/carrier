@@ -12,3 +12,7 @@ function self:GetHashCode ()
 	
 	return self.HashCode
 end
+
+function self:GetType ()
+	return self._Class
+end

@@ -24,10 +24,25 @@ function self:ctor (methodTable, firstBaseClass, ...)
 	self.FlattenedDestructor            = nil
 	self.FlattenedBaseClasses           = nil
 	self.FlattenedBaseClassMethodTables = nil
+	
+	self.AuxiliaryConstructorCreated    = false
+	self.AuxiliaryConstructor           = nil
 end
 
 function self:__call (...)
-	-- Make instance
+	return self:CreateInstance (...)
+end
+
+function self:Assimilate (object)
+	setmetatable (object, self:GetMetatable ())
+	
+	if not self.FlattenedDestructor then
+		self.FlattenedDestructor = self:CreateFlattenedDestructor ()
+	end
+	object.dtor = self.FlattenedDestructor
+end
+
+function self:CreateInstance (...)
 	local object = {}
 	
 	setmetatable (object, self:GetMetatable ())
@@ -46,21 +61,21 @@ function self:__call (...)
 	return object
 end
 
-function self:Assimilate (object)
-	setmetatable (object, self:GetMetatable ())
-	
-	if not self.FlattenedDestructor then
-		self.FlattenedDestructor = self:CreateFlattenedDestructor ()
-	end
-	object.dtor = self.FlattenedDestructor
-end
-
 function self:GetBaseClass (i)
 	return self.BaseClasses [i or 1]
 end
 
 function self:GetBaseClassCount ()
 	return #self.BaseClasses
+end
+
+function self:GetAuxiliaryConstructor ()
+	if not self.AuxiliaryConstructorCreated then
+		self.AuxiliaryConstructor = self:CreateAuxiliaryConstructor ()
+		self.AuxiliaryConstructorCreated = true
+	end
+	
+	return self.AuxiliaryConstructor
 end
 
 function self:GetFlattenedConstructor ()
@@ -89,11 +104,49 @@ function self:GetMethodTable ()
 	return self.MethodTable
 end
 
+function self:IsDerivedFrom (class)
+	for _, baseClass in ipairs (self.BaseClasses) do
+		if baseClass == class then return true end
+		if baseClass:IsDerivedFrom (class) then return true end
+	end
+	
+	return false
+end
+
+function self:IsInstance (object)
+	if not istable (object) then return false end
+	local class = object._Class
+	if not class then return false end
+	
+	if class == self then return true end
+	return class:IsDerivedFrom (self)
+end
+
 -- Internal, do not call
+function self:CreateAuxiliaryConstructor ()
+	local events = {}
+	
+	local methodTable = self:GetMethodTable ()
+	for k, v in pairs (methodTable) do
+		if OOP.Event and OOP.Event:IsInstance (v) then
+			events [k] = v:GetType ()
+		end
+	end
+	
+	if not next (events) then return nil end
+	
+	return function (self, ...)
+		for eventName, eventConstructor in pairs (events) do
+			self [eventName] = eventConstructor ()
+		end
+	end
+end
+
 function self:CreateFlattenedConstructor ()
 	local constructorList = {}
 	local flattenedBaseClasses = self:GetFlattenedBaseClasses ()
 	for i = 1, #flattenedBaseClasses do
+		constructorList [#constructorList + 1] = flattenedBaseClasses [i]:GetAuxiliaryConstructor ()
 		constructorList [#constructorList + 1] = flattenedBaseClasses [i]:GetMethodTable ().ctor
 	end
 	
