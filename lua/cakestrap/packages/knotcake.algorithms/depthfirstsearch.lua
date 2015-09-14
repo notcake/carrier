@@ -1,6 +1,4 @@
 function Algorithms.DepthFirstSearch (startingNode, edgeEnumeratorFactory, nodeSink)
-	nodeSink (startingNode)
-	
 	local visitedNodes = {}
 	local function DepthFirstSearch (startingNode, edgeEnumeratorFactory, nodeSink, visitedNodes)
 		nodeSink (startingNode)
