@@ -2,7 +2,10 @@ local self = {}
 OOP.Event = OOP.Class (self, OOP.ICloneable)
 
 function self:ctor (instance)
-	self.Instance = instance
+	self.Instance  = instance
+	
+	self.Description = nil
+	
 	self.Listeners = {}
 end
 
@@ -21,6 +24,19 @@ function self:Copy (source)
 end
 
 -- Event
+function self:GetInstance ()
+	return self.Instance
+end
+
+function self:GetDescription ()
+	return self.Description
+end
+
+function self:SetDescription (description)
+	self.Description = description
+	return self
+end
+
 function self:AddListener (nameOrCallback, callback)
 	callback = callback or nameOrCallback
 	self.Listeners [nameOrCallback] = callback
