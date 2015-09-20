@@ -1,12 +1,17 @@
 local self = {}
 OOP.Event = OOP.Class (self, OOP.ICloneable)
 
-function self:ctor (instance)
-	self.Instance  = instance
+OOP.Event.NextInstanceId = 0
+
+function self:ctor (instance, name)
+	self.InstanceId = OOP.Event.NextInstanceId
+	OOP.Event.NextInstanceId = OOP.Event.NextInstanceId + 1
 	
+	self.Instance    = instance
+	self.Name        = name
 	self.Description = nil
 	
-	self.Listeners = {}
+	self.Listeners   = {}
 end
 
 function self:dtor ()
@@ -16,6 +21,14 @@ end
 
 -- ICloneable
 function self:Copy (source)
+	self.Instance    = source.Instance
+	self.Name        = source.Name
+	self.Description = source.Description
+	
+	if next (self.Listeners) then
+		self:ClearListeners ()
+	end
+	
 	for callbackName, callback in pairs (source.Listeners) do
 		self:AddListener (callbackName, callback)
 	end
@@ -24,8 +37,16 @@ function self:Copy (source)
 end
 
 -- Event
+function self:GetInstanceId ()
+	return self.InstanceId
+end
+
 function self:GetInstance ()
 	return self.Instance
+end
+
+function self:GetName ()
+	return self.Name
 end
 
 function self:GetDescription ()
@@ -56,7 +77,7 @@ function self:Dispatch (...)
 	for callbackName, callback in pairs (self.Listeners) do
 		local success, r0, r1, r2 = xpcall (callback, OOP.Error, self.Instance, ...)
 		if not success then
-			ErrorNoHalt ("Error in hook " .. eventName .. ": " .. tostring (callbackName) .. "!\n")
+			ErrorNoHalt ("Error in hook " .. self.Name .. ": " .. tostring (callbackName) .. "!\n")
 		else
 			a = a or r0
 			b = b or r1

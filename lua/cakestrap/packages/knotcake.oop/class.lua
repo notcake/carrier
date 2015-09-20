@@ -7,23 +7,20 @@ function self:ctor (methodTable, firstBaseClass, ...)
 		firstBaseClass = nil
 	end
 	
-	self.BaseClasses = { firstBaseClass, ... }
-	self.MethodTable = methodTable
-	self.MethodTable._Class = self
+	self.BaseClasses                    = { firstBaseClass, ... }
 	
-	if self.BaseClasses [1] then
-		setmetatable (self.MethodTable, { __index = self.BaseClasses [1]:GetMethodTable () })
-	end
+	self.MethodTable                    = methodTable
+	self.FinalizedMethodTable           = nil
+	self.FlattenedMethodTable           = nil
 	
-	self.Metatable = {}
-	self.Metatable.__index = self.MethodTable
+	self.Events                         = nil
+	self.Properties                     = nil
 	
-	self.MetamethodsResolved = false
+	self.Metatable                      = nil
 	
 	self.FlattenedConstructor           = nil
 	self.FlattenedDestructor            = nil
 	self.FlattenedBaseClasses           = nil
-	self.FlattenedBaseClassMethodTables = nil
 	
 	self.AuxiliaryConstructorCreated    = false
 	self.AuxiliaryConstructor           = nil
@@ -78,10 +75,19 @@ function self:GetAuxiliaryConstructor ()
 	return self.AuxiliaryConstructor
 end
 
+function self:GetFinalizedMethodTable ()
+	if not self.FinalizedMethodTable then
+		self.FinalizedMethodTable = self:CreateFinalizedMethodTable ()
+	end
+	
+	return self.FinalizedMethodTable
+end
+
 function self:GetFlattenedConstructor ()
 	if not self.FlattenedConstructor then
 		self.FlattenedConstructor = self:CreateFlattenedConstructor ()
 	end
+	
 	return self.FlattenedConstructor
 end
 
@@ -89,12 +95,21 @@ function self:GetFlattenedDestructor ()
 	if not self.FlattenedDestructor then
 		self.FlattenedDestructor = self:CreateFlattenedDestructor ()
 	end
+	
 	return self.FlattenedDestructor
 end
 
+function self:GetFlattenedMethodTable ()
+	if not self.FlattenedMethodTable then
+		self.FlattenedMethodTable = self:CreateFlattenedMethodTable ()
+	end
+	
+	return self.FlattenedMethodTable
+end
+
 function self:GetMetatable ()
-	if not self.MetamethodsResolved then
-		self:ResolveMetamethods ()
+	if not self.Metatable then
+		self.Metatable = self:CreateMetatable ()
 	end
 	
 	return self.Metatable
@@ -124,22 +139,72 @@ end
 
 -- Internal, do not call
 function self:CreateAuxiliaryConstructor ()
-	local events = {}
+	local events     = {}
+	local properties = {}
 	
-	local methodTable = self:GetMethodTable ()
-	for k, v in pairs (methodTable) do
-		if OOP.Event and OOP.Event:IsInstance (v) then
-			events [k] = v:GetType ()
+	for _, event in ipairs (self:GetEvents ()) do
+		events [event:GetName ()] = event
+	end
+	
+	for _, property in ipairs (self:GetProperties ()) do
+		if property:IsEvented () then
+			local eventName = property:GetName () .. "Changed"
+			events [eventName] = OOP.Event ():SetName (eventName)
+		end
+		if property:GetInitialValue () ~= nil then
+			properties [#properties + 1] = property
 		end
 	end
 	
-	if not next (events) then return nil end
+	if not next (events) and #properties == 0 then return nil end
 	
 	return function (self, ...)
-		for eventName, eventConstructor in pairs (events) do
-			self [eventName] = eventConstructor ()
+		for eventName, event in pairs (events) do
+			self [eventName] = event:Clone ():SetInstance (self)
+		end
+		
+		for i = 1, #properties do
+			local propertyName = properties [i]:GetName ()
+			local initialValue = properties [i]:GetInitialValue ()
+			self [propertyName] = initialValue
 		end
 	end
+end
+
+function self:CreateFinalizedMethodTable ()
+	local finalizedMethodTable = {}
+	
+	if self.BaseClasses [1] then
+		setmetatable (finalizedMethodTable, { __index = self.BaseClasses [1]:GetFinalizedMethodTable () })
+	end
+	
+	-- This class
+	finalizedMethodTable._Class = self
+	
+	-- Properties
+	for _, property in pairs (self:GetProperties ()) do
+		finalizedMethodTable [property:GetGetterName ()] = property:GetGetter ()
+		finalizedMethodTable [property:GetSetterName ()] = property:GetSetter ()
+	end
+	
+	for methodName, method in pairs (self:GetMethodTable ()) do
+		if OOP.Event and OOP.Event:IsInstance (method) then
+		elseif OOP.Property and OOP.Property:IsInstance (method) then
+		else
+			finalizedMethodTable [methodName] = method
+		end
+	end
+	
+	-- Other base classes
+	for i = #self.BaseClasses, 2, -1 do
+		for methodName, method in pairs (self.BaseClasses [i]:GetFlattenedMethodTable ()) do
+			if not finalizedMethodTable [methodName] then
+				finalizedMethodTable [methodName] = method
+			end
+		end
+	end
+	
+	return finalizedMethodTable
 end
 
 function self:CreateFlattenedConstructor ()
@@ -171,6 +236,52 @@ function self:CreateFlattenedDestructor ()
 	end
 end
 
+function self:CreateFlattenedMethodTable ()
+	local flattenedMethodTable = {}
+	
+	if self.BaseClasses [1] then
+		for methodName, method in pairs (self.BaseClasses [1]) do
+			flattenedMethodTable [methodName] = method
+		end
+	end
+	
+	for methodName, method in pairs (self:GetFinalizedMethodTable ()) do
+		flattenedMethodTable [methodName] = method
+	end
+	
+	return flattenedMethodTable
+end
+
+function self:CreateMetatable ()
+	local metatable = {}
+	metatable.__index = self:GetFinalizedMethodTable ()
+	
+	self:ResolveMetamethods (metatable)
+	
+	return metatable
+end
+
+function self:GetEvents ()
+	if not self.Events then
+		self.Events = {}
+		
+		for k, v in pairs (self:GetMethodTable ()) do
+			if OOP.Event and OOP.Event:IsInstance (v) then
+				v:SetName (k)
+				self.Events [#self.Events + 1] = v
+			end
+		end
+		
+		table.sort (self.Events,
+			function (a, b)
+				return a:GetInstanceId () < b:GetInstanceId ()
+			end
+		)
+	end
+	
+	return self.Events
+end
+
 function self:GetFlattenedBaseClasses ()
 	if not self.FlattenedBaseClasses then
 		self.FlattenedBaseClasses = {}
@@ -193,22 +304,50 @@ function self:GetFlattenedBaseClasses ()
 	return self.FlattenedBaseClasses
 end
 
+function self:GetProperties ()
+	if not self.Properties then
+		self.Properties = {}
+		
+		for k, v in pairs (self:GetMethodTable ()) do
+			if OOP.Property and OOP.Property:IsInstance (v) then
+				v:SetName (k)
+				self.Properties [#self.Properties + 1] = v
+			end
+		end
+		
+		table.sort (self.Properties,
+			function (a, b)
+				return a:GetInstanceId () < b:GetInstanceId ()
+			end
+		)
+	end
+	
+	return self.Properties
+end
+
 local metamethods =
 {
 	"__call"
 }
-function self:ResolveMetamethods ()
-	local metatable = self.Metatable
+function self:ResolveMetamethods (metatable)
 	local baseClass = self:GetBaseClass ()
 	local baseClassMetatable = baseClass and baseClass:GetMetatable ()
 	
 	for i = 1, #metamethods do
-		if baseClassMetatable then
-			if self.MethodTable [metamethods [i]] then
-				metatable [metamethods [i]] = self.MethodTable [metamethods [i]]
-			elseif baseClassMetatable then
-				metatable [metamethods [i]] = baseClassMetatable [metamethods [i]]
+		local metamethodName = metamethods [i]
+		
+		if self.MethodTable [metamethodName] then
+			metatable [metamethodName] = self.MethodTable [metamethodName]
+		else
+			for _, baseClass in ipairs (self.BaseClasses) do
+				local baseClassMetatable = baseClass:GetMetatable ()
+				if baseClassMetatable [metamethodName] then
+					metatable [metamethodName] = baseClassMetatable [metamethodName]
+					break
+				end
 			end
 		end
 	end
+	
+	return metatable
 end

@@ -38,12 +38,19 @@ include ("knotcake.oop/enum.lua")
 
 include ("knotcake.oop/icloneable.lua")
 include ("knotcake.oop/event.lua")
+include ("knotcake.oop/property.lua")
 include ("knotcake.oop/idisposable.lua")
 
 function OOP.Initialize (destinationTable)
-	destinationTable.Object = OOP.Object
-	destinationTable.Class  = OOP.Class
-	destinationTable.Enum   = OOP.Enum
+	destinationTable.Object        = OOP.Object
+	destinationTable.Class         = OOP.Class
+	destinationTable.Enum          = OOP.Enum
+	destinationTable.Event         = OOP.Event
+	destinationTable.Property      = OOP.Property
+	
+	destinationTable.IDisposable   = OOP.IDisposable
+	destinationTable.ICloneable    = OOP.ICloneable
+	destinationTable.ISerializable = OOP.ISerializable
 end
 
 return OOP
