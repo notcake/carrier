@@ -3,6 +3,8 @@ IO.StringInStream = IO.Class (self, IO.StreamReader)
 
 function self:ctor (data)
 	self.Data     = data
+	self.Size     = #data
+	
 	self.Position = 0
 end
 
@@ -16,7 +18,7 @@ function self:GetPosition ()
 end
 
 function self:GetSize ()
-	return #self.Data
+	return self.Size
 end
 
 function self:SeekAbsolute (seekPos)
