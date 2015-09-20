@@ -14,6 +14,8 @@ include ("knotcake.io/istreamreader.lua")
 include ("knotcake.io/istreamwriter.lua")
 
 include ("knotcake.io/streamreader.lua")
+include ("knotcake.io/streamwriter.lua")
+
 include ("knotcake.io/bufferedstreamreader.lua")
 
 include ("knotcake.io/stringinstream.lua")
