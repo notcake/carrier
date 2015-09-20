@@ -1,5 +1,5 @@
 local self = {}
-IO.StreamReader = IO.Class (self, IO.StreamReader)
+IO.StreamReader = IO.Class (self, IO.IStreamReader)
 
 local string_char = string.char
 
@@ -86,7 +86,7 @@ function self:DoubleBE ()
 end
 
 function self:Char ()
-	return string.char (self:UInt8 ())
+	return string_char (self:UInt8 ())
 end
 
 function self:Boolean ()
@@ -122,6 +122,6 @@ end
 
 -- Internal, do not call
 function self:UInt81 () IO.Error ("StreamReader:UInt81 : Not implemented.") end
-function self:UInt82 () IO.Error ("StreamReader:UInt81 : Not implemented.") end
-function self:UInt84 () IO.Error ("StreamReader:UInt81 : Not implemented.") end
-function self:UInt88 () IO.Error ("StreamReader:UInt81 : Not implemented.") end
+function self:UInt82 () IO.Error ("StreamReader:UInt82 : Not implemented.") end
+function self:UInt84 () IO.Error ("StreamReader:UInt84 : Not implemented.") end
+function self:UInt88 () IO.Error ("StreamReader:UInt88 : Not implemented.") end
