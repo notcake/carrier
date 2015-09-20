@@ -76,6 +76,12 @@ function self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, ui
 end
 
 -- StringOutStream
+function self:Clear ()
+	self.Data     = {}
+	self.Position = 0
+	self.Size     = 0
+end
+
 function self:ToString ()
 	if #self.Data > 1 then
 		self.Data = { table.concat (self.Data) }
