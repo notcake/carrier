@@ -40,6 +40,7 @@ include ("knotcake.oop/icloneable.lua")
 include ("knotcake.oop/event.lua")
 include ("knotcake.oop/property.lua")
 include ("knotcake.oop/idisposable.lua")
+include ("knotcake.oop/iserializable.lua")
 
 function OOP.Initialize (destinationTable)
 	destinationTable.Object        = OOP.Object

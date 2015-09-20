@@ -182,9 +182,53 @@ function self:CreateFinalizedMethodTable ()
 	finalizedMethodTable._Class = self
 	
 	-- Properties
-	for _, property in pairs (self:GetProperties ()) do
-		finalizedMethodTable [property:GetGetterName ()] = property:GetGetter ()
-		finalizedMethodTable [property:GetSetterName ()] = property:GetSetter ()
+	local properties = self:GetProperties ()
+	if #properties > 0 then
+		for i = 1, #properties do
+			local property = properties [i]
+			finalizedMethodTable [property:GetGetterName ()] = property:GetGetter ()
+			finalizedMethodTable [property:GetSetterName ()] = property:GetSetter ()
+		end
+		
+		finalizedMethodTable.SerializeProperties = function (self, streamWriter)
+			for i = 1, #properties do
+				local property = properties [i]
+				local value = self [property:GetName ()]
+				if property:IsNullable () then
+					streamWriter:Boolean (value ~= nil)
+					if value ~= nil then
+						streamWriter [property:GetType ()] (streamWriter, value)
+					end
+				else
+					streamWriter [property:GetType ()] (streamWriter, value)
+				end
+			end
+			
+			return streamWriter
+		end
+		
+		finalizedMethodTable.DeserializeProperties = function (self, streamReader)
+			for i = 1, #properties do
+				local property = properties [i]
+				if property:IsNullable () then
+					if streamReader:Boolean () then
+						self [property:GetName ()] = streamReader [property:GetType ()] (streamReader)
+					end
+				else
+					self [property:GetName ()] = streamReader [property:GetType ()] (streamReader)
+				end
+			end
+			
+			return self
+		end
+		
+		finalizedMethodTable.Serialize = function (self, streamWriter)
+			return self:SerializeProperties (streamWriter)
+		end
+		
+		finalizedMethodTable.Deserialize = function (self, streamReader)
+			return self:DeserializeProperties (streamReader)
+		end
 	end
 	
 	for methodName, method in pairs (self:GetMethodTable ()) do

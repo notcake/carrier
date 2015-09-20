@@ -3,14 +3,14 @@ OOP.Property = OOP.Class (self)
 
 OOP.Property.NextInstanceId = 0
 
-function self:ctor (initialValue, tpye, evented)
+function self:ctor (initialValue, type, evented)
 	self.InstanceId = OOP.Property.NextInstanceId
 	OOP.Property.NextInstanceId = OOP.Property.NextInstanceId + 1
 	
 	self.Name         = name
 	self.Description  = nil
 	self.InitialValue = initialValue
-	self.Nullable     = initialValue == nil
+	self.Nullable     = false
 	self.Type         = type
 	self.Evented      = evented
 end
