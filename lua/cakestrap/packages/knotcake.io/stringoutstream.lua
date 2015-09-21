@@ -29,16 +29,16 @@ function self:SeekRelative (relativeSeekPos)
 end
 
 -- IOutStream
-function self:Write (data, length)
-	length = length or #data
+function self:Write (data, size)
+	size = size or #data
 	
-	if length < #data then
-		data = string.sub (data, 1, length)
+	if size < #data then
+		data = string.sub (data, 1, size)
 	end
 	
 	self.Data [#self.Data + 1] = data
-	self.Size     = self.Size     + length
-	self.Position = self.Position + length
+	self.Size     = self.Size     + size
+	self.Position = self.Position + size
 end
 
 -- IStreamWriter

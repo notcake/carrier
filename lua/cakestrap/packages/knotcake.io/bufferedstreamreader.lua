@@ -4,7 +4,7 @@ IO.BufferedStreamReader = IO.Class (self, IO.StreamReader)
 function self:ctor (inStream)
 	self.InStream       = inStream
 	
-	self.Position       = 0
+	self.Position       = self.InStream:GetPosition ()
 	
 	self.BufferSize     = 32768
 	self.BufferPosition = 0
