@@ -193,7 +193,7 @@ function self:CreateFinalizedMethodTable ()
 		finalizedMethodTable.SerializeProperties = function (self, streamWriter)
 			for i = 1, #properties do
 				local property = properties [i]
-				local value = self [property:GetName ()]
+				local value = self [property:GetGetterName ()] (self)
 				if property:IsNullable () then
 					streamWriter:Boolean (value ~= nil)
 					if value ~= nil then
@@ -212,22 +212,37 @@ function self:CreateFinalizedMethodTable ()
 				local property = properties [i]
 				if property:IsNullable () then
 					if streamReader:Boolean () then
-						self [property:GetName ()] = streamReader [property:GetType ()] (streamReader)
+						self [property:GetSetterName ()] (self, streamReader [property:GetType ()] (streamReader))
 					end
 				else
-					self [property:GetName ()] = streamReader [property:GetType ()] (streamReader)
+					self [property:GetSetterName ()] (self, streamReader [property:GetType ()] (streamReader))
 				end
 			end
 			
 			return self
 		end
 		
-		finalizedMethodTable.Serialize = function (self, streamWriter)
-			return self:SerializeProperties (streamWriter)
+		finalizedMethodTable.CopyProperties = function (self, source)
+			for i = 1, #properties do
+				local property = properties [i]
+				self [property:GetSetterName ()] (self, source [property:GetGetterName ()] (source))
+			end
 		end
 		
-		finalizedMethodTable.Deserialize = function (self, streamReader)
-			return self:DeserializeProperties (streamReader)
+		if OOP.ISerializable and self:IsDerivedFrom (OOP.ISerializable) then
+			finalizedMethodTable.Serialize = function (self, streamWriter)
+				return self:SerializeProperties (streamWriter)
+			end
+			
+			finalizedMethodTable.Deserialize = function (self, streamReader)
+				return self:DeserializeProperties (streamReader)
+			end
+		end
+		
+		if OOP.ICloneable and self:IsDerivedFrom (OOP.ICloneable) then
+			finalizedMethodTable.Copy = function (self, source)
+				return self:CopyProperties (source)
+			end
 		end
 	end
 	
