@@ -24,10 +24,6 @@ function self:SeekAbsolute (seekPos)
 	IO.Error ("IO.StringOutStream:SeekAbsolute : Not implemented.")
 end
 
-function self:SeekRelative (relativeSeekPos)
-	self:SeekAbsolute (self:GetPosition () + relativeSeekPos)
-end
-
 -- IOutStream
 function self:Write (data, size)
 	size = size or #data

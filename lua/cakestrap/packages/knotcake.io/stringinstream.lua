@@ -26,10 +26,6 @@ function self:SeekAbsolute (seekPos)
 	self.Position = seekPos
 end
 
-function self:SeekRelative (relativeSeekPos)
-	self:SeekAbsolute (self:GetPosition () + relativeSeekPos)
-end
-
 -- IInStream
 function self:Read (size)
 	local data = string.sub (self.Data, self.Position + 1, self.Position + size)
