@@ -29,7 +29,7 @@ end
 -- IOutStream
 function self:Write (data, size)
 	size = size or #data
-	#
+	
 	if size < #data then
 		data = string.sub (data, 1, size)
 	end
