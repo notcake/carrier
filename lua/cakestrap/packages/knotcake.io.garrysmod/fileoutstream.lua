@@ -37,6 +37,26 @@ function self:Write (data, size)
 	self.File:Write (data)
 end	
 
+-- IStreamWriter
+function self:UInt8   (n) self.File:WriteByte (n) end
+function self:UInt8LE (n) self.File:WriteByte (n) end
+function self:UInt8BE (n) self.File:WriteByte (n) end
+
+function self:Int8   (n) if n < 0 then n = n + 256 end self.File:WriteByte (n) end
+function self:Int8LE (n) if n < 0 then n = n + 256 end self.File:WriteByte (n) end
+function self:Int8BE (n) if n < 0 then n = n + 256 end self.File:WriteByte (n) end
+
+function self:UInt16LE (n) if n >= 32768 then n = n - 65536 end self.File:WriteShort (n) end
+
+function self:Int16LE (n) self.File:WriteShort (n) end
+
+function self:UInt32LE (n) if n >= 2147483648 then n = n - 4294967296 end self.File:WriteLong (n) end
+
+function self:Int32LE (n) self.File:WriteLong (n) end
+
+function self:FloatLE  (f) self.File:WriteFloat  (f) end
+function self:DoubleLE (f) self.File:WriteDouble (f) end
+
 -- StreamWriter
 function self:UInt81 (uint80)
 	local uint8 = GarrysMod.BitConverter.UInt8sToUInt8 (uint80)
