@@ -75,8 +75,6 @@ function self:UInt84 ()
 end
 
 function self:UInt88 ()
-	self.Position = self.Position + 8
-	
 	local uint80, uint81, uint82, uint83 = self:UInt84 ()
 	local uint84, uint85, uint86, uint87 = self:UInt84 ()
 	return uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87
