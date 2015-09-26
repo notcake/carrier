@@ -10,5 +10,7 @@ include ("knotcake.io.garrysmod/fileinstream.lua")
 include ("knotcake.io.garrysmod/fileoutstream.lua")
 include ("knotcake.io.garrysmod/netinstream.lua")
 include ("knotcake.io.garrysmod/netoutstream.lua")
+include ("knotcake.io.garrysmod/usermessageinstream.lua")
+include ("knotcake.io.garrysmod/usermessageoutstream.lua")
 
 return IO
