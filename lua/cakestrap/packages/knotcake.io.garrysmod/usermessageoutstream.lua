@@ -47,8 +47,6 @@ function self:Int32LE  (n) self.Position = self.Position + 4 umsg.Long (n) end
 
 function self:FloatLE  (f) self.Position = self.Position + 4 umsg.Float (f) end
 
-function self:Char     (c) self:UInt8 (string.char (c)) end
-
 -- StreamWriter
 function self:UInt81 (uint80)
 	self.Position = self.Position + 1
