@@ -1,8 +1,9 @@
 local self = {}
 GarrysMod.NetInStream = GarrysMod.Class (self, GarrysMod.IO.StreamReader)
 
-function self:ctor ()
+function self:ctor (bitCount)
 	self.Position = 0
+	self.Size     = bitCount * 0.125
 end
 
 -- IBaseStream
@@ -14,7 +15,7 @@ function self:GetPosition ()
 end
 
 function self:GetSize ()
-	return self.File:Size ()
+	return self.Size
 end
 
 function self:SeekAbsolute (seekPos)
