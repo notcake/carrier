@@ -2,6 +2,10 @@ Concurrency = {}
 
 Concurrency.Error = CakeStrap.LoadPackage ("Error")
 
+function Concurrency.CanYield ()
+	return coroutine.running () ~= nil
+end
+
 function Concurrency.RunTask (t, ...)
 	if type (t) == "function" then
 		local f = t
