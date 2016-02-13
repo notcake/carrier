@@ -109,7 +109,7 @@ function self:StringZ ()
 	local c = self:UInt8 ()
 	while c and c ~= 0 do
 		if #data > 65536 then
-			IO.Error ("IStreamReader:StringZ : String is too long, infinite loop?")
+			IO.Error ("StreamReader:StringZ : String is too long, infinite loop?")
 			break
 		end
 		

@@ -9,7 +9,7 @@ function self:ctor ()
 	self:SetEndianness (IO.Endianness.LittleEndian)
 end
 
--- IStreamReader
+-- IStreamWriter
 function self:GetEndianness ()
 	return self.Endianness
 end
@@ -48,12 +48,12 @@ function self:SetEndianness (endianness)
 	return self
 end
 
-function self:UInt8    (n) local uint80 = IO.BitConverter.UInt8UInt8s (n) self:UInt81 (uint80) end
-function self:UInt8LE  (n) local uint80 = IO.BitConverter.UInt8UInt8s (n) self:UInt81 (uint80) end
-function self:UInt8BE  (n) local uint80 = IO.BitConverter.UInt8UInt8s (n) self:UInt81 (uint80) end
-function self:Int8     (n) local uint80 = IO.BitConverter.Int8UInt8s  (n) self:UInt81 (uint80) end
-function self:Int8LE   (n) local uint80 = IO.BitConverter.Int8UInt8s  (n) self:UInt81 (uint80) end
-function self:Int8BE   (n) local uint80 = IO.BitConverter.Int8UInt8s  (n) self:UInt81 (uint80) end
+function self:UInt8    (n) local uint80 = IO.BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
+function self:UInt8LE  (n) local uint80 = IO.BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
+function self:UInt8BE  (n) local uint80 = IO.BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
+function self:Int8     (n) local uint80 = IO.BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
+function self:Int8LE   (n) local uint80 = IO.BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
+function self:Int8BE   (n) local uint80 = IO.BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
 
 function self:UInt16LE (n) local uint80, uint81 = IO.BitConverter.UInt16ToUInt8s (n) self:UInt82 (uint80, uint81) end
 function self:UInt16BE (n) local uint80, uint81 = IO.BitConverter.UInt16ToUInt8s (n) self:UInt82 (uint81, uint80) end
