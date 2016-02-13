@@ -246,3 +246,4 @@ function self:NextBlock ()
 	local bytesAvailable = #self.Buffer - bufferOffset
 	return bufferOffset, bytesAvailable
 end
+
