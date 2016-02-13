@@ -39,7 +39,7 @@ function self:SetEndianness (endianness)
 		self.Int32     = self.Int32BE
 		self.Int64     = self.Int64BE
 		self.Float     = self.FloatBE
-		self.Double    = self.FloatBE
+		self.Double    = self.DoubleBE
 		self.StringN8  = self.StringN8BE
 		self.StringN16 = self.StringN16BE
 		self.StringN32 = self.StringN32BE
