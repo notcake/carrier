@@ -7,7 +7,7 @@ function self:ctor (initialValue, type, evented)
 	self.InstanceId = OOP.Property.NextInstanceId
 	OOP.Property.NextInstanceId = OOP.Property.NextInstanceId + 1
 	
-	self.Name         = name
+	self.Name         = nil
 	self.Description  = nil
 	self.InitialValue = initialValue
 	self.Nullable     = false
