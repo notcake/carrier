@@ -81,12 +81,12 @@ end
 
 function self:DoubleBE (f)
 	local low, high = IO.BitConverter.DoubleToUInt32s (f)
-	self:UInt32LE (high)
-	self:UInt32LE (low)
+	self:UInt32BE (high)
+	self:UInt32BE (low)
 end
 
 function self:Char (c)
-	return self:UInt81 (string_byte (c))
+	self:UInt81 (string_byte (c))
 end
 
 function self:Boolean (b)
