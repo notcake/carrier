@@ -109,6 +109,7 @@ function self:StringZ (s)
 	self:UInt8 (0x00)
 end
 
+-- StreamWriter
 -- Internal, do not call
 function self:UInt81 (uint80)                                                         IO.Error ("StreamWriter:UInt81 : Not implemented.") end
 function self:UInt82 (uint80, uint81)                                                 IO.Error ("StreamWriter:UInt82 : Not implemented.") end

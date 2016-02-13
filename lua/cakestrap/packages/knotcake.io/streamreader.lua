@@ -120,6 +120,7 @@ function self:StringZ ()
 	return data
 end
 
+-- StreamReader
 -- Internal, do not call
 function self:UInt81 () IO.Error ("StreamReader:UInt81 : Not implemented.") end
 function self:UInt82 () IO.Error ("StreamReader:UInt82 : Not implemented.") end
