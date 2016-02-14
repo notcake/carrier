@@ -85,10 +85,6 @@ function self:DoubleBE (f)
 	self:UInt32BE (low)
 end
 
-function self:Char (c)
-	self:UInt81 (string_byte (c))
-end
-
 function self:Boolean (b)
 	self:UInt8 (b and 1 or 0)
 end

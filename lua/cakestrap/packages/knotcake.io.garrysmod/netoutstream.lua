@@ -45,8 +45,6 @@ function self:Int32LE  (n) net.WriteInt  (n, 32) end
 function self:FloatLE  (f) net.WriteFloat  (f) end
 function self:DoubleLE (f) net.WriteDouble (f) end
 
-function self:Char     (c) net.WriteData (c,  1) end
-
 -- StreamWriter
 function self:UInt81 (uint80)
 	local uint8 = GarrysMod.BitConverter.UInt8sToUInt8 (uint80)

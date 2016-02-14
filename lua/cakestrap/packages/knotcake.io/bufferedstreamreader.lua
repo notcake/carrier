@@ -79,19 +79,6 @@ function self:Read (size)
 end
 
 -- IStreamReader
-function self:Char ()
-	local bufferOffset   = self.Position - self.BufferPosition
-	local bytesAvailable = #self.Buffer - bufferOffset
-	
-	if bytesAvailable == 0 then
-		bufferOffset, bytesAvailable = self:NextBlock ()
-	end
-	
-	local char = string.sub (self.Buffer, bufferOffset + 1, bufferOffset + 1)
-	self.Position = self.Position + 1
-	return char
-end
-
 function self:StringZ ()
 	local bufferOffset   = self.Position - self.BufferPosition
 	local bytesAvailable = #self.Buffer - bufferOffset

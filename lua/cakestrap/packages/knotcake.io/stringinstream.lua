@@ -34,12 +34,6 @@ function self:Read (size)
 end
 
 -- IStreamReader
-function self:Char ()
-	local char = string_sub (self.Data, self.Position + 1, self.Position + 1)
-	self.Position = self.Position + 1
-	return char
-end
-
 function self:StringZ ()
 	local terminatorPosition = string.find (self.Data, "\0", self.Position + 1, true)
 	if terminatorPosition then

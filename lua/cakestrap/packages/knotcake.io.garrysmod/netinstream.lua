@@ -48,8 +48,6 @@ function self:Int32LE  () self.Position = self.Position + 4 return net.ReadInt  
 function self:FloatLE  () self.Position = self.Position + 4 return net.ReadFloat  () end
 function self:DoubleLE () self.Position = self.Position + 8 return net.ReadDouble () end
 
-function self:Char     () self.Position = self.Position + 1 return net.ReadData ( 1) end
-
 -- StreamReader
 function self:UInt81 ()
 	self.Position = self.Position + 1

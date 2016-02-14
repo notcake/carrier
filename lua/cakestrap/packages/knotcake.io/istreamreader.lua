@@ -57,8 +57,6 @@ function self:DoubleLE () IO.Error ("IStreamReader:DoubleLE : Not implemented.")
 function self:FloatBE  () IO.Error ("IStreamReader:FloatBE : Not implemented.")  end
 function self:DoubleBE () IO.Error ("IStreamReader:DoubleBE : Not implemented.") end
 
-function self:Char     () IO.Error ("IStreamReader:Char : Not implemented.")     end
-
 function self:Boolean  () IO.Error ("IStreamReader:Boolean : Not implemented.")  end
 
 function self:Bytes (length)

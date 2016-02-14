@@ -85,10 +85,6 @@ function self:DoubleBE ()
 	return IO.BitConverter.UInt32sToDouble (low, high)
 end
 
-function self:Char ()
-	return string_char (self:UInt8 ())
-end
-
 function self:Boolean ()
 	return self:UInt8 () ~= 0
 end

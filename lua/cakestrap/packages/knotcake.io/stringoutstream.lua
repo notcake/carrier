@@ -37,15 +37,6 @@ function self:Write (data, size)
 	self.Position = self.Position + size
 end
 
--- IStreamWriter
-function self:Char (c)
-	c = c or "\x00"
-	
-	self.Data [#self.Data + 1] = c
-	self.Size     = self.Size     + 1
-	self.Position = self.Position + 1
-end
-
 -- StreamWriter
 function self:UInt81 (uint80)
 	self.Data [#self.Data + 1] = string.char (uint80)
