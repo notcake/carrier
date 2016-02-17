@@ -3,17 +3,50 @@ CakeStrap = {}
 local packageEnvironments = {}
 local packages = {}
 
+local sv_allowcslua = GetConVar ("sv_allowcslua")
+function CakeStrap.LuaFileExists (path)
+	if file.Exists (path, "LUA") then return true end
+	if not sv_allowcslua:GetBool () then return false end
+	return file.Exists (path, "LCL")
+end
+
+function CakeStrap.Warning (message)
+	print ("CakeStrap: Warning: " .. message)
+end
+
 function CakeStrap.LoadPackage (packageName)
 	if packageEnvironments [packageName] then
 		return packages [packageName]
 	end
 	
 	local fileName = string.lower (packageName)
-	local f = CompileFile ("cakestrap/packages/" .. fileName .. ".lua")
+	local ctorPath1 = "cakestrap/packages/" .. fileName .. ".lua"
+	local ctorPath2 = "cakestrap/packages/" .. fileName .. "/_ctor.lua"
+	local ctorPath1Exists = CakeStrap.LuaFileExists (ctorPath1)
+	local ctorPath2Exists = CakeStrap.LuaFileExists (ctorPath2)
+	
+	local includePath = nil
+	local ctorPath    = nil
+	if ctorPath1Exists and ctorPath2Exists then
+		CakeStrap.Warning ("Package " .. packageName .. " has both a loadable file and a directory.")
+	elseif not ctorPath1Exists and not ctorPath2Exists then
+		CakeStrap.Warning ("Package " .. packageName .. " has no loadable file or directory.")
+		return nil
+	end
+	
+	if ctorPath1Exists then
+		includePath = "cakestrap/packages/"
+		ctorPath    = ctorPath1
+	elseif ctorPath2Exists then
+		includePath = "cakestrap/packages/" .. fileName .. "/"
+		ctorPath    = ctorPath2
+	end
+	
+	local f = CompileFile (ctorPath)
 	
 	packageEnvironments [packageName] = {}
 	packageEnvironments [packageName].include = function (path)
-		path = "cakestrap/packages/" .. path
+		path = includePath .. path
 		local f = CompileFile (path)
 		setfenv (f, packageEnvironments [packageName])
 		local ret = { f () }

@@ -21,11 +21,11 @@ function OOP.Class (methodTable)
 end
 -- OOP.Class0  = function<method table -> function<... -> object>>
 
-include ("knotcake.oop/class.lua")
+include ("class.lua")
 -- OOP.Class1  = function<... -> OOP.Class2>
 
-include ("knotcake.oop/object.lua")
-include ("knotcake.oop/class.lua")
+include ("object.lua")
+include ("class.lua")
 -- OOP.Object0 = OOP.Class2<OOP.Object0>
 -- OOP.Class3  = OOP.Class2<OOP.Class3:OOP.Object0>
 
@@ -34,13 +34,13 @@ OOP.Class:Assimilate (OOP.Class )
 -- OOP.Object0 = OOP.Class3:OOP.Object0<OOP.Object0>
 -- OOP.Class3  = OOP.Class3:OOP.Object0<OOP.Class3:OOP.Object0>
 
-include ("knotcake.oop/enum.lua")
+include ("enum.lua")
 
-include ("knotcake.oop/icloneable.lua")
-include ("knotcake.oop/event.lua")
-include ("knotcake.oop/property.lua")
-include ("knotcake.oop/idisposable.lua")
-include ("knotcake.oop/iserializable.lua")
+include ("icloneable.lua")
+include ("event.lua")
+include ("property.lua")
+include ("idisposable.lua")
+include ("iserializable.lua")
 
 function OOP.Initialize (destinationTable)
 	destinationTable.Object        = OOP.Object
