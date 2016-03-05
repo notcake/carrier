@@ -1,5 +1,5 @@
 local self = {}
-IO.StreamWriter = IO.Class (self, IO.IStreamWriter)
+IO.StreamWriter = Class (self, IO.IStreamWriter)
 
 local string_byte = string.byte
 
@@ -48,39 +48,39 @@ function self:SetEndianness (endianness)
 	return self
 end
 
-function self:UInt8    (n) local uint80 = IO.BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
-function self:UInt8LE  (n) local uint80 = IO.BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
-function self:UInt8BE  (n) local uint80 = IO.BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
-function self:Int8     (n) local uint80 = IO.BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
-function self:Int8LE   (n) local uint80 = IO.BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
-function self:Int8BE   (n) local uint80 = IO.BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
+function self:UInt8    (n) local uint80 = BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
+function self:UInt8LE  (n) local uint80 = BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
+function self:UInt8BE  (n) local uint80 = BitConverter.UInt8ToUInt8s (n) self:UInt81 (uint80) end
+function self:Int8     (n) local uint80 = BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
+function self:Int8LE   (n) local uint80 = BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
+function self:Int8BE   (n) local uint80 = BitConverter.Int8ToUInt8s  (n) self:UInt81 (uint80) end
 
-function self:UInt16LE (n) local uint80, uint81 = IO.BitConverter.UInt16ToUInt8s (n) self:UInt82 (uint80, uint81) end
-function self:UInt16BE (n) local uint80, uint81 = IO.BitConverter.UInt16ToUInt8s (n) self:UInt82 (uint81, uint80) end
-function self:Int16LE  (n) local uint80, uint81 = IO.BitConverter.Int16ToUInt8s  (n) self:UInt82 (uint80, uint81) end
-function self:Int16BE  (n) local uint80, uint81 = IO.BitConverter.Int16ToUInt8s  (n) self:UInt82 (uint81, uint80) end
+function self:UInt16LE (n) local uint80, uint81 = BitConverter.UInt16ToUInt8s (n) self:UInt82 (uint80, uint81) end
+function self:UInt16BE (n) local uint80, uint81 = BitConverter.UInt16ToUInt8s (n) self:UInt82 (uint81, uint80) end
+function self:Int16LE  (n) local uint80, uint81 = BitConverter.Int16ToUInt8s  (n) self:UInt82 (uint80, uint81) end
+function self:Int16BE  (n) local uint80, uint81 = BitConverter.Int16ToUInt8s  (n) self:UInt82 (uint81, uint80) end
 
-function self:UInt32LE (n) local uint80, uint81, uint82, uint83 = IO.BitConverter.UInt32ToUInt8s (n) self:UInt84 (uint80, uint81, uint82, uint83) end
-function self:UInt32BE (n) local uint80, uint81, uint82, uint83 = IO.BitConverter.UInt32ToUInt8s (n) self:UInt84 (uint83, uint82, uint81, uint80) end
-function self:Int32LE  (n) local uint80, uint81, uint82, uint83 = IO.BitConverter.Int32ToUInt8s  (n) self:UInt84 (uint80, uint81, uint82, uint83) end
-function self:Int32BE  (n) local uint80, uint81, uint82, uint83 = IO.BitConverter.Int32ToUInt8s  (n) self:UInt84 (uint83, uint82, uint81, uint80) end
+function self:UInt32LE (n) local uint80, uint81, uint82, uint83 = BitConverter.UInt32ToUInt8s (n) self:UInt84 (uint80, uint81, uint82, uint83) end
+function self:UInt32BE (n) local uint80, uint81, uint82, uint83 = BitConverter.UInt32ToUInt8s (n) self:UInt84 (uint83, uint82, uint81, uint80) end
+function self:Int32LE  (n) local uint80, uint81, uint82, uint83 = BitConverter.Int32ToUInt8s  (n) self:UInt84 (uint80, uint81, uint82, uint83) end
+function self:Int32BE  (n) local uint80, uint81, uint82, uint83 = BitConverter.Int32ToUInt8s  (n) self:UInt84 (uint83, uint82, uint81, uint80) end
 
-function self:UInt64LE (n) local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = IO.BitConverter.UInt64ToUInt8s (n) self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87) end
-function self:UInt64BE (n) local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = IO.BitConverter.UInt64ToUInt8s (n) self:UInt88 (uint87, uint86, uint85, uint84, uint83, uint82, uint81, uint80) end
-function self:Int64LE  (n) local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = IO.BitConverter.Int64ToUInt8s  (n) self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87) end
-function self:Int64BE  (n) local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = IO.BitConverter.Int64ToUInt8s  (n) self:UInt88 (uint87, uint86, uint85, uint84, uint83, uint82, uint81, uint80) end
+function self:UInt64LE (n) local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = BitConverter.UInt64ToUInt8s (n) self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87) end
+function self:UInt64BE (n) local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = BitConverter.UInt64ToUInt8s (n) self:UInt88 (uint87, uint86, uint85, uint84, uint83, uint82, uint81, uint80) end
+function self:Int64LE  (n) local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = BitConverter.Int64ToUInt8s  (n) self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87) end
+function self:Int64BE  (n) local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = BitConverter.Int64ToUInt8s  (n) self:UInt88 (uint87, uint86, uint85, uint84, uint83, uint82, uint81, uint80) end
 
-function self:FloatLE (f) self:UInt32LE (IO.BitConverter.FloatToUInt32 (f)) end
-function self:FloatBE (f) self:UInt32BE (IO.BitConverter.FloatToUInt32 (f)) end
+function self:FloatLE (f) self:UInt32LE (BitConverter.FloatToUInt32 (f)) end
+function self:FloatBE (f) self:UInt32BE (BitConverter.FloatToUInt32 (f)) end
 
 function self:DoubleLE (f)
-	local low, high = IO.BitConverter.DoubleToUInt32s (f)
+	local low, high = BitConverter.DoubleToUInt32s (f)
 	self:UInt32LE (low)
 	self:UInt32LE (high)
 end
 
 function self:DoubleBE (f)
-	local low, high = IO.BitConverter.DoubleToUInt32s (f)
+	local low, high = BitConverter.DoubleToUInt32s (f)
 	self:UInt32BE (high)
 	self:UInt32BE (low)
 end
@@ -107,7 +107,7 @@ end
 
 -- StreamWriter
 -- Internal, do not call
-function self:UInt81 (uint80)                                                         IO.Error ("StreamWriter:UInt81 : Not implemented.") end
-function self:UInt82 (uint80, uint81)                                                 IO.Error ("StreamWriter:UInt82 : Not implemented.") end
-function self:UInt84 (uint80, uint81, uint82, uint83)                                 IO.Error ("StreamWriter:UInt84 : Not implemented.") end
-function self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87) IO.Error ("StreamWriter:UInt88 : Not implemented.") end
+function self:UInt81 (uint80)                                                         Error ("StreamWriter:UInt81 : Not implemented.") end
+function self:UInt82 (uint80, uint81)                                                 Error ("StreamWriter:UInt82 : Not implemented.") end
+function self:UInt84 (uint80, uint81, uint82, uint83)                                 Error ("StreamWriter:UInt84 : Not implemented.") end
+function self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87) Error ("StreamWriter:UInt88 : Not implemented.") end

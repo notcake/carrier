@@ -1,5 +1,5 @@
 local self = {}
-IO.StringInStream = IO.Class (self, IO.StreamReader)
+IO.StringInStream = Class (self, IO.StreamReader)
 
 function self:ctor (data)
 	self.Data     = data

@@ -1,5 +1,5 @@
 local self = {}
-IO.BufferedStreamWriter = IO.Class (self, IO.StreamWriter)
+IO.BufferedStreamWriter = Class (self, IO.StreamWriter)
 
 function self:ctor (outStream)
 	self.OutStream      = outStream

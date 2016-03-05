@@ -1,5 +1,5 @@
 local self = {}
-IO.BufferedStreamReader = IO.Class (self, IO.StreamReader)
+IO.BufferedStreamReader = Class (self, IO.StreamReader)
 
 function self:ctor (inStream)
 	self.InStream       = inStream

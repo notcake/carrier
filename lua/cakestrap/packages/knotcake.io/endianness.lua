@@ -1,4 +1,4 @@
-IO.Endianness = IO.Enum (
+IO.Endianness = Enum (
 	{
 		LittleEndian = 0,
 		BigEndian    = 1

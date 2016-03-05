@@ -1,5 +1,5 @@
 local self = {}
-IO.StringOutStream = IO.Class (self, IO.StreamWriter)
+IO.StringOutStream = Class (self, IO.StreamWriter)
 
 function self:ctor ()
 	self.Data     = {}
@@ -21,7 +21,7 @@ function self:GetSize ()
 end
 
 function self:SeekAbsolute (seekPos)
-	IO.Error ("IO.StringOutStream:SeekAbsolute : Not implemented.")
+	Error ("IO.StringOutStream:SeekAbsolute : Not implemented.")
 end
 
 -- IOutStream

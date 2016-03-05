@@ -1,5 +1,5 @@
 local self = {}
-IO.IBaseStream = IO.Class (self, IO.IDisposable)
+IO.IBaseStream = Class (self, IDisposable)
 
 function self:ctor ()
 end
@@ -9,19 +9,19 @@ function self:dtor ()
 end
 
 function self:Close ()
-	IO.Error ("IOutStream:Close : Not implemented.")
+	Error ("IOutStream:Close : Not implemented.")
 end
 
 function self:GetPosition ()
-	IO.Error ("IOutStream:GetPosition : Not implemented.")
+	Error ("IOutStream:GetPosition : Not implemented.")
 end
 
 function self:GetSize ()
-	IO.Error ("IOutStream:GetSize : Not implemented.")
+	Error ("IOutStream:GetSize : Not implemented.")
 end
 
 function self:SeekAbsolute (seekPos)
-	IO.Error ("IOutStream:SeekAbsolute : Not implemented.")
+	Error ("IOutStream:SeekAbsolute : Not implemented.")
 end
 
 function self:SeekRelative (relativeSeekPos)

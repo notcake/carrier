@@ -1,5 +1,5 @@
 local self = {}
-IO.StreamReader = IO.Class (self, IO.IStreamReader)
+IO.StreamReader = Class (self, IO.IStreamReader)
 
 local string_char = string.char
 
@@ -48,41 +48,41 @@ function self:SetEndianness (endianness)
 	return self
 end
 
-function self:UInt8    () local uint80 = self:UInt81 () return IO.BitConverter.UInt8sToUInt8 (uint80 or 0) end
-function self:UInt8LE  () local uint80 = self:UInt81 () return IO.BitConverter.UInt8sToUInt8 (uint80 or 0) end
-function self:UInt8BE  () local uint80 = self:UInt81 () return IO.BitConverter.UInt8sToUInt8 (uint80 or 0) end
-function self:Int8     () local uint80 = self:UInt81 () return IO.BitConverter.UInt8sToInt8  (uint80 or 0) end
-function self:Int8LE   () local uint80 = self:UInt81 () return IO.BitConverter.UInt8sToInt8  (uint80 or 0) end
-function self:Int8BE   () local uint80 = self:UInt81 () return IO.BitConverter.UInt8sToInt8  (uint80 or 0) end
+function self:UInt8    () local uint80 = self:UInt81 () return BitConverter.UInt8sToUInt8 (uint80 or 0) end
+function self:UInt8LE  () local uint80 = self:UInt81 () return BitConverter.UInt8sToUInt8 (uint80 or 0) end
+function self:UInt8BE  () local uint80 = self:UInt81 () return BitConverter.UInt8sToUInt8 (uint80 or 0) end
+function self:Int8     () local uint80 = self:UInt81 () return BitConverter.UInt8sToInt8  (uint80 or 0) end
+function self:Int8LE   () local uint80 = self:UInt81 () return BitConverter.UInt8sToInt8  (uint80 or 0) end
+function self:Int8BE   () local uint80 = self:UInt81 () return BitConverter.UInt8sToInt8  (uint80 or 0) end
 
-function self:UInt16LE () local uint80, uint81 = self:UInt82 () return IO.BitConverter.UInt8sToUInt16 (uint80 or 0, uint81 or 0) end
-function self:UInt16BE () local uint80, uint81 = self:UInt82 () return IO.BitConverter.UInt8sToUInt16 (uint81 or 0, uint80 or 0) end
-function self:Int16LE  () local uint80, uint81 = self:UInt82 () return IO.BitConverter.UInt8sToInt16  (uint80 or 0, uint81 or 0) end
-function self:Int16BE  () local uint80, uint81 = self:UInt82 () return IO.BitConverter.UInt8sToInt16  (uint81 or 0, uint80 or 0) end
+function self:UInt16LE () local uint80, uint81 = self:UInt82 () return BitConverter.UInt8sToUInt16 (uint80 or 0, uint81 or 0) end
+function self:UInt16BE () local uint80, uint81 = self:UInt82 () return BitConverter.UInt8sToUInt16 (uint81 or 0, uint80 or 0) end
+function self:Int16LE  () local uint80, uint81 = self:UInt82 () return BitConverter.UInt8sToInt16  (uint80 or 0, uint81 or 0) end
+function self:Int16BE  () local uint80, uint81 = self:UInt82 () return BitConverter.UInt8sToInt16  (uint81 or 0, uint80 or 0) end
 
-function self:UInt32LE () local uint80, uint81, uint82, uint83 = self:UInt84 () return IO.BitConverter.UInt8sToUInt32 (uint80 or 0, uint81 or 0, uint82 or 0, uint83 or 0) end
-function self:UInt32BE () local uint80, uint81, uint82, uint83 = self:UInt84 () return IO.BitConverter.UInt8sToUInt32 (uint83 or 0, uint82 or 0, uint81 or 0, uint80 or 0) end
-function self:Int32LE  () local uint80, uint81, uint82, uint83 = self:UInt84 () return IO.BitConverter.UInt8sToInt32  (uint80 or 0, uint81 or 0, uint82 or 0, uint83 or 0) end
-function self:Int32BE  () local uint80, uint81, uint82, uint83 = self:UInt84 () return IO.BitConverter.UInt8sToInt32  (uint83 or 0, uint82 or 0, uint81 or 0, uint80 or 0) end
+function self:UInt32LE () local uint80, uint81, uint82, uint83 = self:UInt84 () return BitConverter.UInt8sToUInt32 (uint80 or 0, uint81 or 0, uint82 or 0, uint83 or 0) end
+function self:UInt32BE () local uint80, uint81, uint82, uint83 = self:UInt84 () return BitConverter.UInt8sToUInt32 (uint83 or 0, uint82 or 0, uint81 or 0, uint80 or 0) end
+function self:Int32LE  () local uint80, uint81, uint82, uint83 = self:UInt84 () return BitConverter.UInt8sToInt32  (uint80 or 0, uint81 or 0, uint82 or 0, uint83 or 0) end
+function self:Int32BE  () local uint80, uint81, uint82, uint83 = self:UInt84 () return BitConverter.UInt8sToInt32  (uint83 or 0, uint82 or 0, uint81 or 0, uint80 or 0) end
 
-function self:UInt64LE () local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = self:UInt88 () return IO.BitConverter.UInt8sToUInt64 (uint80 or 0, uint81 or 0, uint82 or 0, uint83 or 0, uint84 or 0, uint85 or 0, uint86 or 0, uint87 or 0) end
-function self:UInt64BE () local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = self:UInt88 () return IO.BitConverter.UInt8sToUInt64 (uint87 or 0, uint86 or 0, uint85 or 0, uint84 or 0, uint83 or 0, uint82 or 0, uint81 or 0, uint80 or 0) end
-function self:Int64LE  () local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = self:UInt88 () return IO.BitConverter.UInt8sToInt64  (uint80 or 0, uint81 or 0, uint82 or 0, uint83 or 0, uint84 or 0, uint85 or 0, uint86 or 0, uint87 or 0) end
-function self:Int64BE  () local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = self:UInt88 () return IO.BitConverter.UInt8sToInt64  (uint87 or 0, uint86 or 0, uint85 or 0, uint84 or 0, uint83 or 0, uint82 or 0, uint81 or 0, uint80 or 0) end
+function self:UInt64LE () local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = self:UInt88 () return BitConverter.UInt8sToUInt64 (uint80 or 0, uint81 or 0, uint82 or 0, uint83 or 0, uint84 or 0, uint85 or 0, uint86 or 0, uint87 or 0) end
+function self:UInt64BE () local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = self:UInt88 () return BitConverter.UInt8sToUInt64 (uint87 or 0, uint86 or 0, uint85 or 0, uint84 or 0, uint83 or 0, uint82 or 0, uint81 or 0, uint80 or 0) end
+function self:Int64LE  () local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = self:UInt88 () return BitConverter.UInt8sToInt64  (uint80 or 0, uint81 or 0, uint82 or 0, uint83 or 0, uint84 or 0, uint85 or 0, uint86 or 0, uint87 or 0) end
+function self:Int64BE  () local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = self:UInt88 () return BitConverter.UInt8sToInt64  (uint87 or 0, uint86 or 0, uint85 or 0, uint84 or 0, uint83 or 0, uint82 or 0, uint81 or 0, uint80 or 0) end
 
-function self:FloatLE () return IO.BitConverter.UInt32ToFloat (self:UInt32LE ()) end
-function self:FloatBE () return IO.BitConverter.UInt32ToFloat (self:UInt32BE ()) end
+function self:FloatLE () return BitConverter.UInt32ToFloat (self:UInt32LE ()) end
+function self:FloatBE () return BitConverter.UInt32ToFloat (self:UInt32BE ()) end
 
 function self:DoubleLE ()
 	local low  = self:UInt32LE ()
 	local high = self:UInt32LE ()
-	return IO.BitConverter.UInt32sToDouble (low, high)
+	return BitConverter.UInt32sToDouble (low, high)
 end
 
 function self:DoubleBE ()
 	local high = self:UInt32BE ()
 	local low  = self:UInt32BE ()
-	return IO.BitConverter.UInt32sToDouble (low, high)
+	return BitConverter.UInt32sToDouble (low, high)
 end
 
 function self:Boolean ()
@@ -105,7 +105,7 @@ function self:StringZ ()
 	local c = self:UInt8 ()
 	while c and c ~= 0 do
 		if #data > 65536 then
-			IO.Error ("StreamReader:StringZ : String is too long, infinite loop?")
+			Error ("StreamReader:StringZ : String is too long, infinite loop?")
 			break
 		end
 		
@@ -118,7 +118,7 @@ end
 
 -- StreamReader
 -- Internal, do not call
-function self:UInt81 () IO.Error ("StreamReader:UInt81 : Not implemented.") end
-function self:UInt82 () IO.Error ("StreamReader:UInt82 : Not implemented.") end
-function self:UInt84 () IO.Error ("StreamReader:UInt84 : Not implemented.") end
-function self:UInt88 () IO.Error ("StreamReader:UInt88 : Not implemented.") end
+function self:UInt81 () Error ("StreamReader:UInt81 : Not implemented.") end
+function self:UInt82 () Error ("StreamReader:UInt82 : Not implemented.") end
+function self:UInt84 () Error ("StreamReader:UInt84 : Not implemented.") end
+function self:UInt88 () Error ("StreamReader:UInt88 : Not implemented.") end
