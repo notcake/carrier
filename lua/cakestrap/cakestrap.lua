@@ -1,7 +1,11 @@
+if CakeStrap then
+	CakeStrap.Unload ()
+end
+
 CakeStrap = {}
 
 local packageEnvironments = {}
-local packages = {}
+local packages            = {}
 
 local sv_allowcslua = GetConVar ("sv_allowcslua")
 function CakeStrap.LuaFileExists (path)
@@ -45,6 +49,7 @@ function CakeStrap.LoadPackage (packageName)
 	local f = CompileFile (ctorPath)
 	
 	packageEnvironments [packageName] = {}
+	packageEnvironments [packageName]._ENV = packageEnvironments [packageName]
 	packageEnvironments [packageName].include = function (path)
 		path = includePath .. path
 		local f = CompileFile (path)
@@ -68,22 +73,28 @@ function CakeStrap.LoadPackage (packageName)
 	return packages [packageName]
 end
 
-CakeStrap.OOP          = CakeStrap.LoadPackage ("Knotcake.OOP")
-CakeStrap.OOP.Initialize (CakeStrap)
-CakeStrap.Crypto       = CakeStrap.LoadPackage ("Knotcake.Crypto")
-CakeStrap.IO           = CakeStrap.LoadPackage ("Knotcake.IO")
-CakeStrap.IO.GarrysMod = CakeStrap.LoadPackage ("Knotcake.IO.GarrysMod")
+function CakeStrap.LoadProvider (serviceName)
+	return CakeStrap.LoadPackage (serviceName .. ".GarrysMod")
+end
 
-include ("packagerepositoryinformation.lua")
-include ("packageinformation.lua")
-include ("packagereference.lua")
+function CakeStrap.UnloadPackage (packageName)
+	if not packageEnvironments [packageName] then return end
+	
+	local fileName = string.lower (packageName)
+	local dtorPath = "cakestrap/packages/" .. fileName .. "/_dtor.lua"
+	if not CakeStrap.LuaFileExists (dtorPath) then return end
+	
+	local f = CompileFile (dtorPath)
+	
+	setfenv (f, packageEnvironments [packageName])
+	f ()
+end
 
-include ("packagerepository.lua")
-include ("package.lua")
-include ("packagemanager.lua")
-
-CakeStrap.PackageManager = CakeStrap.PackageManager ()
-CakeStrap.PackageManager:AddPackageRepositoryFromUrl ("https://packages.knotcake.net")
+function CakeStrap.Unload ()
+	for packageName, _ in pairs (packageEnvironments) do
+		CakeStrap.UnloadPackage (packageName)
+	end
+end
 
 function CakeStrap.Reload ()
 	include ("autorun/cakestrap.lua")
@@ -109,3 +120,10 @@ elseif CLIENT then
 	concommand.Add ("cakestrap_reload",    CakeStrap.Reload)
 	concommand.Add ("cakestrap_reload_cl", CakeStrap.Reload)
 end
+
+CakeStrap.Packages = CakeStrap.LoadPackage ("Knotcake.Packages")
+CakeStrap.Packages.UI = CakeStrap.LoadPackage ("Knotcake.Packages.UI")
+
+CakeStrap.PackageManager = CakeStrap.Packages.PackageManager ()
+CakeStrap.PackageManager:Load ()
+CakeStrap.Packages.UI.RegisterCommands (CakeStrap.PackageManager)

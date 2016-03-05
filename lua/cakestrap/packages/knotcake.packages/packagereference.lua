@@ -1,15 +1,15 @@
 local self = {}
-CakeStrap.PackageReference = CakeStrap.Class (self, CakeStrap.ICloneable, CakeStrap.ISerializable)
+Packages.PackageReference = Class (self, ICloneable, ISerializable)
 
-function CakeStrap.PackageReference.FromString (url, packageReference)
-	return CakeStrap.PackageReference.FromUrl (url, packageReference)
+function Packages.PackageReference.FromString (url, packageReference)
+	return Packages.PackageReference.FromUrl (url, packageReference)
 end
 
-function CakeStrap.PackageReference.FromUrl (url, packageReference)
+function Packages.PackageReference.FromUrl (url, packageReference)
 	local repositoryUrl, packageName, packageVersionTimestamp = string.match (url, "^(.*);(.*);(.*)$")
 	if not repositoryUrl then return nil end
 	
-	packageReference = packageReference or CakeStrap.PackageReference ()
+	packageReference = packageReference or Packages.PackageReference ()
 	
 	if repositoryUrl           == "" then repositoryUrl           = nil end
 	if packageVersionTimestamp == "" then packageVersionTimestamp = nil end
@@ -22,9 +22,9 @@ function CakeStrap.PackageReference.FromUrl (url, packageReference)
 	return packageReference
 end
 
-self.RepositoryUrl           = CakeStrap.Property (nil, "StringN16"):SetNullable (true)
-self.PackageName             = CakeStrap.Property (nil, "StringN16")
-self.PackageVersionTimestamp = CakeStrap.Property (nil, "UInt64"):SetNullable (true)
+self.RepositoryUrl           = Property (nil, "StringN16"):SetNullable (true)
+self.PackageName             = Property (nil, "StringN16")
+self.PackageVersionTimestamp = Property (nil, "UInt64"):SetNullable (true)
 
 function self:ctor (repositoryUrl, packageName, packageVersionTimestamp)
 	self.RepositoryUrl           = repositoryUrl
