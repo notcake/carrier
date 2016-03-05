@@ -13,5 +13,5 @@ function self:Clone (clone)
 end
 
 function self:Copy (source)
-	OOP.Error ("ICloneable:Copy : Not implemented.")
+	Error ("ICloneable:Copy : Not implemented.")
 end

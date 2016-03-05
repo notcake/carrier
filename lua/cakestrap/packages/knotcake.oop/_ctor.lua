@@ -1,8 +1,7 @@
 OOP = {}
 
-OOP.Error      = CakeStrap.LoadPackage ("Knotcake.Error")
-OOP.Algorithms = CakeStrap.LoadPackage ("Knotcake.Algorithms")
-OOP.Table      = CakeStrap.LoadPackage ("Knotcake.Table")
+Error      = CakeStrap.LoadPackage ("Knotcake.Error")
+Algorithms = CakeStrap.LoadPackage ("Knotcake.Algorithms")
 
 function OOP.Class (methodTable)
 	return function (...)
@@ -41,17 +40,34 @@ include ("event.lua")
 include ("property.lua")
 include ("idisposable.lua")
 include ("iserializable.lua")
+include ("iserializer.lua")
+
+include ("serializableserializer.lua")
+include ("serializerserializable.lua")
+
+function OOP.WeakTable      () return setmetatable ({}, { __mode = "kv" }) end
+function OOP.WeakKeyTable   () return setmetatable ({}, { __mode = "k"  }) end
+function OOP.WeakValueTable () return setmetatable ({}, { __mode = "v"  }) end
 
 function OOP.Initialize (destinationTable)
-	destinationTable.Object        = OOP.Object
-	destinationTable.Class         = OOP.Class
-	destinationTable.Enum          = OOP.Enum
-	destinationTable.Event         = OOP.Event
-	destinationTable.Property      = OOP.Property
+	destinationTable = destinationTable or {}
 	
-	destinationTable.IDisposable   = OOP.IDisposable
-	destinationTable.ICloneable    = OOP.ICloneable
-	destinationTable.ISerializable = OOP.ISerializable
+	destinationTable.Object         = OOP.Object
+	destinationTable.Class          = OOP.Class
+	destinationTable.Enum           = OOP.Enum
+	destinationTable.Event          = OOP.Event
+	destinationTable.Property       = OOP.Property
+	
+	destinationTable.IDisposable    = OOP.IDisposable
+	destinationTable.ICloneable     = OOP.ICloneable
+	destinationTable.ISerializable  = OOP.ISerializable
+	destinationTable.ISerializer    = OOP.ISerializer
+	
+	destinationTable.WeakTable      = OOP.WeakTable
+	destinationTable.WeakKeyTable   = OOP.WeakKeyTable
+	destinationTable.WeakValueTable = OOP.WeakValueTable
+	
+	return destinationTable
 end
 
 return OOP

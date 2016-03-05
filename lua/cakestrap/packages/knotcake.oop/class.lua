@@ -26,6 +26,19 @@ function self:ctor (methodTable, firstBaseClass, ...)
 	self.AuxiliaryConstructor           = nil
 end
 
+function self:__index (k)
+	if k == "Methods" then
+		return self:GetFinalizedMethodTable ()
+	elseif k == "Serializer" and
+	       self:IsDerivedFrom (OOP.ISerializable) then
+		local serializer = OOP.SerializableSerializer (self)
+		self.Serializer = serializer
+		return serializer
+	end
+	
+	return nil
+end
+
 function self:__call (...)
 	return self:CreateInstance (...)
 end
@@ -227,6 +240,8 @@ function self:CreateFinalizedMethodTable ()
 				local property = properties [i]
 				self [property:GetSetterName ()] (self, source [property:GetGetterName ()] (source))
 			end
+			
+			return self
 		end
 		
 		if OOP.ISerializable and self:IsDerivedFrom (OOP.ISerializable) then
@@ -298,8 +313,8 @@ end
 function self:CreateFlattenedMethodTable ()
 	local flattenedMethodTable = {}
 	
-	if self.BaseClasses [1] then
-		for methodName, method in pairs (self.BaseClasses [1]) do
+	for i = #self.BaseClasses, 1, -1 do
+		for methodName, method in pairs (self.BaseClasses [i]:GetFlattenedMethodTable ()) do
 			flattenedMethodTable [methodName] = method
 		end
 	end
@@ -312,8 +327,19 @@ function self:CreateFlattenedMethodTable ()
 end
 
 function self:CreateMetatable ()
+	local finalizedMethodTable = self:GetFinalizedMethodTable ()
+	
 	local metatable = {}
-	metatable.__index = self:GetFinalizedMethodTable ()
+	metatable.__index = finalizedMethodTable
+	
+	if finalizedMethodTable.__index then
+		metatable.__index = function (self, k)
+			local v = finalizedMethodTable [k]
+			if v ~= nil then return v end
+			
+			return finalizedMethodTable.__index (self, k)
+		end
+	end
 	
 	self:ResolveMetamethods (metatable)
 	
@@ -345,7 +371,7 @@ function self:GetFlattenedBaseClasses ()
 	if not self.FlattenedBaseClasses then
 		self.FlattenedBaseClasses = {}
 		
-		OOP.Algorithms.DepthFirstSearch (
+		Algorithms.DepthFirstSearch (
 			self,
 			function (class)
 				local i = 0

@@ -3,13 +3,13 @@ OOP.Enum = OOP.Class (self)
 
 function self:ctor (enum)
 	if not next (enum) then
-		OOP.Error ("Knotcake.OOP.Enum : This enum appears to be empty!")
+		Error ("Knotcake.OOP.Enum : This enum appears to be empty!")
 	end
 	
 	self.Names = {}
 	
 	for key, value in pairs (enum) do
-		self [key]   = value
+		self [key] = value
 		self.Names [value] = key
 	end
 end
