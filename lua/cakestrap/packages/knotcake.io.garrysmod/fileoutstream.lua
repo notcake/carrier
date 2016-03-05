@@ -1,5 +1,12 @@
 local self = {}
-GarrysMod.FileOutStream = GarrysMod.Class (self, GarrysMod.IO.StreamWriter)
+GarrysMod.FileOutStream = Class (self, IO.StreamWriter)
+
+function GarrysMod.FileOutStream.FromPath (path, pathId)
+	local f = file.Open (path, pathId, "wb")
+	if not f then return nil end
+	
+	return GarrysMod.FileOutStream:CreateInstance (f)
+end
 
 function self:ctor (file)
 	self.File = file
@@ -59,17 +66,17 @@ function self:DoubleLE (f) self.File:WriteDouble (f) end
 
 -- StreamWriter
 function self:UInt81 (uint80)
-	local uint8 = GarrysMod.BitConverter.UInt8sToUInt8 (uint80)
+	local uint8 = BitConverter.UInt8sToUInt8 (uint80)
 	self.File:WriteByte (uint8)
 end
 
 function self:UInt82 (uint80, uint81)
-	local int16 = GarrysMod.BitConverter.UInt8sToInt16 (uint80, uint81)
+	local int16 = BitConverter.UInt8sToInt16 (uint80, uint81)
 	self.File:WriteShort (int16)
 end
 
 function self:UInt84 (uint80, uint81, uint82, uint83)
-	local int32 = GarrysMod.BitConverter.UInt8sToInt32 (uint80, uint81, uint82, uint83)
+	local int32 = BitConverter.UInt8sToInt32 (uint80, uint81, uint82, uint83)
 	self.File:WriteLong (int32)
 end
 

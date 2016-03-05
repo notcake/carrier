@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.UsermessageOutStream = GarrysMod.Class (self, GarrysMod.IO.StreamWriter)
+GarrysMod.UsermessageOutStream = Class (self, IO.StreamWriter)
 
 function self:ctor ()
 	self.Position = 0
@@ -20,7 +20,7 @@ end
 function self:SeekAbsolute (seekPos)
 	seekPos = math.max (seekPos, self:GetSize ())
 	
-	GarrysMod.Error ("UsermessageOutStream:SeekAbsolute : Not supported.")
+	Error ("UsermessageOutStream:SeekAbsolute : Not supported.")
 end
 
 -- IOutStream
@@ -51,21 +51,21 @@ function self:FloatLE  (f) self.Position = self.Position + 4 umsg.Float (f) end
 function self:UInt81 (uint80)
 	self.Position = self.Position + 1
 	
-	local int8 = GarrysMod.BitConverter.UInt8sToInt8 (uint80)
+	local int8 = BitConverter.UInt8sToInt8 (uint80)
 	umsg.Char (int8)
 end
 
 function self:UInt82 (uint80, uint81)
 	self.Position = self.Position + 2
 	
-	local int16 = GarrysMod.BitConverter.UInt8sToInt16 (uint80, uint81)
+	local int16 = BitConverter.UInt8sToInt16 (uint80, uint81)
 	umsg.Short (int16)
 end
 
 function self:UInt84 (uint80, uint81, uint82, uint83)
 	self.Position = self.Position + 4
 	
-	local int32 = GarrysMod.BitConverter.UInt8sToInt32 (uint80, uint81, uint82, uint83)
+	local int32 = BitConverter.UInt8sToInt32 (uint80, uint81, uint82, uint83)
 	usmg.Long (int32)
 end
 

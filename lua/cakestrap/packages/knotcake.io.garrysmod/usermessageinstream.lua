@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.UsermessageInStream = GarrysMod.Class (self, GarrysMod.IO.StreamReader)
+GarrysMod.UsermessageInStream = Class (self, IO.StreamReader)
 
 function self:ctor (buffer)
 	self.Buffer   = buffer
@@ -21,7 +21,7 @@ end
 function self:SeekAbsolute (seekPos)
 	seekPos = math.max (seekPos, self:GetSize ())
 	
-	GarrysMod.Error ("UsermessageInStream:SeekAbsolute : Not supported.")
+	Error ("UsermessageInStream:SeekAbsolute : Not supported.")
 end
 
 -- IInStream
@@ -55,7 +55,7 @@ function self:UInt81 ()
 	self.Position = self.Position + 1
 	
 	local int8 = self.Buffer:ReadChar ()
-	local uint80 = GarrysMod.BitConverter.Int8ToUInt8s (int8)
+	local uint80 = BitConverter.Int8ToUInt8s (int8)
 	return uint80
 end
 
@@ -63,7 +63,7 @@ function self:UInt82 ()
 	self.Position = self.Position + 2
 	
 	local int16 = self.Buffer:ReadShort ()
-	local uint80, uint81 = GarrysMod.BitConverter.Int16ToUInt8s (int16)
+	local uint80, uint81 = BitConverter.Int16ToUInt8s (int16)
 	return uint80, uint81
 end
 
@@ -71,7 +71,7 @@ function self:UInt84 ()
 	self.Position = self.Position + 4
 	
 	local int32 = self.Buffer:ReadLong ()
-	local uint80, uint81, uint82, uint83 = GarrysMod.BitConverter.Int32ToUInt8s (int32)
+	local uint80, uint81, uint82, uint83 = BitConverter.Int32ToUInt8s (int32)
 	return uint80, uint81, uint82, uint83
 end
 

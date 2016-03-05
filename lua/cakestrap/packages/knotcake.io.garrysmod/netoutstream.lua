@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.NetOutStream = GarrysMod.Class (self, GarrysMod.IO.StreamWriter)
+GarrysMod.NetOutStream = Class (self, IO.StreamWriter)
 
 function self:ctor ()
 end
@@ -19,7 +19,7 @@ end
 function self:SeekAbsolute (seekPos)
 	seekPos = math.max (seekPos, self:GetSize ())
 	
-	GarrysMod.Error ("NetOutStream:SeekAbsolute : Not supported.")
+	Error ("NetOutStream:SeekAbsolute : Not supported.")
 end
 
 -- IOutStream
@@ -47,17 +47,17 @@ function self:DoubleLE (f) net.WriteDouble (f) end
 
 -- StreamWriter
 function self:UInt81 (uint80)
-	local uint8 = GarrysMod.BitConverter.UInt8sToUInt8 (uint80)
+	local uint8 = BitConverter.UInt8sToUInt8 (uint80)
 	net.WriteUInt (uint8, 8)
 end
 
 function self:UInt82 (uint80, uint81)
-	local uint16 = GarrysMod.BitConverter.UInt8sToUInt16 (uint80, uint81)
+	local uint16 = BitConverter.UInt8sToUInt16 (uint80, uint81)
 	net.WriteUInt (uint16, 16)
 end
 
 function self:UInt84 (uint80, uint81, uint82, uint83)
-	local uint32 = GarrysMod.BitConverter.UInt8sToUInt32 (uint80, uint81, uint82, uint83)
+	local uint32 = BitConverter.UInt8sToUInt32 (uint80, uint81, uint82, uint83)
 	net.WriteUInt (uint32, 32)
 end
 

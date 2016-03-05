@@ -1,5 +1,12 @@
 local self = {}
-GarrysMod.FileInStream = GarrysMod.Class (self, GarrysMod.IO.StreamReader)
+GarrysMod.FileInStream = Class (self, IO.StreamReader)
+
+function GarrysMod.FileInStream.FromPath (path, pathId)
+	local f = file.Open (path, pathId, "rb")
+	if not f then return nil end
+	
+	return GarrysMod.FileInStream:CreateInstance (f)
+end
 
 function self:ctor (file)
 	self.File = file
@@ -54,19 +61,19 @@ function self:DoubleLE () return self.File:ReadDouble () end
 -- StreamReader
 function self:UInt81 ()
 	local uint8 = self.File:ReadByte ()
-	local uint80 = GarrysMod.BitConverter.UInt8ToUInt8s (uint8)
+	local uint80 = BitConverter.UInt8ToUInt8s (uint8)
 	return uint80
 end
 
 function self:UInt82 ()
 	local int16 = self.File:ReadShort ()
-	local uint80, uint81 = GarrysMod.BitConverter.Int16ToUInt8s (int16)
+	local uint80, uint81 = BitConverter.Int16ToUInt8s (int16)
 	return uint80, uint81
 end
 
 function self:UInt84 ()
 	local int32 = self.File:ReadLong ()
-	local uint80, uint81, uint82, uint83 = GarrysMod.BitConverter.Int32ToUInt8s (int32)
+	local uint80, uint81, uint82, uint83 = BitConverter.Int32ToUInt8s (int32)
 	return uint80, uint81, uint82, uint83
 end
 

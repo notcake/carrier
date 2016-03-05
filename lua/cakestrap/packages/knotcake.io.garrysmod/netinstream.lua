@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.NetInStream = GarrysMod.Class (self, GarrysMod.IO.StreamReader)
+GarrysMod.NetInStream = Class (self, IO.StreamReader)
 
 function self:ctor (bitCount)
 	self.Position = 0
@@ -21,7 +21,7 @@ end
 function self:SeekAbsolute (seekPos)
 	seekPos = math.max (seekPos, self:GetSize ())
 	
-	GarrysMod.Error ("NetInStream:SeekAbsolute : Not supported.")
+	Error ("NetInStream:SeekAbsolute : Not supported.")
 end
 
 -- IInStream
@@ -53,7 +53,7 @@ function self:UInt81 ()
 	self.Position = self.Position + 1
 	
 	local uint8 = net.ReadUInt (8)
-	local uint80 = GarrysMod.BitConverter.UInt8ToUInt8s (uint8)
+	local uint80 = BitConverter.UInt8ToUInt8s (uint8)
 	return uint80
 end
 
@@ -61,7 +61,7 @@ function self:UInt82 ()
 	self.Position = self.Position + 2
 	
 	local uint16 = net.ReadUInt (16)
-	local uint80, uint81 = GarrysMod.BitConverter.UInt16ToUInt8s (uint16)
+	local uint80, uint81 = BitConverter.UInt16ToUInt8s (uint16)
 	return uint80, uint81
 end
 
@@ -69,7 +69,7 @@ function self:UInt84 ()
 	self.Position = self.Position + 4
 	
 	local uint32 = net.ReadUInt (32)
-	local uint80, uint81, uint82, uint83 = GarrysMod.BitConverter.UInt32ToUInt8s (uint32)
+	local uint80, uint81, uint82, uint83 = BitConverter.UInt32ToUInt8s (uint32)
 	return uint80, uint81, uint82, uint83
 end
 
