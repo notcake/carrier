@@ -152,8 +152,8 @@ end
 
 -- Internal, do not call
 function self:CreateAuxiliaryConstructor ()
-	local events     = {}
-	local properties = {}
+	local events                = {}
+	local initializedProperties = {}
 	
 	for _, event in ipairs (self:GetEvents ()) do
 		events [event:GetName ()] = event
@@ -163,22 +163,23 @@ function self:CreateAuxiliaryConstructor ()
 		if property:IsEvented () then
 			local eventName = property:GetName () .. "Changed"
 			events [eventName] = OOP.Event ():SetName (eventName)
+			events ["Changed"] = events ["Changed"] or OOP.Event ():SetName ("Changed")
 		end
 		if property:GetInitialValue () ~= nil then
-			properties [#properties + 1] = property
+			initializedProperties [#initializedProperties + 1] = property
 		end
 	end
 	
-	if not next (events) and #properties == 0 then return nil end
+	if not next (events) and #initializedProperties == 0 then return nil end
 	
 	return function (self, ...)
 		for eventName, event in pairs (events) do
 			self [eventName] = event:Clone ():SetInstance (self)
 		end
 		
-		for i = 1, #properties do
-			local propertyName = properties [i]:GetName ()
-			local initialValue = properties [i]:GetInitialValue ()
+		for i = 1, #initializedProperties do
+			local propertyName = initializedProperties [i]:GetName ()
+			local initialValue = initializedProperties [i]:GetInitialValue ()
 			self [propertyName] = initialValue
 		end
 	end

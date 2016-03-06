@@ -105,6 +105,7 @@ function self:GetSetter ()
 			self [name] = value
 			
 			self [eventName]:Dispatch (previousValue, value)
+			self.Changed:Dispatch ()
 			
 			return self
 		end
