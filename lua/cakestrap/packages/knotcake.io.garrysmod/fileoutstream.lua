@@ -2,7 +2,7 @@ local self = {}
 GarrysMod.FileOutStream = Class (self, IO.StreamWriter)
 
 function GarrysMod.FileOutStream.FromPath (path, pathId)
-	local f = file.Open (path, pathId, "wb")
+	local f = file.Open (path, "wb", pathId)
 	if not f then return nil end
 	
 	return GarrysMod.FileOutStream:CreateInstance (f)
