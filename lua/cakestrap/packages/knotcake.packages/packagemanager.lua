@@ -1,5 +1,5 @@
 local self = {}
-Packages.PackageManager = Class (self)
+Packages.PackageManager = Class (self, Util.ISavable)
 
 function self:ctor ()
 	self.RepositoryCount         = 0
@@ -7,18 +7,56 @@ function self:ctor ()
 	self.RepositoriesByDirectory = {} -- lowercase
 	
 	self.RepositoryListSerializer = Packages.PackageManager.RepositoryListSerializer ()
-	self.SaveNeeded = false
+	
+	self.Autosaver = Util.Autosaver (self)
+	self.Autosaver:Load ()
 end
 
+function self:dtor ()
+	self.Autosaver:dtor ()
+	
+	for repository in self:GetRepositoryEnumerator () do
+		repository:dtor ()
+	end
+end
+
+-- ISavable
+function self:Save ()
+	file.CreateDir (self:GetDirectory ())
+	
+	local streamWriter = IO.FileOutStream.FromPath (self:GetRepositoryListPath (), "DATA")
+	self.RepositoryListSerializer:Serialize (streamWriter, self)
+	streamWriter:Close ()
+end
+
+function self:Load ()
+	local streamReader = IO.FileInStream.FromPath (self:GetRepositoryListPath (), "DATA")
+	if not streamReader then return end
+	
+	self.RepositoryListSerializer:Deserialize (streamReader, self)
+	streamReader:Close ()
+end
+
+-- PackageManager
+-- Saving
+function self:GetDirectory ()
+	return "cakestrap"
+end
+
+function self:GetRepositoryListPath ()
+	return self:GetDirectory () .. "/repositories.dat"
+end
+
+-- Repositories
 function self:AddRepositoryFromUrl (url)
 	local repository = self:GetRepositoryByUrl (url)
 	if repository then return repository end
 	
-	repository = Packages.PackageRepository ()
-	repository:SetUrl (url)
-	repository:SetDirectory (self:GenerateDirectoryName (url))
+	local repositoryInformation = Packages.PackageRepositoryInformation ()
+	repositoryInformation:SetUrl (url)
+	repositoryInformation:SetDirectory (self:GenerateDirectoryName (url))
 	
-	return self:AddRepository (repository)
+	return self:AddRepositoryFromInformation (repositoryInformation)
 end
 
 function self:GetRepositoryByUrl (url)
@@ -39,6 +77,19 @@ function self:GetRepositoryEnumerator ()
 	return ValueEnumerator (self.RepositoriesByUrl)
 end
 
+function self:RemoveRepository (repository)
+	if self:GetRepositoryByUrl (repository:GetUrl ()) ~= repository then return end
+	
+	self.RepositoryCount = self.RepositoryCount - 1
+	self.RepositoriesByUrl [string.lower (repository:GetUrl ())] = nil
+	self.RepositoriesByDirectory [string.lower (repository:GetDirectory ())] = nil
+	
+	repository:Remove ()
+	self.Autosaver:UnregisterChild (repository)
+	
+	self.Autosaver:Invalidate ()
+end
+
 -- Internal
 function self:AddRepository (repository)
 	if self:GetRepositoryByUrl (repository:GetUrl ()) then
@@ -53,12 +104,15 @@ function self:AddRepository (repository)
 	self.RepositoryCount = self.RepositoryCount + 1
 	self.RepositoriesByUrl [string.lower (repository:GetUrl ())] = repository
 	self.RepositoriesByDirectory [string.lower (repository:GetDirectory ())] = repository
+	self.Autosaver:RegisterChild (repository)
+	
+	self.Autosaver:Invalidate ()
 	
 	return repository
 end
 
 function self:AddRepositoryFromInformation (repositoryInformation)
-	local repository = Packages.PackageRepository ()
+	local repository = Packages.PackageRepository (self)
 	repository:Copy (repositoryInformation)
 	
 	return self:AddRepository (repository)
@@ -80,22 +134,4 @@ function self:GenerateDirectoryName (url)
 	end
 	
 	return fileName .. i
-end
-
-function self:Save ()
-	file.CreateDir ("cakestrap")
-	
-	local streamWriter = IO.FileOutStream.FromPath ("cakestrap/repositories.bin", "DATA")
-	self.RepositoryListSerializer:Serialize (steamWriter, self)
-	streamWriter:Close ()
-end
-
-function self:Load ()
-	local streamReader = IO.FileInStream.FromPath ("cakestrap/repositories.bin", "DATA")
-	if not streamReader then return end
-	
-	self.RepositoryListSerializer:Deserialize (steamReader, self)
-	streamReader:Close ()
-	
-	self.SaveNeeded = false
 end

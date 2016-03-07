@@ -12,6 +12,8 @@ Enumeration.Initialize (_ENV)
 
 HTTP = CakeStrap.LoadProvider ("Knotcake.HTTP")
 
+Util = CakeStrap.LoadPackage ("Knotcake.Util")
+
 include ("packagerepositoryinformation.lua")
 include ("packageinformation.lua")
 include ("packagereference.lua")
@@ -20,7 +22,7 @@ include ("packagemanager.lua")
 include ("packagemanager.repositorylistserializer.lua")
 include ("packagerepository.lua")
 include ("packagerepository.metadataserializer.lua")
--- include ("packagerepository.manifestserializer.lua")
+include ("packagerepository.manifestserializer.lua")
 include ("package.lua")
 
 return Packages

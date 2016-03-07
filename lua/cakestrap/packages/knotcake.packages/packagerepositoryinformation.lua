@@ -6,8 +6,9 @@ self.Url         = Property (nil, "StringN16")
 self.Directory   = Property (nil, "StringN16")
 
 -- Metadata
-self.Name        = Property (nil, "StringN8")
-self.Description = Property (nil, "StringN32")
+self.Name        = Property ("",  "StringN8",  true)
+self.Description = Property ("",  "StringN32", true)
+self.ReleasesUrl = Property ("",  "StringN32", true)
 
 function self:ctor ()
 end

@@ -6,10 +6,10 @@ function self:ctor ()
 end
 
 -- ISerializer
-function self:Serialize (steamWriter, object)
-	streamWriter:UInt16 (obejct:GetRepositoryCount ())
+function self:Serialize (streamWriter, object)
+	streamWriter:UInt16 (object:GetRepositoryCount ())
 	for repository in object:GetRepositoryEnumerator () do
-		self.RepositoryMetadataSerializer:Serialize (streamWriter, repositorY)
+		self.RepositoryMetadataSerializer:Serialize (streamWriter, repository)
 	end
 end
 
@@ -18,7 +18,7 @@ function self:Deserialize (streamReader, object)
 	
 	local repositoryCount = streamReader:UInt16 ()
 	for i = 1, repositoryCount do
-		local repositoryInformatio = self.RepositoryMetadataSerializer:Deserialize (streamReader)
+		local repositoryInformation = self.RepositoryMetadataSerializer:Deserialize (streamReader)
 		object:AddRepositoryFromInformation (repositoryInformation)
 	end
 end
