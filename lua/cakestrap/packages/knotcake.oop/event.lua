@@ -53,6 +53,16 @@ function self:GetDescription ()
 	return self.Description
 end
 
+function self:SetInstance (instance)
+	self.Instance = instance
+	return self
+end
+
+function self:SetName (name)
+	self.Name = name
+	return self
+end
+
 function self:SetDescription (description)
 	self.Description = description
 	return self
