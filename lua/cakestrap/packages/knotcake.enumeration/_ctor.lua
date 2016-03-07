@@ -19,15 +19,15 @@ function Enumeration.Initialize (destinationTable)
 	
 	destinationTable.FunctionEnumerator     = Enumeration.FunctionEnumerator
 	
-	destinationTable.ArrayEnumerator        = Enumeration.ValueEnumerator
-	destinationTable.KeyEnumerator          = Enumeration.ValueEnumerator
+	destinationTable.ArrayEnumerator        = Enumeration.ArrayEnumerator
+	destinationTable.KeyEnumerator          = Enumeration.KeyEnumerator
 	destinationTable.ValueEnumerator        = Enumeration.ValueEnumerator
-	destinationTable.KeyValueEnumerator     = Enumeration.ValueEnumerator
-	destinationTable.ValueKeyEnumerator     = Enumeration.ValueEnumerator
-	destinationTable.NullEnumerator         = Enumeration.ValueEnumerator
-	destinationTable.SingleValueEnumerator  = Enumeration.ValueEnumerator
-	destinationTable.YieldEnumerator        = Enumeration.ValueEnumerator
-	destinationTable.YieldEnumeratorFactory = Enumeration.ValueEnumerator
+	destinationTable.KeyValueEnumerator     = Enumeration.KeyValueEnumerator
+	destinationTable.ValueKeyEnumerator     = Enumeration.ValueKeyEnumerator
+	destinationTable.NullEnumerator         = Enumeration.NullEnumerator
+	destinationTable.SingleValueEnumerator  = Enumeration.SingleValueEnumerator
+	destinationTable.YieldEnumerator        = Enumeration.YieldEnumerator
+	destinationTable.YieldEnumeratorFactory = Enumeration.YieldEnumeratorFactory
 	
 	return destinationTable
 end
