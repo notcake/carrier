@@ -1,11 +1,13 @@
-if CakeStrap then
-	CakeStrap.Unload ()
+if CakeStrap and
+   type (CakeStrap.Uninitialize) == "function" then
+	CakeStrap.Uninitialize ()
 end
 
 CakeStrap = {}
 
 local packageEnvironments = {}
 local packages            = {}
+local orderedPackages     = {} -- Package names ordered by load completion times
 
 local sv_allowcslua = GetConVar ("sv_allowcslua")
 function CakeStrap.LuaFileExists (path)
@@ -70,6 +72,8 @@ function CakeStrap.LoadPackage (packageName)
 	setfenv (f, packageEnvironments [packageName])
 	packages [packageName] = f ()
 	
+	orderedPackages [#orderedPackages + 1] = packageName
+	
 	return packages [packageName]
 end
 
@@ -79,6 +83,8 @@ end
 
 function CakeStrap.UnloadPackage (packageName)
 	if not packageEnvironments [packageName] then return end
+	
+	print ("CakeStrap.UnloadPackage : " .. packageName)
 	
 	local fileName = string.lower (packageName)
 	local dtorPath = "cakestrap/packages/" .. fileName .. "/_dtor.lua"
@@ -90,14 +96,35 @@ function CakeStrap.UnloadPackage (packageName)
 	f ()
 end
 
-function CakeStrap.Unload ()
-	for packageName, _ in pairs (packageEnvironments) do
-		CakeStrap.UnloadPackage (packageName)
-	end
-end
-
 function CakeStrap.Reload ()
 	include ("autorun/cakestrap.lua")
+end
+
+function CakeStrap.Initialize ()
+	hook.Add ("ShutDown", "CakeStrap",
+		function ()
+			CakeStrap.Uninitialize ()
+		end
+	)
+	
+	CakeStrap.Packages = CakeStrap.LoadPackage ("Knotcake.Packages")
+	CakeStrap.Packages.UI = CakeStrap.LoadPackage ("Knotcake.Packages.UI")
+
+	CakeStrap.PackageManager = CakeStrap.Packages.PackageManager ()
+	CakeStrap.Packages.UI.RegisterCommands (CakeStrap.PackageManager)
+end
+
+function CakeStrap.Uninitialize ()
+	if CakeStrap.PackageManager then
+		CakeStrap.PackageManager:dtor ()
+		CakeStrap.PackageManager = nil
+	end
+	
+	for i = #orderedPackages, 1, -1 do
+		CakeStrap.UnloadPackage (orderedPackages [i])
+	end
+	
+	hook.Remove ("ShutDown", "CakeStrap")
 end
 
 if SERVER then
@@ -121,9 +148,4 @@ elseif CLIENT then
 	concommand.Add ("cakestrap_reload_cl", CakeStrap.Reload)
 end
 
-CakeStrap.Packages = CakeStrap.LoadPackage ("Knotcake.Packages")
-CakeStrap.Packages.UI = CakeStrap.LoadPackage ("Knotcake.Packages.UI")
-
-CakeStrap.PackageManager = CakeStrap.Packages.PackageManager ()
-CakeStrap.PackageManager:Load ()
-CakeStrap.Packages.UI.RegisterCommands (CakeStrap.PackageManager)
+CakeStrap.Initialize ()
