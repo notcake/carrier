@@ -36,6 +36,12 @@ function self:ctor ()
 	self.Headers = {}
 end
 
+function self:GetContentLength ()
+	if self:GetContent () == nil then return 0 end
+	
+	return #self:GetContent ()
+end
+
 function self:SetHeaders (headers)
 	self.Headers = headers
 end
