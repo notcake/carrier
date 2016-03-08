@@ -12,6 +12,7 @@ Enumeration.Initialize (_ENV)
 
 HTTP = CakeStrap.LoadProvider ("Knotcake.HTTP")
 
+Text = CakeStrap.LoadPackage ("Knotcake.Text")
 Util = CakeStrap.LoadPackage ("Knotcake.Util")
 
 include ("packagerepositoryinformation.lua")

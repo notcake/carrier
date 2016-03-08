@@ -6,6 +6,7 @@ Concurrency.Initialize (_ENV)
 Enumeration = CakeStrap.LoadPackage ("Knotcake.Enumeration")
 Enumeration.Initialize (_ENV)
 
+Text = CakeStrap.LoadPackage ("Knotcake.Text.GarrysMod")
 Util = CakeStrap.LoadPackage ("Knotcake.Util")
 
 Packages = CakeStrap.LoadPackage ("Knotcake.Packages")

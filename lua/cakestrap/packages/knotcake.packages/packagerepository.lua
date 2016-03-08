@@ -51,21 +51,19 @@ function self:GetAbsoluteReleasesUrl ()
 	end
 end
 
-function self:Update (print)
-	print = print or function () end
+function self:Update (textSink)
+	textSink = textSink or Text.NullTextSink
 	
+	local totalDownloaded = 0
 	local httpResponse = HTTP.Get (self:GetUrl ())
-	if httpResponse:GetContent () then
-		print (self:GetDirectory () .. ": " .. httpResponse:GetUrl () .. " " .. httpResponse:GetCode () .. " " .. string.upper (httpResponse:GetMessage ()) .. " [" .. Util.FileSize.Format (#httpResponse:GetContent ()) .. "]")
-	else
-		print (self:GetDirectory () .. ": " .. httpResponse:GetUrl () .. " " .. httpResponse:GetCode () .. " " .. string.upper (httpResponse:GetMessage ()))
-	end
+	totalDownloaded = totalDownloaded + httpResponse:GetContentLength ()
+	textSink:WriteLine (self:GetDirectory () .. ": " .. self:FormatHttpResponse (httpResponse))
 	
 	if not httpResponse:IsSuccess () then return httpResponse end
 	
 	local repositoryInformation = util.JSONToTable (httpResponse:GetContent ())
 	if not repositoryInformation then
-		print (self:GetDirectory () .. ": Invalid JSON!")
+		textSink:WriteLine (self:GetDirectory () .. ": Invalid JSON!")
 		return httpResponse
 	end
 	
@@ -74,11 +72,17 @@ function self:Update (print)
 	self:SetReleasesUrl (tostring (repositoryInformation.releases    or ""))
 	
 	httpResponse = HTTP.Get (self:GetAbsoluteReleasesUrl ())
-	if httpResponse:GetContent () then
-		print (self:GetDirectory () .. ": " .. httpResponse:GetUrl () .. " " .. httpResponse:GetCode () .. " " .. string.upper (httpResponse:GetMessage ()) .. " [" .. Util.FileSize.Format (#httpResponse:GetContent ()) .. "]")
-	else
-		print (self:GetDirectory () .. ": " .. httpResponse:GetUrl () .. " " .. httpResponse:GetCode () .. " " .. string.upper (httpResponse:GetMessage ()))
-	end
+	totalDownloaded = totalDownloaded + httpResponse:GetContentLength ()
+	textSink:WriteLine (self:GetDirectory () .. ": " .. self:FormatHttpResponse (httpResponse))
 	
-	return httpResponse
+	return totalDownloaded
+end
+
+-- Internal
+function self:FormatHttpResponse (httpResponse)
+	if httpResponse:GetContent () then
+		return httpResponse:GetUrl () .. " " .. httpResponse:GetCode () .. " " .. string.upper (httpResponse:GetMessage ()) .. " [" .. Util.FileSize.Format (#httpResponse:GetContent ()) .. "]"
+	else
+		return httpResponse:GetUrl () .. " " .. httpResponse:GetCode () .. " " .. string.upper (httpResponse:GetMessage ())
+	end
 end
