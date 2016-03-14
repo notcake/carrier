@@ -25,16 +25,16 @@ function self:SeekAbsolute (seekPos)
 end
 
 -- IOutStream
-function self:Write (data, size)
-	size = size or #data
+function self:Write (data, length)
+	length = length or #data
 	
-	if size < #data then
-		data = string.sub (data, 1, size)
+	if length < #data then
+		data = string.sub (data, 1, length)
 	end
 	
 	self.Data [#self.Data + 1] = data
-	self.Size     = self.Size     + size
-	self.Position = self.Position + size
+	self.Size     = self.Size     + length
+	self.Position = self.Position + length
 end
 
 -- StreamWriter

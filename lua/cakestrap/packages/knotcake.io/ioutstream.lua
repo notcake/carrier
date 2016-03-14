@@ -4,7 +4,7 @@ IO.IOutStream = Class (self, IO.IBaseStream)
 function self:ctor ()
 end
 
-function self:Write (data, size)
+function self:Write (data, length)
 	Error ("IOutStream:Write : Not implemented.")
 end
 

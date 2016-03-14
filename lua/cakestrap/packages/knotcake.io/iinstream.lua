@@ -4,7 +4,7 @@ IO.IInStream = Class (self, IO.IBaseStream)
 function self:ctor ()
 end
 
-function self:Read (size)
+function self:Read (length)
 	Error ("IInStream:Read : Not implemented.")
 end
 

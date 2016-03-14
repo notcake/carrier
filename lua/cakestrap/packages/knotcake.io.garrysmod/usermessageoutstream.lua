@@ -24,8 +24,8 @@ function self:SeekAbsolute (seekPos)
 end
 
 -- IOutStream
-function self:Write (data, size)
-	for i = 1, size do
+function self:Write (data, length)
+	for i = 1, length do
 		self:UInt8 (string.char (data, i))
 	end
 end	

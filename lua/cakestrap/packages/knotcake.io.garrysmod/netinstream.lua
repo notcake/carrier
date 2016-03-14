@@ -25,9 +25,9 @@ function self:SeekAbsolute (seekPos)
 end
 
 -- IInStream
-function self:Read (size)
-	self.Position = self.Position + size
-	return net.ReadData (size)
+function self:Read (length)
+	self.Position = self.Position + length
+	return net.ReadData (length)
 end
 
 -- IStreamReader

@@ -23,8 +23,8 @@ function self:SeekAbsolute (seekPos)
 end
 
 -- IOutStream
-function self:Write (data, size)
-	net.WriteData (data, size)
+function self:Write (data, length)
+	net.WriteData (data, length)
 end	
 
 -- IStreamWriter

@@ -34,8 +34,8 @@ function self:SeekAbsolute (seekPos)
 end
 
 -- IInStream
-function self:Read (size)
-	return self.File:Read (size)
+function self:Read (length)
+	return self.File:Read (length)
 end
 
 -- IStreamReader

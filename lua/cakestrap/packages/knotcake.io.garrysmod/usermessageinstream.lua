@@ -25,9 +25,9 @@ function self:SeekAbsolute (seekPos)
 end
 
 -- IInStream
-function self:Read (size)
+function self:Read (length)
 	local t = {}
-	for i = 1, size do
+	for i = 1, length do
 		t [#t + 1] = string.char (self:UInt8 ())
 	end
 	return table.concat (t)

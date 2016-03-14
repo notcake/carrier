@@ -34,11 +34,11 @@ function self:SeekAbsolute (seekPos)
 end
 
 -- IOutStream
-function self:Write (data, size)
-	size = size or #data
+function self:Write (data, length)
+	length = length or #data
 	
-	if size < #data then
-		data = string.sub (data, 1, size)
+	if length < #data then
+		data = string.sub (data, 1, length)
 	end
 	
 	self.File:Write (data)
