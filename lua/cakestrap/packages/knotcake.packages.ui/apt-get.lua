@@ -64,3 +64,13 @@ end
 
 UI.AptGet.Commands ["remove"] = function (packageManager, ply, cmd, args, textSink)
 end
+
+UI.AptGet.Commands ["list"] = function (packageManager, ply, cmd, args, textSink)
+	textSink:WriteLine (packageManager:GetRepositoryCount () .. " package repositories.")
+	for repository in packageManager:GetRepositoryEnumerator () do
+		textSink:WriteLine ("[" .. repository:GetDirectory () .. "] " .. repository:GetUrl ())
+		for package in repository:GetPackageEnumerator () do
+			textSink:WriteLine ("    " .. package:GetName ())
+		end
+	end
+end

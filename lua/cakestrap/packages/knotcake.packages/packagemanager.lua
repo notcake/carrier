@@ -15,8 +15,8 @@ end
 function self:dtor ()
 	self.Autosaver:dtor ()
 	
-	for repository in self:GetRepositoryEnumerator () do
-		repository:dtor ()
+	for packageRepository in self:GetRepositoryEnumerator () do
+		packageRepository:dtor ()
 	end
 end
 
@@ -24,13 +24,13 @@ end
 function self:Save ()
 	file.CreateDir (self:GetDirectory ())
 	
-	local streamWriter = IO.FileOutStream.FromPath (self:GetRepositoryListPath (), "DATA")
+	local streamWriter = IO.FileOutputStream.FromPath (self:GetRepositoryListPath (), "DATA")
 	self.RepositoryListSerializer:Serialize (streamWriter, self)
 	streamWriter:Close ()
 end
 
 function self:Load ()
-	local streamReader = IO.FileInStream.FromPath (self:GetRepositoryListPath (), "DATA")
+	local streamReader = IO.FileInputStream.FromPath (self:GetRepositoryListPath (), "DATA")
 	if not streamReader then return end
 	
 	self.RepositoryListSerializer:Deserialize (streamReader, self)
@@ -49,8 +49,8 @@ end
 
 -- Repositories
 function self:AddRepositoryFromUrl (url)
-	local repository = self:GetRepositoryByUrl (url)
-	if repository then return repository end
+	local packageRepository = self:GetRepositoryByUrl (url)
+	if packageRepository then return packageRepository end
 	
 	local repositoryInformation = Packages.PackageRepositoryInformation ()
 	repositoryInformation:SetUrl (url)
@@ -77,45 +77,46 @@ function self:GetRepositoryEnumerator ()
 	return ValueEnumerator (self.RepositoriesByUrl)
 end
 
-function self:RemoveRepository (repository)
-	if self:GetRepositoryByUrl (repository:GetUrl ()) ~= repository then return end
+function self:RemoveRepository (packageRepository)
+	if self:GetRepositoryByUrl (packageRepository:GetUrl ()) ~= packageRepository then return end
 	
 	self.RepositoryCount = self.RepositoryCount - 1
-	self.RepositoriesByUrl [string.lower (repository:GetUrl ())] = nil
-	self.RepositoriesByDirectory [string.lower (repository:GetDirectory ())] = nil
+	self.RepositoriesByUrl [string.lower (packageRepository:GetUrl ())] = nil
+	self.RepositoriesByDirectory [string.lower (packageRepository:GetDirectory ())] = nil
 	
-	repository:Remove ()
-	self.Autosaver:UnregisterChild (repository)
-	
+	packageRepository:Remove ()
+	self.Autosaver:UnregisterChild (packageRepository)
 	self.Autosaver:Invalidate ()
 end
 
 -- Internal
-function self:AddRepository (repository)
-	if self:GetRepositoryByUrl (repository:GetUrl ()) then
-		Error ("PackageManager:AddRepository : Repository " .. repository:GetUrl () .. " already exists!")
+function self:AddRepository (packageRepository)
+	if self:GetRepositoryByUrl (packageRepository:GetUrl ()) then
+		Error ("PackageManager:AddRepository : Repository " .. packageRepository:GetUrl () .. " already exists!")
 		return
 	end
-	if self:GetRepositoryByDirectory (repository:GetDirectory ()) then
-		Error ("PackageManager:AddRepository : Repository directory " .. repository:GetDirectory () .. " already exists!")
+	if self:GetRepositoryByDirectory (packageRepository:GetDirectory ()) then
+		Error ("PackageManager:AddRepository : Repository directory " .. packageRepository:GetDirectory () .. " already exists!")
 		return
 	end
 	
 	self.RepositoryCount = self.RepositoryCount + 1
-	self.RepositoriesByUrl [string.lower (repository:GetUrl ())] = repository
-	self.RepositoriesByDirectory [string.lower (repository:GetDirectory ())] = repository
-	self.Autosaver:RegisterChild (repository)
+	self.RepositoriesByUrl [string.lower (packageRepository:GetUrl ())] = packageRepository
+	self.RepositoriesByDirectory [string.lower (packageRepository:GetDirectory ())] = packageRepository
 	
+	self.Autosaver:RegisterChild (packageRepository)
 	self.Autosaver:Invalidate ()
 	
-	return repository
+	packageRepository:Load ()
+	
+	return packageRepository
 end
 
 function self:AddRepositoryFromInformation (repositoryInformation)
-	local repository = Packages.PackageRepository (self)
-	repository:Copy (repositoryInformation)
+	local packageRepository = Packages.PackageRepository (self)
+	packageRepository:Copy (repositoryInformation)
 	
-	return self:AddRepository (repository)
+	return self:AddRepository (packageRepository)
 end
 
 function self:GenerateDirectoryName (url)

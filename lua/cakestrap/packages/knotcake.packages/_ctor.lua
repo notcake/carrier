@@ -17,6 +17,7 @@ Util = CakeStrap.LoadPackage ("Knotcake.Util")
 
 include ("packagerepositoryinformation.lua")
 include ("packageinformation.lua")
+include ("packagereleaseinformation.lua")
 include ("packagereference.lua")
 
 include ("packagemanager.lua")
@@ -25,5 +26,6 @@ include ("packagerepository.lua")
 include ("packagerepository.metadataserializer.lua")
 include ("packagerepository.manifestserializer.lua")
 include ("package.lua")
+include ("packagerelease.lua")
 
 return Packages
