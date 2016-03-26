@@ -6,8 +6,8 @@ OOP.Initialize (_ENV)
 BitConverter = CakeStrap.LoadPackage ("Knotcake.BitConverter")
 
 include ("ibasestream.lua")
-include ("iinstream.lua")
-include ("ioutstream.lua")
+include ("iinputstream.lua")
+include ("ioutputstream.lua")
 
 include ("endianness.lua")
 include ("istreamreader.lua")
@@ -19,15 +19,15 @@ include ("streamwriter.lua")
 include ("bufferedstreamreader.lua")
 include ("bufferedstreamwriter.lua")
 
-include ("stringinstream.lua")
-include ("stringoutstream.lua")
+include ("stringinputstream.lua")
+include ("stringoutputstream.lua")
 
 function IO.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
 	
 	destinationTable.IBaseStream          = IO.IBaseStream
-	destinationTable.IInStream            = IO.IInStream
-	destinationTable.IOutStream           = IO.IOutStream
+	destinationTable.IInputStream         = IO.IInputStream
+	destinationTable.IOutputStream        = IO.IOutputStream
 	
 	destinationTable.Endianness           = IO.Endianness
 	destinationTable.IStreamReader        = IO.IStreamReader
@@ -39,8 +39,8 @@ function IO.Initialize (destinationTable)
 	destinationTable.BufferedStreamReader = IO.BufferedStreamReader
 	destinationTable.BufferedStreamWriter = IO.BufferedStreamWriter
 	
-	destinationTable.StringInStream       = IO.StringInStream
-	destinationTable.StringOutStream      = IO.StringOutStream
+	destinationTable.StringInputStream    = IO.StringInputStream
+	destinationTable.StringOutputStream   = IO.StringOutputStream
 	
 	return destinationTable
 end

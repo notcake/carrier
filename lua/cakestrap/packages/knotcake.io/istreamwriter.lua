@@ -1,10 +1,10 @@
 local self = {}
-IO.IStreamWriter = Class (self, IO.IOutStream)
+IO.IStreamWriter = Class (self, IO.IOutputStream)
 
 function self:ctor ()
 end
 
--- IOutStream
+-- IOutputStream
 function self:ToStreamWriter ()
 	return self
 end

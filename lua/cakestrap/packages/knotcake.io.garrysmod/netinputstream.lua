@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.NetInStream = Class (self, IO.StreamReader)
+GarrysMod.NetInputStream = Class (self, IO.StreamReader)
 
 function self:ctor (bitCount)
 	self.Position = 0
@@ -21,10 +21,10 @@ end
 function self:SeekAbsolute (seekPos)
 	seekPos = math.max (seekPos, self:GetSize ())
 	
-	Error ("NetInStream:SeekAbsolute : Not supported.")
+	Error ("NetInputStream:SeekAbsolute : Not supported.")
 end
 
--- IInStream
+-- IInputStream
 function self:Read (length)
 	self.Position = self.Position + length
 	return net.ReadData (length)

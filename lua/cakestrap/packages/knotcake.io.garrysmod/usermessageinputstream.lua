@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.UsermessageInStream = Class (self, IO.StreamReader)
+GarrysMod.UsermessageInputStream = Class (self, IO.StreamReader)
 
 function self:ctor (buffer)
 	self.Buffer   = buffer
@@ -21,10 +21,10 @@ end
 function self:SeekAbsolute (seekPos)
 	seekPos = math.max (seekPos, self:GetSize ())
 	
-	Error ("UsermessageInStream:SeekAbsolute : Not supported.")
+	Error ("UsermessageInputStream:SeekAbsolute : Not supported.")
 end
 
--- IInStream
+-- IInputStream
 function self:Read (length)
 	local t = {}
 	for i = 1, length do

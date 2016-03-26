@@ -7,26 +7,26 @@ BitConverter = CakeStrap.LoadPackage ("Knotcake.BitConverter")
 IO = CakeStrap.LoadPackage ("Knotcake.IO")
 IO.Initialize (GarrysMod)
 
-include ("fileinstream.lua")
-include ("fileoutstream.lua")
-include ("netinstream.lua")
-include ("netoutstream.lua")
-include ("usermessageinstream.lua")
-include ("usermessageoutstream.lua")
+include ("fileinputstream.lua")
+include ("fileoutputstream.lua")
+include ("netinputstream.lua")
+include ("netoutputstream.lua")
+include ("usermessageinputstream.lua")
+include ("usermessageoutputstream.lua")
 
 function GarrysMod.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
 	
 	destinationTable = IO.Initialize (destinationTable)
 	
-	destinationTable.FileInStream         = GarrysMod.FileInStream
-	destinationTable.FileOutStream        = GarrysMod.FileOutStream
+	destinationTable.FileInputStream         = GarrysMod.FileInputStream
+	destinationTable.FileOutputStream        = GarrysMod.FileOutputStream
 	
-	destinationTable.NetInStream          = GarrysMod.NetInStream
-	destinationTable.NetOutStream         = GarrysMod.NetOutStream
+	destinationTable.NetInputStream          = GarrysMod.NetInputStream
+	destinationTable.NetOutputStream         = GarrysMod.NetOutputStream
 	
-	destinationTable.UsermessageInStream  = GarrysMod.UsermessageInStream
-	destinationTable.UsermessageOutStream = GarrysMod.UsermessageOutStream
+	destinationTable.UsermessageInputStream  = GarrysMod.UsermessageInputStream
+	destinationTable.UsermessageOutputStream = GarrysMod.UsermessageOutputStream
 	
 	return destinationTable
 end

@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.NetOutStream = Class (self, IO.StreamWriter)
+GarrysMod.NetOutputStream = Class (self, IO.StreamWriter)
 
 function self:ctor ()
 end
@@ -19,10 +19,10 @@ end
 function self:SeekAbsolute (seekPos)
 	seekPos = math.max (seekPos, self:GetSize ())
 	
-	Error ("NetOutStream:SeekAbsolute : Not supported.")
+	Error ("NetOutputStream:SeekAbsolute : Not supported.")
 end
 
--- IOutStream
+-- IOutputStream
 function self:Write (data, length)
 	net.WriteData (data, length)
 end	

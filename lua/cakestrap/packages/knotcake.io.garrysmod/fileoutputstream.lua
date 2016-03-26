@@ -1,11 +1,11 @@
 local self = {}
-GarrysMod.FileOutStream = Class (self, IO.StreamWriter)
+GarrysMod.FileOutputStream = Class (self, IO.StreamWriter)
 
-function GarrysMod.FileOutStream.FromPath (path, pathId)
+function GarrysMod.FileOutputStream.FromPath (path, pathId)
 	local f = file.Open (path, "wb", pathId)
 	if not f then return nil end
 	
-	return GarrysMod.FileOutStream:CreateInstance (f)
+	return GarrysMod.FileOutputStream:CreateInstance (f)
 end
 
 function self:ctor (file)
@@ -33,7 +33,7 @@ function self:SeekAbsolute (seekPos)
 	self.File:Seek (seekPos)
 end
 
--- IOutStream
+-- IOutputStream
 function self:Write (data, length)
 	length = length or #data
 	

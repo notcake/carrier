@@ -1,11 +1,11 @@
 local self = {}
-GarrysMod.FileInStream = Class (self, IO.StreamReader)
+GarrysMod.FileInputStream = Class (self, IO.StreamReader)
 
-function GarrysMod.FileInStream.FromPath (path, pathId)
+function GarrysMod.FileInputStream.FromPath (path, pathId)
 	local f = file.Open (path, "rb", pathId)
 	if not f then return nil end
 	
-	return GarrysMod.FileInStream:CreateInstance (f)
+	return GarrysMod.FileInputStream:CreateInstance (f)
 end
 
 function self:ctor (file)
@@ -33,7 +33,7 @@ function self:SeekAbsolute (seekPos)
 	self.File:Seek (seekPos)
 end
 
--- IInStream
+-- IInputStream
 function self:Read (length)
 	return self.File:Read (length)
 end

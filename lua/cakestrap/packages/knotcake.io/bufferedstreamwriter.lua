@@ -1,22 +1,22 @@
 local self = {}
 IO.BufferedStreamWriter = Class (self, IO.StreamWriter)
 
-function self:ctor (outStream)
-	self.OutStream      = outStream
+function self:ctor (outputStream)
+	self.OutputStream   = outputStream
 	
-	self.Position       = self.OutStream:GetPosition ()
+	self.Position       = self.OutputStream:GetPosition ()
 	
 	self.BufferPosition = self.Position
-	self.Buffer         = IO.StringOutStream ()
+	self.Buffer         = IO.StringOutputStream ()
 end
 
 -- IBaseStream
 function self:Close ()
-	if self.OutStream then
+	if self.OutputStream then
 		self:Flush ()
 		
-		self.OutStream:Close ()
-		self.OutStream = nil
+		self.OutputStream:Close ()
+		self.OutputStream = nil
 		
 		self.BufferPosition = 0
 		self.Buffer         = ""
@@ -28,7 +28,7 @@ function self:GetPosition ()
 end
 
 function self:GetSize ()
-	return self.InStream:GetSize ()
+	return self.OutputStream:GetSize ()
 end
 
 function self:SeekAbsolute (seekPos)
@@ -40,7 +40,7 @@ function self:SeekAbsolute (seekPos)
 	self.BufferPosition = self.Position
 end
 
--- IOutStream
+-- IOutputStream
 function self:Write (data, size)
 	self.Buffer:Write (data, size)
 end
@@ -64,8 +64,8 @@ end
 
 -- Internal, do not call
 function self:Flush ()
-	self.OutStream:SeekAbsolute (self.BufferPosition)
-	self.OutStream:Write (self.Buffer:ToString (), self.Buffer:GetSize ())
+	self.OutputStream:SeekAbsolute (self.BufferPosition)
+	self.OutputStream:Write (self.Buffer:ToString (), self.Buffer:GetSize ())
 	
 	self.BufferPosition = self.BufferPosition + self.Buffer:GetSize ()
 	self.Buffer:Clear ()

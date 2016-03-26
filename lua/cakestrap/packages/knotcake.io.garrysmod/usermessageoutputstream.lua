@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.UsermessageOutStream = Class (self, IO.StreamWriter)
+GarrysMod.UsermessageOutputStream = Class (self, IO.StreamWriter)
 
 function self:ctor ()
 	self.Position = 0
@@ -20,10 +20,10 @@ end
 function self:SeekAbsolute (seekPos)
 	seekPos = math.max (seekPos, self:GetSize ())
 	
-	Error ("UsermessageOutStream:SeekAbsolute : Not supported.")
+	Error ("UsermessageOutputStream:SeekAbsolute : Not supported.")
 end
 
--- IOutStream
+-- IOutputStream
 function self:Write (data, length)
 	for i = 1, length do
 		self:UInt8 (string.char (data, i))

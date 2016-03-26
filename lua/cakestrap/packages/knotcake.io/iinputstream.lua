@@ -1,11 +1,11 @@
 local self = {}
-IO.IInStream = Class (self, IO.IBaseStream)
+IO.IInputStream = Class (self, IO.IBaseStream)
 
 function self:ctor ()
 end
 
 function self:Read (length)
-	Error ("IInStream:Read : Not implemented.")
+	Error ("IInputStream:Read : Not implemented.")
 end
 
 function self:ToStreamReader ()

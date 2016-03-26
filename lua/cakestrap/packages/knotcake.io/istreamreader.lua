@@ -1,10 +1,10 @@
 local self = {}
-IO.IStreamReader = Class (self, IO.IInStream)
+IO.IStreamReader = Class (self, IO.IInputStream)
 
 function self:ctor ()
 end
 
--- IInStream
+-- IInputStream
 function self:ToStreamReader ()
 	return self
 end

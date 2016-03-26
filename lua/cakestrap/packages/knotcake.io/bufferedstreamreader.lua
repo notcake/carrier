@@ -1,10 +1,10 @@
 local self = {}
 IO.BufferedStreamReader = Class (self, IO.StreamReader)
 
-function self:ctor (inStream)
-	self.InStream       = inStream
+function self:ctor (inputStream)
+	self.InputStream    = inputStream
 	
-	self.Position       = self.InStream:GetPosition ()
+	self.Position       = self.InputStream:GetPosition ()
 	
 	self.BufferSize     = 32768
 	self.BufferPosition = 0
@@ -13,9 +13,9 @@ end
 
 -- IBaseStream
 function self:Close ()
-	if self.InStream then
-		self.InStream:Close ()
-		self.InStream = nil
+	if self.InputStream then
+		self.InputStream:Close ()
+		self.InputStream = nil
 		
 		self.BufferPosition = 0
 		self.Buffer         = ""
@@ -27,7 +27,7 @@ function self:GetPosition ()
 end
 
 function self:GetSize ()
-	return self.InStream:GetSize ()
+	return self.InputStream:GetSize ()
 end
 
 function self:SeekAbsolute (seekPos)
@@ -41,7 +41,7 @@ function self:SeekAbsolute (seekPos)
 	end
 end
 
--- IInStream
+-- IInputStream
 function self:Read (size)
 	local bufferOffset   = self.Position - self.BufferPosition
 	local bytesAvailable = #self.Buffer - bufferOffset
@@ -226,8 +226,8 @@ function self:NextBlock ()
 	self.BufferPosition = self.BufferSize * math.floor (self.Position / self.BufferSize)
 	self.Buffer         = ""
 	
-	self.InStream:SeekAbsolute (self.BufferPosition)
-	self.Buffer = self.InStream:Read (self.BufferSize)
+	self.InputStream:SeekAbsolute (self.BufferPosition)
+	self.Buffer = self.InputStream:Read (self.BufferSize)
 	
 	local bufferOffset   = self.Position - self.BufferPosition
 	local bytesAvailable = #self.Buffer - bufferOffset

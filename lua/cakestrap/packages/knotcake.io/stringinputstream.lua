@@ -1,5 +1,5 @@
 local self = {}
-IO.StringInStream = Class (self, IO.StreamReader)
+IO.StringInputStream = Class (self, IO.StreamReader)
 
 function self:ctor (data)
 	self.Data     = data
@@ -26,7 +26,7 @@ function self:SeekAbsolute (seekPos)
 	self.Position = seekPos
 end
 
--- IInStream
+-- IInputStream
 function self:Read (length)
 	local data = string.sub (self.Data, self.Position + 1, self.Position + length)
 	self.Position = self.Position + length

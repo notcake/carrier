@@ -9,19 +9,19 @@ function self:dtor ()
 end
 
 function self:Close ()
-	Error ("IOutStream:Close : Not implemented.")
+	Error ("IBaseStream:Close : Not implemented.")
 end
 
 function self:GetPosition ()
-	Error ("IOutStream:GetPosition : Not implemented.")
+	Error ("IBaseStream:GetPosition : Not implemented.")
 end
 
 function self:GetSize ()
-	Error ("IOutStream:GetSize : Not implemented.")
+	Error ("IBaseStream:GetSize : Not implemented.")
 end
 
 function self:SeekAbsolute (seekPos)
-	Error ("IOutStream:SeekAbsolute : Not implemented.")
+	Error ("IBaseStream:SeekAbsolute : Not implemented.")
 end
 
 function self:SeekRelative (relativeSeekPos)

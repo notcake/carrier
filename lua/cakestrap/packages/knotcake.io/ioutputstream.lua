@@ -1,11 +1,11 @@
 local self = {}
-IO.IOutStream = Class (self, IO.IBaseStream)
+IO.IOutputStream = Class (self, IO.IBaseStream)
 
 function self:ctor ()
 end
 
 function self:Write (data, length)
-	Error ("IOutStream:Write : Not implemented.")
+	Error ("IOutputStream:Write : Not implemented.")
 end
 
 function self:ToStreamWriter ()
