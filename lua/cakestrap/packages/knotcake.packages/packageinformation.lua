@@ -7,14 +7,13 @@ function Packages.PackageInformation.FromTable (t, out)
 	return out:FromTable (t)
 end
 
-self.Id               = Property (nil, "UInt64")
+self.Id          = Property (nil, "UInt64")
 
-self.Name             = Property (nil, "StringN8")
-self.DisplayName      = Property (nil, "StringN8",  true)
-self.Description      = Property (nil, "StringN32", true)
+self.Name        = Property (nil, "StringN8")
+self.DisplayName = Property (nil, "StringN8",  true)
+self.Description = Property (nil, "StringN32", true)
 
-function self:ctor (packageRepository)
-	self.PackageRepository = packageRepository
+function self:ctor ()
 end
 
 function self:FromTable (source)
@@ -28,11 +27,6 @@ function self:FromTable (source)
 	return self
 end
 
-function self:GetPackageRepository ()
-	return self.PackageRepository
-end
-
-function self:ToPackageReference ()
-	local repositoryUrl = self.PackageRepository and self.PackageRepository:GetUrl ()
+function self:ToPackageReference (repositoryUrl)
 	return Packages.PackageReference (repositoryUrl, self.PackageName, self.VersionTimestamp)
 end

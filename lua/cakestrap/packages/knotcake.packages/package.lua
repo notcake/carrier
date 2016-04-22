@@ -9,6 +9,12 @@ function self:ctor (packageRepository, autosaver)
 	self.ReleasesByTimestamp = {}
 end
 
+-- PackageInformation
+function self:ToPackageReference (repositoryUrl)
+	repositoryUrl = repositoryUrl or self:GetPackageRepository ():GetUrl ()
+	return Packages.PackageReference (repositoryUrl, self.PackageName, self.VersionTimestamp)
+end
+
 -- Package
 -- Parent
 function self:GetPackageRepository ()

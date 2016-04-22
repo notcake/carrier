@@ -72,5 +72,8 @@ UI.AptGet.Commands ["list"] = function (packageManager, ply, cmd, args, textSink
 		for package in repository:GetPackageEnumerator () do
 			textSink:WriteLine ("    " .. package:GetName ())
 		end
+		if repository:GetPackageCount () == 0 then
+			textSink:WriteLine ("    No packages.")
+		end
 	end
 end
