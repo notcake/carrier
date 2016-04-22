@@ -69,10 +69,18 @@ UI.AptGet.Commands ["list"] = function (packageManager, ply, cmd, args, textSink
 	textSink:WriteLine (packageManager:GetRepositoryCount () .. " package repositories.")
 	for repository in packageManager:GetRepositoryEnumerator () do
 		textSink:WriteLine ("[" .. repository:GetDirectory () .. "] " .. repository:GetUrl ())
-		for package in repository:GetPackageEnumerator () do
-			textSink:WriteLine ("    " .. package:GetName ())
-		end
-		if repository:GetPackageCount () == 0 then
+		if repository:GetPackageCount () > 0 then
+			for package in repository:GetPackageEnumerator () do
+				textSink:WriteLine ("    " .. package:GetName ())
+				if package:GetReleaseCount () > 0 then
+					for release in package:GetReleaseEnumerator () do
+						textSink:WriteLine ("        " .. release:GetVersionName ())
+					end
+				else
+					textSink:WriteLine ("        No releases.")
+				end
+			end
+		else
 			textSink:WriteLine ("    No packages.")
 		end
 	end

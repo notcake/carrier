@@ -127,7 +127,7 @@ function self:AddPackage (name)
 	local package = self:GetPackageByName (name)
 	if package then return package end
 	
-	package = Packages.Package ()
+	package = Packages.Package (self, self.Autosaver)
 	package:SetName (name)
 	
 	self.PackageCount = self.PackageCount + 1

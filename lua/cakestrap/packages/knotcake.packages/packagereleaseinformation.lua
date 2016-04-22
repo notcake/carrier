@@ -13,14 +13,14 @@ self.VersionTimestamp = Property (nil, "UInt64")
 self.VersionName      = Property (nil, "StringN8",  true)
 
 self.FileName         = Property (nil, "StringN16", true)
-self.FileSize         = Property (nil, "UInt64",    true)
+self.FileSize         = Property (nil, "UInt64",    true):SetNullable (true)
 
 self.DownloadUrl      = Property (nil, "StringN16", true)
 
 function self:ctor ()
 end
 
-function self:FromTable (t)
+function self:FromTable (source)
 	self.Id               = source.id
 	
 	self.VersionTimestamp = source.versionTimestamp

@@ -1,6 +1,8 @@
 local self = {}
 Packages.Package = Class (self, Packages.PackageInformation)
 
+self.Zombie = Property (false, "Boolean")
+
 function self:ctor (packageRepository, autosaver)
 	self.PackageRepository   = packageRepository
 	self.Autosaver           = autosaver
@@ -26,6 +28,9 @@ function self:Update (packageTable)
 	
 	for _, releaseTable in ipairs (packageTable.releases) do
 		PrintTable (releaseTable)
+		
+		local release = self:AddRelease (releaseTable.versionTimestamp)
+		release:Update (releaseTable)
 	end
 end
 
@@ -47,7 +52,7 @@ function self:AddRelease (versionTimestamp)
 	local packageRelease = self:GetReleaseByTimestamp (versionTimestamp)
 	if packageRelease then return packageRelease end
 	
-	packageRelease = Packages.PackageRelease ()
+	packageRelease = Packages.PackageRelease (self, self.Autosaver)
 	packageRelease:SetVersionTimestamp (versionTimestamp)
 	
 	self.ReleaseCount = self.ReleaseCount + 1
