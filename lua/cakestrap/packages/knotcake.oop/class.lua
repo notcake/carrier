@@ -7,23 +7,38 @@ function self:ctor (methodTable, firstBaseClass, ...)
 		firstBaseClass = nil
 	end
 	
-	self.BaseClasses                    = { firstBaseClass, ... }
+	self.BaseClasses                          = { firstBaseClass, ... }
 	
-	self.MethodTable                    = methodTable
-	self.FinalizedMethodTable           = nil
-	self.FlattenedMethodTable           = nil
+	self.MethodTable                          = methodTable
+	self.FinalizedMethodTable                 = nil
+	self.FlattenedMethodTable                 = nil
 	
-	self.Events                         = nil
-	self.Properties                     = nil
+	self.Events                               = nil
+	self.Properties                           = nil
 	
-	self.Metatable                      = nil
+	self.Metatable                            = nil
 	
-	self.FlattenedConstructor           = nil
-	self.FlattenedDestructor            = nil
-	self.FlattenedBaseClasses           = nil
+	self.FlattenedConstructor                 = nil
+	self.FlattenedDestructor                  = nil
+	self.FlattenedBaseClasses                 = nil
 	
-	self.AuxiliaryConstructorCreated    = false
-	self.AuxiliaryConstructor           = nil
+	self.AuxiliaryConstructorCreated          = false
+	self.AuxiliaryConstructor                 = nil
+
+	-- Properties
+	self.PropertySerializer                   = nil
+	self.PropertySerializerCreated            = nil
+	self.PropertyDeserializer                 = nil
+	self.PropertyDeserializerCreated          = nil
+	self.PropertyCopier                       = nil
+	self.PropertyCopierCreated                = nil
+	
+	self.FlattenedPropertySerializer          = nil
+	self.FlattenedPropertySerializerCreated   = nil
+	self.FlattenedPropertyDeserializer        = nil
+	self.FlattenedPropertyDeserializerCreated = nil
+	self.FlattenedPropertyCopier              = nil
+	self.FlattenedPropertyCopierCreated       = nil
 end
 
 function self:__index (k)
@@ -132,6 +147,33 @@ function self:GetMethodTable ()
 	return self.MethodTable
 end
 
+function self:GetPropertySerializer ()
+	if not self.PropertySerializerCreated then
+		self.PropertySerializer = self:CreatePropertySerializer ()
+		self.PropertySerializerCreated = true
+	end
+	
+	return self.PropertySerializer
+end
+
+function self:GetPropertyDeserializer ()
+	if not self.PropertyDeserializerCreated then
+		self.PropertyDeserializer = self:CreatePropertyDeserializer ()
+		self.PropertyDeserializerCreated = true
+	end
+	
+	return self.PropertyDeserializer
+end
+
+function self:GetPropertyCopier ()
+	if not self.PropertyCopierCreated then
+		self.PropertyCopier = self:CreatePropertyCopier ()
+		self.PropertyCopierCreated = true
+	end
+	
+	return self.PropertyCopier
+end
+
 function self:IsDerivedFrom (class)
 	for _, baseClass in ipairs (self.BaseClasses) do
 		if baseClass == class then return true end
@@ -204,46 +246,9 @@ function self:CreateFinalizedMethodTable ()
 			finalizedMethodTable [property:GetSetterName ()] = property:GetSetter ()
 		end
 		
-		finalizedMethodTable.SerializeProperties = function (self, streamWriter)
-			for i = 1, #properties do
-				local property = properties [i]
-				local value = self [property:GetGetterName ()] (self)
-				if property:IsNullable () then
-					streamWriter:Boolean (value ~= nil)
-					if value ~= nil then
-						streamWriter [property:GetType ()] (streamWriter, value)
-					end
-				else
-					streamWriter [property:GetType ()] (streamWriter, value)
-				end
-			end
-			
-			return streamWriter
-		end
-		
-		finalizedMethodTable.DeserializeProperties = function (self, streamReader)
-			for i = 1, #properties do
-				local property = properties [i]
-				if property:IsNullable () then
-					if streamReader:Boolean () then
-						self [property:GetSetterName ()] (self, streamReader [property:GetType ()] (streamReader))
-					end
-				else
-					self [property:GetSetterName ()] (self, streamReader [property:GetType ()] (streamReader))
-				end
-			end
-			
-			return self
-		end
-		
-		finalizedMethodTable.CopyProperties = function (self, source)
-			for i = 1, #properties do
-				local property = properties [i]
-				self [property:GetSetterName ()] (self, source [property:GetGetterName ()] (source))
-			end
-			
-			return self
-		end
+		finalizedMethodTable.SerializeProperties   = self:GetFlattenedPropertySerializer   ()
+		finalizedMethodTable.DeserializeProperties = self:GetFlattenedPropertyDeserializer ()
+		finalizedMethodTable.CopyProperties        = self:GetFlattenedPropertyCopier       ()
 		
 		if OOP.ISerializable and self:IsDerivedFrom (OOP.ISerializable) then
 			finalizedMethodTable.Serialize = function (self, streamWriter)
@@ -327,6 +332,60 @@ function self:CreateFlattenedMethodTable ()
 	return flattenedMethodTable
 end
 
+function self:CreateFlattenedPropertySerializer ()
+	local propertySerializerList = {}
+	local flattenedBaseClasses = self:GetFlattenedBaseClasses ()
+	for i = #flattenedBaseClasses, 1, -1 do
+		propertySerializerList [#propertySerializerList + 1] = flattenedBaseClasses [i]:GetPropertySerializer ()
+	end
+	
+	if #propertySerializerList == 0 then return nil end
+	
+	return function (self, streamWriter)
+		for i = 1, #propertySerializerList do
+			propertySerializerList [i] (self, streamWriter)
+		end
+		
+		return streamWriter
+	end
+end
+
+function self:CreateFlattenedPropertyDeserializer ()
+	local propertyDeserializerList = {}
+	local flattenedBaseClasses = self:GetFlattenedBaseClasses ()
+	for i = #flattenedBaseClasses, 1, -1 do
+		propertyDeserializerList [#propertyDeserializerList + 1] = flattenedBaseClasses [i]:GetPropertyDeserializer ()
+	end
+	
+	if #propertyDeserializerList == 0 then return nil end
+	
+	return function (self, streamReader)
+		for i = 1, #propertyDeserializerList do
+			propertyDeserializerList [i] (self, streamReader)
+		end
+		
+		return self
+	end
+end
+
+function self:CreateFlattenedPropertyCopier ()
+	local propertyCopierList = {}
+	local flattenedBaseClasses = self:GetFlattenedBaseClasses ()
+	for i = #flattenedBaseClasses, 1, -1 do
+		propertyCopierList [#propertyCopierList + 1] = flattenedBaseClasses [i]:GetPropertyCopier ()
+	end
+	
+	if #propertyCopierList == 0 then return nil end
+	
+	return function (self, source)
+		for i = 1, #propertyCopierList do
+			propertyCopierList [i] (self, source)
+		end
+		
+		return self
+	end
+end
+
 function self:CreateMetatable ()
 	local finalizedMethodTable = self:GetFinalizedMethodTable ()
 	
@@ -345,6 +404,62 @@ function self:CreateMetatable ()
 	self:ResolveMetamethods (metatable)
 	
 	return metatable
+end
+
+function self:CreatePropertySerializer ()
+	local properties = self:GetProperties ()
+	if #properties == 0 then return nil end
+	
+	return function (self, streamWriter)
+		for i = 1, #properties do
+			local property = properties [i]
+			local value = self [property:GetGetterName ()] (self)
+			if property:IsNullable () then
+				streamWriter:Boolean (value ~= nil)
+				if value ~= nil then
+					streamWriter [property:GetType ()] (streamWriter, value)
+				end
+			else
+				streamWriter [property:GetType ()] (streamWriter, value)
+			end
+		end
+		
+		return streamWriter
+	end
+end
+
+function self:CreatePropertyDeserializer ()
+	local properties = self:GetProperties ()
+	if #properties == 0 then return nil end
+	
+	return function (self, streamReader)
+		for i = 1, #properties do
+			local property = properties [i]
+			if property:IsNullable () then
+				if streamReader:Boolean () then
+					self [property:GetSetterName ()] (self, streamReader [property:GetType ()] (streamReader))
+				end
+			else
+				self [property:GetSetterName ()] (self, streamReader [property:GetType ()] (streamReader))
+			end
+		end
+		
+		return self
+	end
+end
+
+function self:CreatePropertyCopier ()
+	local properties = self:GetProperties ()
+	if #properties == 0 then return nil end
+	
+	return function (self, source)
+		for i = 1, #properties do
+			local property = properties [i]
+			self [property:GetSetterName ()] (self, source [property:GetGetterName ()] (source))
+		end
+		
+		return self
+	end
 end
 
 function self:GetEvents ()
@@ -388,6 +503,33 @@ function self:GetFlattenedBaseClasses ()
 	end
 	
 	return self.FlattenedBaseClasses
+end
+
+function self:GetFlattenedPropertySerializer ()
+	if not self.FlattenedPropertySerializerCreated then
+		self.FlattenedPropertySerializer = self:CreateFlattenedPropertySerializer ()
+		self.FlattenedPropertySerializerCreated = true
+	end
+	
+	return self.FlattenedPropertySerializer
+end
+
+function self:GetFlattenedPropertyDeserializer ()
+	if not self.FlattenedPropertyDeserializerCreated then
+		self.FlattenedPropertyDeserializer = self:CreateFlattenedPropertyDeserializer ()
+		self.FlattenedPropertyDeserializerCreated = true
+	end
+	
+	return self.FlattenedPropertyDeserializer
+end
+
+function self:GetFlattenedPropertyCopier ()
+	if not self.FlattenedPropertyCopierCreated then
+		self.FlattenedPropertyCopier = self:CreateFlattenedPropertyCopier ()
+		self.FlattenedPropertyCopierCreated = true
+	end
+	
+	return self.FlattenedPropertyCopier
 end
 
 function self:GetProperties ()
