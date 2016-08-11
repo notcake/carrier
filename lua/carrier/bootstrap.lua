@@ -99,7 +99,7 @@ function Carrier.LoadProvider (serviceName)
 end
 
 function Carrier.UnloadPackage (packageName)
-	if not packageEnvironments [packageName] then return end
+	if not packages [packageName] then return end
 	
 	print ("Carrier.UnloadPackage : " .. packageName)
 	
