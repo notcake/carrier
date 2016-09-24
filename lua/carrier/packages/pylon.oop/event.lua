@@ -85,7 +85,7 @@ function self:Dispatch (...)
 	local a, b, c = nil, nil, nil
 	
 	for callbackName, callback in pairs (self.Listeners) do
-		local success, r0, r1, r2 = xpcall (callback, Error, self.Instance, ...)
+		local success, r0, r1, r2 = xpcall (callback, ErrorNoHalt, self.Instance, ...)
 		if not success then
 			ErrorNoHalt ("Error in hook " .. self.Name .. ": " .. tostring (callbackName) .. "!\n")
 		else
