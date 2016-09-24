@@ -38,6 +38,21 @@ function Carrier.LuaFileExists (path)
 	return file.Exists (path, "LCL")
 end
 
+function Carrier.LuaFileFind (path)
+	local resultSet = {}
+	
+	for _, v in ipairs (file.Find (path, "LUA")) do
+		resultSet [v] = true
+	end
+	if sv_allowcslua:GetBool () then
+		for _, v in ipairs (file.Find (path, "LCL")) do
+			resultSet [v] = true
+		end
+	end
+	
+	return resultSet
+end
+
 function Carrier.Warning (message)
 	print ("Carrier: Warning: " .. message)
 end
@@ -46,6 +61,8 @@ function Carrier.LoadPackage (packageName)
 	if packages [packageName] then
 		return packages [packageName].Exports
 	end
+	
+	print ("Carrier.LoadPackage : " .. packageName)
 	
 	local fileName = string.lower (packageName)
 	local ctorPath1 = "carrier/packages/" .. fileName .. ".lua"
@@ -114,7 +131,7 @@ function Carrier.UnloadPackage (packageName)
 end
 
 function Carrier.Reload ()
-	include ("autorun/carrier.lua")
+	include ("carrier/bootstrap.lua")
 end
 
 function Carrier.Initialize ()
@@ -129,6 +146,17 @@ function Carrier.Initialize ()
 
 	Carrier.PackageManager = Carrier.Packages.PackageManager ()
 	Carrier.Packages.UI.RegisterCommands (Carrier.PackageManager)
+	
+	for autoload in pairs (Carrier.LuaFileFind ("carrier/autoload/*.lua")) do
+		local f = CompileFile ("carrier/autoload/" .. autoload)
+		if f then
+			setfenv (f, {})
+			
+			for _, packageName in ipairs ({ f () }) do
+				Carrier.LoadPackage (packageName)
+			end
+		end
+	end
 end
 
 function Carrier.Uninitialize ()
