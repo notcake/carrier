@@ -80,8 +80,6 @@ function self:ClearListeners ()
 end
 
 function self:Dispatch (...)
-	if self.ShouldSuppressEvents then return end
-	
 	local a, b, c = nil, nil, nil
 	
 	for callbackName, callback in pairs (self.Listeners) do
