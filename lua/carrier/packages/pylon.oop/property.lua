@@ -13,6 +13,11 @@ function self:ctor (initialValue, type, evented)
 	self.Nullable     = false
 	self.Type         = type
 	self.Evented      = evented
+	
+	if string.sub (self.Type, -1) == "?" then
+		self.Nullable = true
+		self.Type = string.sub (self.Type, 1, -2)
+	end
 end
 
 -- Property

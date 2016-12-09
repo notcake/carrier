@@ -22,9 +22,9 @@ function Packages.PackageReference.FromUrl (url, packageReference)
 	return packageReference
 end
 
-self.RepositoryUrl           = Property (nil, "StringN16"):SetNullable (true)
+self.RepositoryUrl           = Property (nil, "StringN16?")
 self.PackageName             = Property (nil, "StringN16")
-self.PackageVersionTimestamp = Property (nil, "UInt64"):SetNullable (true)
+self.PackageVersionTimestamp = Property (nil, "UInt64?")
 
 function self:ctor (repositoryUrl, packageName, packageVersionTimestamp)
 	self.RepositoryUrl           = repositoryUrl
