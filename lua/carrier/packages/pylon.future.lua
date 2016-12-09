@@ -1,35 +1,35 @@
 OOP = Carrier.LoadPackage("Pylon.OOP")
 OOP.Initialize(_ENV)
 
-CompactList = Carrier.LoadPackage("Pylon.Structures.CompactList")
+CompactList = Carrier.LoadPackage ("Pylon.Structures.CompactList")
 
 local self = {}
-Future = Class(self)
+Future = Class (self)
 
 function self:ctor ()
-	self.resolved = false
+	self.Resolved = false
 	
-	self.returnCount, self.returns = CompactList.clear()
-	self.waiterCount, self.waiters = CompactList.clear()
+	self.ReturnCount, self.Returns = CompactList.Clear ()
+	self.WaiterCount, self.Waiters = CompactList.Clear ()
 end
 
-function self:map(f)
-	local future = Future()
-	self:wait(
-		function(...)
-			future:resolve(f(...))
+function self:Map (f)
+	local future = Future ()
+	self:Wait (
+		function (...)
+			future:Resolve (f (...))
 		end
 	)
 	return future
 end
 
-function self:mapAsync(f)
-	local future = Future()
-	self:wait(
-		function(...)
-			f(...):wait (
-				function(...)
-					future:resolve(...)
+function self:MapAsync (f)
+	local future = Future ()
+	self:Wait (
+		function (...)
+			f (...):Wait (
+				function (...)
+					future:Resolve (...)
 				end
 			)
 		end
@@ -37,64 +37,64 @@ function self:mapAsync(f)
 	return future
 end
 
-function self:resolve(...)
-	assert(not self.resolved, "Future resolved twice!")
+function self:Resolve (...)
+	assert (not self.Resolved, "Future resolved twice!")
 	
-	self.resolved = true
-	self.returnCount, self.returns = CompactList.pack(...)
+	self.Resolved = true
+	self.ReturnCount, self.Returns = CompactList.Pack (...)
 	
-	for f in CompactList.enumerator(self.waiterCount, self.waiters) do
-		f(CompactList.unpack(self.returnCount, self.returns))
+	for f in CompactList.Enumerator (self.WaiterCount, self.Waiters) do
+		f (CompactList.Unpack (self.ReturnCount, self.Returns))
 	end
 	
-	self.waiterCount, self.waiters = CompactList.clear(self.waiterCount, self.waiters)
+	self.WaiterCount, self.Waiters = CompactList.Clear (self.WaiterCount, self.Waiters)
 end
 
-function self:wait(f)
-	if self.resolved then
-		f(CompactList.unpack(self.returnCount, self.returns))
+function self:Wait (f)
+	if self.Resolved then
+		f (CompactList.Unpack (self.ReturnCount, self.Returns))
 	else
-		self.waiterCount, self.waiters = CompactList.append(self.waiterCount, self.waiters, f)
+		self.WaiterCount, self.Waiters = CompactList.Append (self.WaiterCount, self.Waiters, f)
 	end
 end
 
-function self:await()
-	if self.resolved then
-		return CompactList.unpack(self.returnCount, self.returns)
+function self:Await ()
+	if self.Resolved then
+		return CompactList.Unpack (self.ReturnCount, self.Returns)
 	else
-		local thread = coroutine.running()
-		self:wait(
-			function(...)
-				coroutine.resume(thread, ...)
+		local thread = coroutine.running ()
+		self:Wait(
+			function (...)
+				coroutine.resume (thread, ...)
 			end
 		)
 	end
 	
-	return coroutine.yield()
+	return coroutine.yield ()
 end
 
-function Future.resolved(...)
-	local future = Future()
-	future:resolve(...)
+function Future.Resolved (...)
+	local future = Future ()
+	future:Resolve(...)
 	return future
 end
 
-function Future.join(...)
-	return Future.joinArray({...})
+function Future.Join (...)
+	return Future.JoinArray ({...})
 end
 
-function Future.joinArray(array)
+function Future.JoinArray (array)
 	local count = #array
-	if count == 0 then return Future.resolved() end
+	if count == 0 then return Future.resolved () end
 	
-	local future = Future()
+	local future = Future ()
 	local i = 0
-	for _, f in ipairs(array) do
-		f:wait(
-			function()
+	for _, f in ipairs (array) do
+		f:Wait (
+			function ()
 				i = i + 1
 				if i == count then
-					future:resolve()
+					future:Resolve ()
 				end
 			end
 		)
