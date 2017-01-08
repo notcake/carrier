@@ -80,7 +80,12 @@ function Future.Resolved (...)
 end
 
 function Future.Join (...)
-	return Future.JoinArray ({...})
+	local count = select ("#", ...)
+	return Future.JoinArray ({...}):Map (
+		function (array)
+			return unpack (array, 1, count)
+		end
+	)
 end
 
 function Future.JoinArray (array)
@@ -88,13 +93,16 @@ function Future.JoinArray (array)
 	if count == 0 then return Future.resolved () end
 	
 	local future = Future ()
+	local results = {}
 	local i = 0
-	for _, f in ipairs (array) do
+	for k, f in ipairs (array) do
 		f:Wait (
 			function ()
+				results[k] = select ("#", ...) > 1 and {...} or ...
+			
 				i = i + 1
 				if i == count then
-					future:Resolve ()
+					future:Resolve (results)
 				end
 			end
 		)
