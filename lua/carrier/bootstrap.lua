@@ -95,8 +95,7 @@ function Carrier.LoadPackage (packageName)
 		path = includePath .. path
 		local f = CompileFile (path)
 		setfenv (f, package.Environment)
-		local ret = { f () }
-		return unpack (ret)
+		return f ()
 	end
 	package.Environment.require = function (packageName)
 		package.Dependencies [packageName] = true
