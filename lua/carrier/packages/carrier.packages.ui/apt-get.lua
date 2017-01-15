@@ -14,7 +14,7 @@ function UI.AptGet.RegisterCommand (packageManager)
 				textSink = Text.RemoteChatTextSink (ply)
 			end
 			
-			Task (handler, packageManager, ply, cmd, args, textSink):Run ()
+			Task.Run (handler, packageManager, ply, cmd, args, textSink)
 		end
 	)
 end

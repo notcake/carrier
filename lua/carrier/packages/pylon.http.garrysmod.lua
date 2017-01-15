@@ -1,56 +1,38 @@
-GarrysMod = {}
+local GarrysMod = {}
 
-HTTP = Carrier.LoadPackage ("Pylon.HTTP")
+local HTTP = Carrier.LoadPackage ("Pylon.HTTP")
 HTTP.Initialize (GarrysMod)
 
+local Future = Carrier.LoadPackage ("Pylon.Future")
+
 function GarrysMod.Get (url)
-	assert (coroutine.running ())
-	
-	local thread = coroutine.running ()
-	
-	local resumed = false
-	local returnValues = nil
+	local future = Future ()
 	http.Fetch (url,
 		function (content, contentLength, headers, code)
-			resumed = true
-			response = HTTP.HTTPResponse.FromHTTPResponse (url, code, content, headers)
-			coroutine.resume (thread, response)
+			local response = HTTP.HTTPResponse.FromHTTPResponse (url, code, content, headers)
+			future:Resolve (response)
 		end,
 		function (error)
-			resumed = true
-			response = HTTP.HTTPResponse.FromFailure (url, error)
-			coroutine.resume (thread, response)
+			local response = HTTP.HTTPResponse.FromFailure (url, error)
+			future:Resolve (response)
 		end
 	)
-	
-	if resumed then return response end
-	
-	return coroutine.yield ()
+	return future
 end
 
 function GarrysMod.Post (url, parameters)
-	assert (coroutine.running ())
-	
-	local thread = coroutine.running ()
-	
-	local resumed = false
-	local response = nil
+	local future = Future ()
 	http.Post (url, parameters,
 		function (content, contentLength, headers, code)
-			resumed = true
-			response = HTTP.HTTPResponse.FromHTTPResponse (url, code, content, headers)
-			coroutine.resume (thread, response)
+			local response = HTTP.HTTPResponse.FromHTTPResponse (url, code, content, headers)
+			future:Resolve (response)
 		end,
 		function (error)
-			resumed = true
-			response = HTTP.HTTPResponse.FromFailure (url, error)
-			coroutine.resume (thread, response)
+			local response = HTTP.HTTPResponse.FromFailure (url, error)
+			future:Resolve (response)
 		end
 	)
-	
-	if resumed then return response end
-	
-	return coroutine.yield ()
+	return future
 end
 
 return GarrysMod

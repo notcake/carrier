@@ -1,7 +1,6 @@
 UI = {}
 
-Concurrency = Carrier.LoadPackage ("Pylon.Concurrency")
-Concurrency.Initialize (_ENV)
+Task = Carrier.LoadPackage ("Pylon.Task")
 
 Enumeration = Carrier.LoadPackage ("Pylon.Enumeration")
 Enumeration.Initialize (_ENV)

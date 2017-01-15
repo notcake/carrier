@@ -1,4 +1,4 @@
-CompactList = {}
+local CompactList = {}
 
 function CompactList.Append (n, data, x)
 	if n == 0 then

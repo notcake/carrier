@@ -14,7 +14,7 @@ function self:ctor (initialValue, type, evented)
 	self.Type         = type
 	self.Evented      = evented
 	
-	if string.sub (self.Type, -1) == "?" then
+	if self.Type and string.sub (self.Type, -1) == "?" then
 		self.Nullable = true
 		self.Type = string.sub (self.Type, 1, -2)
 	end

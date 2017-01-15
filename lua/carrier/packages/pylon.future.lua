@@ -1,10 +1,10 @@
-OOP = Carrier.LoadPackage("Pylon.OOP")
+local OOP = Carrier.LoadPackage("Pylon.OOP")
 OOP.Initialize(_ENV)
 
-CompactList = Carrier.LoadPackage ("Pylon.Structures.CompactList")
+local CompactList = Carrier.LoadPackage ("Pylon.Structures.CompactList")
 
 local self = {}
-Future = Class (self)
+local Future = Class (self)
 
 function self:ctor ()
 	self.Resolved = false
@@ -23,7 +23,7 @@ function self:Map (f)
 	return future
 end
 
-function self:MapAsync (f)
+function self:FlatMap (f)
 	local future = Future ()
 	self:Wait (
 		function (...)
@@ -36,6 +36,7 @@ function self:MapAsync (f)
 	)
 	return future
 end
+self.MapAsync = self.FlatMap
 
 function self:Resolve (...)
 	assert (not self.Resolved, "Future resolved twice!")
@@ -63,7 +64,7 @@ function self:Await ()
 		return CompactList.Unpack (self.ReturnCount, self.Returns)
 	else
 		local thread = coroutine.running ()
-		self:Wait(
+		self:Wait (
 			function (...)
 				coroutine.resume (thread, ...)
 			end
@@ -73,9 +74,16 @@ function self:Await ()
 	return coroutine.yield ()
 end
 
+self.map      = self.Map
+self.flatMap  = self.FlatMap
+self.mapAsync = self.MapAsync
+self.resolve  = self.Resolve
+self.Await    = self.Await
+self.wait     = self.Wait
+
 function Future.Resolved (...)
 	local future = Future ()
-	future:Resolve(...)
+	future:Resolve (...)
 	return future
 end
 
@@ -97,7 +105,7 @@ function Future.JoinArray (array)
 	local i = 0
 	for k, f in ipairs (array) do
 		f:Wait (
-			function ()
+			function (...)
 				results[k] = select ("#", ...) > 1 and {...} or ...
 			
 				i = i + 1
@@ -109,5 +117,9 @@ function Future.JoinArray (array)
 	end
 	return future
 end
+
+Future.resolved  = Future.Resolved
+Future.join      = Future.Join
+Future.JoinArray = Future.JoinArray
 
 return Future

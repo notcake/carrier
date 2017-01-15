@@ -1,4 +1,4 @@
-BitConverter = {}
+local BitConverter = {}
 
 local bit_band   = bit.band
 local bit_lshift = bit.lshift

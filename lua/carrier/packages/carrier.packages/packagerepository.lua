@@ -70,7 +70,7 @@ function self:Update (textSink)
 	local totalDownloaded = 0
 	
 	-- Fetch repository metadata
-	local httpResponse = HTTP.Get (self:GetUrl ())
+	local httpResponse = HTTP.Get (self:GetUrl ()):Await ()
 	totalDownloaded = totalDownloaded + httpResponse:GetContentLength ()
 	textSink:WriteLine (self:GetDirectory () .. ": " .. self:FormatHttpResponse (httpResponse))
 	
@@ -88,7 +88,7 @@ function self:Update (textSink)
 	self:SetReleasesUrl (tostring (repositoryInformation.releases    or ""))
 	
 	-- Fetch releases
-	httpResponse = HTTP.Get (self:GetAbsoluteReleasesUrl ())
+	httpResponse = HTTP.Get (self:GetAbsoluteReleasesUrl ()):Await ()
 	totalDownloaded = totalDownloaded + httpResponse:GetContentLength ()
 	textSink:WriteLine (self:GetDirectory () .. ": " .. self:FormatHttpResponse (httpResponse))
 	

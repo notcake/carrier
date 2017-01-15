@@ -1,3 +1,3 @@
-Crypto = {}
+local Crypto = {}
 
 return Crypto

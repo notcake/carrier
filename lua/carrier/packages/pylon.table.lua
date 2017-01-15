@@ -1,4 +1,4 @@
-Table = {}
+local Table = {}
 
 function Table.Invert (tbl, out)
 	out = out or {}
