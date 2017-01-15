@@ -78,7 +78,7 @@ self.map      = self.Map
 self.flatMap  = self.FlatMap
 self.mapAsync = self.MapAsync
 self.resolve  = self.Resolve
-self.Await    = self.Await
+self.await    = self.Await
 self.wait     = self.Wait
 
 function Future.Resolved (...)
