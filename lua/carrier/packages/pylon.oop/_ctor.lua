@@ -34,6 +34,7 @@ OOP.Class:Assimilate (OOP.Class )
 -- OOP.Class3  = OOP.Class3:OOP.Object0<OOP.Class3:OOP.Object0>
 
 include ("enum.lua")
+include ("flags.lua")
 
 include ("icloneable.lua")
 include ("event.lua")
@@ -55,6 +56,7 @@ function OOP.Initialize (destinationTable)
 	destinationTable.Object         = OOP.Object
 	destinationTable.Class          = OOP.Class
 	destinationTable.Enum           = OOP.Enum
+	destinationTable.Flags          = OOP.Flags
 	destinationTable.Event          = OOP.Event
 	destinationTable.Property       = OOP.Property
 	
