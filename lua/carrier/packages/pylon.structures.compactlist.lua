@@ -7,7 +7,7 @@ function CompactList.Append (n, data, x)
 		return 2, { data, x }
 	else
 		data [n + 1] = x
-		return n, data
+		return n + 1, data
 	end
 end
 
