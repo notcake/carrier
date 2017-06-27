@@ -1,14 +1,14 @@
 UI = {}
 
-Task = Carrier.LoadPackage ("Pylon.Task")
+Task = require ("Pylon.Task")
 
-Enumeration = Carrier.LoadPackage ("Pylon.Enumeration")
+Enumeration = require ("Pylon.Enumeration")
 Enumeration.Initialize (_ENV)
 
-Text = Carrier.LoadPackage ("Pylon.Text.GarrysMod")
-Util = Carrier.LoadPackage ("Pylon.Util")
+Text = require ("Pylon.Text.GarrysMod")
+Util = require ("Pylon.Util")
 
-Packages = Carrier.LoadPackage ("Carrier.Packages")
+Packages = require ("Carrier.Packages")
 
 include ("apt-sources.lua")
 include ("apt-get.lua")

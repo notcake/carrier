@@ -97,7 +97,7 @@ function GetEnumerator7 ()
 	return obj
 end
 
-local Enumeration = Carrier.LoadPackage ("Pylon.Enumeration")
+local Enumeration = require ("Pylon.Enumeration")
 
 local self = {}
 GetEnumerator8 = GLib.MakeConstructor (self)

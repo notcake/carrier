@@ -1,19 +1,19 @@
 Packages = {}
 
-Error = Carrier.LoadPackage ("Pylon.Error")
-OOP   = Carrier.LoadPackage ("Pylon.OOP")
+Error = require ("Pylon.Error")
+OOP   = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
 IO = {}
-Carrier.LoadProvider ("Pylon.IO").Initialize (IO)
+require_provider ("Pylon.IO").Initialize (IO)
 
-Enumeration = Carrier.LoadPackage ("Pylon.Enumeration")
+Enumeration = require ("Pylon.Enumeration")
 Enumeration.Initialize (_ENV)
 
-HTTP = Carrier.LoadProvider ("Pylon.HTTP")
+HTTP = require_provider ("Pylon.HTTP")
 
-Text = Carrier.LoadPackage ("Pylon.Text")
-Util = Carrier.LoadPackage ("Pylon.Util")
+Text = require ("Pylon.Text")
+Util = require ("Pylon.Util")
 
 include ("packagerepositoryinformation.lua")
 include ("packageinformation.lua")

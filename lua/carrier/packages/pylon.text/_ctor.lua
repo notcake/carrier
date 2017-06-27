@@ -1,8 +1,8 @@
 Text = {}
 
-Error = Carrier.LoadPackage ("Pylon.Error")
+Error = require ("Pylon.Error")
 
-OOP = Carrier.LoadPackage ("Pylon.OOP")
+OOP = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
 include ("itextsink.lua")

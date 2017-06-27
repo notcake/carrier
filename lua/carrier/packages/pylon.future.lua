@@ -1,7 +1,7 @@
-local OOP = Carrier.LoadPackage("Pylon.OOP")
-OOP.Initialize(_ENV)
+local OOP = require ("Pylon.OOP")
+OOP.Initialize (_ENV)
 
-local CompactList = Carrier.LoadPackage ("Pylon.Structures.CompactList")
+local CompactList = require ("Pylon.Structures.CompactList")
 
 local self = {}
 local Future = Class (self)

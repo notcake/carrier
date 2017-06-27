@@ -1,6 +1,6 @@
 Enumeration = {}
 
-OOP = Carrier.LoadPackage ("Pylon.OOP")
+OOP = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
 include ("ienumerator.lua")

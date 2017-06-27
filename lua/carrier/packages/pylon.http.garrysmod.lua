@@ -1,9 +1,9 @@
 local GarrysMod = {}
 
-local HTTP = Carrier.LoadPackage ("Pylon.HTTP")
+local HTTP = require ("Pylon.HTTP")
 HTTP.Initialize (GarrysMod)
 
-local Future = Carrier.LoadPackage ("Pylon.Future")
+local Future = require ("Pylon.Future")
 
 function GarrysMod.Get (url)
 	local future = Future ()

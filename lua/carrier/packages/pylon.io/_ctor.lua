@@ -1,9 +1,9 @@
 IO = {}
 
-Error = Carrier.LoadPackage ("Pylon.Error")
-OOP = Carrier.LoadPackage ("Pylon.OOP")
+Error = require ("Pylon.Error")
+OOP   = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
-BitConverter = Carrier.LoadPackage ("Pylon.BitConverter")
+BitConverter = require ("Pylon.BitConverter")
 
 include ("ibasestream.lua")
 include ("iinputstream.lua")

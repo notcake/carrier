@@ -1,7 +1,7 @@
 OOP = {}
 
-Error      = Carrier.LoadPackage ("Pylon.Error")
-Algorithms = Carrier.LoadPackage ("Pylon.Algorithms")
+Error      = require ("Pylon.Error")
+Algorithms = require ("Pylon.Algorithms")
 
 function OOP.Class (methodTable)
 	return function (...)

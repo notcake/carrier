@@ -1,11 +1,11 @@
 GarrysMod = {}
 
-Error = Carrier.LoadPackage ("Pylon.Error")
+Error = require ("Pylon.Error")
 
-OOP = Carrier.LoadPackage ("Pylon.OOP")
+OOP = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
-Text = Carrier.LoadPackage ("Pylon.Text")
+Text = require ("Pylon.Text")
 Text.Initialize (GarrysMod)
 
 include ("util.lua")

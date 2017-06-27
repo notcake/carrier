@@ -1,10 +1,10 @@
 GarrysMod = {}
 
-Error = Carrier.LoadPackage ("Pylon.Error")
-OOP   = Carrier.LoadPackage ("Pylon.OOP")
+Error = require ("Pylon.Error")
+OOP   = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
-BitConverter = Carrier.LoadPackage ("Pylon.BitConverter")
-IO = Carrier.LoadPackage ("Pylon.IO")
+BitConverter = require ("Pylon.BitConverter")
+IO = require ("Pylon.IO")
 IO.Initialize (GarrysMod)
 
 include ("fileinputstream.lua")

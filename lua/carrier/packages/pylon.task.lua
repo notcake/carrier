@@ -1,9 +1,9 @@
 local Task = {}
 
-local f           = Carrier.LoadPackage ("Pylon.Functional")
+local f           = require ("Pylon.Functional")
 
-local CompactList = Carrier.LoadPackage ("Pylon.Structures.CompactList")
-local Future      = Carrier.LoadPackage ("Pylon.Future")
+local CompactList = require ("Pylon.Structures.CompactList")
+local Future      = require ("Pylon.Future")
 
 function Task.RunCallback (f, ...)
 	local argumentCount, arguments = CompactList.Pack (...)

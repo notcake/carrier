@@ -1,7 +1,7 @@
 Util = {}
 
-Error = Carrier.LoadPackage ("Pylon.Error")
-OOP   = Carrier.LoadPackage ("Pylon.OOP")
+Error = require ("Pylon.Error")
+OOP   = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
 include ("duration.lua")

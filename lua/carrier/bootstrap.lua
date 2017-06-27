@@ -101,6 +101,11 @@ function Carrier.LoadPackage (packageName)
 		package.Dependencies [packageName] = true
 		return Carrier.LoadPackage (packageName)
 	end
+	package.Environment.require_provider = function (packageName)
+		local packageName = packageName .. ".GarrysMod"
+		package.Dependencies [packageName] = true
+		return Carrier.LoadPackage (packageName)
+	end
 	
 	setfenv (f, package.Environment)
 	package.Exports = f ()
@@ -108,10 +113,6 @@ function Carrier.LoadPackage (packageName)
 	orderedPackages [#orderedPackages + 1] = packageName
 	
 	return package.Exports
-end
-
-function Carrier.LoadProvider (serviceName)
-	return Carrier.LoadPackage (serviceName .. ".GarrysMod")
 end
 
 function Carrier.UnloadPackage (packageName)
