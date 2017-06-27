@@ -33,6 +33,8 @@ OOP.Class:Assimilate (OOP.Class )
 -- OOP.Object0 = OOP.Class3:OOP.Object0<OOP.Object0>
 -- OOP.Class3  = OOP.Class3:OOP.Object0<OOP.Class3:OOP.Object0>
 
+OOP.Interface = OOP.Class
+
 include ("enum.lua")
 include ("flags.lua")
 
@@ -55,6 +57,7 @@ function OOP.Initialize (destinationTable)
 	
 	destinationTable.Object         = OOP.Object
 	destinationTable.Class          = OOP.Class
+	destinationTable.Interface      = OOP.Interface
 	destinationTable.Enum           = OOP.Enum
 	destinationTable.Flags          = OOP.Flags
 	destinationTable.Event          = OOP.Event

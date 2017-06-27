@@ -1,5 +1,5 @@
 local self = {}
-IO.IStreamWriter = Class (self, IO.IOutputStream)
+IO.IStreamWriter = Interface (self, IO.IOutputStream)
 
 function self:ctor ()
 end

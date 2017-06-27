@@ -1,5 +1,5 @@
 local self = {}
-IO.IStreamReader = Class (self, IO.IInputStream)
+IO.IStreamReader = Interface (self, IO.IInputStream)
 
 function self:ctor ()
 end

@@ -1,5 +1,5 @@
 local self = {}
-IO.IBaseStream = Class (self, IDisposable)
+IO.IBaseStream = Interface (self, IDisposable)
 
 function self:ctor ()
 end

@@ -1,5 +1,5 @@
 local self = {}
-Text.ITextSink = Class (self)
+Text.ITextSink = Interface (self)
 
 function self:ctor ()
 end

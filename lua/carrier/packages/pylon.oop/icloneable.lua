@@ -1,5 +1,5 @@
 local self = {}
-OOP.ICloneable = OOP.Class (self)
+OOP.ICloneable = OOP.Interface (self)
 
 function self:ctor ()
 end

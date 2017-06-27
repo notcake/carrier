@@ -1,5 +1,5 @@
 local self = {}
-OOP.IDisposable = OOP.Class (self)
+OOP.IDisposable = OOP.Interface (self)
 
 self.Disposed = OOP.Event ()
 

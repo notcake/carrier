@@ -1,5 +1,5 @@
 local self = {}
-Packages.IPackageRelease = Class (self)
+Packages.IPackageRelease = Interface (self)
 
 function self:ctor ()
 end

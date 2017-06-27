@@ -1,6 +1,6 @@
 -- interface IEnumerable<T>
 local self = {}
-Enumeration.IEnumerable = Class (self)
+Enumeration.IEnumerable = Interface (self)
 
 function self:ctor ()
 end

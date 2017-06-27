@@ -1,5 +1,5 @@
 local self = {}
-IO.IInputStream = Class (self, IO.IBaseStream)
+IO.IInputStream = Interface (self, IO.IBaseStream)
 
 function self:ctor ()
 end

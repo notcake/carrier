@@ -1,5 +1,5 @@
 local self = {}
-Util.ISavable = Class (self)
+Util.ISavable = Interface (self)
 
 function self:ctor ()
 end

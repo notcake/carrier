@@ -1,5 +1,5 @@
 local self = {}
-Packages.IPackage = Class (self)
+Packages.IPackage = Interface (self)
 
 function self:ctor ()
 end

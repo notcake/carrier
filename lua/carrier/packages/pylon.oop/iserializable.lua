@@ -1,5 +1,5 @@
 local self = {}
-OOP.ISerializable = OOP.Class (self)
+OOP.ISerializable = OOP.Interface (self)
 
 function self:ctor ()
 end
