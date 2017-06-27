@@ -35,7 +35,7 @@ end
 
 -- IInputStream
 function self:Read (length)
-	return self.File:Read (length)
+	return self.File:Read (length) or ""
 end
 
 -- IStreamReader
