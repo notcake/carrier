@@ -1,7 +1,7 @@
 local self = {}
 OOP.IDisposable = OOP.Class (self)
 
-self.Disposed = OOP.Event ():SetDescription ("Fired when this object has been disposed.")
+self.Disposed = OOP.Event ()
 
 function self:ctor ()
 	self._Disposed = false

@@ -1,29 +1,15 @@
 local self = {}
 OOP.Event = OOP.Class (self, OOP.ICloneable)
 
-OOP.Event.NextInstanceId = 0
-
-function self:ctor (instance, name)
-	self.InstanceId = OOP.Event.NextInstanceId
-	OOP.Event.NextInstanceId = OOP.Event.NextInstanceId + 1
+function self:ctor (name)
+	self.Name = name
 	
-	self.Instance    = instance
-	self.Name        = name
-	self.Description = nil
-	
-	self.Listeners   = {}
-end
-
-function self:dtor ()
-	self.Instance = nil
-	self:ClearListeners ()
+	self.Listeners = {}
 end
 
 -- ICloneable
 function self:Copy (source)
-	self.Instance    = source.Instance
-	self.Name        = source.Name
-	self.Description = source.Description
+	self.Name = source.Name
 	
 	if next (self.Listeners) then
 		self:ClearListeners ()
@@ -41,30 +27,12 @@ function self:GetInstanceId ()
 	return self.InstanceId
 end
 
-function self:GetInstance ()
-	return self.Instance
-end
-
 function self:GetName ()
 	return self.Name
 end
 
-function self:GetDescription ()
-	return self.Description
-end
-
-function self:SetInstance (instance)
-	self.Instance = instance
-	return self
-end
-
 function self:SetName (name)
 	self.Name = name
-	return self
-end
-
-function self:SetDescription (description)
-	self.Description = description
 	return self
 end
 
@@ -80,20 +48,12 @@ function self:ClearListeners ()
 end
 
 function self:Dispatch (...)
-	local a, b, c = nil, nil, nil
-	
 	for callbackName, callback in pairs (self.Listeners) do
-		local success, r0, r1, r2 = xpcall (callback, ErrorNoHalt, self.Instance, ...)
+		local success = xpcall (callback, ErrorNoHalt, ...)
 		if not success then
-			ErrorNoHalt ("Error in hook " .. self.Name .. ": " .. tostring (callbackName) .. "!\n")
-		else
-			a = a or r0
-			b = b or r1
-			c = c or r2
+			ErrorNoHalt ("Error in event " .. self.Name .. " listener: " .. tostring (callbackName) .. "!\n")
 		end
 	end
-	
-	return a, b, c
 end
 
 function self:RemoveListener (nameOrCallback)

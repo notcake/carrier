@@ -216,7 +216,7 @@ function self:CreateAuxiliaryConstructor ()
 	
 	return function (self, ...)
 		for eventName, event in pairs (events) do
-			self [eventName] = event:Clone ():SetInstance (self)
+			self [eventName] = event:Clone ()
 		end
 		
 		for i = 1, #initializedProperties do
@@ -472,12 +472,6 @@ function self:GetEvents ()
 				self.Events [#self.Events + 1] = v
 			end
 		end
-		
-		table.sort (self.Events,
-			function (a, b)
-				return a:GetInstanceId () < b:GetInstanceId ()
-			end
-		)
 	end
 	
 	return self.Events
