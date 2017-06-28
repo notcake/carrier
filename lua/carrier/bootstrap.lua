@@ -32,10 +32,51 @@ function Carrier.Package(name)
 end
 
 local sv_allowcslua = GetConVar ("sv_allowcslua")
-function Carrier.LuaFileExists (path)
-	if file.Exists (path, "LUA") then return true end
-	if not sv_allowcslua:GetBool () then return false end
-	return file.Exists (path, "LCL")
+
+-- Package existence cache
+Carrier.PackageCache = {}
+function Carrier.InvalidatePackageCache ()
+	if not next (Carrier.PackageCache) then return end
+	Carrier.PackageCache = {}
+end
+
+function Carrier.RebuildPackageCache (pathId)
+	Carrier.PackageCache [pathId] = {}
+	Carrier.PackageCache [pathId].Files       = {}
+	Carrier.PackageCache [pathId].Directories = {}
+	
+	local files, folders = file.Find ("carrier/packages/*", pathId)
+	for _, file in ipairs (files) do
+		Carrier.PackageCache [pathId].Files [string.lower (file)] = true
+	end
+	for _, folder in ipairs (folders) do
+		Carrier.PackageCache [pathId].Directories [string.lower (folder)] = true
+	end
+end
+
+function Carrier.PackageEntityExists (entityType, fileName, pathId)
+	if not Carrier.PackageCache [pathId] then
+		Carrier.RebuildPackageCache (pathId)
+	end
+	
+	return Carrier.PackageCache [pathId] [entityType] [fileName] ~= nil
+end
+
+function Carrier.PackageFileExists (fileName, pathId)
+	return Carrier.PackageEntityExists ("Files", fileName, pathId)
+end
+
+function Carrier.PackageDirectoryExists (fileName, pathId)
+	return Carrier.PackageEntityExists ("Directories", fileName, pathId)
+end
+
+function Carrier.LuaEntityExists (oracle, name)
+	if oracle (name, "LUA") then return true end
+	if sv_allowcslua:GetBool () then
+		return oracle (name, "LCL")
+	else
+		return false
+	end
 end
 
 function Carrier.LuaFileFind (path)
@@ -62,16 +103,19 @@ function Carrier.LoadPackage (packageName)
 		return packages [packageName].Exports
 	end
 	
-	print ("Carrier.LoadPackage : " .. packageName)
+	local t0 = SysTime ()
 	
 	local fileName = string.lower (packageName)
 	local ctorPath1 = "carrier/packages/" .. fileName .. ".lua"
 	local ctorPath2 = "carrier/packages/" .. fileName .. "/_ctor.lua"
-	local ctorPath1Exists = Carrier.LuaFileExists (ctorPath1)
-	local ctorPath2Exists = Carrier.LuaFileExists (ctorPath2)
+	local dtorPath1 = nil
+	local dtorPath2 = "carrier/packages/" .. fileName .. "/_dtor.lua"
+	local ctorPath1Exists = Carrier.LuaEntityExists (Carrier.PackageFileExists,      fileName .. ".lua")
+	local ctorPath2Exists = Carrier.LuaEntityExists (Carrier.PackageDirectoryExists, fileName)
 	
 	local includePath = nil
 	local ctorPath    = nil
+	local dtorPath    = nil
 	if ctorPath1Exists and ctorPath2Exists then
 		Carrier.Warning ("Package " .. packageName .. " has both a loadable file and a directory.")
 	elseif not ctorPath1Exists and not ctorPath2Exists then
@@ -82,18 +126,25 @@ function Carrier.LoadPackage (packageName)
 	if ctorPath1Exists then
 		includePath = "carrier/packages/"
 		ctorPath    = ctorPath1
+		dtorPath    = dtorPath1
 	elseif ctorPath2Exists then
 		includePath = "carrier/packages/" .. fileName .. "/"
 		ctorPath    = ctorPath2
+		dtorPath    = dtorPath2
 	end
-	
-	local f = CompileFile (ctorPath)
 	
 	local package = Carrier.Package (packageName)
 	packages [packageName] = package
 	package.Environment.include = function (path)
 		path = includePath .. path
+		local t0 = SysTime ()
 		local f = CompileFile (path)
+		local dt = SysTime () - t0
+		print (string.format ("Carrier.LoadPackage : CompileFile %s took %.2f ms", path, dt * 1000))
+		if not f then
+			Carrier.Warning (path .. " not found or has syntax error.")
+			return
+		end
 		setfenv (f, package.Environment)
 		return f ()
 	end
@@ -107,10 +158,29 @@ function Carrier.LoadPackage (packageName)
 		return Carrier.LoadPackage (packageName)
 	end
 	
-	setfenv (f, package.Environment)
-	package.Exports = f ()
+	
+	local f = CompileFile (ctorPath)
+	if f then
+		setfenv (f, package.Environment)
+		package.Exports = f ()
+	else
+		Carrier.Warning (ctorPath .. " not found or has syntax error.")
+		return
+	end
+	
+	if dtorPath and
+	   Carrier.LuaEntityExists (file.Exists, dtorPath) then
+		local f = CompileFile (dtorPath)
+		if f then
+			setfenv (f, package.Environment)
+			package.Destructor = f
+		end
+	end
 	
 	orderedPackages [#orderedPackages + 1] = packageName
+	
+	local dt = SysTime () - t0
+	print (string.format ("Carrier.LoadPackage : %s took %.2f ms", packageName, dt * 1000))
 	
 	return package.Exports
 end
@@ -120,14 +190,9 @@ function Carrier.UnloadPackage (packageName)
 	
 	print ("Carrier.UnloadPackage : " .. packageName)
 	
-	local fileName = string.lower (packageName)
-	local dtorPath = "carrier/packages/" .. fileName .. "/_dtor.lua"
-	if not Carrier.LuaFileExists (dtorPath) then return end
-	
-	local f = CompileFile (dtorPath)
-	
-	setfenv (f, packages [packageName].Environment)
-	f ()
+	if packages [packageName].Destructor then
+		packages [packageName].Destructor ()
+	end
 end
 
 function Carrier.Reload ()
@@ -135,12 +200,10 @@ function Carrier.Reload ()
 end
 
 function Carrier.Initialize ()
-	hook.Add ("ShutDown", "Carrier",
-		function ()
-			Carrier.Uninitialize ()
-		end
-	)
+	hook.Add ("OnReloaded", "Carrier", Carrier.InvalidatePackageCache)
+	hook.Add ("ShutDown", "Carrier",   Carrier.Uninitialize)
 	
+	local t0 = SysTime ()
 	Carrier.Packages = Carrier.LoadPackage ("Carrier.Packages")
 	Carrier.Packages.UI = Carrier.LoadPackage ("Carrier.Packages.UI")
 
@@ -157,6 +220,8 @@ function Carrier.Initialize ()
 			end
 		end
 	end
+	local dt = SysTime () - t0
+	print (string.format ("Carrier.Initialize took %.2f ms", dt * 1000))
 end
 
 function Carrier.Uninitialize ()
@@ -169,7 +234,8 @@ function Carrier.Uninitialize ()
 		Carrier.UnloadPackage (orderedPackages [i])
 	end
 	
-	hook.Remove ("ShutDown", "Carrier")
+	hook.Remove ("OnReloaded", "Carrier")
+	hook.Remove ("ShutDown",   "Carrier")
 end
 
 if SERVER then
