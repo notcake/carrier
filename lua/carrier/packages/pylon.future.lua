@@ -1,10 +1,9 @@
 local OOP = require ("Pylon.OOP")
-OOP.Initialize (_ENV)
 
-local CompactList = require ("Pylon.Structures.CompactList")
+local CompactList = require ("Pylon.Containers.CompactList")
 
 local self = {}
-local Future = Class (self)
+local Future = OOP.Class (self)
 
 function self:ctor ()
 	self.Resolved = false

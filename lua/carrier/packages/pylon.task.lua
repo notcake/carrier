@@ -2,7 +2,7 @@ local Task = {}
 
 local f           = require ("Pylon.Functional")
 
-local CompactList = require ("Pylon.Structures.CompactList")
+local CompactList = require ("Pylon.Containers.CompactList")
 local Future      = require ("Pylon.Future")
 
 function Task.RunCallback (f, ...)
