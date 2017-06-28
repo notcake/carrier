@@ -105,6 +105,7 @@ function Carrier.LoadPackage (packageName)
 	
 	local t0 = SysTime ()
 	
+	-- Resolve ctor
 	local fileName = string.lower (packageName)
 	local ctorPath1 = "carrier/packages/" .. fileName .. ".lua"
 	local ctorPath2 = "carrier/packages/" .. fileName .. "/_ctor.lua"
@@ -133,6 +134,7 @@ function Carrier.LoadPackage (packageName)
 		dtorPath    = dtorPath2
 	end
 	
+	-- Register package
 	local package = Carrier.Package (packageName)
 	packages [packageName] = package
 	package.Environment.include = function (path)
@@ -158,7 +160,7 @@ function Carrier.LoadPackage (packageName)
 		return Carrier.LoadPackage (packageName)
 	end
 	
-	
+	-- ctor
 	local f = CompileFile (ctorPath)
 	if f then
 		setfenv (f, package.Environment)
@@ -168,6 +170,7 @@ function Carrier.LoadPackage (packageName)
 		return
 	end
 	
+	-- dtor
 	if dtorPath and
 	   Carrier.LuaEntityExists (file.Exists, dtorPath) then
 		local f = CompileFile (dtorPath)
