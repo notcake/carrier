@@ -1,9 +1,10 @@
 local self = {}
-GarrysMod.View = Class (self, Core.IView)
+GarrysMod.View = Class (self, IView)
 
 self.Layout = Event ()
 
 function self:ctor ()
+	self.LayoutEngine = nil
 end
 
 function self:dtor ()
@@ -58,6 +59,11 @@ function self:Center ()
 	self:GetPanel ():Center ()
 end
 
+function self:GetLayoutEngine ()
+	self.LayoutEngine = self.LayoutEngine or LayoutEngine ()
+	return self.LayoutEngine
+end
+
 -- Appearance
 function self:IsVisible ()
 	return self:GetPanel ():IsVisible ()
@@ -67,15 +73,40 @@ function self:SetVisible (visible)
 	self:GetPanel ():SetVisible (visible)
 end
 
+-- Internal
+function self:Render (w, h, render2d)
+end
+
 -- View
+local defaultRender = self.Render
 function self:GetPanel ()
 	if not self.Panel or
 	   not self.Panel:IsValid () then
 		self.Panel = self:CreatePanel ()
 		self.Panel.__view = self
 		
-		self.Panel.PerformLayout = function ()
-			self:OnLayout ()
+		local paint = self.Panel.Paint
+		self.Panel.Paint = function (_, w, h)
+			if self.Render == defaultRender then
+				if paint then
+					paint (_, w, h)
+				end
+			else
+				self:Render (w, h, Photon.Render2d.Instance)
+			end
+		end
+		
+		local performLayout = self.Panel.PerformLayout
+		self.Panel.PerformLayout = function (_, w, h)
+			if performLayout then
+				performLayout (_, w, h)
+			end
+			
+			if self.LayoutEngine then
+				self.LayoutEngine:Layout ()
+			end
+			
+			self:OnLayout (w, h)
 			self.Layout:Dispatch ()
 		end
 	end

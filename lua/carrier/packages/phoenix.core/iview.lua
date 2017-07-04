@@ -38,6 +38,17 @@ function self:SetSize (w, h)
 	Error ("IView:SetSize : Not implemented.")
 end
 
+function self:GetRectangle ()
+	local x, y = self:GetPosition ()
+	local w, h = self:GetSize ()
+	return x, y, w, h
+end
+
+function self:SetRectangle (x, y, w, h)
+	self:SetPosition (x, y)
+	self:SetSize (w, h)
+end
+
 function self:Center ()
 	Error ("IView:Center : Not implemented.")
 end
@@ -52,5 +63,8 @@ function self:SetVisible (visible)
 end
 
 -- Internal
-function self:OnLayout ()
+function self:OnLayout (w, h)
+end
+
+function self:Render (w, h, render2d)
 end

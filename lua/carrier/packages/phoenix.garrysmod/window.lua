@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.Window = Class (self, GarrysMod.View, Core.IWindow)
+GarrysMod.Window = Class (self, GarrysMod.View, IWindow)
 
 function self:ctor ()
 end
@@ -21,9 +21,4 @@ function self:CreatePanel ()
 	panel:SetKeyboardInputEnabled (false)
 	panel:SetVisible (false)
 	return panel
-end
-
--- Internal
-function self:OnLayout ()
-	DFrame.PerformLayout (self:GetPanel ())
 end

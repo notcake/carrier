@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.Label = Class (self, GarrysMod.View, Core.ILabel)
+GarrysMod.Label = Class (self, GarrysMod.View, ILabel)
 
 function self:ctor ()
 end

@@ -3,7 +3,9 @@ GarrysMod = {}
 require ("Pylon.OOP").Initialize (_ENV)
 
 Core = require ("Phoenix.Core")
-Core.Initialize (GarrysMod)
+Core.Initialize (_ENV)
+
+Photon = require ("Photon")
 
 include ("view.lua")
 include ("window.lua")
