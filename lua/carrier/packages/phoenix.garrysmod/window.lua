@@ -16,6 +16,7 @@ end
 -- View
 function self:CreatePanel ()
 	local panel = vgui.Create ("DFrame")
+	panel:SetSizable (true)
 	panel:SetDeleteOnClose (false)
 	panel:MakePopup ()
 	panel:SetKeyboardInputEnabled (false)
