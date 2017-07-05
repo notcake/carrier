@@ -2,6 +2,8 @@ GarrysMod = {}
 
 require ("Pylon.OOP").Initialize (_ENV)
 
+Color = require ("Pylon.Color")
+
 Core = require ("Photon.Core")
 Core.Initialize (_ENV)
 
