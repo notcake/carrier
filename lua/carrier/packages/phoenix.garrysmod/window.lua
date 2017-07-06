@@ -4,6 +4,17 @@ GarrysMod.Window = Class (self, GarrysMod.View, IWindow)
 function self:ctor ()
 end
 
+-- IView
+-- Content layout
+function self:GetContentPosition ()
+	return 4, 24
+end
+
+function self:GetContentSize ()
+	local w, h = self:GetSize ()
+	return w - 8, h - 28
+end
+
 -- IWindow
 function self:GetTitle ()
 	return self:GetPanel ():GetTitle ()

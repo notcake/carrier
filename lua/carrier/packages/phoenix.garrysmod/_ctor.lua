@@ -7,9 +7,13 @@ Core.Initialize (_ENV)
 
 Photon = require ("Photon")
 
+include ("panelviews.lua")
+
 include ("view.lua")
 include ("window.lua")
 include ("label.lua")
+
+include ("externalview.lua")
 
 function GarrysMod.Initialize (destinationTable)
 	destinationTable = destinationTable or {}

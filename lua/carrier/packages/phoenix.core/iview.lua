@@ -53,6 +53,19 @@ function self:Center ()
 	Error ("IView:Center : Not implemented.")
 end
 
+-- Content layout
+function self:GetContentPosition ()
+	return 0, 0
+end
+
+function self:GetContentSize ()
+	return self:GetSize ()
+end
+
+function self:GetContentRectangle ()
+	return 0, 0, self:GetSize ()
+end
+
 -- Appearance
 function self:IsVisible ()
 	Error ("IView:IsVisible : Not implemented.")
@@ -63,7 +76,7 @@ function self:SetVisible (visible)
 end
 
 -- Internal
-function self:OnLayout (w, h)
+function self:OnLayout (contentWidth, contentHeight)
 end
 
 function self:Render (w, h, render2d)

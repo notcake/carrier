@@ -4,10 +4,14 @@ GarrysMod.View = Class (self, IView)
 self.Layout = Event ()
 
 function self:ctor ()
+	self.Panel = nil
+	
 	self.LayoutEngine = nil
 end
 
 function self:dtor ()
+	PanelViews.Unregister (self.Panel, self)
+	
 	if self.Panel and
 	   self.Panel:IsValid () then
 		self.Panel:Remove ()
@@ -27,7 +31,8 @@ end
 
 function self:GetParent ()
 	local panel = self:GetPanel ():GetParent ()
-	return panel:IsValid () and panel.__view or nil
+	if not panel:IsValid () then return nil end
+	return PanelViews.GetView (panel)
 end
 
 function self:SetParent (view)
@@ -44,7 +49,8 @@ function self:GetPosition ()
 end
 
 function self:SetPosition (x, y)
-	self:GetPanel ():SetPos (x, y)
+	local dx, dy = self:GetParent ():GetContentPosition ()
+	self:GetPanel ():SetPos (x + dx, y + dy)
 end
 
 function self:GetSize ()
@@ -83,7 +89,7 @@ function self:GetPanel ()
 	if not self.Panel or
 	   not self.Panel:IsValid () then
 		self.Panel = self:CreatePanel ()
-		self.Panel.__view = self
+		PanelViews.Register (self.Panel, self)
 		
 		local paint = self.Panel.Paint
 		self.Panel.Paint = function (_, w, h)
@@ -103,10 +109,10 @@ function self:GetPanel ()
 			end
 			
 			if self.LayoutEngine then
-				self.LayoutEngine:Layout ()
+				self.LayoutEngine:Layout (self:GetContentSize ())
 			end
 			
-			self:OnLayout (w, h)
+			self:OnLayout (self:GetContentSize ())
 			self.Layout:Dispatch ()
 		end
 	end
