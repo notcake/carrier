@@ -175,17 +175,9 @@ end
 
 local methodTable = self
 function self:InstallPanelEventHandler (panelMethodName, methodName, handler)
-	local defaultMethod = self.Panel [panelMethodName]
+	if self [methodName] == methodTable [methodName] then return end
 	
-	if self [methodName] == methodTable [methodName] and
-	   defaultMethod then
-		self.Panel [panelMethodName] = function (_, ...)
-			defaultMethod (self.Panel, ...)
-			handler (...)
-		end
-	else
-		self.Panel [panelMethodName] = function (_, ...)
-			handler (...)
-		end
+	self.Panel [panelMethodName] = function (_, ...)
+		handler (...)
 	end
 end
