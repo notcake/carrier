@@ -90,81 +90,61 @@ function self:OnMouseLeave () end
 function self:Render (w, h, render2d) end
 
 -- View
-local methodTable = self
 function self:GetPanel ()
 	if not self.Panel or
 	   not self.Panel:IsValid () then
 		self.Panel = self:CreatePanel ()
 		PanelViews.Register (self.Panel, self)
 		
-		local mousePressed  = self.Panel.OnMousePressed
-		local mouseReleased = self.Panel.OnMouseReleased
-		local mouseWheeled  = self.Panel.OnMouseWheeled
-		local cursorMoved   = self.Panel.OnCursorMoved
-		local cursorEntered = self.Panel.OnCursorEntered
-		local cursorExited  = self.Panel.OnCursorExited
+		local mousePressed = self.Panel.OnMousePressed
 		self.Panel.OnMousePressed = function (_, mouseCode)
-			if self.OnMouseDown == methodTable.OnMouseDown then
-				if mousePressed then
-					mousePressed (_, mouseCode)
-				end
-			end
+			self:CallDefaultFiltered ("OnMouseDown", mousePressed, mouseCode)
 			
 			local mouseButtons = MouseButtons.FromNative (mouseCode)
 			local x, y = self.Panel:CursorPos ()
 			self:OnMouseDown (mouseButtons, x, y)
 			self.MouseDown:Dispatch (mouseButtons, x, y)
 		end
+		
+		local mouseReleased = self.Panel.OnMouseReleased
 		self.Panel.OnMouseReleased = function (_, mouseCode)
-			if self.OnMouseUp == methodTable.OnMouseUp then
-				if mouseReleased then
-					mouseReleased (_, mouseCode)
-				end
-			end
+			self:CallDefaultFiltered ("OnMouseUp", mouseReleased, mouseCode)
 			
 			local mouseButtons = MouseButtons.FromNative (mouseCode)
 			local x, y = self.Panel:CursorPos ()
 			self:OnMouseUp (mouseButtons, x, y)
 			self.MouseUp:Dispatch (mouseButtons, x, y)
 		end
+		
+		local mouseWheeled = self.Panel.OnMouseWheeled
 		self.Panel.OnMouseWheeled = function (_, delta)
-			if self.OnMouseWheel == methodTable.OnMouseWheel then
-				if mouseWheeled then
-					mouseWheeled (_, delta)
-				end
-			end
+			self:CallDefaultFiltered ("OnMouseWheel", mouseWheeled, delta)
 			
 			self:OnMouseWheel (delta)
 			self.MouseWheel:Dispatch (delta)
 		end
+		
+		local cursorMoved = self.Panel.OnCursorMoved
 		self.Panel.OnCursorMoved = function (_, x, y)
-			if self.OnMouseMove == methodTable.OnMouseMove then
-				if cursorMoved then
-					cursorMoved (_, x, y)
-				end
-			end
+			self:CallDefaultFiltered ("OnMouseMove", cursorMoved, x, y)
 			
 			local mouseButtons = MouseButtons.Poll ()
 			local x, y = self.Panel:CursorPos ()
 			self:OnMouseMove (mouseButtons, x, y)
 			self.MouseMove:Dispatch (mouseButtons, x, y)
 		end
+		
+		local cursorEntered = self.Panel.OnCursorEntered
 		self.Panel.OnCursorEntered = function (_)
-			if self.OnMouseEnter == methodTable.OnMouseEnter then
-				if cursorEntered then
-					cursorEntered (_)
-				end
-			end
+			self:CallDefaultFiltered ("OnMouseEnter", cursorEntered)
 			
 			self:OnMouseEnter ()
 			self.MouseEnter:Dispatch ()
 		end
+		
+		local cursorExited = self.Panel.OnCursorExited
 		self.Panel.OnCursorExited = function (_)
-			if self.OnMouseLeave == methodTable.OnMouseLeave then
-				if cursorExited then
-					cursorExited (_)
-				end
-			end
+			self:CallDefaultFiltered ("OnMouseLeave", cursorEntered)
 			
 			self:OnMouseLeave ()
 			self.MouseLeave:Dispatch ()
@@ -172,13 +152,9 @@ function self:GetPanel ()
 		
 		local paint = self.Panel.Paint
 		self.Panel.Paint = function (_, w, h)
-			if self.Render == methodTable.Render then
-				if paint then
-					paint (_, w, h)
-				end
-			else
-				self:Render (w, h, Photon.Render2d.Instance)
-			end
+			self:CallDefaultFiltered ("Render", paint, w, h)
+			
+			self:Render (w, h, Photon.Render2d.Instance)
 		end
 		
 		local performLayout = self.Panel.PerformLayout
@@ -199,6 +175,16 @@ function self:GetPanel ()
 	return self.Panel
 end
 
+-- Internal
 function self:CreatePanel ()
 	return vgui.Create ("DPanel")
+end
+
+local methodTable = self
+function self:CallDefaultFiltered (methodName, default, ...)
+	if self [methodName] == methodTable [methodName] then
+		if default then
+			default (self.Panel, ...)
+		end
+	end
 end
