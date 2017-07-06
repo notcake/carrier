@@ -1,6 +1,15 @@
 local self = {}
 Core.IView = Interface (self)
 
+self.Layout     = Event ()
+
+self.MouseDown  = Event ()
+self.MouseMove  = Event ()
+self.MouseUp    = Event ()
+self.MouseWheel = Event ()
+self.MouseEnter = Event ()
+self.MouseLeave = Event ()
+
 function self:ctor ()
 end
 
@@ -76,8 +85,15 @@ function self:SetVisible (visible)
 end
 
 -- Internal
-function self:OnLayout (contentWidth, contentHeight)
-end
+function self:OnLayout (contentWidth, contentHeight) end
 
-function self:Render (w, h, render2d)
-end
+function self:OnMouseDown (mouseButtons, x, y) end
+function self:OnMouseMove (mouseButtons, x, y) end
+function self:OnMouseUp   (mouseButtons, x, y) end
+
+function self:OnMouseWheel (delta) end
+
+function self:OnMouseEnter () end
+function self:OnMouseLeave () end
+
+function self:Render (w, h, render2d) end

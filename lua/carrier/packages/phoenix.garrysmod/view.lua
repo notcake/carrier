@@ -1,8 +1,6 @@
 local self = {}
 GarrysMod.View = Class (self, IView)
 
-self.Layout = Event ()
-
 function self:ctor ()
 	self.Panel = nil
 	
@@ -80,20 +78,101 @@ function self:SetVisible (visible)
 end
 
 -- Internal
-function self:Render (w, h, render2d)
-end
+function self:OnMouseDown (mouseButtons, x, y) end
+function self:OnMouseMove (mouseButtons, x, y) end
+function self:OnMouseUp   (mouseButtons, x, y) end
+
+function self:OnMouseWheel (delta) end
+
+function self:OnMouseEnter () end
+function self:OnMouseLeave () end
+
+function self:Render (w, h, render2d) end
 
 -- View
-local defaultRender = self.Render
+local methodTable = self
 function self:GetPanel ()
 	if not self.Panel or
 	   not self.Panel:IsValid () then
 		self.Panel = self:CreatePanel ()
 		PanelViews.Register (self.Panel, self)
 		
+		local mousePressed  = self.Panel.OnMousePressed
+		local mouseReleased = self.Panel.OnMouseReleased
+		local mouseWheeled  = self.Panel.OnMouseWheeled
+		local cursorMoved   = self.Panel.OnCursorMoved
+		local cursorEntered = self.Panel.OnCursorEntered
+		local cursorExited  = self.Panel.OnCursorExited
+		self.Panel.OnMousePressed = function (_, mouseCode)
+			if self.OnMouseDown == methodTable.OnMouseDown then
+				if mousePressed then
+					mousePressed (_, mouseCode)
+				end
+			end
+			
+			local mouseButtons = MouseButtons.FromNative (mouseCode)
+			local x, y = self.Panel:CursorPos ()
+			self:OnMouseDown (mouseButtons, x, y)
+			self.MouseDown:Dispatch (mouseButtons, x, y)
+		end
+		self.Panel.OnMouseReleased = function (_, mouseCode)
+			if self.OnMouseUp == methodTable.OnMouseUp then
+				if mouseReleased then
+					mouseReleased (_, mouseCode)
+				end
+			end
+			
+			local mouseButtons = MouseButtons.FromNative (mouseCode)
+			local x, y = self.Panel:CursorPos ()
+			self:OnMouseUp (mouseButtons, x, y)
+			self.MouseUp:Dispatch (mouseButtons, x, y)
+		end
+		self.Panel.OnMouseWheeled = function (_, delta)
+			if self.OnMouseWheel == methodTable.OnMouseWheel then
+				if mouseWheeled then
+					mouseWheeled (_, delta)
+				end
+			end
+			
+			self:OnMouseWheel (delta)
+			self.MouseWheel:Dispatch (delta)
+		end
+		self.Panel.OnCursorMoved = function (_, x, y)
+			if self.OnMouseMove == methodTable.OnMouseMove then
+				if cursorMoved then
+					cursorMoved (_, x, y)
+				end
+			end
+			
+			local mouseButtons = MouseButtons.Poll ()
+			local x, y = self.Panel:CursorPos ()
+			self:OnMouseMove (mouseButtons, x, y)
+			self.MouseMove:Dispatch (mouseButtons, x, y)
+		end
+		self.Panel.OnCursorEntered = function (_)
+			if self.OnMouseEnter == methodTable.OnMouseEnter then
+				if cursorEntered then
+					cursorEntered (_)
+				end
+			end
+			
+			self:OnMouseEnter ()
+			self.MouseEnter:Dispatch ()
+		end
+		self.Panel.OnCursorExited = function (_)
+			if self.OnMouseLeave == methodTable.OnMouseLeave then
+				if cursorExited then
+					cursorExited (_)
+				end
+			end
+			
+			self:OnMouseLeave ()
+			self.MouseLeave:Dispatch ()
+		end
+		
 		local paint = self.Panel.Paint
 		self.Panel.Paint = function (_, w, h)
-			if self.Render == defaultRender then
+			if self.Render == methodTable.Render then
 				if paint then
 					paint (_, w, h)
 				end

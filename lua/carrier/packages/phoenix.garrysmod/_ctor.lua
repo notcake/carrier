@@ -7,6 +7,8 @@ Core.Initialize (_ENV)
 
 Photon = require ("Photon")
 
+include ("mousebuttons.lua")
+
 include ("panelviews.lua")
 
 include ("view.lua")
