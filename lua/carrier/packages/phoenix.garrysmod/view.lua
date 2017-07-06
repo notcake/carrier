@@ -96,66 +96,59 @@ function self:GetPanel ()
 		self.Panel = self:CreatePanel ()
 		PanelViews.Register (self.Panel, self)
 		
-		local mousePressed = self.Panel.OnMousePressed
-		self.Panel.OnMousePressed = function (_, mouseCode)
-			self:CallDefaultFiltered ("OnMouseDown", mousePressed, mouseCode)
-			
-			local mouseButtons = MouseButtons.FromNative (mouseCode)
-			local x, y = self.Panel:CursorPos ()
-			self:OnMouseDown (mouseButtons, x, y)
-			self.MouseDown:Dispatch (mouseButtons, x, y)
-		end
+		self:InstallPanelEventHandler ("OnMousePressed", "OnMouseDown",
+			function (mouseCode)
+				local mouseButtons = MouseButtons.FromNative (mouseCode)
+				local x, y = self.Panel:CursorPos ()
+				self:OnMouseDown (mouseButtons, x, y)
+				self.MouseDown:Dispatch (mouseButtons, x, y)
+			end
+		)
 		
-		local mouseReleased = self.Panel.OnMouseReleased
-		self.Panel.OnMouseReleased = function (_, mouseCode)
-			self:CallDefaultFiltered ("OnMouseUp", mouseReleased, mouseCode)
-			
-			local mouseButtons = MouseButtons.FromNative (mouseCode)
-			local x, y = self.Panel:CursorPos ()
-			self:OnMouseUp (mouseButtons, x, y)
-			self.MouseUp:Dispatch (mouseButtons, x, y)
-		end
+		self:InstallPanelEventHandler ("OnMouseReleased", "OnMouseUp",
+			function (mouseCode)
+				local mouseButtons = MouseButtons.FromNative (mouseCode)
+				local x, y = self.Panel:CursorPos ()
+				self:OnMouseUp (mouseButtons, x, y)
+				self.MouseUp:Dispatch (mouseButtons, x, y)
+			end
+		)
 		
-		local mouseWheeled = self.Panel.OnMouseWheeled
-		self.Panel.OnMouseWheeled = function (_, delta)
-			self:CallDefaultFiltered ("OnMouseWheel", mouseWheeled, delta)
-			
-			self:OnMouseWheel (delta)
-			self.MouseWheel:Dispatch (delta)
-		end
+		self:InstallPanelEventHandler ("OnMouseWheeled", "OnMouseWheel",
+			function (delta)
+				self:OnMouseWheel (delta)
+				self.MouseWheel:Dispatch (delta)
+			end
+		)
 		
-		local cursorMoved = self.Panel.OnCursorMoved
-		self.Panel.OnCursorMoved = function (_, x, y)
-			self:CallDefaultFiltered ("OnMouseMove", cursorMoved, x, y)
-			
-			local mouseButtons = MouseButtons.Poll ()
-			local x, y = self.Panel:CursorPos ()
-			self:OnMouseMove (mouseButtons, x, y)
-			self.MouseMove:Dispatch (mouseButtons, x, y)
-		end
+		self:InstallPanelEventHandler ("OnCursorMoved", "OnMouseMove",
+			function (x, y)
+				local mouseButtons = MouseButtons.Poll ()
+				local x, y = self.Panel:CursorPos ()
+				self:OnMouseMove (mouseButtons, x, y)
+				self.MouseMove:Dispatch (mouseButtons, x, y)
+			end
+		)
 		
-		local cursorEntered = self.Panel.OnCursorEntered
-		self.Panel.OnCursorEntered = function (_)
-			self:CallDefaultFiltered ("OnMouseEnter", cursorEntered)
-			
-			self:OnMouseEnter ()
-			self.MouseEnter:Dispatch ()
-		end
+		self:InstallPanelEventHandler ("OnCursorEntered", "OnMouseEnter",
+			function ()
+				self:OnMouseEnter ()
+				self.MouseEnter:Dispatch ()
+			end
+		)
 		
-		local cursorExited = self.Panel.OnCursorExited
-		self.Panel.OnCursorExited = function (_)
-			self:CallDefaultFiltered ("OnMouseLeave", cursorEntered)
-			
-			self:OnMouseLeave ()
-			self.MouseLeave:Dispatch ()
-		end
+		self:InstallPanelEventHandler ("OnCursorExited", "OnMouseLeave",
+			function ()
+				self:OnMouseLeave ()
+				self.MouseLeave:Dispatch ()
+			end
+		)
 		
-		local paint = self.Panel.Paint
-		self.Panel.Paint = function (_, w, h)
-			self:CallDefaultFiltered ("Render", paint, w, h)
-			
-			self:Render (w, h, Photon.Render2d.Instance)
-		end
+		self:InstallPanelEventHandler ("Paint", "Render",
+			function (w, h)
+				self:Render (w, h, Photon.Render2d.Instance)
+			end
+		)
 		
 		local performLayout = self.Panel.PerformLayout
 		self.Panel.PerformLayout = function (_, w, h)
@@ -181,10 +174,15 @@ function self:CreatePanel ()
 end
 
 local methodTable = self
-function self:CallDefaultFiltered (methodName, default, ...)
-	if self [methodName] == methodTable [methodName] then
-		if default then
-			default (self.Panel, ...)
+function self:InstallPanelEventHandler (panelMethodName, methodName, handler)
+	local defaultMethod = self.Panel [panelMethodName]
+	self.Panel [panelMethodName] = function (_, ...)
+		if self [methodName] == methodTable [methodName] then
+			if defaultMethod then
+				defaultMethod (self.Panel, ...)
+			end
 		end
+		
+		handler (...)
 	end
 end
