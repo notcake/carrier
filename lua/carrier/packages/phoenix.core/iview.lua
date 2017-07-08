@@ -84,6 +84,15 @@ function self:SetVisible (visible)
 	Error ("IView:SetVisible : Not implemented.")
 end
 
+-- Mouse
+function self:GetCursor ()
+	Error ("IView:GetCursor : Not implemented.")
+end
+
+function self:SetCursor (cursor)
+	Error ("IView:SetCursor : Not implemented.")
+end
+
 -- Internal
 function self:OnLayout (contentWidth, contentHeight) end
 

@@ -4,6 +4,7 @@ GarrysMod.View = Class (self, IView)
 function self:ctor ()
 	self.Panel = nil
 	
+	self.Cursor = Core.Cursor.Default
 	self.LayoutEngine = nil
 end
 
@@ -75,6 +76,16 @@ end
 
 function self:SetVisible (visible)
 	self:GetPanel ():SetVisible (visible)
+end
+
+-- Mouse
+function self:GetCursor ()
+	return self.Cursor
+end
+
+function self:SetCursor (cursor)
+	self.Cursor = cursor
+	self:GetPanel ():SetCursor (Cursor.ToNative (cursor))
 end
 
 -- Internal
