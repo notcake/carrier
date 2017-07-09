@@ -20,7 +20,22 @@ local ResizeDirection = Enum (
 function self:ctor ()
 	self.TitleBarHeight = 24
 	
-	self.DragMode   = DragMode.None
+	self.Maximizable = true
+	self.Maximized   = false
+	
+	self.RestoredX      = nil
+	self.RestoredY      = nil
+	self.RestoredWidth  = nil
+	self.RestoredHeight = nil
+	
+	self.Resizable = true
+	
+	self.DragMode = DragMode.None
+	
+	-- Dragging only starts when the mouse has moved enough
+	-- or the mouse is pressed for long enough
+	self.DragConfirmed = false
+	self.DragStartTime = nil
 	
 	-- Mouse position in parent coordinates at start of drag operation
 	self.DragX      = nil
@@ -35,6 +50,23 @@ function self:ctor ()
 	-- Resize directions
 	self.ResizeHorizontal = ResizeDirection.None
 	self.ResizeVertical   = ResizeDirection.None
+	
+	-- Restore button
+	self.RestoreButton = GarrysMod.Window.RestoreButton ()
+	self.RestoreButton:SetParent (self)
+	self.RestoreButton.Click:AddListener (
+		function ()
+			self:Restore ()
+		end
+	)
+	self.RestoreButton:SetVisible (false)
+	
+	self.Layout:AddListener (
+		function (w, h)
+			self.RestoreButton:GetPanel ():SetPos  (self:GetPanel ().btnMaxim:GetPos  ())
+			self.RestoreButton:GetPanel ():SetSize (self:GetPanel ().btnMaxim:GetSize ())
+		end
+	)
 end
 
 -- IView
@@ -55,6 +87,8 @@ function self:OnMouseDown (buttons, x, y)
 		if dragMode ~= DragMode.None then
 			-- Start resize or move
 			self.DragMode = dragMode
+			self.DragConfirmed = false
+			self.DragStartTime = Clock ()
 			
 			-- Save bounds
 			self.DragLeft, self.DragTop = self:GetPosition ()
@@ -93,11 +127,11 @@ function self:OnMouseMove (buttons, x, y)
 			self:SetCursor (Core.Cursor.Default)
 		end
 	else
-		-- Convert to parent coordinates
+		-- Convert (x, y) to parent coordinates
 		local dx, dy = self:GetPosition ()
 		local x, y = x + dx, y + dy
 		
-		-- Clamp to parent bounds
+		-- Clamp (x, y) to parent bounds
 		local parentWidth, parentHeight = self:GetParent ():GetSize ()
 		local x = math.max (0, math.min (parentWidth  - 1, x))
 		local y = math.max (0, math.min (parentHeight - 1, y))
@@ -105,7 +139,20 @@ function self:OnMouseMove (buttons, x, y)
 		local dx = x - self.DragX
 		local dy = y - self.DragY
 		
+		self.DragConfirmed = self.DragConfirmed or (Clock () - self.DragStartTime > 0.5)
+		self.DragConfirmed = self.DragConfirmed or (dx * dx + dy * dy >= 64)
+		
+		if not self.DragConfirmed then return end
+		
 		if self.DragMode == DragMode.Move then
+			if self:IsMaximized () then
+				local newLocalX = (x - self:GetX ()) / self:GetWidth () * self.RestoredWidth
+				self.DragLeft   = x - newLocalX
+				self.DragRight  = self.DragLeft + self.RestoredWidth
+				self.DragBottom = self.DragTop + self.RestoredHeight
+				self:Restore ()
+			end
+			
 			self:SetPosition (self.DragLeft + dx, self.DragTop + dy)
 		elseif self.DragMode == DragMode.Resize then
 			local x1, y1 = self.DragLeft,  self.DragTop
@@ -136,6 +183,19 @@ function self:OnMouseUp (buttons, x, y)
 	end
 end
 
+function self:OnDoubleClick ()
+	local x, y = self:GetMousePosition ()
+	if y < self.TitleBarHeight then
+		if not self:CanMaximize () then return end
+		
+		if self:IsMaximized () then
+			self:Restore ()
+		else
+			self:Maximize ()
+		end
+	end
+end
+
 -- IWindow
 function self:GetTitle ()
 	return self:GetPanel ():GetTitle ()
@@ -148,32 +208,86 @@ end
 -- View
 function self:CreatePanel ()
 	local panel = vgui.Create ("DFrame")
-	panel:SetSizable (true)
+	panel:SetSizable (self:IsResizable ())
 	panel:SetDeleteOnClose (false)
 	panel:MakePopup ()
 	panel:SetKeyboardInputEnabled (false)
 	panel:SetVisible (false)
 	
+	-- Disable default resizing and moving behaviour
 	panel.Think = nil
+	
+	-- Fix maximize button
+	panel.btnMaxim:SetDisabled (not self:CanMaximize ())
+	panel.btnMaxim.DoClick = function (_)
+		self:Maximize ()
+	end
 	return panel
 end
 
 -- Window
+function self:CanMaximize ()
+	return self.Maximizable
+end
+
+function self:IsMaximized ()
+	return self.Maximized
+end
+
+function self:IsResizable ()
+	return self.Resizable
+end
+
+function self:Maximize ()
+	if self:IsMaximized () then return end
+	
+	self.RestoreButton:SetVisible (true)
+	self:GetPanel ().btnMaxim:SetVisible (false)
+	
+	self.Maximized = true
+	self.RestoredX,     self.RestoredY      = self:GetPosition ()
+	self.RestoredWidth, self.RestoredHeight = self:GetSize ()
+	
+	self:SetPosition (0, 0)
+	self:SetSize (self:GetParent ():GetSize ())
+end
+
+function self:Restore ()
+	if not self:IsMaximized () then return end
+	
+	self.RestoreButton:SetVisible (false)
+	self:GetPanel ().btnMaxim:SetVisible (true)
+	
+	self.Maximized = false
+	self:SetPosition (self.RestoredX, self.RestoredY)
+	self:SetSize (self.RestoredWidth, self.RestoredHeight)
+end
+
+function self:SetMaximizable (maximizable)
+	self.Maximizable = maximizable
+	self.btnMaxim:SetDisabled (not self.Maximizable)
+end
+
+function self:SetResizable (resizable)
+	self.Resizable = resizable
+	self:GetPanel ():SetSizable (self.Resizable)
+end
+
 -- Internal
 function self:HitTest (x, y)
 	local w, h = self:GetSize ()
 	
-	local resizeHorizontal
-	local resizeVertical
+	local resizeHorizontal = ResizeDirection.None
+	local resizeVertical   = ResizeDirection.None
 	
-	if     x < 4      then resizeHorizontal = ResizeDirection.Negative
-	elseif x >= w - 4 then resizeHorizontal = ResizeDirection.Positive
-	else                   resizeHorizontal = ResizeDirection.None
-	end
-	
-	if     y < 4      then resizeVertical = ResizeDirection.Negative
-	elseif y >= h - 4 then resizeVertical = ResizeDirection.Positive
-	else                   resizeVertical = ResizeDirection.None
+	if not self:IsMaximized () then
+		if     x < 6      then resizeHorizontal = ResizeDirection.Negative
+		elseif x >= w - 6 then resizeHorizontal = ResizeDirection.Positive
+		end
+		
+		if     y < 6      then resizeVertical = ResizeDirection.Negative
+		elseif y >= h - 6 then resizeVertical = ResizeDirection.Positive
+		end
 	end
 	
 	if resizeHorizontal ~= ResizeDirection.None or
