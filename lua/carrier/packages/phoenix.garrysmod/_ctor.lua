@@ -7,6 +7,8 @@ Core.Initialize (_ENV)
 
 Photon = require ("Photon")
 
+Clock = require ("Pylon.MonotonicClock")
+
 include ("cursor.lua")
 include ("mousebuttons.lua")
 
@@ -14,6 +16,7 @@ include ("panelviews.lua")
 
 include ("view.lua")
 include ("window.lua")
+include ("window.restorebutton.lua")
 include ("label.lua")
 
 include ("externalview.lua")

@@ -4,8 +4,10 @@ GarrysMod.View = Class (self, IView)
 function self:ctor ()
 	self.Panel = nil
 	
-	self.Cursor = Core.Cursor.Default
 	self.LayoutEngine = nil
+	
+	self.Cursor = Core.Cursor.Default
+	self.LastClickTime = -math.huge
 end
 
 function self:dtor ()
@@ -44,7 +46,9 @@ end
 
 -- Layout
 function self:GetPosition ()
-	return self:GetPanel ():GetPos ()
+	local dx, dy = self:GetParent ():GetContentPosition ()
+	local x, y = self:GetPanel ():GetPos ()
+	return x - dx, y - dy
 end
 
 function self:SetPosition (x, y)
@@ -58,6 +62,22 @@ end
 
 function self:SetSize (w, h)
 	self:GetPanel ():SetSize (w, h)
+end
+
+function self:GetWidth ()
+	return self:GetPanel ():GetWide ()
+end
+
+function self:SetWidth (w)
+	self:GetPanel ():SetWide (w)
+end
+
+function self:GetHeight ()
+	return self:GetPanel ():GetTall ()
+end
+
+function self:SetHeight (h)
+	self:GetPanel ():SetTall (h)
 end
 
 function self:Center ()
@@ -88,6 +108,10 @@ function self:SetCursor (cursor)
 	self:GetPanel ():SetCursor (Cursor.ToNative (cursor))
 end
 
+function self:GetMousePosition ()
+	return self:GetPanel ():CursorPos ()
+end
+
 function self:CaptureMouse ()
 	self:GetPanel ():MouseCapture (true)
 end
@@ -109,9 +133,16 @@ function self:OnMouseLeave () end
 function self:Render (w, h, render2d) end
 
 -- View
+local DummyPanel = {}
+function DummyPanel:IsValid ()
+	Error ("Cannot use View:GetPanel () within View:CreatePanel ()!")
+end
+function DummyPanel:Remove () end
+
 function self:GetPanel ()
 	if not self.Panel or
 	   not self.Panel:IsValid () then
+		self.Panel = DummyPanel
 		self.Panel = self:CreatePanel ()
 		PanelViews.Register (self.Panel, self)
 		
@@ -130,6 +161,20 @@ function self:GetPanel ()
 				local x, y = self.Panel:CursorPos ()
 				self:OnMouseUp (mouseButtons, x, y)
 				self.MouseUp:Dispatch (mouseButtons, x, y)
+				
+				if mouseButtons == Core.MouseButtons.Left then
+					if Clock () - self.LastClickTime > 0.2 then
+						self.LastClickTime = Clock ()
+						
+						self:OnClick ()
+						self.Click:Dispatch ()
+					else
+						self.LastClickTime = -math.huge
+						
+						self:OnDoubleClick ()
+						self.DoubleClick:Dispatch ()
+					end
+				end
 			end
 		)
 		
