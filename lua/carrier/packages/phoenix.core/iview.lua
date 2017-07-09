@@ -93,6 +93,14 @@ function self:SetCursor (cursor)
 	Error ("IView:SetCursor : Not implemented.")
 end
 
+function self:CaptureMouse ()
+	Error ("IView:CaptureMouse : Not implemented.")
+end
+
+function self:ReleaseMouse ()
+	Error ("IView:ReleaseMouse : Not implemented.")
+end
+
 -- Internal
 function self:OnLayout (contentWidth, contentHeight) end
 

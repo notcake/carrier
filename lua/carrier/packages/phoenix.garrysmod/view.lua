@@ -88,6 +88,14 @@ function self:SetCursor (cursor)
 	self:GetPanel ():SetCursor (Cursor.ToNative (cursor))
 end
 
+function self:CaptureMouse ()
+	self:GetPanel ():MouseCapture (true)
+end
+
+function self:ReleaseMouse ()
+	self:GetPanel ():MouseCapture (false)
+end
+
 -- Internal
 function self:OnMouseDown (mouseButtons, x, y) end
 function self:OnMouseMove (mouseButtons, x, y) end
