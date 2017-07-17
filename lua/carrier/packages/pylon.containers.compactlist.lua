@@ -32,7 +32,7 @@ function CompactList.Enumerator (n, data)
 		local i = 0
 		return function ()
 			i = i + 1
-			return list [i]
+			return data [i]
 		end
 	end
 end
