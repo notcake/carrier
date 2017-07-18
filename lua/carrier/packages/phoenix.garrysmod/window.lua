@@ -82,7 +82,7 @@ end
 
 -- Internal
 function self:OnMouseDown (buttons, x, y)
-	if buttons == Core.MouseButtons.Left then
+	if buttons == Phoenix.MouseButtons.Left then
 		local dragMode, resizeHorizontal, resizeVertical = self:HitTest (x, y)
 		if dragMode ~= DragMode.None then
 			-- Start resize or move
@@ -115,16 +115,16 @@ function self:OnMouseMove (buttons, x, y)
 		
 		if dragMode == DragMode.Resize then
 			if resizeHorizontal == ResizeDirection.None then
-				self:SetCursor (Core.Cursor.SizeNorthSouth)
+				self:SetCursor (Phoenix.Cursor.SizeNorthSouth)
 			elseif resizeVertical == ResizeDirection.None then
-				self:SetCursor (Core.Cursor.SizeEastWest)
+				self:SetCursor (Phoenix.Cursor.SizeEastWest)
 			elseif resizeHorizontal == resizeVertical then
-				self:SetCursor (Core.Cursor.SizeNorthWestSouthEast)
+				self:SetCursor (Phoenix.Cursor.SizeNorthWestSouthEast)
 			else
-				self:SetCursor (Core.Cursor.SizeNorthEastSouthWest)
+				self:SetCursor (Phoenix.Cursor.SizeNorthEastSouthWest)
 			end
 		else
-			self:SetCursor (Core.Cursor.Default)
+			self:SetCursor (Phoenix.Cursor.Default)
 		end
 	else
 		-- Convert (x, y) to parent coordinates
@@ -176,7 +176,7 @@ end
 
 function self:OnMouseUp (buttons, x, y)
 	-- End resize or move
-	if buttons == Core.MouseButtons.Left and
+	if buttons == Phoenix.MouseButtons.Left and
 	   self.DragMode ~= DragMode.None then
 		self.DragMode = DragMode.None
 		self:ReleaseMouse ()

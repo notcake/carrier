@@ -2,12 +2,14 @@ GarrysMod = {}
 
 require ("Pylon.OOP").Initialize (_ENV)
 
-Core = require ("Phoenix.Core")
-Core.Initialize (_ENV)
+Phoenix = require ("Phoenix")
+Phoenix.Initialize (_ENV)
 
 Photon = require ("Photon")
 
 Clock = require ("Pylon.MonotonicClock")
+
+include ("font.lua")
 
 include ("cursor.lua")
 include ("mousebuttons.lua")
@@ -27,16 +29,22 @@ include ("desktopitem.lua")
 
 GarrysMod.Desktop = Desktop ()
 
+GarrysMod.TextRenderer = Photon.TextRenderer
+
 function GarrysMod.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
 	
-	Core.Initialize (destinationTable)
+	Phoenix.Initialize (destinationTable)
 	
-	destinationTable.View    = GarrysMod.View
-	destinationTable.Window  = GarrysMod.Window
-	destinationTable.Label   = GarrysMod.Label
+	destinationTable.Font         = GarrysMod.Font
 	
-	destinationTable.Desktop = GarrysMod.Desktop
+	destinationTable.View         = GarrysMod.View
+	destinationTable.Window       = GarrysMod.Window
+	destinationTable.Label        = GarrysMod.Label
+	
+	destinationTable.Desktop      = GarrysMod.Desktop
+	
+	destinationTable.TextRenderer = GarrysMod.TextRenderer
 	
 	return destinationTable
 end

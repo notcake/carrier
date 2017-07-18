@@ -1,4 +1,4 @@
-Core.MouseButtons = Flags (
+Phoenix.MouseButtons = Flags (
 	{
 		Left   = 1,
 		Right  = 2,

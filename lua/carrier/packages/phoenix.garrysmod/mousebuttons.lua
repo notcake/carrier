@@ -1,11 +1,11 @@
 MouseButtons = {}
 
 local nativeToButton = {}
-nativeToButton [MOUSE_LEFT]   = Core.MouseButtons.Left
-nativeToButton [MOUSE_RIGHT]  = Core.MouseButtons.Right
-nativeToButton [MOUSE_MIDDLE] = Core.MouseButtons.Middle
-nativeToButton [MOUSE_4]      = Core.MouseButtons.Mouse4
-nativeToButton [MOUSE_5]      = Core.MouseButtons.Mouse5
+nativeToButton [MOUSE_LEFT]   = Phoenix.MouseButtons.Left
+nativeToButton [MOUSE_RIGHT]  = Phoenix.MouseButtons.Right
+nativeToButton [MOUSE_MIDDLE] = Phoenix.MouseButtons.Middle
+nativeToButton [MOUSE_4]      = Phoenix.MouseButtons.Mouse4
+nativeToButton [MOUSE_5]      = Phoenix.MouseButtons.Mouse5
 
 local Table = require ("Pylon.Table")
 local buttonToNative = Table.Invert (nativeToButton)

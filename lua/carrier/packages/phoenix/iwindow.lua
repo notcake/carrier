@@ -1,5 +1,5 @@
 local self = {}
-Core.IWindow = Interface (self, Core.IView)
+Phoenix.IWindow = Interface (self, Phoenix.IView)
 
 function self:ctor ()
 end

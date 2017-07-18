@@ -6,7 +6,7 @@ function self:ctor ()
 	
 	self.LayoutEngine = nil
 	
-	self.Cursor = Core.Cursor.Default
+	self.Cursor = Phoenix.Cursor.Default
 	self.LastClickTime = -math.huge
 end
 
@@ -162,7 +162,7 @@ function self:GetPanel ()
 				self:OnMouseUp (mouseButtons, x, y)
 				self.MouseUp:Dispatch (mouseButtons, x, y)
 				
-				if mouseButtons == Core.MouseButtons.Left then
+				if mouseButtons == Phoenix.MouseButtons.Left then
 					if Clock () - self.LastClickTime > 0.2 then
 						self.LastClickTime = Clock ()
 						
@@ -210,7 +210,7 @@ function self:GetPanel ()
 		
 		self:InstallPanelEventHandler ("Paint", "Render",
 			function (w, h)
-				self:Render (w, h, Photon.Render2d.Instance)
+				self:Render (w, h, Photon.Render2d)
 			end
 		)
 		

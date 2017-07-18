@@ -5,8 +5,33 @@ Error = require ("Pylon.Error")
 OOP = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
-require_provider ("Phoenix").Initialize (Phoenix)
+include ("ifont.lua")
+include ("fontweight.lua")
 
-include ("listview.lua")
+include ("horizontalalignment.lua")
+include ("verticalalignment.lua")
+
+include ("cursor.lua")
+include ("mousebuttons.lua")
+
+include ("iview.lua")
+include ("iwindow.lua")
+
+function Phoenix.Initialize (destinationTable)
+	destinationTable = destinationTable or {}
+	
+	destinationTable.IFont               = Phoenix.IFont
+	destinationTable.FontWeight          = Phoenix.FontWeight
+	
+	destinationTable.HorizontalAlignment = Phoenix.HorizontalAlignment
+	destinationTable.VerticalAlignment   = Phoenix.VerticalAlignment
+	
+	destinationTable.Cursor              = Phoenix.Cursor
+	destinationTable.MouseButtons        = Phoenix.MouseButtons
+	destinationTable.IView               = Phoenix.IView
+	destinationTable.IWindow             = Phoenix.IWindow
+	
+	return destinationTable
+end
 
 return Phoenix

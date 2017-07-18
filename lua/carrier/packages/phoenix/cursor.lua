@@ -1,4 +1,4 @@
-Core.Cursor = Enum (
+Phoenix.Cursor = Enum (
 	{
 		None                   = 0,
 		Default                = 1,
