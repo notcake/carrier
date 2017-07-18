@@ -4,6 +4,7 @@ require ("Pylon.OOP").Initialize (_ENV)
 
 Phoenix = require ("Phoenix")
 Phoenix.Initialize (_ENV)
+Phoenix.Initialize (GarrysMod)
 
 Photon = require ("Photon")
 
