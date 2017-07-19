@@ -196,8 +196,39 @@ function self:OnDoubleClick ()
 	end
 end
 
+local blurX = Material ("pp/blurx")
+local blurY = Material ("pp/blury")
 function self:Render (w, h, render2d)
-	render2d:FillRectangle (GarrysMod.Skin.Default.Colors.Background, 0, 0, w, h)
+	render.SetStencilEnable (true)
+	render.ClearStencil ()
+	render.SetStencilReferenceValue (0xFF)
+	render.SetStencilCompareFunction (STENCILCOMPARISONFUNCTION_NEVER)
+	render.SetStencilFailOperation (STENCILOPERATION_REPLACE)
+	surface.SetDrawColor (Color.ToRGBA8888 (Color.White))
+	surface.DrawRect (0, 0, w, h)
+	
+	render.SetStencilCompareFunction (STENCILCOMPARISONFUNCTION_EQUAL)
+	render.SetStencilFailOperation (STENCILOPERATION_KEEP)
+	render.SetStencilZFailOperation (STENCILOPERATION_KEEP)
+	
+	for i = 1, 6 do
+		render.UpdateScreenEffectTexture ()
+		blurX:SetTexture ("$basetexture", render.GetScreenEffectTexture ())
+		blurX:SetFloat ("$size", 1)
+		render.SetMaterial (blurX)
+		render.DrawScreenQuad ()
+		
+		render.UpdateScreenEffectTexture ()
+		blurY:SetTexture ("$basetexture", render.GetScreenEffectTexture ())
+		blurY:SetFloat ("$size", 1)
+		render.SetMaterial (blurY)
+		render.DrawScreenQuad ()
+	end
+	
+	render.SetStencilEnable (false)
+	
+	render2d:FillRectangle (Color.WithAlpha (GarrysMod.Skin.Default.Colors.Background, 0x60), 0, 0, w, h)
+	-- render2d:FillRectangle (GarrysMod.Skin.Default.Colors.Background, 0, 0, w, h)
 	
 	if self:GetPanel ():HasHierarchicalFocus () then
 		render2d:DrawRectangle (Color.CornflowerBlue, 0, 0, w, h)
@@ -232,6 +263,8 @@ function self:CreatePanel ()
 	panel.btnMaxim.DoClick = function (_)
 		self:Maximize ()
 	end
+	
+	panel:SetMinWidth (8 + 24 + 4 + 31 + 31 + 31 + 4)
 	
 	self.TitleLabel = GarrysMod.Label ()
 	self.TitleLabel:InjectPanel (panel.lblTitle)
