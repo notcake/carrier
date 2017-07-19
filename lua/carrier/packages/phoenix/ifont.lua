@@ -23,3 +23,11 @@ end
 function self:GetWeight ()
 	Error ("IFont:GetWeight : Not implemented.")
 end
+
+function self:WithSize (size)
+	Error ("IFont:WithSize : Not implemented.")
+end
+
+function self:WithWeight (weight)
+	Error ("IFont:WithWeight : Not implemented.")
+end
