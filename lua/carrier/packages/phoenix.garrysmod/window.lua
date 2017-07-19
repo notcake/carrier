@@ -196,6 +196,16 @@ function self:OnDoubleClick ()
 	end
 end
 
+function self:Render (w, h, render2d)
+	render2d:FillRectangle (GarrysMod.Skin.Default.Colors.Background, 0, 0, w, h)
+	
+	if self:GetPanel ():HasHierarchicalFocus () then
+		render2d:DrawRectangle (Color.CornflowerBlue, 0, 0, w, h)
+	else
+		render2d:DrawRectangle (Color.Gray, 0, 0, w, h)
+	end
+end
+
 -- IWindow
 function self:GetTitle ()
 	return self:GetPanel ():GetTitle ()
@@ -222,6 +232,12 @@ function self:CreatePanel ()
 	panel.btnMaxim.DoClick = function (_)
 		self:Maximize ()
 	end
+	
+	self.TitleLabel = GarrysMod.Label ()
+	self.TitleLabel:InjectPanel (panel.lblTitle)
+	self.TitleLabel:SetFont (GarrysMod.Skin.Default.Fonts.Default)
+	self.TitleLabel:SetTextColor (GarrysMod.Skin.Default.Colors.Text)
+	
 	return panel
 end
 

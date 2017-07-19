@@ -237,6 +237,14 @@ function self:CreatePanel ()
 	return vgui.Create ("DPanel")
 end
 
+function self:InjectPanel (panel)
+	if self.Panel and self.Panel:IsValid () then
+		self.Panel:Remove ()
+	end
+	
+	self.Panel = panel
+end
+
 local methodTable = self
 function self:InstallPanelEventHandler (panelMethodName, methodName, handler)
 	local defaultMethod = self.Panel [panelMethodName]

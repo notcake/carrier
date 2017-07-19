@@ -17,6 +17,10 @@ include ("mousebuttons.lua")
 include ("iview.lua")
 include ("iwindow.lua")
 
+include ("listview.lua")
+include ("tableview.lua")
+include ("treetableview.lua")
+
 function Phoenix.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
 	

@@ -2,7 +2,7 @@ local self = {}
 GarrysMod.Font = Class (self, IFont)
 
 function GarrysMod.Font.Create (name, size, weight)
-	local weight = weight or FontWeight.Normal
+	local weight = weight or FontWeight.Regular
 	
 	local id = "Phoenix.GarrysMod.Font_" .. name .. "_" .. size .. "_" .. weight
 	
@@ -44,12 +44,10 @@ function self:GetWeight ()
 	return self.Weight
 end
 
-if system.IsLinux () then
-	GarrysMod.Font.Default     = GarrysMod.Font ("DermaDefault",     "DejaVu Sans", 14, FontWeight.Medium)
-	GarrysMod.Font.DefaultBold = GarrysMod.Font ("DermaDefaultBold", "DejaVu Sans", 14, FontWeight.Heavy)
-else
-	GarrysMod.Font.Default     = GarrysMod.Font ("DermaDefault",     "Tahoma", 13, FontWeight.Medium)
-	GarrysMod.Font.DefaultBold = GarrysMod.Font ("DermaDefaultBold", "Tahoma", 13, FontWeight.Heavy)
+function self:WithSize (size)
+	return GarrysMod.Font.Create (self:GetName (), size, self:GetWeight ())
 end
 
-GarrysMod.Font.Title = GarrysMod.Font ("DermaLarge", "Roboto", 32, FontWeight.Medium)
+function self:WithWeight (weight)
+	return GarrysMod.Font.Create (self:GetName (), self:GetSize (), weight)
+end
