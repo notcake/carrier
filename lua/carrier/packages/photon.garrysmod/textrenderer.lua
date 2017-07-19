@@ -23,8 +23,8 @@ function self:DrawText (text, font, color, x, y)
 end
 
 function self:DrawTextAligned (text, font, color, x, y, horizontalAlignment, verticalAlignment)
-	if horizontalAlignment == Phoenix.HorizontalAlignment.Left and
-	   verticalAlignment == Phoenix.VerticalAlignment.Top then
+	if horizontalAlignment == Glass.HorizontalAlignment.Left and
+	   verticalAlignment == Glass.VerticalAlignment.Top then
 		self:DrawText (text, font, color, x, y)
 		return
 	end
@@ -35,14 +35,14 @@ function self:DrawTextAligned (text, font, color, x, y, horizontalAlignment, ver
 	surface.SetTextColor (Color.ToRGBA8888 (color))
 	
 	local w, h = surface.GetTextSize (text)
-	if horizontalAlignment == Phoenix.HorizontalAlignment.Center then
+	if horizontalAlignment == Glass.HorizontalAlignment.Center then
 		x = x - 0.5 * w
-	elseif horizontalAlignment == Phoenix.HorizontalAlignment.Right then
+	elseif horizontalAlignment == Glass.HorizontalAlignment.Right then
 		x = x - w
 	end
-	if verticalAlignment == Phoenix.VerticalAlignment.Center then
+	if verticalAlignment == Glass.VerticalAlignment.Center then
 		y = y - 0.5 * h
-	elseif verticalAlignment == Phoenix.VerticalAlignment.Bottom then
+	elseif verticalAlignment == Glass.VerticalAlignment.Bottom then
 		y = y - h
 	end
 	

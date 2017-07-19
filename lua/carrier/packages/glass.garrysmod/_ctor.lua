@@ -6,9 +6,9 @@ Clock = require ("Pylon.MonotonicClock")
 
 Color = require ("Pylon.Color")
 
-Phoenix = require ("Phoenix")
-Phoenix.Initialize (_ENV)
-Phoenix.Initialize (GarrysMod)
+Glass = require ("Glass")
+Glass.Initialize (_ENV)
+Glass.Initialize (GarrysMod)
 
 Photon = require ("Photon")
 
@@ -33,9 +33,9 @@ include ("desktop.lua")
 include ("desktopitem.lua")
 
 -- Extras
-GarrysMod.ListView      = Phoenix.ListView (GarrysMod)
-GarrysMod.TableView     = Phoenix.TableView (GarrysMod)
-GarrysMod.TreeTableView = Phoenix.TreeTableView (GarrysMod)
+GarrysMod.ListView      = Glass.ListView (GarrysMod)
+GarrysMod.TableView     = Glass.TableView (GarrysMod)
+GarrysMod.TreeTableView = Glass.TreeTableView (GarrysMod)
 
 GarrysMod.Desktop = Desktop ()
 

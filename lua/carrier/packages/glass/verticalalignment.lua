@@ -1,4 +1,4 @@
-Phoenix.VerticalAlignment = Enum (
+Glass.VerticalAlignment = Enum (
 	{
 		Top    = 0,
 		Center = 1,

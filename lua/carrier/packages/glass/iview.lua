@@ -1,5 +1,5 @@
 local self = {}
-Phoenix.IView = Interface (self)
+Glass.IView = Interface (self)
 
 self.Layout      = Event ()
 

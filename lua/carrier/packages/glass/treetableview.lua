@@ -1,4 +1,4 @@
-function Phoenix.TreeTableView (UI)
+function Glass.TreeTableView (UI)
 	local self = {}
 	local TreeTableView = Class (self, UI.TableView)
 	

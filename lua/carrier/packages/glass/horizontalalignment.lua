@@ -1,4 +1,4 @@
-Phoenix.HorizontalAlignment = Enum (
+Glass.HorizontalAlignment = Enum (
 	{
 		Left   = 0,
 		Center = 1,

@@ -13,7 +13,7 @@ function self:dtor ()
 	self:ClearItems ()
 	self:RecreateContextMenu ()
 	
-	hook.Remove ("ContextMenuClose", "Phoenix.GarrysMod.Desktop")
+	hook.Remove ("ContextMenuClose", "Glass.GarrysMod.Desktop")
 end
 
 function self:AddItem (text, icon)
@@ -74,9 +74,9 @@ function self:InvalidateItems ()
 			
 			-- Wait until the context menu closes
 			if g_ContextMenu:IsVisible () then
-				hook.Add ("ContextMenuClose", "Phoenix.GarrysMod.Desktop",
+				hook.Add ("ContextMenuClose", "Glass.GarrysMod.Desktop",
 					function ()
-						hook.Remove ("ContextMenuClose", "Phoenix.GarrysMod.Desktop")
+						hook.Remove ("ContextMenuClose", "Glass.GarrysMod.Desktop")
 						
 						if not self.Invalidating then return end
 						

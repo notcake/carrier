@@ -19,7 +19,7 @@ function self:GetIcon ()
 end
 
 function self:GetId ()
-	return string.format ("Phoenix.GarrysMod.DesktopItem_%p", self)
+	return string.format ("Glass.GarrysMod.DesktopItem_%p", self)
 end
 
 function self:GetText ()

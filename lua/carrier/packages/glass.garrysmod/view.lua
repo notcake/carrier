@@ -6,7 +6,7 @@ function self:ctor ()
 	
 	self.LayoutEngine = nil
 	
-	self.Cursor = Phoenix.Cursor.Default
+	self.Cursor = Glass.Cursor.Default
 	self.LastClickTime = -math.huge
 end
 
@@ -162,7 +162,7 @@ function self:GetPanel ()
 				self:OnMouseUp (mouseButtons, x, y)
 				self.MouseUp:Dispatch (mouseButtons, x, y)
 				
-				if mouseButtons == Phoenix.MouseButtons.Left then
+				if mouseButtons == Glass.MouseButtons.Left then
 					if Clock () - self.LastClickTime > 0.2 then
 						self.LastClickTime = Clock ()
 						

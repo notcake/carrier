@@ -4,7 +4,7 @@ GarrysMod.Font = Class (self, IFont)
 function GarrysMod.Font.Create (name, size, weight)
 	local weight = weight or FontWeight.Regular
 	
-	local id = "Phoenix.GarrysMod.Font_" .. name .. "_" .. size .. "_" .. weight
+	local id = "Glass.GarrysMod.Font_" .. name .. "_" .. size .. "_" .. weight
 	
 	surface.CreateFont (id,
 		{

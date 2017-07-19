@@ -1,4 +1,4 @@
-Phoenix.MouseButtons = Flags (
+Glass.MouseButtons = Flags (
 	{
 		Left   = 1,
 		Right  = 2,

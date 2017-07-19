@@ -7,7 +7,7 @@ Color = require ("Pylon.Color")
 Core = require ("Photon.Core")
 Core.Initialize (_ENV)
 
-Phoenix = require ("Phoenix")
+Glass = require ("Glass")
 
 include ("graphicscontext.lua")
 include ("render2d.lua")

@@ -82,7 +82,7 @@ end
 
 -- Internal
 function self:OnMouseDown (buttons, x, y)
-	if buttons == Phoenix.MouseButtons.Left then
+	if buttons == Glass.MouseButtons.Left then
 		local dragMode, resizeHorizontal, resizeVertical = self:HitTest (x, y)
 		if dragMode ~= DragMode.None then
 			-- Start resize or move
@@ -115,16 +115,16 @@ function self:OnMouseMove (buttons, x, y)
 		
 		if dragMode == DragMode.Resize then
 			if resizeHorizontal == ResizeDirection.None then
-				self:SetCursor (Phoenix.Cursor.SizeNorthSouth)
+				self:SetCursor (Glass.Cursor.SizeNorthSouth)
 			elseif resizeVertical == ResizeDirection.None then
-				self:SetCursor (Phoenix.Cursor.SizeEastWest)
+				self:SetCursor (Glass.Cursor.SizeEastWest)
 			elseif resizeHorizontal == resizeVertical then
-				self:SetCursor (Phoenix.Cursor.SizeNorthWestSouthEast)
+				self:SetCursor (Glass.Cursor.SizeNorthWestSouthEast)
 			else
-				self:SetCursor (Phoenix.Cursor.SizeNorthEastSouthWest)
+				self:SetCursor (Glass.Cursor.SizeNorthEastSouthWest)
 			end
 		else
-			self:SetCursor (Phoenix.Cursor.Default)
+			self:SetCursor (Glass.Cursor.Default)
 		end
 	else
 		-- Convert (x, y) to parent coordinates
@@ -176,7 +176,7 @@ end
 
 function self:OnMouseUp (buttons, x, y)
 	-- End resize or move
-	if buttons == Phoenix.MouseButtons.Left and
+	if buttons == Glass.MouseButtons.Left and
 	   self.DragMode ~= DragMode.None then
 		self.DragMode = DragMode.None
 		self:ReleaseMouse ()

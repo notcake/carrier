@@ -1,5 +1,5 @@
 local self = {}
-Phoenix.IFont = Interface (self)
+Glass.IFont = Interface (self)
 
 function self:ctor ()
 end
