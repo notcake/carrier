@@ -33,9 +33,9 @@ include ("desktop.lua")
 include ("desktopitem.lua")
 
 -- Extras
-Phoenix.ListView      = Phoenix.ListView (GarrysMod)
-Phoenix.TableView     = Phoenix.TableView (GarrysMod)
-Phoenix.TreeTableView = Phoenix.TreeTableView (GarrysMod)
+GarrysMod.ListView      = Phoenix.ListView (GarrysMod)
+GarrysMod.TableView     = Phoenix.TableView (GarrysMod)
+GarrysMod.TreeTableView = Phoenix.TreeTableView (GarrysMod)
 
 GarrysMod.Desktop = Desktop ()
 
