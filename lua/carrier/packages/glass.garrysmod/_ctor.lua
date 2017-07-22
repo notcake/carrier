@@ -12,12 +12,12 @@ Glass.Initialize (GarrysMod)
 
 Photon = require ("Photon")
 
-include ("font.lua")
+include ("fonts/font.lua")
 
 include ("defaultskin.lua")
 
-include ("cursor.lua")
-include ("mousebuttons.lua")
+include ("mouse/cursor.lua")
+include ("mouse/mousebuttons.lua")
 
 include ("panelviews.lua")
 

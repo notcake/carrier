@@ -22,9 +22,7 @@ function Carrier.Package(name)
 	setmetatable (
 		package.Environment,
 		{
-			__index = function (t, key)
-				return _G [key]
-			end,
+			__index = getfenv ()
 		}
 	)
 	

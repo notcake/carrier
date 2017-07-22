@@ -5,21 +5,22 @@ Error = require ("Pylon.Error")
 OOP = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
-include ("ifont.lua")
-include ("fontweight.lua")
+include ("fonts/ifont.lua")
+include ("fonts/fontweight.lua")
 
-include ("horizontalalignment.lua")
-include ("verticalalignment.lua")
+include ("layout/horizontalalignment.lua")
+include ("layout/verticalalignment.lua")
 
-include ("cursor.lua")
-include ("mousebuttons.lua")
+include ("mouse/cursor.lua")
+include ("mouse/mousebuttons.lua")
 
 include ("iview.lua")
 include ("iwindow.lua")
 
-include ("listview.lua")
-include ("tableview.lua")
-include ("treetableview.lua")
+include ("containers/listview.lua")
+include ("containers/ilistviewdatasource.lua")
+include ("containers/tableview.lua")
+include ("containers/treetableview.lua")
 
 function Glass.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
@@ -34,6 +35,8 @@ function Glass.Initialize (destinationTable)
 	destinationTable.MouseButtons        = Glass.MouseButtons
 	destinationTable.IView               = Glass.IView
 	destinationTable.IWindow             = Glass.IWindow
+	
+	destinationTable.IListViewDataSource = Glass.IListViewDataSource
 	
 	return destinationTable
 end
