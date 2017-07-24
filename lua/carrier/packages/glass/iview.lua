@@ -1,17 +1,18 @@
 local self = {}
 Glass.IView = Interface (self)
 
-self.Layout      = Event ()
+self.Layout         = Event ()
+self.VisibleChanged = Event ()
 
-self.MouseDown   = Event ()
-self.MouseMove   = Event ()
-self.MouseUp     = Event ()
-self.MouseWheel  = Event ()
-self.MouseEnter  = Event ()
-self.MouseLeave  = Event ()
+self.MouseDown      = Event ()
+self.MouseMove      = Event ()
+self.MouseUp        = Event ()
+self.MouseWheel     = Event ()
+self.MouseEnter     = Event ()
+self.MouseLeave     = Event ()
 
-self.Click       = Event ()
-self.DoubleClick = Event ()
+self.Click          = Event ()
+self.DoubleClick    = Event ()
 
 function self:ctor ()
 end
@@ -158,5 +159,7 @@ function self:OnMouseLeave () end
 
 function self:OnClick () end
 function self:OnDoubleClick () end
+
+function self:OnVisibleChanged (visible) end
 
 function self:Render (w, h, render2d) end

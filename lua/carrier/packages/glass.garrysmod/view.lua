@@ -227,6 +227,16 @@ function self:GetPanel ()
 			self:OnLayout (self:GetContentSize ())
 			self.Layout:Dispatch ()
 		end
+		
+		local setVisible = self.Panel.SetVisible
+		self.Panel.SetVisible = function (_, visible)
+			if _:IsVisible () == visible then return end
+			
+			setVisible (_, visible)
+			
+			self:OnVisibleChanged (visible)
+			self.VisibleChanged:Dispatch (visible)
+		end
 	end
 	
 	return self.Panel
