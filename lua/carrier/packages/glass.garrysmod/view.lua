@@ -244,7 +244,10 @@ end
 
 -- Internal
 function self:CreatePanel ()
-	return vgui.Create ("DPanel")
+	local panel = vgui.Create ("DPanel")
+	panel.Paint = function (self, w, h) end
+	
+	return panel
 end
 
 function self:InjectPanel (panel)
