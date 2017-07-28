@@ -70,12 +70,12 @@ function self:ctor ()
 end
 
 -- IView
--- Content layout
-function self:GetContentPosition ()
+-- Children layout
+function self:GetContainerPosition ()
 	return 4, self.TitleBarHeight
 end
 
-function self:GetContentSize ()
+function self:GetContainerSize ()
 	local w, h = self:GetSize ()
 	return w - 8, h - self.TitleBarHeight - 4
 end

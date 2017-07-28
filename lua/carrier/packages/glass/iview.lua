@@ -103,16 +103,22 @@ function self:Center ()
 end
 
 -- Content layout
-function self:GetContentPosition ()
-	return 0, 0
-end
-
-function self:GetContentSize ()
+function self:GetPreferredSize (maximumWidth, maximumHeight)
 	return self:GetSize ()
 end
 
-function self:GetContentRectangle ()
-	return 0, 0, self:GetSize ()
+-- Children layout
+function self:GetContainerPosition ()
+	return 0, 0
+end
+
+function self:GetContainerSize ()
+	return self:GetSize ()
+end
+
+function self:GetContainerRectangle ()
+	local x, y = self:GetContainerPosition ()
+	return x, y, self:GetContainerSize ()
 end
 
 -- Appearance

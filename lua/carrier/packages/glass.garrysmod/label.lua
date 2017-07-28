@@ -6,7 +6,7 @@ end
 
 -- IView
 -- Content layout
-function self:GetContentSize ()
+function self:GetPreferredSize (maximumWidth, maximumHeight)
 	return self:GetPanel ():GetContentSize ()
 end
 

@@ -46,13 +46,13 @@ end
 
 -- Layout
 function self:GetPosition ()
-	local dx, dy = self:GetParent ():GetContentPosition ()
+	local dx, dy = self:GetParent ():GetContainerPosition ()
 	local x, y = self:GetPanel ():GetPos ()
 	return x - dx, y - dy
 end
 
 function self:SetPosition (x, y)
-	local dx, dy = self:GetParent ():GetContentPosition ()
+	local dx, dy = self:GetParent ():GetContainerPosition ()
 	self:GetPanel ():SetPos (x + dx, y + dy)
 end
 
@@ -221,10 +221,10 @@ function self:GetPanel ()
 			end
 			
 			if self.LayoutEngine then
-				self.LayoutEngine:Layout (self:GetContentSize ())
+				self.LayoutEngine:Layout (self:GetContainerSize ())
 			end
 			
-			self:OnLayout (self:GetContentSize ())
+			self:OnLayout (self:GetContainerSize ())
 			self.Layout:Dispatch ()
 		end
 		
