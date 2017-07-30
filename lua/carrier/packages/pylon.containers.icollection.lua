@@ -1,9 +1,9 @@
 local Error = require ("Pylon.Error")
 local OOP = require ("Pylon.OOP")
-local ICollection = require ("Pylon.Containers.ICollection")
+local IEnumerable = require ("Pylon.Enumeration").IEnumerable
 
 local self = {}
-local ICollection = OOP.Interface (self)
+local ICollection = OOP.Interface (self, Enumeration.IEnumerable)
 
 function self:ctor ()
 end
@@ -14,10 +14,6 @@ end
 
 function self:GetCount ()
 	Error ("ICollection:GetCount : Not implemented.")
-end
-
-function self:GetEnumerator ()
-	Error ("ICollection:GetEnumerator : Not implemented.")
 end
 
 function self:IndexOf (x)
