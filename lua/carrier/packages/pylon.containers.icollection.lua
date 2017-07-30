@@ -1,6 +1,6 @@
 local Error = require ("Pylon.Error")
 local OOP = require ("Pylon.OOP")
-local IEnumerable = require ("Pylon.Enumeration").IEnumerable
+local Enumeration = require ("Pylon.Enumeration")
 
 local self = {}
 local ICollection = OOP.Interface (self, Enumeration.IEnumerable)
