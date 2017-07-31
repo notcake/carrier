@@ -137,12 +137,10 @@ function self:SetHoveredView (view)
 	
 	-- Dispatch MouseLeaves upwards from the bottom of previousStack
 	for i = 1, #previousStack - lastCommonAncestorIndex do
-		print ("MouseLeave", previousStack [i].ctor)
 		self:Dispatch (previousStack [i], "OnMouseLeave", "MouseLeave")
 	end
 	-- Dispatch MouseEnters downwards from lastCommonAncestorIndex
 	for i = #currentStack - lastCommonAncestorIndex, 1, -1 do
-		print ("MouseEnter", currentStack [i].ctor)
 		self:Dispatch (currentStack [i], "OnMouseEnter", "MouseEnter")
 	end
 end
