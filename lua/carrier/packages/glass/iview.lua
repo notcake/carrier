@@ -107,6 +107,10 @@ function self:GetPreferredSize (maximumWidth, maximumHeight)
 	return self:GetSize ()
 end
 
+function self:InvalidateLayout ()
+	Error ("IView:InvalidateLayout : Not implemented.")
+end
+
 -- Children layout
 function self:GetContainerPosition ()
 	return 0, 0
