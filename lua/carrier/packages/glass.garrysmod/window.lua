@@ -32,20 +32,59 @@ function self:ctor ()
 	
 	self.DragMode = DragMode.None
 	
-	-- Dragging only starts when the mouse has moved enough
-	-- or the mouse is pressed for long enough
-	self.DragConfirmed = false
-	self.DragStartTime = nil
-	
-	-- Mouse position in parent coordinates at start of drag operation
-	self.DragX      = nil
-	self.DragY      = nil
-	
 	-- Saved bounds at start of drag operation
 	self.DragLeft   = nil
 	self.DragTop    = nil
 	self.DragRight  = nil
 	self.DragBottom = nil
+	
+	self.DragBehaviour = Glass.DragBehaviour (self, false)
+	self.DragBehaviour.Started:AddListener (
+		function ()
+			-- Save bounds
+			self.DragLeft, self.DragTop = self:GetPosition ()
+			local w, h = self:GetSize ()
+			self.DragRight  = self.DragLeft + w
+			self.DragBottom = self.DragTop  + h
+		end
+	)
+	self.DragBehaviour.Updated:AddListener (
+		function (dx, dy)
+			-- Clamp (dx, dy) to parent bounds
+			local x0, y0 = self.DragBehaviour:GetStartPosition ()
+			local parentWidth, parentHeight = self:GetParent ():GetSize ()
+			local dx = math.max (-x0, math.min (parentWidth  - 1 - x0, dx))
+			local dy = math.max (-y0, math.min (parentHeight - 1 - y0, dy))
+			
+			if self.DragMode == DragMode.Move then
+				if self:IsMaximized () then
+					local newLocalX = (x0 + dx - self:GetX ()) / self:GetWidth () * self.RestoredWidth
+					self.DragLeft   = x0 + dx - newLocalX
+					self.DragRight  = self.DragLeft + self.RestoredWidth
+					self.DragBottom = self.DragTop + self.RestoredHeight
+					self:Restore ()
+				end
+				
+				self:SetPosition (self.DragLeft + dx, self.DragTop + dy)
+			elseif self.DragMode == DragMode.Resize then
+				local x1, y1 = self.DragLeft,  self.DragTop
+				local x2, y2 = self.DragRight, self.DragBottom
+				
+				if self.ResizeHorizontal == ResizeDirection.Negative then
+					x1 = math.min (x1 + dx, x2 - self:GetPanel ():GetMinWidth ())
+				elseif self.ResizeHorizontal == ResizeDirection.Positive then
+					x2 = math.max (x2 + dx, x1 + self:GetPanel ():GetMinWidth ())
+				end
+				if self.ResizeVertical == ResizeDirection.Negative then
+					y1 = math.min (y1 + dy, y2 - self:GetPanel ():GetMinHeight ())
+				elseif self.ResizeVertical == ResizeDirection.Positive then
+					y2 = math.max (y2 + dy, y1 + self:GetPanel ():GetMinHeight ())
+				end
+				
+				self:SetRectangle (x1, y1, x2 - x1, y2 - y1)
+			end
+		end
+	)
 	
 	-- Resize directions
 	self.ResizeHorizontal = ResizeDirection.None
@@ -81,34 +120,21 @@ function self:GetContainerSize ()
 end
 
 -- Internal
-function self:OnMouseDown (buttons, x, y)
-	if buttons == Glass.MouseButtons.Left then
+function self:OnMouseDown (mouseButtons, x, y)
+	if mouseButtons == Glass.MouseButtons.Left then
 		local dragMode, resizeHorizontal, resizeVertical = self:HitTest (x, y)
 		if dragMode ~= DragMode.None then
-			-- Start resize or move
 			self.DragMode = dragMode
-			self.DragConfirmed = false
-			self.DragStartTime = Clock ()
-			
-			-- Save bounds
-			self.DragLeft, self.DragTop = self:GetPosition ()
-			local w, h = self:GetSize ()
-			self.DragRight  = self.DragLeft + w
-			self.DragBottom = self.DragTop  + h
-			
-			-- Save drag position in parent coordinates
-			self.DragX = x + self.DragLeft
-			self.DragY = y + self.DragTop
 			
 			self.ResizeHorizontal = resizeHorizontal
 			self.ResizeVertical   = resizeVertical
 			
-			self:CaptureMouse ()
+			self.DragBehaviour:OnMouseDown (mouseButtons, x, y)
 		end
 	end
 end
 
-function self:OnMouseMove (buttons, x, y)
+function self:OnMouseMove (mouseButtons, x, y)
 	if self.DragMode == DragMode.None then
 		-- Update cursor
 		local dragMode, resizeHorizontal, resizeVertical = self:HitTest (x, y)
@@ -127,59 +153,16 @@ function self:OnMouseMove (buttons, x, y)
 			self:SetCursor (Glass.Cursor.Default)
 		end
 	else
-		-- Convert (x, y) to parent coordinates
-		local dx, dy = self:GetPosition ()
-		local x, y = x + dx, y + dy
-		
-		-- Clamp (x, y) to parent bounds
-		local parentWidth, parentHeight = self:GetParent ():GetSize ()
-		local x = math.max (0, math.min (parentWidth  - 1, x))
-		local y = math.max (0, math.min (parentHeight - 1, y))
-		
-		local dx = x - self.DragX
-		local dy = y - self.DragY
-		
-		self.DragConfirmed = self.DragConfirmed or (Clock () - self.DragStartTime > 0.5)
-		self.DragConfirmed = self.DragConfirmed or (dx * dx + dy * dy >= 64)
-		
-		if not self.DragConfirmed then return end
-		
-		if self.DragMode == DragMode.Move then
-			if self:IsMaximized () then
-				local newLocalX = (x - self:GetX ()) / self:GetWidth () * self.RestoredWidth
-				self.DragLeft   = x - newLocalX
-				self.DragRight  = self.DragLeft + self.RestoredWidth
-				self.DragBottom = self.DragTop + self.RestoredHeight
-				self:Restore ()
-			end
-			
-			self:SetPosition (self.DragLeft + dx, self.DragTop + dy)
-		elseif self.DragMode == DragMode.Resize then
-			local x1, y1 = self.DragLeft,  self.DragTop
-			local x2, y2 = self.DragRight, self.DragBottom
-			
-			if self.ResizeHorizontal == ResizeDirection.Negative then
-				x1 = math.min (x1 + dx, x2 - self:GetPanel ():GetMinWidth ())
-			elseif self.ResizeHorizontal == ResizeDirection.Positive then
-				x2 = math.max (x2 + dx, x1 + self:GetPanel ():GetMinWidth ())
-			end
-			if self.ResizeVertical == ResizeDirection.Negative then
-				y1 = math.min (y1 + dy, y2 - self:GetPanel ():GetMinHeight ())
-			elseif self.ResizeVertical == ResizeDirection.Positive then
-				y2 = math.max (y2 + dy, y1 + self:GetPanel ():GetMinHeight ())
-			end
-			
-			self:SetRectangle (x1, y1, x2 - x1, y2 - y1)
-		end
+		self.DragBehaviour:OnMouseMove (mouseButtons, x, y)
 	end
 end
 
-function self:OnMouseUp (buttons, x, y)
+function self:OnMouseUp (mouseButtons, x, y)
 	-- End resize or move
-	if buttons == Glass.MouseButtons.Left and
+	if mouseButtons == Glass.MouseButtons.Left and
 	   self.DragMode ~= DragMode.None then
 		self.DragMode = DragMode.None
-		self:ReleaseMouse ()
+		self.DragBehaviour:OnMouseUp (mouseButtons, x, y)
 	end
 end
 
