@@ -10,6 +10,8 @@ require ("Pylon.Enumeration").Initialize (_ENV)
 
 ICollection = require ("Pylon.Containers.ICollection")
 
+Pool = require ("Pylon.Pool")
+
 Color = require ("Pylon.Color")
 
 include ("fonts/ifont.lua")
@@ -34,6 +36,7 @@ include ("containers/ilistviewdatasource.lua")
 include ("containers/listviewitem.lua")
 include ("containers/listview.internaldatasource.lua")
 include ("containers/tableview.lua")
+include ("containers/tableviewitem.lua")
 include ("containers/tableview.listviewitem.lua")
 include ("containers/tableview.internaldatasource.lua")
 include ("containers/tableview.header.lua")

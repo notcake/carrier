@@ -1,41 +1,51 @@
-local self = {}
-Glass.TableViewItem = Class (self)
-
-function self:ctor (text)
-	self.ColumnTypes      = {}
-	self.Columns          = {}
-	self.ColumnAlignments = {}
+function Glass.TableViewItem (UI)
+	local self = {}
+	local TableViewItem = Class (self)
 	
-	if text then
-		self:SetText (text)
+	self.Changed = Event ()
+	
+	function self:ctor (text)
+		self.Text = text
+		
+		self.ColumnTypes      = {}
+		self.Columns          = {}
+		self.ColumnAlignments = {}
 	end
-end
 
-function self:GetText ()
-	return self:GetColumnText (1)
-end
-
-function self:GetColumnText (column)
-	if self.ColumnTypes [column] == Glass.TableViewColumnType.Text then
-		return self.Columns [column]
-	else
-		return nil
+	function self:GetText ()
+		return self.Text
 	end
-end
 
-function self:GetColumnAlignment (column)
-	return self.ColumnAlignments [column] or Glass.HorizontalAlignment.Left
-end
+	function self:GetColumnText (id)
+		if self.ColumnTypes [id] == Glass.TableViewColumnType.Text then
+			return self.Columns [id]
+		else
+			return nil
+		end
+	end
 
-function self:SetText (text)
-	self:SetColumnText (1, text)
-end
+	function self:GetColumnAlignment (id)
+		return self.ColumnAlignments [id]
+	end
 
-function self:SetColumnText (column, text)
-	self.ColumnTypes [column] = Glass.TableViewColumnType.Text
-	self.Columns [column] = text
-end
+	function self:SetText (text)
+		self.Text = text
+		
+		self.Changed:Dispatch ()
+	end
 
-function self:SetColumnAlignment (column, alignment)
-	self.ColumnAlignments [column] = alignment
+	function self:SetColumnText (id, text)
+		self.ColumnTypes [id] = Glass.TableViewColumnType.Text
+		self.Columns [id] = text
+		
+		self.Changed:Dispatch ()
+	end
+
+	function self:SetColumnAlignment (id, alignment)
+		self.ColumnAlignments [id] = alignment
+		
+		self.Changed:Dispatch ()
+	end
+	
+	return TableViewItem
 end

@@ -27,7 +27,7 @@ function TableView.InternalDataSource (UI)
 	end
 
 	function self:BindItem (i, listViewItem)
-		listViewItem:Bind (self:GetItem (i))
+		listViewItem:Bind (self.TableView, self:GetItem (i))
 		return listViewItem
 	end
 	
@@ -75,6 +75,10 @@ function TableView.InternalDataSource (UI)
 		
 		self.ItemsRemoved:Dispatch (1, itemCount)
 	end
+	
+	function self:GetItem (i)
+		return self:GetItemLazy (i)
+	end
 
 	function self:GetItemLazy (i)
 		return self.Items [i]
@@ -111,12 +115,54 @@ function TableView.InternalDataSource (UI)
 		if self.DataSource == dataSource then return end
 		
 		if self.DataSource then
+			self:UnbindDataSource (self.DataSource)
 		end
 		
 		self.DataSource = dataSource
 		
 		if self.DataSource then
+			self:BindDataSource (self.DataSource)
 		end
+	end
+	
+	-- Internal
+	function self:BindDataSource (dataSource)
+		self.DataSource.Reloaded:AddListener ("Glass.TableView.InternalDataSource." .. self:GetHashCode (),
+			function ()
+				self.ItemCount = self.DataSource:GetItemCount ()
+				
+				self.Reloaded:Dispatch ()
+			end
+		)
+		
+		self.DataSource.ItemsInserted:AddListener ("Glass.TableView.InternalDataSource." .. self:GetHashCode (),
+			function (startIndex, count)
+				self.ItemCount = self.ItemCount + count
+				
+				self.ItemsInserted:Dispatch (startIndex, count)
+			end
+		)
+		
+		self.DataSource.ItemsRemoved:AddListener ("Glass.TableView.InternalDataSource." .. self:GetHashCode (),
+			function (startIndex, count)
+				self.ItemCount = self.ItemCount - count
+				
+				self.ItemsRemoved:Dispatch (startIndex, count)
+			end
+		)
+		
+		self.DataSource.ItemsMoved:AddListener ("Glass.TableView.InternalDataSource." .. self:GetHashCode (),
+			function (sourceIndex, destinationIndex, count)
+				self.ItemsMoved:Dispatch (sourceIndex, destinationIndex, count)
+			end
+		)
+	end
+	
+	function self:UnbindDataSource (dataSource)
+		self.DataSource.Reloaded     :RemoveListener ("Glass.TableView.InternalDataSource." .. self:GetHashCode ())
+		self.DataSource.ItemsInserted:RemoveListener ("Glass.TableView.InternalDataSource." .. self:GetHashCode ())
+		self.DataSource.ItemsRemoved :RemoveListener ("Glass.TableView.InternalDataSource." .. self:GetHashCode ())
+		self.DataSource.ItemsMoved   :RemoveListener ("Glass.TableView.InternalDataSource." .. self:GetHashCode ())
 	end
 	
 	return InternalDataSource

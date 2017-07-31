@@ -99,10 +99,6 @@ function self:SetDataSource (dataSource)
 end
 
 -- Internal
-function self:Populate ()
-	
-end
-
 function self:BindDataSource (dataSource)
 	self.DataSource.Reloaded:AddListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode (),
 		function ()
@@ -111,7 +107,6 @@ function self:BindDataSource (dataSource)
 			self.Reloaded:Dispatch ()
 			
 			-- Visible range invalidated?
-			self:Populate ()
 		end
 	)
 	
@@ -123,7 +118,6 @@ function self:BindDataSource (dataSource)
 			
 			-- Outside visible range -> no op, update some accounting
 			-- Inside visible range  -> eek
-			self:Populate ()
 		end
 	)
 	
@@ -135,7 +129,6 @@ function self:BindDataSource (dataSource)
 			
 			-- Outside visible range -> no op, update some accounting
 			-- Inside visible range  -> eek
-			self:Populate ()
 		end
 	)
 	
@@ -145,7 +138,6 @@ function self:BindDataSource (dataSource)
 			
 			-- Outside visible range -> no op, update some accounting
 			-- Inside visible range  -> eek
-			self:Populate ()
 		end
 	)
 end

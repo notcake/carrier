@@ -4,13 +4,15 @@ function TableView.ColumnCollection (UI)
 	
 	self.Changed        = Event ()
 	self.Cleared        = Event ()
+	self.LayoutChanged  = Event ()
 	
 	self.ColumnAdded    = Event ()
 	self.ColumnInserted = Event ()
 	self.ColumnRemoved  = Event ()
 	
 	function self:ctor ()
-		self.Columns = {}
+		self.Columns     = {}
+		self.ColumnsById = {}
 	end
 	
 	-- IEnumerable<TableViewColumn>
@@ -24,22 +26,24 @@ function TableView.ColumnCollection (UI)
 	end
 	
 	-- ColumnCollection
-	function self:Add (name)
-		local column = Glass.TableViewColumn (name)
-		self.Columns [#self.Columns + 1] = column
-		
-		self.ColumnAdded:Dispatch (column)
-		self.Changed:Dispatch ()
-		
-		return column
+	function self:Add (id, name)
+		return self:Insert (#self.Columns + 1, id, name)
 	end
 	
 	function self:Clear ()
 		if #self.Columns == 0 then return end
 		
-		self.Columns = {}
+		for i = #self.Columns, 1, -1 do
+			local column = self.Columns [i]
+			column.AlignmentChanged:RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
+			column.WidthChanged    :RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
+			column.VisibleChanged  :RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
+			
+			self.Columns [i] = nil
+		end
 		
 		self.ColumnsCleared:Dispatch ()
+		self.LayoutChanged:Dispatch ()
 		self.Changed:Dispatch ()
 	end
 	
@@ -47,12 +51,22 @@ function TableView.ColumnCollection (UI)
 		return self.Columns [i]
 	end
 	
-	function self:Insert (i, name)
+	function self:Insert (i, id, name)
 		local i = math.min (#self.Columns + 1, math.max (1, i))
-		local column = Glass.TableViewColumn (name)
+		local column = Glass.TableViewColumn (id, name)
 		table.insert (self.Columns, i, column)
+		self.ColumnsById [id] = column
 		
-		self.ColumnInserted:Dispatch (i, column)
+		column.AlignmentChanged:AddListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode (), self, self.DispatchLayoutChanged)
+		column.WidthChanged    :AddListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode (), self, self.DispatchLayoutChanged)
+		column.VisibleChanged  :AddListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode (), self, self.DispatchLayoutChanged)
+		
+		if i == #self.Columns then
+			self.ColumnAdded:Dispatch (column)
+		else
+			self.ColumnInserted:Dispatch (i, column)
+		end
+		self.LayoutChanged:Dispatch ()
 		self.Changed:Dispatch ()
 		
 		return column
@@ -68,8 +82,17 @@ function TableView.ColumnCollection (UI)
 		local column = self.Columns [i]
 		table.remove (self.Columns, i)
 		
+		column.WidthChanged  :RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
+		column.VisibleChanged:RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
+		
 		self.ColumnRemoved:Dispatch (i, column)
+		self.LayoutChanged:Dispatch ()
 		self.Changed:Dispatch (i, column)
+	end
+	
+	-- Internal
+	function self:DispatchLayoutChanged ()
+		self.LayoutChanged:Dispatch ()
 	end
 	
 	return ColumnCollection

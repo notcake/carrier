@@ -44,6 +44,7 @@ include ("desktopitem.lua")
 GarrysMod.ListView      = Glass.ListView (GarrysMod)
 GarrysMod.ListViewItem  = Glass.ListViewItem (GarrysMod)
 GarrysMod.TableView     = Glass.TableView (GarrysMod)
+GarrysMod.TableViewItem = Glass.TableViewItem (GarrysMod)
 GarrysMod.TreeTableView = Glass.TreeTableView (GarrysMod)
 
 GarrysMod.Desktop = Desktop ()

@@ -8,14 +8,19 @@ self.AlignmentChanged = Event ()
 self.VisibleChanged   = Event ()
 self.WidthChanged     = Event ()
 
-function self:ctor (name)
-	self.Name         = name
+function self:ctor (id, name)
+	self.Id           = id
+	self.Name         = name or id
 	
 	self.MinimumWidth = 32
 	
 	self.Visible      = true
 	self.Alignment    = Glass.HorizontalAlignment.Left
 	self.Width        = 128
+end
+
+function self:GetId ()
+	return self.Id
 end
 
 function self:GetName ()

@@ -1,5 +1,7 @@
 ListView = {}
 
+local OverriddenItem = {}
+
 function Glass.ListView (UI)
 	local self = {}
 	local ListView = Class (self, UI.View)
@@ -15,6 +17,14 @@ function Glass.ListView (UI)
 		self.ItemWidth = nil
 		
 		self.DataSource = ListView.InternalDataSource (self.Canvas)
+		
+		-- Layout
+		self.ResolvedItemWidth = nil
+		self.ViewWidth  = nil
+		self.ViewHeight = nil
+		
+		self.VisibleItems     = {}
+		self.VisibleItemTypes = {}
 		
 		-- Visible range is startIndex, length
 		-- Visible range is also y, dy
@@ -35,6 +45,11 @@ function Glass.ListView (UI)
 		self.ScrollbarCorner = UI.ScrollbarCorner ()
 		self.ScrollbarCorner:SetParent (self)
 		self.ScrollbarCorner:SetVisible (false)
+		
+		self.DataSource.Reloaded     :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.Reload)
+		self.DataSource.ItemsInserted:AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.Reload)
+		self.DataSource.ItemsRemoved :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.Reload)
+		self.DataSource.ItemsMoved   :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.Reload)
 	end
 	
 	function self:dtor ()
@@ -47,6 +62,7 @@ function Glass.ListView (UI)
 		self.Canvas:SetRectangle (0, 0, w, h)
 		
 		self:RecomputeLayout ()
+		self:LayoutVisibleItems ()
 		-- Invalidate item heights on width change
 		
 		-- Invalidate visible range on height change
@@ -246,6 +262,89 @@ function Glass.ListView (UI)
 		if verticalScrollbarNeeded and horizontalScrollbarNeeded then
 			self.ScrollbarCorner:SetRectangle (self.VerticalScrollbar:GetX (), self.HorizontalScrollbar:GetY (), self.VerticalScrollbar:GetWidth (), self.HorizontalScrollbar:GetHeight ())
 		end
+		
+		self.ViewWidth  = viewWidth
+		self.ViewHeight = viewHeight
+		self.ResolvedItemWidth = itemWidth
+	end
+	
+	function self:LayoutVisibleItems ()
+		local y = 0
+		if self.Header then y = y + self.Header:GetHeight () end
+		for i = 1, #self.VisibleItems do
+			local listViewItem = self.VisibleItems [i]
+			local h = self.DataSource:GetItemHeight (i, self.ResolvedItemWidth)
+			listViewItem:SetRectangle (0, y, self.ResolvedItemWidth, h)
+			y = y + h
+		end
+	end
+	
+	function self:CreatePool (itemType)
+		return Pool (
+			function ()
+				local listViewItem = self.DataSource:CreateItem (itemType)
+				if listViewItem then
+					listViewItem:SetParent (self.Canvas)
+				end
+				return listViewItem
+			end,
+			function (listViewItem)
+				listViewItem:SetVisible (true)
+			end,
+			function (listViewItem)
+				listViewItem:SetVisible (false)
+			end,
+			function (listViewItem)
+				self.DataSource:DestroyItem (itemType, listViewItem)
+			end
+		)
+	end
+	
+	function self:GetPool (itemType)
+		self.DefaultPool = self.DefaultPool or self:CreatePool (nil)
+		
+		if itemType == nil then
+			return self.DefaultPool
+		else
+			self.Pools = self.Pools or {}
+			self.Pools [itemType] = self.Pools [itemType] or self:CreatePool (itemType)
+			
+			return self.Pools [itemType]
+		end
+	end
+	
+	function self:Reload ()
+		for i = #self.VisibleItems, 1, -1 do
+			local listViewItem = self.VisibleItems [i]
+			self.DataSource:UnbindItem (i, listViewItem)
+			local itemType = self.VisibleItemTypes [i]
+			if itemType == OverriddenItem then
+				listViewItem:SetVisible (false)
+			else
+				local pool = self:GetPool (itemType)
+				pool:Free (listViewItem)
+			end
+			
+			self.VisibleItems [i] = nil
+			self.VisibleItemTypes [i] = nil
+		end
+		
+		for i = 1, self.DataSource:GetItemCount () do
+			local itemType = self.DataSource:GetItemType (i)
+			local pool = self:GetPool (itemType)
+			local listViewItem = pool:Alloc ()
+			local boundItem = self.DataSource:BindItem (i, listViewItem)
+			if boundItem ~= listViewItem then
+				itemType = OverriddenItem
+				boundItem:SetParent (self.Canvas)
+				pool:Free (listViewItem)
+			end
+			
+			self.VisibleItems [#self.VisibleItems + 1] = boundItem
+			self.VisibleItemTypes [#self.VisibleItemTypes + 1] = itemType
+		end
+		
+		self:LayoutVisibleItems ()
 	end
 	
 	return ListView

@@ -93,5 +93,10 @@ function Glass.TableView (UI)
 		self.DataSource:SetDataSource (dataSource)
 	end
 	
+	-- Internal
+	function self:GetHeader ()
+		return self.Header
+	end
+	
 	return TableView
 end

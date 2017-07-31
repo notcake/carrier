@@ -12,7 +12,9 @@ function TableView.Header (UI)
 		
 		self.TotalWidth = 0
 		
-		self.NeedsOrderingUpdate = false
+		self.GripZOrderValid    = false
+		self.ColumnLayoutHeight = nil
+		self.ColumnLayoutValid  = false
 		
 		self.TableView:GetColumns ().Changed:AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.UpdateColumns)
 		self:UpdateColumns ()
@@ -34,14 +36,21 @@ function TableView.Header (UI)
 	
 	-- Internal
 	function self:OnLayout (w, h)
-		if self.NeedsOrderingUpdate then
-			for _, columnResizeGrip in pairs (self.ColumnResizeGrips) do
-				columnResizeGrip:BringToFront ()
-			end
-			self.NeedsOrderingUpdate = false
+		-- Bring resize grips to front
+		if not self.GripZOrderValid then
+			self:LayoutGripZOrder ()
 		end
 		
-		self:LayoutColumns ()
+		-- Invalidate column layout on height changes
+		if self.ColumnLayoutHeight ~= h then
+			self.ColumnLayoutValid = false
+		end
+		
+		-- Layout columns
+		self:EnsureColumnLayoutValid ()
+		if not self.ColumnLayoutValid then
+			self:LayoutColumns ()
+		end
 	end
 	
 	function self:Render (w, h, render2d)
@@ -49,7 +58,7 @@ function TableView.Header (UI)
 			if column:IsVisible () then
 				local columnView = self.ColumnViews [column]
 				local x = columnView:GetX () + columnView:GetWidth ()
-				render2d:DrawLine (Color.LightGray, x, 0, x, h)
+				render2d:DrawLine (Color.LightGray, x, -0.5, x, h)
 			end
 		end
 	end
@@ -63,9 +72,31 @@ function TableView.Header (UI)
 		return self.TotalWidth
 	end
 	
+	function self:GetColumnView (column)
+		return self.ColumnViews [column]
+	end
+	
+	function self:EnsureColumnLayoutValid ()
+		if self.ColumnLayoutValid then return end
+		
+		self:LayoutColumns ()
+	end
+	
 	-- Internal
+	function self:LayoutGripZOrder ()
+		self.GripZOrderValid = true
+		
+		for _, columnResizeGrip in pairs (self.ColumnResizeGrips) do
+			columnResizeGrip:BringToFront ()
+		end
+	end
+	
 	function self:LayoutColumns ()
 		local h = self:GetHeight ()
+		
+		self.ColumnLayoutHeight = h
+		self.ColumnLayoutValid  = true
+		
 		local x = 0
 		for column in self.TableView:GetColumns ():GetEnumerator () do
 			local columnView       = self.ColumnViews       [column]
@@ -84,6 +115,18 @@ function TableView.Header (UI)
 		self:SetTotalWidth (x)
 	end
 	
+	function self:InvalidateGripZOrder ()
+		self.GripZOrderValid = false
+		
+		self:InvalidateLayout ()
+	end
+	
+	function self:InvalidateColumnLayout ()
+		self.ColumnLayoutValid = false
+		
+		self:InvalidateLayout ()
+	end
+	
 	function self:SetTotalWidth (totalWidth)
 		if self.TotalWidth == totalWidth then return end
 		
@@ -93,25 +136,18 @@ function TableView.Header (UI)
 	end
 	
 	function self:UpdateColumns ()
-		local layoutNeeded = false
 		local columnSet = {}
 		for column in self.TableView:GetColumns ():GetEnumerator () do
 			columnSet [column] = true
 			if not self.ColumnViews [column] then
 				self:CreateColumnViews (column)
-				layoutNeeded = true
 			end
 		end
 		
 		for column, columnView in pairs (self.ColumnViews) do
 			if not columnSet [column] then
 				self:DestroyColumnViews (column)
-				layoutNeeded = true
 			end
-		end
-		
-		if layoutNeeded then
-			self:LayoutColumns ()
 		end
 	end
 	
@@ -121,13 +157,14 @@ function TableView.Header (UI)
 		local columnResizeGrip = UI.TableView.ColumnResizeGrip (column)
 		columnResizeGrip:SetParent (self)
 		
-		column.WidthChanged  :AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.LayoutColumns)
-		column.VisibleChanged:AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.LayoutColumns)
+		column.WidthChanged  :AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.InvalidateColumnLayout)
+		column.VisibleChanged:AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.InvalidateColumnLayout)
 		
 		self.ColumnViews [column] = columnView
 		self.ColumnResizeGrips [column] = columnResizeGrip
 		
-		self.NeedsOrderingUpdate = true
+		self:InvalidateGripZOrder ()
+		self:InvalidateColumnLayout ()
 		
 		return columnView, columnResizeGrip
 	end
@@ -141,6 +178,8 @@ function TableView.Header (UI)
 		
 		self.ColumnResizeGrips [column]:dtor ()
 		self.ColumnResizeGrips [column] = nil
+		
+		self:InvalidateColumnLayout ()
 	end
 	
 	return Header
