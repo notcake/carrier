@@ -37,12 +37,21 @@ function self:SetName (name)
 	return self
 end
 
-function self:AddListener (nameOrCallback, callback)
-	callback = callback or nameOrCallback
+function self:AddListener (nameOrCallback, callback1, callback2)
+	local callback = callback1 or nameOrCallback
 	
 	-- Copy on contention
 	if self.Locked > 0 then
 		self.Listeners = Table.ShallowCopy (self.Listeners)
+	end
+	
+	-- Member function autoclosures
+	if callback2 then
+		local object = callback1
+		local method = callback2
+		callback = function (...)
+			object:method (...)
+		end
 	end
 	
 	self.Listeners [nameOrCallback] = callback
