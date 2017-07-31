@@ -22,9 +22,6 @@ function TableView.ColumnResizeGrip (UI)
 		)
 	end
 	
-	-- IView
-	-- Internal
-	
 	-- ColumnResizeGrip
 	function self:GetColumn ()
 		return self.Column
