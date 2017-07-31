@@ -8,12 +8,14 @@ self.PressedChanged = Event ()
 function self:ctor (view)
 	self.View = view
 	
+	self.RawPressed = false
 	self.Pressed = false
 	self.Hovered = false
 	
 	self.View.MouseEnter:AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseEnter)
 	self.View.MouseLeave:AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseLeave)
 	self.View.MouseDown :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseDown)
+	self.View.MouseMove :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseMove)
 	self.View.MouseUp   :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseUp)
 end
 
@@ -21,6 +23,7 @@ function self:dtor ()
 	self.View.MouseEnter:RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
 	self.View.MouseLeave:RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
 	self.View.MouseDown :RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
+	self.View.MouseMove :RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
 	self.View.MouseUp   :RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
 end
 
@@ -44,6 +47,7 @@ end
 function self:OnMouseDown (mouseButtons, x, y)
 	if mouseButtons == Glass.MouseButtons.Left then
 		self:SetPressed (true)
+		self.RawPressed = true
 		if self.View then
 			self.View:CaptureMouse ()
 		end
@@ -51,8 +55,9 @@ function self:OnMouseDown (mouseButtons, x, y)
 end
 
 function self:OnMouseMove (mouseButtons, x, y)
-	if self.View then
-		self:SetHovered (0 <= x and x < self.View:GetWidth  () and
+	if self.View and
+	   self.RawPressed then
+		self:SetPressed (0 <= x and x < self.View:GetWidth  () and
 		                 0 <= y and y < self.View:GetHeight ())
 	end
 end
@@ -60,6 +65,7 @@ end
 function self:OnMouseUp (mouseButtons, x, y)
 	if mouseButtons == Glass.MouseButtons.Left then
 		self:SetPressed (false)
+		self.RawPressed = false
 		if self.View then
 			self.View:ReleaseMouse ()
 		end

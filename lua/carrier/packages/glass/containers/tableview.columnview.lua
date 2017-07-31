@@ -26,12 +26,10 @@ function TableView.ColumnView (UI)
 	end
 	
 	function self:Render (w, h, render2d)
-		if self.ButtonBehaviour:IsHovered () then
-			if self.ButtonBehaviour:IsPressed () then
-				render2d:FillRectangle (Color.SkyBlue, 0, 0, w, h)
-			else
-				render2d:FillRectangle (Color.WithAlpha (Color.SkyBlue, 64), 0, 0, w, h)
-			end
+		if self.ButtonBehaviour:IsPressed () then
+			render2d:FillRectangle (Color.LightBlue, 0, 0, w, h)
+		elseif self.ButtonBehaviour:IsHovered () then
+			render2d:FillRectangle (Color.WithAlpha (Color.LightBlue, 192), 0, 0, w, h)
 		end
 	end
 	
