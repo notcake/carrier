@@ -19,12 +19,19 @@ include ("defaultskin.lua")
 include ("mouse/cursor.lua")
 include ("mouse/mousebuttons.lua")
 
+include ("layout/contentalignment.lua")
+
 include ("panelviews.lua")
 
 include ("view.lua")
 include ("window.lua")
 include ("window.restorebutton.lua")
 include ("label.lua")
+
+include ("scrollbar.lua")
+include ("verticalscrollbar.lua")
+include ("horizontalscrollbar.lua")
+include ("scrollbarcorner.lua")
 
 include ("externalview.lua")
 
@@ -34,6 +41,7 @@ include ("desktopitem.lua")
 
 -- Extras
 GarrysMod.ListView      = Glass.ListView (GarrysMod)
+GarrysMod.ListViewItem  = Glass.ListViewItem (GarrysMod)
 GarrysMod.TableView     = Glass.TableView (GarrysMod)
 GarrysMod.TreeTableView = Glass.TreeTableView (GarrysMod)
 

@@ -201,6 +201,7 @@ function self:GetPanel ()
 		
 		self:InstallPanelEventHandler ("OnCursorEntered", "OnMouseEnter",
 			function ()
+				print ("OnCursorEntered", self.ctor)
 				self:OnMouseEnter ()
 				self.MouseEnter:Dispatch ()
 			end
@@ -208,6 +209,7 @@ function self:GetPanel ()
 		
 		self:InstallPanelEventHandler ("OnCursorExited", "OnMouseLeave",
 			function ()
+				print ("OnCursorExited", self.ctor, vgui.GetHoveredPanel ())
 				self:OnMouseLeave ()
 				self.MouseLeave:Dispatch ()
 			end

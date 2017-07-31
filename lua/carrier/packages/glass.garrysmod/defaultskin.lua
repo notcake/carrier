@@ -11,3 +11,6 @@ GarrysMod.Skin.Default.Fonts.Body     = GarrysMod.Font.Create ("Roboto", 15)
 GarrysMod.Skin.Default.Fonts.Caption  = GarrysMod.Font.Create ("Roboto", 13)
 GarrysMod.Skin.Default.Fonts.Headline = GarrysMod.Font.Create ("Roboto", 15, FontWeight.Heavy)
 GarrysMod.Skin.Default.Fonts.Title    = GarrysMod.Font.Create ("Roboto", 26)
+
+GarrysMod.Skin.Default.Metrics = {}
+GarrysMod.Skin.Default.Metrics.ScrollbarThickness = 20

@@ -229,8 +229,8 @@ function self:Render (w, h, render2d)
 	
 	render.SetStencilEnable (false)
 	
-	render2d:FillRectangle (Color.WithAlpha (GarrysMod.Skin.Default.Colors.Background, 0x80), 0, 0, w, h)
-	-- render2d:FillRectangle (GarrysMod.Skin.Default.Colors.Background, 0, 0, w, h)
+	-- render2d:FillRectangle (Color.WithAlpha (GarrysMod.Skin.Default.Colors.Background, 0xC0), 0, 0, w, h)
+	render2d:FillRectangle (GarrysMod.Skin.Default.Colors.Background, 0, 0, w, h)
 	
 	if self:GetPanel ():HasHierarchicalFocus () then
 		render2d:DrawRectangle (Color.CornflowerBlue, 0, 0, w, h)
