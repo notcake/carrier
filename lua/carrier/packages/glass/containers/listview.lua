@@ -244,7 +244,7 @@ function Glass.ListView (UI)
 		-- Layout vertical scrollbar
 		self.VerticalScrollbar:SetVisible (verticalScrollbarNeeded)
 		if verticalScrollbarNeeded then
-			self.VerticalScrollbar:SetRectangle (w - verticalScrollbarWidth, 0, verticalScrollbarWidth, viewHeight)
+			self.VerticalScrollbar:SetRectangle (w - verticalScrollbarWidth, 0, verticalScrollbarWidth, h - (horizontalScrollbarNeeded and horizontalScrollbarHeight or 0))
 			self.VerticalScrollbar:SetContentSize (contentHeight)
 			self.VerticalScrollbar:SetViewSize (viewHeight)
 		end
