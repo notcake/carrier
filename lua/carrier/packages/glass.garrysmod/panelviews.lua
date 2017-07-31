@@ -5,6 +5,11 @@ function PanelViews.GetView (panel)
 	local view = PanelViews.Map [panel]
 	if view then return view end
 	
+	if not panel or
+	   not panel:IsValid () then
+		return nil
+	end
+	
 	view = ExternalView (panel)
 	PanelViews.Register (panel, view)
 	

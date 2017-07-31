@@ -2,6 +2,11 @@ local self = {}
 GarrysMod.Window.RestoreButton = Class (self, GarrysMod.View)
 
 function self:ctor ()
+	self.MouseDown  :AddListener ("Glass.GarrysMod.Window.RestoreButton." .. self:GetHashCode (), self, self.SuppressBubbling)
+	self.MouseMove  :AddListener ("Glass.GarrysMod.Window.RestoreButton." .. self:GetHashCode (), self, self.SuppressBubbling)
+	self.MouseUp    :AddListener ("Glass.GarrysMod.Window.RestoreButton." .. self:GetHashCode (), self, self.SuppressBubbling)
+	self.Click      :AddListener ("Glass.GarrysMod.Window.RestoreButton." .. self:GetHashCode (), self, self.SuppressBubbling)
+	self.DoubleClick:AddListener ("Glass.GarrysMod.Window.RestoreButton." .. self:GetHashCode (), self, self.SuppressBubbling)
 end
 
 -- IView
@@ -29,4 +34,9 @@ function self:CreatePanel ()
 	local panel = vgui.Create ("DButton")
 	panel:SetText ("")
 	return panel
+end
+
+-- Internal
+function self:SuppressBubbling ()
+	return true
 end

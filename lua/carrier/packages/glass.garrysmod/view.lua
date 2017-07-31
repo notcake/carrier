@@ -31,9 +31,7 @@ function self:RemoveChild (view)
 end
 
 function self:GetParent ()
-	local panel = self:GetPanel ():GetParent ()
-	if not panel:IsValid () then return nil end
-	return PanelViews.GetView (panel)
+	return PanelViews.GetView (self:GetPanel ():GetParent ())
 end
 
 function self:SetParent (view)
@@ -46,13 +44,19 @@ end
 
 -- Layout
 function self:GetPosition ()
-	local dx, dy = self:GetParent ():GetContainerPosition ()
+	local parent = self:GetParent ()
+	local dx, dy = 0, 0
+	if parent then dx, dy = parent:GetContainerPosition () end
+	
 	local x, y = self:GetPanel ():GetPos ()
 	return x - dx, y - dy
 end
 
 function self:SetPosition (x, y)
-	local dx, dy = self:GetParent ():GetContainerPosition ()
+	local parent = self:GetParent ()
+	local dx, dy = 0, 0
+	if parent then dx, dy = parent:GetContainerPosition () end
+	
 	self:GetPanel ():SetPos (x + dx, y + dy)
 end
 
@@ -118,11 +122,13 @@ function self:GetMousePosition ()
 end
 
 function self:CaptureMouse ()
+	MouseEventRouter:OnCaptureMouse (self)
 	self:GetPanel ():MouseCapture (true)
 end
 
 function self:ReleaseMouse ()
 	self:GetPanel ():MouseCapture (false)
+	MouseEventRouter:OnReleaseMouse (self)
 end
 
 -- Internal
@@ -155,8 +161,7 @@ function self:GetPanel ()
 			function (mouseCode)
 				local mouseButtons = MouseButtons.FromNative (mouseCode)
 				local x, y = self.Panel:CursorPos ()
-				self:OnMouseDown (mouseButtons, x, y)
-				self.MouseDown:Dispatch (mouseButtons, x, y)
+				MouseEventRouter:OnMouseDown (self, mouseButtons, x, y)
 			end
 		)
 		
@@ -164,29 +169,13 @@ function self:GetPanel ()
 			function (mouseCode)
 				local mouseButtons = MouseButtons.FromNative (mouseCode)
 				local x, y = self.Panel:CursorPos ()
-				self:OnMouseUp (mouseButtons, x, y)
-				self.MouseUp:Dispatch (mouseButtons, x, y)
-				
-				if mouseButtons == Glass.MouseButtons.Left then
-					if Clock () - self.LastClickTime > 0.2 then
-						self.LastClickTime = Clock ()
-						
-						self:OnClick ()
-						self.Click:Dispatch ()
-					else
-						self.LastClickTime = -math.huge
-						
-						self:OnDoubleClick ()
-						self.DoubleClick:Dispatch ()
-					end
-				end
+				MouseEventRouter:OnMouseUp (self, mouseButtons, x, y)
 			end
 		)
 		
 		self:InstallPanelEventHandler ("OnMouseWheeled", "OnMouseWheel",
 			function (delta)
-				self:OnMouseWheel (delta)
-				self.MouseWheel:Dispatch (delta)
+				return MouseEventRouter:OnMouseWheel (self, delta)
 			end
 		)
 		
@@ -194,24 +183,19 @@ function self:GetPanel ()
 			function (x, y)
 				local mouseButtons = MouseButtons.Poll ()
 				local x, y = self.Panel:CursorPos ()
-				self:OnMouseMove (mouseButtons, x, y)
-				self.MouseMove:Dispatch (mouseButtons, x, y)
+				MouseEventRouter:OnMouseMove (self, mouseButtons, x, y)
 			end
 		)
 		
 		self:InstallPanelEventHandler ("OnCursorEntered", "OnMouseEnter",
 			function ()
-				print ("OnCursorEntered", self.ctor)
-				self:OnMouseEnter ()
-				self.MouseEnter:Dispatch ()
+				MouseEventRouter:OnMouseEnter (self)
 			end
 		)
 		
 		self:InstallPanelEventHandler ("OnCursorExited", "OnMouseLeave",
 			function ()
-				print ("OnCursorExited", self.ctor, vgui.GetHoveredPanel ())
-				self:OnMouseLeave ()
-				self.MouseLeave:Dispatch ()
+				MouseEventRouter:OnMouseLeave (self)
 			end
 		)
 		
@@ -275,11 +259,11 @@ function self:InstallPanelEventHandler (panelMethodName, methodName, handler)
 	   defaultMethod then
 		self.Panel [panelMethodName] = function (_, ...)
 			defaultMethod (self.Panel, ...)
-			handler (...)
+			return handler (...)
 		end
 	else
 		self.Panel [panelMethodName] = function (_, ...)
-			handler (...)
+			return handler (...)
 		end
 	end
 end

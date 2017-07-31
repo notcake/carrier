@@ -18,6 +18,7 @@ include ("defaultskin.lua")
 
 include ("mouse/cursor.lua")
 include ("mouse/mousebuttons.lua")
+include ("mouse/mouseeventrouter.lua")
 
 include ("layout/contentalignment.lua")
 
