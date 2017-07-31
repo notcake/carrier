@@ -33,10 +33,6 @@ function TableView.ListViewItem (UI)
 		end
 	end
 	
-	function self:Render (w, h, render2d)
-		render2d:FillRectangle (Color.Red, 0, 0, w, h)
-	end
-	
 	-- ListViewItem
 	function self:Bind (tableView, tableViewItem)
 		self.TableView = tableView
