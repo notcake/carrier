@@ -102,6 +102,14 @@ function self:Center ()
 	Error ("IView:Center : Not implemented.")
 end
 
+function self:BringToFront ()
+	Error ("IView:BringToFront : Not implemented.")
+end
+
+function self:SendToBack ()
+	Error ("IView:SendToBack : Not implemented.")
+end
+
 -- Content layout
 function self:GetPreferredSize (maximumWidth, maximumHeight)
 	return self:GetSize ()

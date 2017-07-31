@@ -2,11 +2,11 @@ Glass = {}
 
 Error = require ("Pylon.Error")
 
-OOP = require ("Pylon.OOP")
-OOP.Initialize (_ENV)
+require ("Pylon.OOP").Initialize (_ENV)
 
-Enumeration = require ("Pylon.Enumeration")
-Enumeration.Initialize (_ENV)
+Clock = require ("Pylon.MonotonicClock")
+
+require ("Pylon.Enumeration").Initialize (_ENV)
 
 ICollection = require ("Pylon.Containers.ICollection")
 
@@ -24,6 +24,7 @@ include ("mouse/cursor.lua")
 include ("mouse/mousebuttons.lua")
 
 include ("behaviours/buttonbehaviour.lua")
+include ("behaviours/dragbehaviour.lua")
 
 include ("iview.lua")
 include ("iwindow.lua")
@@ -37,6 +38,7 @@ include ("containers/tableview.listviewitem.lua")
 include ("containers/tableview.internaldatasource.lua")
 include ("containers/tableview.header.lua")
 include ("containers/tableview.columnview.lua")
+include ("containers/tableview.columnresizegrip.lua")
 include ("containers/tableview.columncollection.lua")
 include ("containers/itableviewdatasource.lua")
 include ("containers/tableviewcolumn.lua")

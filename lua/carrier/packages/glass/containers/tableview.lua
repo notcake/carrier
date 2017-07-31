@@ -3,11 +3,12 @@ TableView = {}
 function Glass.TableView (UI)
 	local self = {}
 	local TableView = Class (self, UI.View)
-	TableView.ListViewItem       = _ENV.TableView.ListViewItem (UI)
-	TableView.InternalDataSource = _ENV.TableView.InternalDataSource (UI)
-	TableView.Header             = _ENV.TableView.Header (UI)
-	TableView.ColumnView         = _ENV.TableView.ColumnView (UI)
-	TableView.ColumnCollection   = _ENV.TableView.ColumnCollection (UI)
+	TableView.ListViewItem         = _ENV.TableView.ListViewItem (UI)
+	TableView.InternalDataSource   = _ENV.TableView.InternalDataSource (UI)
+	TableView.Header               = _ENV.TableView.Header (UI)
+	TableView.ColumnView           = _ENV.TableView.ColumnView (UI)
+	TableView.ColumnResizeGrip     = _ENV.TableView.ColumnResizeGrip (UI)
+	TableView.ColumnCollection     = _ENV.TableView.ColumnCollection (UI)
 	
 	function self:ctor ()
 		self.Columns = TableView.ColumnCollection ()

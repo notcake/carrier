@@ -93,6 +93,14 @@ function self:GetLayoutEngine ()
 	return self.LayoutEngine
 end
 
+function self:BringToFront ()
+	self:GetPanel ():MoveToFront ()
+end
+
+function self:SendToBack ()
+	self:GetPanel ():MoveToBack ()
+end
+
 -- Content layout
 function self:InvalidateLayout ()
 	self:GetPanel ():InvalidateLayout ()

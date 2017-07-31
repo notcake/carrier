@@ -7,8 +7,12 @@ function TableView.Header (UI)
 	function self:ctor (tableView)
 		self.TableView = tableView
 		
-		self.ColumnViews = {}
+		self.ColumnViews       = {}
+		self.ColumnResizeGrips = {}
+		
 		self.TotalWidth = 0
+		
+		self.NeedsOrderingUpdate = false
 		
 		self.TableView:GetColumns ().Changed:AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.UpdateColumns)
 		self:UpdateColumns ()
@@ -18,8 +22,7 @@ function TableView.Header (UI)
 		self.TableView:GetColumns ().Changed:RemoveListener ("Glass.TableView.Header." .. self:GetHashCode ())
 		
 		for column, columnView in pairs (self.ColumnViews) do
-			self:DestroyColumnView (column, columnView)
-			self.ColumnViews [column] = nil
+			self:DestroyColumnViews (column)
 		end
 	end
 	
@@ -31,6 +34,13 @@ function TableView.Header (UI)
 	
 	-- Internal
 	function self:OnLayout (w, h)
+		if self.NeedsOrderingUpdate then
+			for _, columnResizeGrip in pairs (self.ColumnResizeGrips) do
+				columnResizeGrip:BringToFront ()
+			end
+			self.NeedsOrderingUpdate = false
+		end
+		
 		self:LayoutColumns ()
 	end
 	
@@ -58,13 +68,17 @@ function TableView.Header (UI)
 		local h = self:GetHeight ()
 		local x = 0
 		for column in self.TableView:GetColumns ():GetEnumerator () do
-			local columnView = self.ColumnViews [column]
+			local columnView       = self.ColumnViews       [column]
+			local columnResizeGrip = self.ColumnResizeGrips [column]
+			
 			columnView:SetRectangle (x, 0, column:GetWidth (), h)
 			columnView:SetVisible (column:IsVisible ())
+			columnResizeGrip:SetVisible (column:IsVisible ())
 			if column:IsVisible () then
 				x = x + column:GetWidth ()
 				x = x + 1
 			end
+			columnResizeGrip:SetRectangle (x - 1 - 4, 0, 4 + 1 + 4, h)
 		end
 		
 		self:SetTotalWidth (x)
@@ -84,15 +98,14 @@ function TableView.Header (UI)
 		for column in self.TableView:GetColumns ():GetEnumerator () do
 			columnSet [column] = true
 			if not self.ColumnViews [column] then
-				self.ColumnViews [column] = self:CreateColumnView (column)
+				self:CreateColumnViews (column)
 				layoutNeeded = true
 			end
 		end
 		
 		for column, columnView in pairs (self.ColumnViews) do
 			if not columnSet [column] then
-				self:DestroyColumnView (column, columnView)
-				self.ColumnViews [column] = nil
+				self:DestroyColumnViews (column)
 				layoutNeeded = true
 			end
 		end
@@ -102,21 +115,32 @@ function TableView.Header (UI)
 		end
 	end
 	
-	function self:CreateColumnView (column)
+	function self:CreateColumnViews (column)
 		local columnView = UI.TableView.ColumnView (column)
 		columnView:SetParent (self)
+		local columnResizeGrip = UI.TableView.ColumnResizeGrip (column)
+		columnResizeGrip:SetParent (self)
 		
 		column.WidthChanged  :AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.LayoutColumns)
 		column.VisibleChanged:AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.LayoutColumns)
 		
-		return columnView
+		self.ColumnViews [column] = columnView
+		self.ColumnResizeGrips [column] = columnResizeGrip
+		
+		self.NeedsOrderingUpdate = true
+		
+		return columnView, columnResizeGrip
 	end
 	
-	function self:DestroyColumnView (column, columnView)
+	function self:DestroyColumnViews (column)
 		column.WidthChanged  :RemoveListener ("Glass.TableView.Header." .. self:GetHashCode ())
 		column.VisibleChanged:RemoveListener ("Glass.TableView.Header." .. self:GetHashCode ())
 		
-		columnView:dtor ()
+		self.ColumnViews [column]:dtor ()
+		self.ColumnViews [column] = nil
+		
+		self.ColumnResizeGrips [column]:dtor ()
+		self.ColumnResizeGrips [column] = nil
 	end
 	
 	return Header

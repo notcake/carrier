@@ -5,18 +5,20 @@ self.Changed = Event ()
 self.HoveredChanged = Event ()
 self.PressedChanged = Event ()
 
-function self:ctor (view)
+function self:ctor (view, autobind)
 	self.View = view
 	
 	self.RawPressed = false
 	self.Pressed = false
 	self.Hovered = false
 	
-	self.View.MouseEnter:AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseEnter)
-	self.View.MouseLeave:AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseLeave)
-	self.View.MouseDown :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseDown)
-	self.View.MouseMove :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseMove)
-	self.View.MouseUp   :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseUp)
+	if self.View and autobind ~= false then
+		self.View.MouseEnter:AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseEnter)
+		self.View.MouseLeave:AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseLeave)
+		self.View.MouseDown :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseDown)
+		self.View.MouseMove :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseMove)
+		self.View.MouseUp   :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseUp)
+	end
 end
 
 function self:dtor ()
