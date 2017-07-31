@@ -64,14 +64,20 @@ function self:ClearListeners ()
 end
 
 function self:Dispatch (...)
+	local anyHandled = false
+	
 	self.Locked = self.Locked + 1
 	for callbackName, callback in pairs (self.Listeners) do
-		local success = xpcall (callback, ErrorNoHalt, ...)
-		if not success then
+		local success, handled = xpcall (callback, ErrorNoHalt, ...)
+		if success then
+			anyHandled = anyHandled or handled
+		else
 			ErrorNoHalt ("Error in event " .. self.Name .. " listener: " .. tostring (callbackName) .. "!\n")
 		end
 	end
 	self.Locked = self.Locked - 1
+	
+	return anyHandled
 end
 
 function self:RemoveListener (nameOrCallback)
