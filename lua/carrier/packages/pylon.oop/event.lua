@@ -50,7 +50,7 @@ function self:AddListener (nameOrCallback, callback1, callback2)
 		local object = callback1
 		local method = callback2
 		callback = function (...)
-			method (object, ...)
+			return method (object, ...)
 		end
 	end
 	
