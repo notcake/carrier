@@ -1,7 +1,17 @@
 local Table = {}
 
+function Table.ShallowCopy (tbl, out)
+	local out = out or {}
+	
+	for k, v in pairs (tbl) do
+		out [k] = v
+	end
+	
+	return out
+end
+
 function Table.Invert (tbl, out)
-	out = out or {}
+	local out = out or {}
 	
 	local keys = {}
 	for key, _ in pairs (tbl) do
@@ -15,7 +25,7 @@ function Table.Invert (tbl, out)
 end
 
 function Table.GetKeys (tbl, out)
-	out = out or {}
+	local out = out or {}
 	
 	for key, _ in pairs (tbl) do
 		out [#out + 1] = key
@@ -25,7 +35,7 @@ function Table.GetKeys (tbl, out)
 end
 
 function Table.GetValues (tbl, out)
-	out = out or {}
+	local out = out or {}
 	
 	for _, value in pairs (tbl) do
 		out [#out + 1] = value

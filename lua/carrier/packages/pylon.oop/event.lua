@@ -4,6 +4,7 @@ OOP.Event = OOP.Class (self, OOP.ICloneable)
 function self:ctor (name)
 	self.Name = name
 	
+	self.Locked    = 0
 	self.Listeners = {}
 end
 
@@ -38,6 +39,12 @@ end
 
 function self:AddListener (nameOrCallback, callback)
 	callback = callback or nameOrCallback
+	
+	-- Copy on contention
+	if self.Locked > 0 then
+		self.Listeners = Table.ShallowCopy (self.Listeners)
+	end
+	
 	self.Listeners [nameOrCallback] = callback
 end
 
@@ -48,12 +55,14 @@ function self:ClearListeners ()
 end
 
 function self:Dispatch (...)
+	self.Locked = self.Locked + 1
 	for callbackName, callback in pairs (self.Listeners) do
 		local success = xpcall (callback, ErrorNoHalt, ...)
 		if not success then
 			ErrorNoHalt ("Error in event " .. self.Name .. " listener: " .. tostring (callbackName) .. "!\n")
 		end
 	end
+	self.Locked = self.Locked - 1
 end
 
 function self:RemoveListener (nameOrCallback)
