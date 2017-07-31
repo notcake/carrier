@@ -89,6 +89,11 @@ function self:GetLayoutEngine ()
 	return self.LayoutEngine
 end
 
+-- Content layout
+function self:InvalidateLayout ()
+	self:GetPanel ():InvalidateLayout ()
+end
+
 -- Appearance
 function self:IsVisible ()
 	return self:GetPanel ():IsVisible ()
