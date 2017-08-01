@@ -2,6 +2,8 @@ local self = {}
 GarrysMod.Label = Class (self, GarrysMod.View, ILabel)
 
 function self:ctor ()
+	self.Text = ""
+	self.TextColor = Color.Black
 	self.Font = GarrysMod.Skin.Default.Fonts.Default
 	self.HorizontalAlignment = Glass.HorizontalAlignment.Left
 	self.VerticalAlignment   = Glass.VerticalAlignment.Center
@@ -14,30 +16,16 @@ function self:GetPreferredSize (maximumWidth, maximumHeight)
 end
 
 -- ILabel
+function self:GetText ()
+	return self.Text
+end
+
 function self:GetFont ()
 	return self.Font
 end
 
-function self:SetFont (font)
-	self.Font = font
-	self:GetPanel ():SetFont (font:GetId ())
-end
-
-function self:GetText ()
-	return self:GetPanel ():GetText ()
-end
-
-function self:SetText (text)
-	self:GetPanel ():SetText (text)
-end
-
 function self:GetTextColor ()
-	local color = self:GetPanel ():GetTextColor ()
-	return Color.FromRGBA8888 (color.r, color.g, color.b, color.a)
-end
-
-function self:SetTextColor (color)
-	self:GetPanel ():SetTextColor (_G.Color (Color.ToRGBA8888 (color)))
+	return self.TextColor
 end
 
 function self:GetHorizontalAlignment ()
@@ -46,6 +34,21 @@ end
 
 function self:GetVerticalAlignment ()
 	return self.VerticalAlignment
+end
+
+function self:SetText (text)
+	self.Text = text
+	self:GetPanel ():SetText (text)
+end
+
+function self:SetFont (font)
+	self.Font = font
+	self:GetPanel ():SetFont (font:GetId ())
+end
+
+function self:SetTextColor (color)
+	self.TextColor = color
+	self:GetPanel ():SetTextColor (_G.Color (Color.ToRGBA8888 (color)))
 end
 
 function self:SetHorizontalAlignment (horizontalAlignment)
@@ -63,6 +66,7 @@ end
 -- View
 function self:CreatePanel ()
 	local label = vgui.Create ("DLabel")
+	label:SetText (self.Text)
 	label:SetFont (self.Font:GetId ())
 	label:SetTextColor (_G.Color (Color.ToRGBA8888 (GarrysMod.Skin.Default.Colors.Text)))
 	self:UpdateAlignment (label)
