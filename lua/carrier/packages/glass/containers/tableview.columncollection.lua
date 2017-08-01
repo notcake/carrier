@@ -52,7 +52,7 @@ function TableView.ColumnCollection (UI)
 	end
 	
 	function self:GetById (id)
-		return self.ColumnsById [i]
+		return self.ColumnsById [id]
 	end
 	
 	function self:Insert (i, id, name)
