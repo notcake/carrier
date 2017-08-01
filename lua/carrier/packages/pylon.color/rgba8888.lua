@@ -70,10 +70,10 @@ function Color.RGBA8888.WithAlpha (r, g, b, _, a)
 end
 
 function Color.RGBA8888.Lerp (t, r0, g0, b0, a0, r1, g1, b1, a1)
-	return t * r1 + (1 - t) * r0,
-	       t * g1 + (1 - t) * g0,
-	       t * b1 + (1 - t) * b0,
-	       t * a1 + (1 - t) * a0
+	return math.floor (t * r1 + (1 - t) * r0 + 0.5),
+	       math.floor (t * g1 + (1 - t) * g0 + 0.5),
+	       math.floor (t * b1 + (1 - t) * b0 + 0.5),
+	       math.floor (t * a1 + (1 - t) * a0 + 0.5)
 end
 
 function Color.RGBA8888.FromName (colorName)
