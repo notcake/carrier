@@ -26,16 +26,15 @@ function Glass.ListView (UI)
 		self.VisibleItems     = {}
 		self.VisibleItemTypes = {}
 		
+		self.ViewLayoutWidth  = nil
+		self.ViewLayoutHeight = nil
+		self.ViewLayoutValid  = false
+		self.ItemLayoutValid  = false
+		
 		-- Visible range is startIndex, length
 		-- Visible range is also y, dy
 		-- TODO: How does this play with insets?
 		
-		-- Insets
-		-- Scroll viewport is height minus insets
-		-- Scroll content size is normal
-		
-		-- There is no god
-		-- Views cannot be added in layout code.
 		self.VerticalScrollbar = UI.VerticalScrollbar ()
 		self.VerticalScrollbar:SetParent (self)
 		self.VerticalScrollbar:SetVisible (false)
@@ -46,10 +45,10 @@ function Glass.ListView (UI)
 		self.ScrollbarCorner:SetParent (self)
 		self.ScrollbarCorner:SetVisible (false)
 		
-		self.DataSource.Reloaded     :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.Reload)
-		self.DataSource.ItemsInserted:AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.Reload)
-		self.DataSource.ItemsRemoved :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.Reload)
-		self.DataSource.ItemsMoved   :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.Reload)
+		self.DataSource.Reloaded     :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.OnReloaded)
+		self.DataSource.ItemsInserted:AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.OnItemsInserted)
+		self.DataSource.ItemsRemoved :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.OnItemsRemoved)
+		self.DataSource.ItemsMoved   :AddListener ("Glass.ListView." .. self:GetHashCode (), self, self.OnReloaded)
 	end
 	
 	function self:dtor ()
@@ -61,8 +60,18 @@ function Glass.ListView (UI)
 	function self:OnLayout (w, h)
 		self.Canvas:SetRectangle (0, 0, w, h)
 		
-		self:RecomputeLayout ()
-		self:LayoutVisibleItems ()
+		if self.ViewLayoutWidth  ~= w or
+		   self.ViewLayoutHeight ~= h then
+			self.ViewLayoutValid = false
+		end
+		
+		if not self.ViewLayoutValid then
+			self:LayoutView ()
+		end
+		
+		if not self.ItemLayoutValid then
+			self:LayoutVisibleItems ()
+		end
 		-- Invalidate item heights on width change
 		
 		-- Invalidate visible range on height change
@@ -87,7 +96,7 @@ function Glass.ListView (UI)
 			self.Header:SetParent (self)
 		end
 		
-		self:InvalidateLayout ()
+		self:InvalidateViewLayout ()
 	end
 	
 	function self:SetFooter (footer)
@@ -99,7 +108,7 @@ function Glass.ListView (UI)
 			self.Footer:SetParent (self)
 		end
 		
-		self:InvalidateLayout ()
+		self:InvalidateViewLayout ()
 	end
 	
 	function self:GetItemWidth ()
@@ -113,7 +122,7 @@ function Glass.ListView (UI)
 		
 		self.ItemWidth = width
 		
-		self:InvalidateLayout ()
+		self:InvalidateViewLayout ()
 	end
 	
 	-- Items
@@ -151,8 +160,12 @@ function Glass.ListView (UI)
 	end
 	
 	-- Internal
-	function self:RecomputeLayout ()
+	function self:LayoutView ()
 		local w, h = self:GetSize ()
+		
+		self.ViewLayoutValid  = true
+		self.ViewLayoutWidth  = w
+		self.ViewLayoutHeight = h
 		
 		local verticalScrollbarNeeded   = false
 		local verticalScrollbarWidth    = 0
@@ -265,10 +278,15 @@ function Glass.ListView (UI)
 		
 		self.ViewWidth  = viewWidth
 		self.ViewHeight = viewHeight
-		self.ResolvedItemWidth = itemWidth
+		if self.ResolvedItemWidth ~= itemWidth then
+			self.ResolvedItemWidth = itemWidth
+			self.ItemLayoutValid = false
+		end
 	end
 	
 	function self:LayoutVisibleItems ()
+		self.ItemLayoutValid = true
+		
 		local y = 0
 		if self.Header then y = y + self.Header:GetHeight () end
 		for i = 1, #self.VisibleItems do
@@ -277,6 +295,22 @@ function Glass.ListView (UI)
 			listViewItem:SetRectangle (0, y, self.ResolvedItemWidth, h)
 			y = y + h
 		end
+	end
+	
+	function self:InvalidateViewLayout ()
+		self.ViewLayoutValid = false
+		
+		self:InvalidateLayout ()
+	end
+	
+	function self:InvalidateContentHeight ()
+		self:InvalidateViewLayout ()
+	end
+	
+	function self:InvalidateItemLayout ()
+		self.ItemLayoutValid = false
+		
+		self:InvalidateLayout ()
 	end
 	
 	function self:CreatePool (itemType)
@@ -313,7 +347,8 @@ function Glass.ListView (UI)
 		end
 	end
 	
-	function self:Reload ()
+	-- Data source events
+	function self:OnReloaded ()
 		for i = #self.VisibleItems, 1, -1 do
 			local listViewItem = self.VisibleItems [i]
 			self.DataSource:UnbindItem (i, listViewItem)
@@ -340,11 +375,67 @@ function Glass.ListView (UI)
 				pool:Free (listViewItem)
 			end
 			
-			self.VisibleItems [#self.VisibleItems + 1] = boundItem
-			self.VisibleItemTypes [#self.VisibleItemTypes + 1] = itemType
+			self.VisibleItems [i] = boundItem
+			self.VisibleItemTypes [i] = itemType
 		end
 		
-		self:LayoutVisibleItems ()
+		self:InvalidateContentHeight ()
+		self:InvalidateItemLayout ()
+	end
+	
+	function self:OnItemsInserted (startIndex, count)
+		-- Shift everything up
+		for i = #self.VisibleItems, startIndex, -1 do
+			self.VisibleItems [i + count] = self.VisibleItems [i]
+			self.VisibleItemTypes [i + count] = self.VisibleItemTypes [i]
+		end
+		
+		-- Create new items
+		for i = startIndex, startIndex + count - 1 do
+			local itemType = self.DataSource:GetItemType (i)
+			local pool = self:GetPool (itemType)
+			local listViewItem = pool:Alloc ()
+			local boundItem = self.DataSource:BindItem (i, listViewItem)
+			if boundItem ~= listViewItem then
+				itemType = OverriddenItem
+				boundItem:SetParent (self.Canvas)
+				pool:Free (listViewItem)
+			end
+			
+			self.VisibleItems [i] = boundItem
+			self.VisibleItemTypes [i] = itemType
+		end
+		
+		self:InvalidateContentHeight ()
+		self:InvalidateItemLayout ()
+	end
+	
+	function self:OnItemsRemoved (startIndex, count)
+		-- Delete removed items
+		for i = startIndex, startIndex + count - 1 do
+			local listViewItem = self.VisibleItems [i]
+			self.DataSource:UnbindItem (i, listViewItem)
+			local itemType = self.VisibleItemTypes [i]
+			if itemType == OverriddenItem then
+				listViewItem:SetVisible (false)
+			else
+				local pool = self:GetPool (itemType)
+				pool:Free (listViewItem)
+			end
+			
+			self.VisibleItems [i] = nil
+			self.VisibleItemTypes [i] = nil
+		end
+		
+		-- Shift everything down
+		local itemCount = #self.VisibleItems
+		for i = startIndex, startIndex + count - 1 do
+			self.VisibleItems [i] = self.VisibleItems [i + count]
+			self.VisibleItemTypes [i] = self.VisibleItemTypes [i + count]
+		end
+		
+		self:InvalidateContentHeight ()
+		self:InvalidateItemLayout ()
 	end
 	
 	return ListView
