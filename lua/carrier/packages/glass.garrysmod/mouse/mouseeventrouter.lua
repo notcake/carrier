@@ -45,7 +45,7 @@ function self:OnMouseUp (view, mouseButtons, x, y)
 end
 
 function self:OnMouseWheel (view, delta)
-	return self:DispatchEvent (view, "OnMouseWheel", "MouseWheel", delta)
+	return self:Dispatch (view, "OnMouseWheel", "MouseWheel", delta)
 end
 
 function self:OnMouseEnter (view)
