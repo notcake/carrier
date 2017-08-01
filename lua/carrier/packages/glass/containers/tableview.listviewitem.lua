@@ -87,7 +87,7 @@ function TableView.ListViewItem (UI)
 		self.ColumnContentValid = true
 		
 		-- Clean up columns that no longer exist
-		for id, columnView in pair (self.ColumnViews) do
+		for id, columnView in pairs (self.ColumnViews) do
 			if not self.TableView:GetColumns ():GetById (id) then
 				columnView:dtor ()
 				self.ColumnViews [id] = nil
