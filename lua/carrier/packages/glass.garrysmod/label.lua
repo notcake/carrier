@@ -15,6 +15,11 @@ function self:GetPreferredSize (maximumWidth, maximumHeight)
 	return self:GetPanel ():GetContentSize ()
 end
 
+-- Internal
+-- Suppress DLabel mouse handlers, since they capture the mouse
+function self:OnMouseDown (mouseButtons, x, y) end
+function self:OnMouseUp   (mouseButtons, x, y) end
+
 -- ILabel
 function self:GetText ()
 	return self.Text
