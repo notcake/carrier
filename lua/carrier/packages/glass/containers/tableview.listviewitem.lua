@@ -86,6 +86,15 @@ function TableView.ListViewItem (UI)
 	function self:UpdateColumns ()
 		self.ColumnContentValid = true
 		
+		-- Clean up columns that no longer exist
+		for id, columnView in pair (self.ColumnViews) do
+			if not self.TableView:GetColumns ():GetById (id) then
+				columnView:dtor ()
+				self.ColumnViews [id] = nil
+			end
+		end
+		
+		-- Update columns
 		for column in self.TableView:GetColumns ():GetEnumerator () do
 			local columnView = self.ColumnViews [column:GetId ()]
 			if column:IsVisible () then

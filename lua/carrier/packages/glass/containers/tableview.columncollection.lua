@@ -51,6 +51,10 @@ function TableView.ColumnCollection (UI)
 		return self.Columns [i]
 	end
 	
+	function self:GetById (id)
+		return self.ColumnsById [i]
+	end
+	
 	function self:Insert (i, id, name)
 		local i = math.min (#self.Columns + 1, math.max (1, i))
 		local column = Glass.TableViewColumn (id, name)
