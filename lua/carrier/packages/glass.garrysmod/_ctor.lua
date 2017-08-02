@@ -49,6 +49,7 @@ GarrysMod.TableView     = Glass.TableView (GarrysMod)
 GarrysMod.TableViewItem = Glass.TableViewItem (GarrysMod)
 GarrysMod.TreeTableView = Glass.TreeTableView (GarrysMod)
 
+MouseEventRouter = MouseEventRouter ()
 GarrysMod.Desktop = Desktop ()
 
 GarrysMod.TextRenderer = Photon.TextRenderer

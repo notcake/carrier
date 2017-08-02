@@ -6,6 +6,16 @@ function self:ctor ()
 	self.MouseCaptureView = nil
 	
 	self.LastClickTime = -math.huge
+	
+	hook.Add ("PreRender", "Glass.GarrysMod.MouseEventRouter",
+		function ()
+			self:UpdateMouseFocus ()
+		end
+	)
+end
+
+function self:dtor ()
+	hook.Remove ("PreRender", "Glass.GarrysMod.MouseEventRouter")
 end
 
 function self:OnCaptureMouse (view)
@@ -162,4 +172,31 @@ function self:ToParent (view, x, y)
 	return parent, x, y
 end
 
-MouseEventRouter = MouseEventRouter ()
+function self:UpdateMouseFocus ()
+	if self.MouseCaptureView then return end
+	
+	if vgui.GetHoveredPanel () then
+		local mouseX, mouseY = gui.MousePos ()
+		local view = PanelViews.GetView (self:HitTest (vgui.GetWorldPanel (), mouseX, mouseY))
+		self:SetHoveredView (PanelViews.GetView (self:HitTest (vgui.GetWorldPanel (), mouseX, mouseY)))
+	else
+		self:SetHoveredView (nil)
+	end
+end
+
+function self:HitTest (panel, testX, testY)
+	local childCount = panel:ChildCount ()
+	for i = childCount, 1, -1 do
+		local childPanel = panel:GetChild (i - 1)
+		if childPanel:IsVisible () and
+		   childPanel:IsMouseInputEnabled () then
+			local x, y, w, h = childPanel:GetBounds ()
+			if x <= testX and testX < x + w and
+			   y <= testY and testY < y + h then
+				return self:HitTest (childPanel, testX - x, testY - y)
+			end
+		end
+	end
+	
+	return panel
+end
