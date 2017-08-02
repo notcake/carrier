@@ -51,7 +51,9 @@ end
 function self:OnMouseEnter (view)
 	if self.MouseCaptureView then return end
 	
-	self:SetHoveredView (view)
+	-- view is not necessarily the view with mouse focus
+	-- if a bunch of layout is going on.
+	self:SetHoveredView (PanelViews.GetView (vgui.GetHoveredPanel ()))
 end
 
 function self:OnMouseLeave (view)
