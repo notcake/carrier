@@ -27,7 +27,7 @@ function Glass.TableViewItem (UI)
 	end
 	
 	function self:GetColumnRenderer (id)
-		if self.ColumnTypes [id] ~= Glass.TableViewColumnType.CustomRendererer then return nil end
+		if self.ColumnTypes [id] ~= Glass.TableViewColumnType.CustomRenderer then return nil end
 		
 		return self.Columns [id]
 	end
@@ -42,8 +42,8 @@ function Glass.TableViewItem (UI)
 		self.Changed:Dispatch ()
 	end
 	
-	function self:SetColumnRenderer (renderer)
-		self.ColumnTypes [id] = Glass.TableViewColumnType.CustomRendererer
+	function self:SetColumnRenderer (id, renderer)
+		self.ColumnTypes [id] = Glass.TableViewColumnType.CustomRenderer
 		self.Columns [id] = renderer
 		
 		self.Changed:Dispatch ()

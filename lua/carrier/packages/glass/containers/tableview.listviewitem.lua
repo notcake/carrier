@@ -101,7 +101,7 @@ function Glass.TableView.ListViewItem (UI)
 			local id = column:GetId ()
 			
 			local columnView = self.ColumnViews [id]
-			local columnViewType = self.TableViewItem:GetColumnType (id)
+			local columnViewType = self.TableViewItem:GetColumnType (id) or Glass.TableViewColumnType.None
 			if column:IsVisible () then
 				if columnView and self.ColumnViewTypes [id] ~= columnViewType then
 					columnView:dtor ()
