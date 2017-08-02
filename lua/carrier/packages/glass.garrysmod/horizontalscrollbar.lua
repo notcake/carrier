@@ -2,6 +2,10 @@ local self = {}
 GarrysMod.HorizontalScrollbar = Class (self, Scrollbar)
 
 function self:ctor ()
+	self.LeftButton = Scrollbar.Button (Glass.Direction.Left)
+	self.LeftButton:SetParent (self)
+	self.RightButton = Scrollbar.Button (Glass.Direction.Right)
+	self.RightButton:SetParent (self)
 end
 
 -- IView
@@ -10,9 +14,10 @@ function self:GetPreferredSize (maximumWidth, maximumHeight)
 	return maximumWidth or self:GetWidth (), self:GetThickness ()
 end
 
--- View
-function self:CreatePanel ()
-	return vgui.Create ("DVScrollBar")
+-- Internal
+function self:OnLayout (w, h)
+	self.LeftButton:SetRectangle (0, 0, h, h)
+	self.RightButton:SetRectangle (w - h, 0, h, h)
 end
 
 -- Scrollbar

@@ -7,8 +7,6 @@ function self:ctor ()
 end
 
 -- IView
--- Content layout
-
 -- Scrollbar
 -- Metrics
 function self:GetOrientation ()

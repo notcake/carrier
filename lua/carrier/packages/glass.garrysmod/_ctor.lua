@@ -30,6 +30,8 @@ include ("window.restorebutton.lua")
 include ("label.lua")
 
 include ("scrollbar.lua")
+include ("scrollbar.button.lua")
+include ("scrollbar.grip.lua")
 include ("verticalscrollbar.lua")
 include ("horizontalscrollbar.lua")
 include ("scrollbarcorner.lua")
