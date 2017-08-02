@@ -8,9 +8,10 @@ function GarrysMod.Font.Create (name, size, weight)
 	
 	surface.CreateFont (id,
 		{
-			font   = name,
-			size   = size,
-			weight = weight
+			font     = name,
+			size     = size,
+			weight   = weight,
+			extended = true
 		}
 	)
 	
