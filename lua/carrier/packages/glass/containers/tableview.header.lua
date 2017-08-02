@@ -1,4 +1,4 @@
-function TableView.Header (UI)
+function Glass.TableView.Header (UI)
 	local self = {}
 	local Header = Class (self, UI.View)
 	

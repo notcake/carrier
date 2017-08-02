@@ -11,36 +11,51 @@ function Glass.TableViewItem (UI)
 		self.Columns          = {}
 		self.ColumnAlignments = {}
 	end
-
+	
 	function self:GetText ()
 		return self.Text
 	end
-
-	function self:GetColumnText (id)
-		if self.ColumnTypes [id] == Glass.TableViewColumnType.Text then
-			return self.Columns [id]
-		else
-			return nil
-		end
+	
+	function self:GetColumnType (id)
+		return self.ColumnTypes [id]
 	end
-
+	
+	function self:GetColumnText (id)
+		if self.ColumnTypes [id] ~= Glass.TableViewColumnType.Text then return nil end
+		
+		return self.Columns [id]
+	end
+	
+	function self:GetColumnRenderer (id)
+		if self.ColumnTypes [id] ~= Glass.TableViewColumnType.CustomRendererer then return nil end
+		
+		return self.Columns [id]
+	end
+	
 	function self:GetColumnAlignment (id)
 		return self.ColumnAlignments [id]
 	end
-
+	
 	function self:SetText (text)
 		self.Text = text
 		
 		self.Changed:Dispatch ()
 	end
-
+	
+	function self:SetColumnRenderer (renderer)
+		self.ColumnTypes [id] = Glass.TableViewColumnType.CustomRendererer
+		self.Columns [id] = renderer
+		
+		self.Changed:Dispatch ()
+	end
+	
 	function self:SetColumnText (id, text)
 		self.ColumnTypes [id] = Glass.TableViewColumnType.Text
 		self.Columns [id] = text
 		
 		self.Changed:Dispatch ()
 	end
-
+	
 	function self:SetColumnAlignment (id, alignment)
 		self.ColumnAlignments [id] = alignment
 		

@@ -1,4 +1,4 @@
-function TableView.ColumnCollection (UI)
+function Glass.TableView.ColumnCollection (UI)
 	local self = {}
 	local ColumnCollection = Class (self, ICollection)
 	

@@ -1,4 +1,4 @@
-function TableView.InternalDataSource (UI)
+function Glass.TableView.InternalDataSource (UI)
 	local self = {}
 	local InternalDataSource = Class (self, Glass.IListViewDataSource)
 

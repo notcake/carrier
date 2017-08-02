@@ -1,4 +1,4 @@
-function TableView.ColumnView (UI)
+function Glass.TableView.ColumnView (UI)
 	local self = {}
 	local ColumnView = Class (self, UI.View)
 	

@@ -1,14 +1,13 @@
-TableView = {}
-
 function Glass.TableView (UI)
 	local self = {}
 	local TableView = Class (self, UI.View)
-	TableView.ListViewItem         = _ENV.TableView.ListViewItem (UI)
-	TableView.InternalDataSource   = _ENV.TableView.InternalDataSource (UI)
-	TableView.Header               = _ENV.TableView.Header (UI)
-	TableView.ColumnView           = _ENV.TableView.ColumnView (UI)
-	TableView.ColumnResizeGrip     = _ENV.TableView.ColumnResizeGrip (UI)
-	TableView.ColumnCollection     = _ENV.TableView.ColumnCollection (UI)
+	TableView.ListViewItem                    = Glass.TableView.ListViewItem (UI)
+	TableView.ListViewItem.CustomRenderedView = Glass.TableView.ListViewItem.CustomRenderedView (UI)
+	TableView.InternalDataSource              = Glass.TableView.InternalDataSource (UI)
+	TableView.Header                          = Glass.TableView.Header (UI)
+	TableView.ColumnView                      = Glass.TableView.ColumnView (UI)
+	TableView.ColumnResizeGrip                = Glass.TableView.ColumnResizeGrip (UI)
+	TableView.ColumnCollection                = Glass.TableView.ColumnCollection (UI)
 	
 	function self:ctor ()
 		self.Columns = TableView.ColumnCollection ()
@@ -100,3 +99,5 @@ function Glass.TableView (UI)
 	
 	return TableView
 end
+
+Glass.TableView = Table.Callable (Glass.TableView)

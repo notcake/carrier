@@ -1,5 +1,7 @@
 Glass.TableViewColumnType = Enum (
 	{
-		Text = 1
+		None           = 0,
+		Text           = 1,
+		CustomRenderer = 2
 	}
 )

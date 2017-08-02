@@ -2,6 +2,8 @@ Glass = {}
 
 Error = require ("Pylon.Error")
 
+Table = require ("Pylon.Table")
+
 require ("Pylon.OOP").Initialize (_ENV)
 
 Clock = require ("Pylon.MonotonicClock")
@@ -38,6 +40,7 @@ include ("containers/listview.internaldatasource.lua")
 include ("containers/tableview.lua")
 include ("containers/tableviewitem.lua")
 include ("containers/tableview.listviewitem.lua")
+include ("containers/tableview.listviewitem.customrenderedview.lua")
 include ("containers/tableview.internaldatasource.lua")
 include ("containers/tableview.header.lua")
 include ("containers/tableview.columnview.lua")

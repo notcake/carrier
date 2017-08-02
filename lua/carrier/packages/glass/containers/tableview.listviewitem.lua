@@ -1,4 +1,4 @@
-function TableView.ListViewItem (UI)
+function Glass.TableView.ListViewItem (UI)
 	local self = {}
 	local ListViewItem = Class (self, UI.ListViewItem)
 	
@@ -6,7 +6,8 @@ function TableView.ListViewItem (UI)
 		self.TableView = nil
 		self.TableViewItem = nil
 		
-		self.ColumnViews = {}
+		self.ColumnViews     = {}
+		self.ColumnViewTypes = {}
 		
 		self.ColumnLayoutHeight = nil
 		self.ColumnLayoutValid  = false
@@ -91,27 +92,52 @@ function TableView.ListViewItem (UI)
 			if not self.TableView:GetColumns ():GetById (id) then
 				columnView:dtor ()
 				self.ColumnViews [id] = nil
+				self.ColumnViewsTypes [id] = nil
 			end
 		end
 		
 		-- Update columns
 		for column in self.TableView:GetColumns ():GetEnumerator () do
-			local columnView = self.ColumnViews [column:GetId ()]
+			local id = column:GetId ()
+			
+			local columnView = self.ColumnViews [id]
+			local columnViewType = self.TableViewItem:GetColumnType (id)
 			if column:IsVisible () then
+				if columnView and self.ColumnViewTypes [id] ~= columnViewType then
+					columnView:dtor ()
+					columnView = nil
+				end
+				
+				-- Ensure the column view is created
 				if not columnView then
-					columnView = UI.Label ()
+					if columnViewType == Glass.TableViewColumnType.None then
+						columnView = UI.View ()
+					elseif columnViewType == Glass.TableViewColumnType.Text then
+						columnView = UI.Label ()
+					elseif columnViewType == Glass.TableViewColumnType.CustomRenderer then
+						columnView = UI.TableView.ListViewItem.CustomRenderedView ()
+					end
 					columnView:SetParent (self)
-					self.ColumnViews [column:GetId ()] = columnView
+					self.ColumnViews [id] = columnView
+					self.ColumnViewTypes [id] = columnViewType
 					
 					self:InvalidateColumnLayout ()
 				end
 				
-				columnView:SetText (self.TableViewItem:GetColumnText (column:GetId ()) or "")
-				columnView:SetHorizontalAlignment (self.TableViewItem:GetColumnAlignment (column:GetId ()) or column:GetAlignment ())
+				-- Set up the column view
+				if columnViewType == Glass.TableViewColumnType.None then
+				elseif columnViewType == Glass.TableViewColumnType.Text then
+					columnView:SetText (self.TableViewItem:GetColumnText (id))
+					columnView:SetHorizontalAlignment (self.TableViewItem:GetColumnAlignment (column:GetId ()) or column:GetAlignment ())
+				elseif columnViewType == Glass.TableViewColumnType.CustomRenderer then
+					columnView:SetTableViewItem (self.TableViewItem)
+					columnView:SetRenderer (self.TableViewItem:GetColumnRenderer (id))
+				end
 			else
 				if columnView then
 					columnView:dtor ()
 					self.ColumnViews [column:GetId ()] = nil
+					self.ColumnViewTypes [column:GetId ()] = nil
 				end
 			end
 		end
@@ -119,3 +145,5 @@ function TableView.ListViewItem (UI)
 	
 	return ListViewItem
 end
+
+Glass.TableView.ListViewItem = Table.Callable (Glass.TableView.ListViewItem)

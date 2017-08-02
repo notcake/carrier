@@ -1,4 +1,4 @@
-function TableView.ColumnResizeGrip (UI)
+function Glass.TableView.ColumnResizeGrip (UI)
 	local self = {}
 	local ColumnResizeGrip = Class (self, UI.View)
 	
