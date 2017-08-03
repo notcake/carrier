@@ -31,14 +31,26 @@ function self:OnReleaseMouse (view)
 end
 
 function self:OnMouseDown (view, mouseButtons, x, y)
+	-- Fix coordinates by inverting the bad ScreenToLocal transform
+	-- This happens when view layout is done outside of a legitimate layout event
+	local x, y = self:ScreenToLocal (view, view:GetPanel ():LocalToScreen (x, y))
+	
 	return self:BubbleButtonEvent (view, "OnMouseDown", "MouseDown", mouseButtons, x, y)
 end
 
 function self:OnMouseMove (view, mouseButtons, x, y)
+	-- Fix coordinates by inverting the bad ScreenToLocal transform
+	-- This happens when view layout is done outside of a legitimate layout event
+	local x, y = self:ScreenToLocal (view, view:GetPanel ():LocalToScreen (x, y))
+	
 	return self:BubbleButtonEvent (view, "OnMouseMove", "MouseMove", mouseButtons, x, y)
 end
 
 function self:OnMouseUp (view, mouseButtons, x, y)
+	-- Fix coordinates by inverting the bad ScreenToLocal transform
+	-- This happens when view layout is done outside of a legitimate layout event
+	local x, y = self:ScreenToLocal (view, view:GetPanel ():LocalToScreen (x, y))
+	
 	local handled = self:Dispatch (view, "OnMouseUp", "MouseUp", mouseButtons, x, y)
 	
 	if mouseButtons == Glass.MouseButtons.Left then
@@ -157,19 +169,24 @@ function self:SetHoveredView (view)
 	end
 end
 
+function self:ScreenToLocal (view, x, y)
+	while view do
+		local dx, dy = view:GetPanel ():GetPos ()
+		x = x - dx
+		y = y - dy
+		
+		view = view:GetParent ()
+	end
+	
+	return x, y
+end
+
 function self:ToParent (view, x, y)
-	local dx, dy = view:GetPosition ()
+	local dx, dy = view:GetPanel ():GetPos ()
 	x = x + dx
 	y = y + dy
 	
-	local parent = view:GetParent ()
-	if parent then
-		dx, dy = parent:GetContainerPosition ()
-		x = x + dx
-		y = y + dy
-	end
-	
-	return parent, x, y
+	return view:GetParent (), x, y
 end
 
 function self:UpdateMouseFocus ()
@@ -185,9 +202,9 @@ function self:UpdateMouseFocus ()
 end
 
 function self:HitTest (panel, testX, testY)
-	local childCount = panel:ChildCount ()
-	for i = childCount, 1, -1 do
-		local childPanel = panel:GetChild (i - 1)
+	local children = panel:GetChildren ()
+	for i = #children, 1, -1 do
+		local childPanel = children [i]
 		if childPanel:IsVisible () and
 		   childPanel:IsMouseInputEnabled () then
 			local x, y, w, h = childPanel:GetBounds ()
