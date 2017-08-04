@@ -38,6 +38,8 @@ function self:ctor ()
 	self.DragRight  = nil
 	self.DragBottom = nil
 	
+	self:SetConsumesMouseEvents (true)
+	
 	self.DragBehaviour = Glass.DragBehaviour (self, false)
 	self.DragBehaviour.Started:AddListener (
 		function ()

@@ -139,6 +139,14 @@ function self:ReleaseMouse ()
 	MouseEventRouter:OnReleaseMouse (self)
 end
 
+function self:IsMouseEventConsumer ()
+	return self.ConsumesMouseEvents
+end
+
+function self:SetConsumesMouseEvents (consumesMouseEvents)
+	self.ConsumesMouseEvents = consumesMouseEvents
+end
+
 -- Internal
 function self:OnMouseDown (mouseButtons, x, y) end
 function self:OnMouseMove (mouseButtons, x, y) end

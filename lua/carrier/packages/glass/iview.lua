@@ -163,6 +163,14 @@ function self:ReleaseMouse ()
 	Error ("IView:ReleaseMouse : Not implemented.")
 end
 
+function self:IsMouseEventConsumer ()
+	Error ("IView:IsMouseEventConsumer : Not implemented.")
+end
+
+function self:SetConsumesMouseEvents (consumesMouseEvents)
+	Error ("IView:SetConsumesMouseEvents : Not implemented.")
+end
+
 -- Internal
 function self:OnLayout (contentWidth, contentHeight) end
 
