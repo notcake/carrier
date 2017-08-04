@@ -51,7 +51,7 @@ function self:OnMouseUp (view, mouseButtons, x, y)
 	-- This happens when view layout is done outside of a legitimate layout event
 	local x, y = self:ScreenToLocal (view, view:GetPanel ():LocalToScreen (x, y))
 	
-	local handled = self:Dispatch (view, "OnMouseUp", "MouseUp", mouseButtons, x, y)
+	local handled = self:DispatchMouseEvent (view, "OnMouseUp", "MouseUp", mouseButtons, x, y)
 	
 	if mouseButtons == Glass.MouseButtons.Left then
 		if Clock () - self.LastClickTime > 0.2 then
@@ -103,9 +103,13 @@ function self:Dispatch (view, methodName, eventName, ...)
 	return handled1 or handled2
 end
 
+function self:DispatchMouseEvent (view, methodName, eventName, ...)
+	return self:Dispatch (view, methodName, eventName, ...) or view:IsMouseEventConsumer ()
+end
+
 function self:BubbleEvent (view, methodName, eventName)
 	while view do
-		local handled = self:Dispatch (view, methodName, eventName)
+		local handled = self:DispatchMouseEvent (view, methodName, eventName)
 		if handled then return handled end
 		
 		view = view:GetParent ()
@@ -116,7 +120,7 @@ end
 
 function self:BubbleButtonEvent (view, methodName, eventName, mouseButtons, x, y)
 	while view do
-		local handled = self:Dispatch (view, methodName, eventName, mouseButtons, x, y)
+		local handled = self:DispatchMouseEvent (view, methodName, eventName, mouseButtons, x, y)
 		if handled then return handled end
 		
 		view, x, y = self:ToParent (view, x, y)
