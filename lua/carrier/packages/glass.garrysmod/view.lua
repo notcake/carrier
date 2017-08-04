@@ -126,7 +126,22 @@ function self:SetCursor (cursor)
 end
 
 function self:GetMousePosition ()
-	return self:GetPanel ():CursorPos ()
+	local x, y = self:GetPanel ():CursorPos ()
+	
+	-- Fix coordinates by inverting the bad ScreenToLocal transform
+	-- This happens when view layout is done outside of a legitimate layout event
+	x, y = self:GetPanel ():LocalToScreen (x, y)
+	
+	-- Manual ScreenToLocal
+	local panel = self:GetPanel ()
+	while panel do
+		local dx, dy = panel:GetPos ()
+		x, y = x - dx, y - dy
+		
+		panel = panel:GetParent ()
+	end
+	
+	return x, y
 end
 
 function self:CaptureMouse ()
@@ -176,16 +191,14 @@ function self:GetPanel ()
 		self:InstallPanelEventHandler ("OnMousePressed", "OnMouseDown",
 			function (mouseCode)
 				local mouseButtons = MouseButtons.FromNative (mouseCode)
-				local x, y = self.Panel:CursorPos ()
-				MouseEventRouter:OnMouseDown (self, mouseButtons, x, y)
+				MouseEventRouter:OnMouseDown (self, mouseButtons, self:GetMousePosition ())
 			end
 		)
 		
 		self:InstallPanelEventHandler ("OnMouseReleased", "OnMouseUp",
 			function (mouseCode)
 				local mouseButtons = MouseButtons.FromNative (mouseCode)
-				local x, y = self.Panel:CursorPos ()
-				MouseEventRouter:OnMouseUp (self, mouseButtons, x, y)
+				MouseEventRouter:OnMouseUp (self, mouseButtons, self:GetMousePosition ())
 			end
 		)
 		
@@ -198,8 +211,7 @@ function self:GetPanel ()
 		self:InstallPanelEventHandler ("OnCursorMoved", "OnMouseMove",
 			function (x, y)
 				local mouseButtons = MouseButtons.Poll ()
-				local x, y = self.Panel:CursorPos ()
-				MouseEventRouter:OnMouseMove (self, mouseButtons, x, y)
+				MouseEventRouter:OnMouseMove (self, mouseButtons, self:GetMousePosition ())
 			end
 		)
 		

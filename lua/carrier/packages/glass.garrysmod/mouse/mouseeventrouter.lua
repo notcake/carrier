@@ -31,26 +31,14 @@ function self:OnReleaseMouse (view)
 end
 
 function self:OnMouseDown (view, mouseButtons, x, y)
-	-- Fix coordinates by inverting the bad ScreenToLocal transform
-	-- This happens when view layout is done outside of a legitimate layout event
-	local x, y = self:ScreenToLocal (view, view:GetPanel ():LocalToScreen (x, y))
-	
 	return self:BubbleButtonEvent (view, "OnMouseDown", "MouseDown", mouseButtons, x, y)
 end
 
 function self:OnMouseMove (view, mouseButtons, x, y)
-	-- Fix coordinates by inverting the bad ScreenToLocal transform
-	-- This happens when view layout is done outside of a legitimate layout event
-	local x, y = self:ScreenToLocal (view, view:GetPanel ():LocalToScreen (x, y))
-	
 	return self:BubbleButtonEvent (view, "OnMouseMove", "MouseMove", mouseButtons, x, y)
 end
 
 function self:OnMouseUp (view, mouseButtons, x, y)
-	-- Fix coordinates by inverting the bad ScreenToLocal transform
-	-- This happens when view layout is done outside of a legitimate layout event
-	local x, y = self:ScreenToLocal (view, view:GetPanel ():LocalToScreen (x, y))
-	
 	local handled = self:DispatchMouseEvent (view, "OnMouseUp", "MouseUp", mouseButtons, x, y)
 	
 	if mouseButtons == Glass.MouseButtons.Left and
@@ -173,18 +161,6 @@ function self:SetHoveredView (view)
 	for i = #currentStack - lastCommonAncestorIndex, 1, -1 do
 		self:Dispatch (currentStack [i], "OnMouseEnter", "MouseEnter")
 	end
-end
-
-function self:ScreenToLocal (view, x, y)
-	while view do
-		local dx, dy = view:GetPanel ():GetPos ()
-		x = x - dx
-		y = y - dy
-		
-		view = view:GetParent ()
-	end
-	
-	return x, y
 end
 
 function self:ToParent (view, x, y)
