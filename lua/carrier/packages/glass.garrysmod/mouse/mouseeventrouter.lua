@@ -53,7 +53,9 @@ function self:OnMouseUp (view, mouseButtons, x, y)
 	
 	local handled = self:DispatchMouseEvent (view, "OnMouseUp", "MouseUp", mouseButtons, x, y)
 	
-	if mouseButtons == Glass.MouseButtons.Left then
+	if mouseButtons == Glass.MouseButtons.Left and
+	   0 <= x and x < view:GetWidth  () and
+	   0 <= y and y < view:GetHeight () then
 		if Clock () - self.LastClickTime > 0.2 then
 			self:OnClick (view)
 		else
