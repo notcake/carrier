@@ -11,6 +11,7 @@ Clock = require ("Pylon.MonotonicClock")
 require ("Pylon.Enumeration").Initialize (_ENV)
 
 ICollection = require ("Pylon.Containers.ICollection")
+CompactList = require ("Pylon.Containers.CompactList")
 
 Pool = require ("Pylon.Pool")
 
@@ -33,6 +34,13 @@ include ("behaviours/dragbehaviour.lua")
 include ("iview.lua")
 include ("iwindow.lua")
 
+include ("animations/ianimation.lua")
+include ("animations/iinterpolatedanimation.lua")
+include ("animations/animation.lua")
+include ("animations/interpolatedanimation.lua")
+
+include ("interpolators.lua")
+
 include ("containers/listview.lua")
 include ("containers/ilistviewdatasource.lua")
 include ("containers/listviewitem.lua")
@@ -54,20 +62,28 @@ include ("containers/treetableview.lua")
 function Glass.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
 	
-	destinationTable.IFont               = Glass.IFont
-	destinationTable.FontWeight          = Glass.FontWeight
+	destinationTable.IFont                  = Glass.IFont
+	destinationTable.FontWeight             = Glass.FontWeight
 	
-	destinationTable.HorizontalAlignment = Glass.HorizontalAlignment
-	destinationTable.VerticalAlignment   = Glass.VerticalAlignment
-	destinationTable.Orientation         = Glass.Orientation
-	destinationTable.Direction           = Glass.Direction
+	destinationTable.HorizontalAlignment    = Glass.HorizontalAlignment
+	destinationTable.VerticalAlignment      = Glass.VerticalAlignment
+	destinationTable.Orientation            = Glass.Orientation
+	destinationTable.Direction              = Glass.Direction
 	
-	destinationTable.Cursor              = Glass.Cursor
-	destinationTable.MouseButtons        = Glass.MouseButtons
-	destinationTable.IView               = Glass.IView
-	destinationTable.IWindow             = Glass.IWindow
+	destinationTable.Cursor                 = Glass.Cursor
+	destinationTable.MouseButtons           = Glass.MouseButtons
+	destinationTable.IView                  = Glass.IView
+	destinationTable.IWindow                = Glass.IWindow
 	
-	destinationTable.IListViewDataSource = Glass.IListViewDataSource
+	destinationTable.IAnimation             = Glass.IAnimation
+	destinationTable.IInterpolatedAnimation = Glass.IInterpolatedAnimation
+	destinationTable.Animation              = Glass.Animation
+	destinationTable.InterpolatedAnimation  = Glass.InterpolatedAnimation
+	
+	destinationTable.Interpolators          = Glass.Interpolators
+	
+	destinationTable.IListViewDataSource    = Glass.IListViewDataSource
+	destinationTable.ITableViewDataSource   = Glass.ITableViewDataSource
 	
 	return destinationTable
 end

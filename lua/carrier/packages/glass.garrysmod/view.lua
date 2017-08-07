@@ -4,10 +4,11 @@ GarrysMod.View = Class (self, IView)
 function self:ctor ()
 	self.Panel = nil
 	
-	self.LayoutEngine = nil
-	
 	self.Cursor = Glass.Cursor.Default
 	self.LastClickTime = -math.huge
+	
+	self.Animations = nil
+	self.ThinkHandlerInstalled = false
 end
 
 function self:dtor ()
@@ -88,11 +89,6 @@ function self:Center ()
 	self:GetPanel ():Center ()
 end
 
-function self:GetLayoutEngine ()
-	self.LayoutEngine = self.LayoutEngine or LayoutEngine ()
-	return self.LayoutEngine
-end
-
 function self:BringToFront ()
 	self:GetPanel ():MoveToFront ()
 end
@@ -160,6 +156,17 @@ end
 
 function self:SetConsumesMouseEvents (consumesMouseEvents)
 	self.ConsumesMouseEvents = consumesMouseEvents
+end
+
+-- Animations
+function self:CreateAnimation (updater, ...)
+	local animation = Glass.Animation (Clock (), updater, ...)
+	self:AddAnimation (animation)
+end
+
+function self:CreateInterpolatedAnimation (interpolator, duration, updater, ...)
+	local animation = Glass.InterpolatedAnimation (Clock (), interpolator, duration, updater, ...)
+	self:AddAnimation (animation)
 end
 
 -- Internal
@@ -239,10 +246,6 @@ function self:GetPanel ()
 				performLayout (_, w, h)
 			end
 			
-			if self.LayoutEngine then
-				self.LayoutEngine:Layout (self:GetContainerSize ())
-			end
-			
 			self:OnLayout (self:GetContainerSize ())
 			self.Layout:Dispatch ()
 		end
@@ -294,4 +297,43 @@ function self:InstallPanelEventHandler (panelMethodName, methodName, handler)
 			return handler (...)
 		end
 	end
+end
+
+function self:InstallThinkHandler ()
+	if self.ThinkHandlerInstalled then return end
+	
+	self.ThinkHandlerInstalled = true
+	
+	local defaultThink = self.Panel.Think
+	self.Panel.Think = function (_)
+		if defaultThink then
+			defaultThink (_)
+		end
+		
+		-- Run animations
+		if self.Animations then
+			local t = Clock ()
+			for animation, _ in pairs (self.Animations) do
+				local uncompleted = animation:Update (t)
+				if not uncompleted then
+					self.Animations [animation] = nil
+				end
+			end
+		end
+		
+		-- Remove Think handler if all
+		-- animations have completed
+		if not self.Animations or
+		   not next (self.Animations) then
+			self.Panel.Think = defaultThink
+			self.ThinkHandlerInstalled = false
+		end
+	end
+end
+
+function self:AddAnimation (animation)
+	self.Animations = self.Animations or {}
+	self.Animations [animation] = true
+	
+	self:InstallThinkHandler ()
 end

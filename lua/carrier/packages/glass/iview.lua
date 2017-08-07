@@ -171,6 +171,17 @@ function self:SetConsumesMouseEvents (consumesMouseEvents)
 	Error ("IView:SetConsumesMouseEvents : Not implemented.")
 end
 
+-- Animations
+-- updater (t0, t, ...)
+function self:CreateAnimation (updater, ...)
+	Error ("IView:CreateAnimation : Not implemented.")
+end
+
+-- updater (t, ...)
+function self:CreateInterpolatedAnimation (interpolator, duration, updater, ...)
+	Error ("IView:CreateInterpolatedAnimation : Not implemented.")
+end
+
 -- Internal
 function self:OnLayout (contentWidth, contentHeight) end
 

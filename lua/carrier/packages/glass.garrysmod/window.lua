@@ -64,7 +64,7 @@ function self:ctor ()
 					self.DragLeft   = x0 + dx - newLocalX
 					self.DragRight  = self.DragLeft + self.RestoredWidth
 					self.DragBottom = self.DragTop + self.RestoredHeight
-					self:Restore ()
+					self:Restore (false)
 				end
 				
 				self:SetPosition (self.DragLeft + dx, self.DragTop + dy)
@@ -274,7 +274,9 @@ function self:IsResizable ()
 	return self.Resizable
 end
 
-function self:Maximize ()
+function self:Maximize (animated)
+	local animated = animated == nil and true or animated
+	
 	if self:IsMaximized () then return end
 	
 	self.RestoreButton:SetVisible (true)
@@ -284,19 +286,22 @@ function self:Maximize ()
 	self.RestoredX,     self.RestoredY      = self:GetPosition ()
 	self.RestoredWidth, self.RestoredHeight = self:GetSize ()
 	
-	self:SetPosition (0, 0)
-	self:SetSize (self:GetParent ():GetSize ())
+	local x, y, w, h = 0, 0, self:GetParent ():GetSize ()
+	self:SetRectangleAnimated (x, y, w, h, animated and Glass.Interpolators.ExponentialDecay (0.001) or nil, 0.25)
 end
 
-function self:Restore ()
+function self:Restore (animated)
+	local animated = animated == nil and true or animated
+	
 	if not self:IsMaximized () then return end
 	
 	self.RestoreButton:SetVisible (false)
 	self:GetPanel ().btnMaxim:SetVisible (true)
 	
 	self.Maximized = false
-	self:SetPosition (self.RestoredX, self.RestoredY)
-	self:SetSize (self.RestoredWidth, self.RestoredHeight)
+		
+	local x, y, w, h = self.RestoredX, self.RestoredY, self.RestoredWidth, self.RestoredHeight
+	self:SetRectangleAnimated (x, y, w, h, animated and Glass.Interpolators.ExponentialDecay (0.001) or nil, 0.25)
 end
 
 function self:SetMaximizable (maximizable)
@@ -333,5 +338,22 @@ function self:HitTest (x, y)
 		return DragMode.Move
 	else
 		return DragMode.None
+	end
+end
+
+function self:SetRectangleAnimated (x, y, w, h, interpolator, duration)
+	if interpolator then
+		local x0, y0, w0, h0 = self:GetRectangle ()
+		local x1, y1, w1, h1 = x, y, w, h
+		self:CreateInterpolatedAnimation (interpolator, duration,
+			function (t)
+				local x, y = x0 + t * (x1 - x0), y0 + t * (y1 - y0)
+				local w, h = w0 + t * (w1 - w0), h0 + t * (h1 - h0)
+				
+				self:SetRectangle (x, y, w, h)
+			end
+		)
+	else
+		self:SetRectangle (x, y, w, h)
 	end
 end
