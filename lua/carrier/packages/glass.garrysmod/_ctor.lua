@@ -10,7 +10,7 @@ Glass = require ("Glass")
 Glass.Initialize (_ENV)
 Glass.Initialize (GarrysMod)
 
-Photon = require ("Photon")
+Photon = require ("Photon.GarrysMod")
 
 include ("fonts/font.lua")
 

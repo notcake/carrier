@@ -1,7 +1,7 @@
 local utf8 = require ("utf8")
 
 local self = {}
-TextRenderer = Class (self, ITextRenderer)
+TextRenderer = Class (self, Photon.ITextRenderer)
 
 function self:ctor ()
 end

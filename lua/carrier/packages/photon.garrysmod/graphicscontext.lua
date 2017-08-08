@@ -1,5 +1,5 @@
 local self = {}
-GraphicsContext = Class (self, IGraphicsContext)
+GraphicsContext = Class (self, Photon.IGraphicsContext)
 
 function self:ctor ()
 	self.Render2d     = Render2d (self)

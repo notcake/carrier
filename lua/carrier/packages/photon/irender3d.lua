@@ -1,5 +1,5 @@
 local self = {}
-Core.IRender3d = Interface (self)
+Photon.IRender3d = Interface (self)
 
 function self:ctor ()
 end

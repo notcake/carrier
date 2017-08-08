@@ -1,5 +1,5 @@
 local self = {}
-Core.IGraphicsContext = Interface (self)
+Photon.IGraphicsContext = Interface (self)
 
 function self:ctor ()
 end

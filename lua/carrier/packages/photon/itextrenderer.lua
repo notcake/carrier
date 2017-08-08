@@ -1,5 +1,5 @@
 local self = {}
-Core.ITextRenderer = Interface (self)
+Photon.ITextRenderer = Interface (self)
 
 function self:ctor ()
 end
