@@ -20,6 +20,8 @@ include ("mouse/cursor.lua")
 include ("mouse/mousebuttons.lua")
 include ("mouse/mouseeventrouter.lua")
 
+include ("keyboard/keyboard.lua")
+
 include ("layout/contentalignment.lua")
 
 include ("panelviews.lua")
@@ -29,12 +31,12 @@ include ("window.lua")
 include ("window.restorebutton.lua")
 include ("label.lua")
 
-include ("scrollbar.lua")
-include ("scrollbar.button.lua")
-include ("scrollbar.grip.lua")
-include ("verticalscrollbar.lua")
-include ("horizontalscrollbar.lua")
-include ("scrollbarcorner.lua")
+include ("scrollbars/scrollbar.lua")
+include ("scrollbars/scrollbar.button.lua")
+include ("scrollbars/scrollbar.grip.lua")
+include ("scrollbars/verticalscrollbar.lua")
+include ("scrollbars/horizontalscrollbar.lua")
+include ("scrollbars/scrollbarcorner.lua")
 
 include ("externalview.lua")
 

@@ -12,5 +12,5 @@ end
 
 -- Internal
 function self:Render (w, h, render2d)
-	render2d:FillRectangle (Color.LightGray, 0, 0, w, h)
+	render2d:FillRectangle (Color.FromRGBA8888 (240, 240, 240, 255), 0, 0, w, h)
 end
