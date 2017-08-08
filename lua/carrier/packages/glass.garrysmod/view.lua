@@ -2,7 +2,9 @@ local self = {}
 GarrysMod.View = Class (self, IView)
 
 function self:ctor ()
-	self.Panel = nil
+	self.Environment = GarrysMod.Environment
+	
+	self.Handle = nil
 	
 	self.RectangleAnimator = nil
 	
@@ -13,39 +15,124 @@ function self:ctor ()
 end
 
 function self:dtor ()
-	PanelViews.Unregister (self.Panel, self)
+	GarrysMod.Environment:UnregisterView (self.Handle, self)
 	
-	if self.Panel and
-	   self.Panel:IsValid () then
-		self.Panel:Remove ()
-		self.Panel = nil
+	if self.Handle and
+	   self.Handle:IsValid () then
+		self.Handle:Remove ()
+		self.Handle = nil
 	end
 end
 
 -- IView
 -- Environment
 function self:GetEnvironment ()
-	return GarrysMod.Environment
+	return self.Environment
+end
+local DummyPanel = {}
+function DummyPanel:IsValid ()
+	Error ("Cannot use View:GetHandle () within View:CreatePanel ()!")
+end
+function DummyPanel:Remove () end
+
+function self:GetHandle ()
+	if not self.Handle or
+	   not self.Handle:IsValid () then
+		self.Handle = DummyPanel
+		self.Handle = self:CreatePanel ()
+		GarrysMod.Environment:RegisterView (self.Handle, self)
+		
+		self:InstallPanelEventHandler ("OnMousePressed", "OnMouseDown",
+			function (mouseCode)
+				local mouseButtons = MouseButtons.FromNative (mouseCode)
+				MouseEventRouter:OnMouseDown (self, mouseButtons, self:GetMousePosition ())
+			end
+		)
+		
+		self:InstallPanelEventHandler ("OnMouseReleased", "OnMouseUp",
+			function (mouseCode)
+				local mouseButtons = MouseButtons.FromNative (mouseCode)
+				MouseEventRouter:OnMouseUp (self, mouseButtons, self:GetMousePosition ())
+			end
+		)
+		
+		self:InstallPanelEventHandler ("OnMouseWheeled", "OnMouseWheel",
+			function (delta)
+				return MouseEventRouter:OnMouseWheel (self, delta)
+			end
+		)
+		
+		self:InstallPanelEventHandler ("OnCursorMoved", "OnMouseMove",
+			function (x, y)
+				local mouseButtons = MouseButtons.Poll ()
+				MouseEventRouter:OnMouseMove (self, mouseButtons, self:GetMousePosition ())
+			end
+		)
+		
+		self:InstallPanelEventHandler ("OnCursorEntered", "OnMouseEnter",
+			function ()
+				MouseEventRouter:OnMouseEnter (self)
+			end
+		)
+		
+		self:InstallPanelEventHandler ("OnCursorExited", "OnMouseLeave",
+			function ()
+				MouseEventRouter:OnMouseLeave (self)
+			end
+		)
+		
+		self:InstallPanelEventHandler ("Paint", "Render",
+			function (w, h)
+				self:Render (w, h, Photon.Render2d)
+			end
+		)
+		
+		local performLayout = self.Handle.PerformLayout
+		self.Handle.PerformLayout = function (_, w, h)
+			if performLayout then
+				performLayout (_, w, h)
+			end
+			
+			self:OnLayout (self:GetContainerSize ())
+			self.Layout:Dispatch ()
+		end
+		
+		local setVisible = self.Handle.SetVisible
+		self.Handle.SetVisible = function (_, visible)
+			if _:IsVisible () == visible then return end
+			
+			setVisible (_, visible)
+			
+			self:OnVisibleChanged (visible)
+			self.VisibleChanged:Dispatch (visible)
+		end
+	end
+	
+	return self.Handle
+end
+
+function self:IsHandleCreated ()
+	return self.Handle and self.Handle:IsValid () or false
 end
 
 -- Hierarchy
 function self:AddChild (view)
-	view:GetPanel ():SetParent (self:GetPanel ())
+	self.Environment:AddChild (self, self:GetHandle (), view)
 end
 
 function self:RemoveChild (view)
-	view:GetPanel ():SetParent (nil)
+	self.Environment:RemoveChild (self, self:GetHandle (), view)
 end
 
 function self:GetParent ()
-	return PanelViews.GetView (self:GetPanel ():GetParent ())
+	return self.Environment:GetParent (self, self:GetHandle ())
 end
 
 function self:SetParent (view)
 	if view then
 		view:AddChild (self)
 	else
-		self:GetPanel ():SetParent (nil)
+		self.Environment:SetParent (self, self:GetHandle (), nil)
 	end
 end
 
@@ -83,9 +170,7 @@ local function AnimatedRectangleSetter2 (setter, name)
 end
 
 function self:GetRectangle ()
-	local x, y = self:GetPosition ()
-	local w, h = self:GetSize ()
-	return x, y, w, h
+	return self.Environment:GetRectangle (self, self:GetHandle ())
 end
 
 function self:SetRectangle (x, y, w, h, animator)
@@ -96,29 +181,19 @@ function self:SetRectangle (x, y, w, h, animator)
 end
 
 function self:GetPosition ()
-	local parent = self:GetParent ()
-	local dx, dy = 0, 0
-	if parent then dx, dy = parent:GetContainerPosition () end
-	
-	local x, y = self:GetPanel ():GetPos ()
-	return x - dx, y - dy
+	return self.Environment:GetPosition (self, self:GetHandle ())
 end
 
 function self:SetPosition (x, y)
-	local parent = self:GetParent ()
-	local dx, dy = 0, 0
-	if parent then dx, dy = parent:GetContainerPosition () end
-	
-	self:GetPanel ():SetPos (x + dx, y + dy)
+	self.Environment:SetPosition (self, self:GetHandle (), x, y)
 end
 
-local View_SetPosition = self.SetPosition
 function self:SetX (x)
-	View_SetPosition (self, x, self:GetY ())
+	self.Environment:SetPosition (self, self:GetHandle (), x, self:GetY ())
 end
 
 function self:SetY (y)
-	View_SetPosition (self, self:GetX (), y)
+	self.Environment:SetPosition (self, self:GetHandle (), self:GetX (), y)
 end
 
 self.SetPosition = AnimatedRectangleSetter2 (self.SetPosition, "Position")
@@ -126,27 +201,29 @@ self.SetX        = AnimatedRectangleSetter1 (self.SetX, "X")
 self.SetY        = AnimatedRectangleSetter1 (self.SetY, "Y")
 
 function self:GetSize ()
-	return self:GetPanel ():GetSize ()
+	return self.Environment:GetSize (self, self:GetHandle ())
 end
 
 function self:GetWidth ()
-	return self:GetPanel ():GetWide ()
+	local w, _ = self.Environment:GetSize (self, self:GetHandle ())
+	return w
 end
 
 function self:GetHeight ()
-	return self:GetPanel ():GetTall ()
+	local _, h = self.Environment:GetSize (self, self:GetHandle ())
+	return h
 end
 
 function self:SetSize (w, h)
-	self:GetPanel ():SetSize (w, h)
+	self.Environment:SetSize (self, self:GetHandle (), w, h)
 end
 
 function self:SetWide (w)
-	self:GetPanel ():SetWide (w)
+	self.Environment:SetSize (self, self:GetHandle (), w, self:GetHeight ())
 end
 
 function self:SetHeight (h)
-	self:GetPanel ():SetTall (h)
+	self.Environment:SetSize (self, self:GetHandle (), self:GetWidth (), h)
 end
 
 self.SetSize   = AnimatedRectangleSetter2 (self.SetSize,   "Size")
@@ -154,25 +231,25 @@ self.SetWidth  = AnimatedRectangleSetter1 (self.SetWidth,  "Width")
 self.SetHeight = AnimatedRectangleSetter1 (self.SetHeight, "Height")
 
 function self:BringToFront ()
-	self:GetPanel ():MoveToFront ()
+	self.Environment:BringToFront (self, self:GetHandle ())
 end
 
 function self:SendToBack ()
-	self:GetPanel ():MoveToBack ()
+	self.Environment:SendToBack (self, self:GetHandle ())
 end
 
 -- Content layout
 function self:InvalidateLayout ()
-	self:GetPanel ():InvalidateLayout ()
+	self:GetHandle ():InvalidateLayout ()
 end
 
 -- Appearance
 function self:IsVisible ()
-	return self:GetPanel ():IsVisible ()
+	return self.Environment:IsVisible (self, self:GetHandle ())
 end
 
 function self:SetVisible (visible)
-	self:GetPanel ():SetVisible (visible)
+	self.Environment:SetVisible (self, self:GetHandle (), visible)
 end
 
 -- Mouse
@@ -182,36 +259,19 @@ end
 
 function self:SetCursor (cursor)
 	self.Cursor = cursor
-	self:GetPanel ():SetCursor (Cursor.ToNative (cursor))
+	self.Environment:SetCursor (self, self:GetHandle (), cursor)
 end
 
 function self:GetMousePosition ()
-	local x, y = self:GetPanel ():CursorPos ()
-	
-	-- Fix coordinates by inverting the bad ScreenToLocal transform
-	-- This happens when view layout is done outside of a legitimate layout event
-	x, y = self:GetPanel ():LocalToScreen (x, y)
-	
-	-- Manual ScreenToLocal
-	local panel = self:GetPanel ()
-	while panel do
-		local dx, dy = panel:GetPos ()
-		x, y = x - dx, y - dy
-		
-		panel = panel:GetParent ()
-	end
-	
-	return x, y
+	return self.Environment:GetMousePosition (self, self:GetHandle ())
 end
 
 function self:CaptureMouse ()
-	MouseEventRouter:OnCaptureMouse (self)
-	self:GetPanel ():MouseCapture (true)
+	self.Environment:CaptureMouse (self, self:GetHandle ())
 end
 
 function self:ReleaseMouse ()
-	self:GetPanel ():MouseCapture (false)
-	MouseEventRouter:OnReleaseMouse (self)
+	self.Environment:ReleaseMouse (self, self:GetHandle ())
 end
 
 function self:IsMouseEventConsumer ()
@@ -266,88 +326,6 @@ function self:OnMouseLeave () end
 function self:Render (w, h, render2d) end
 
 -- View
-local DummyPanel = {}
-function DummyPanel:IsValid ()
-	Error ("Cannot use View:GetPanel () within View:CreatePanel ()!")
-end
-function DummyPanel:Remove () end
-
-function self:GetPanel ()
-	if not self.Panel or
-	   not self.Panel:IsValid () then
-		self.Panel = DummyPanel
-		self.Panel = self:CreatePanel ()
-		PanelViews.Register (self.Panel, self)
-		
-		self:InstallPanelEventHandler ("OnMousePressed", "OnMouseDown",
-			function (mouseCode)
-				local mouseButtons = MouseButtons.FromNative (mouseCode)
-				MouseEventRouter:OnMouseDown (self, mouseButtons, self:GetMousePosition ())
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnMouseReleased", "OnMouseUp",
-			function (mouseCode)
-				local mouseButtons = MouseButtons.FromNative (mouseCode)
-				MouseEventRouter:OnMouseUp (self, mouseButtons, self:GetMousePosition ())
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnMouseWheeled", "OnMouseWheel",
-			function (delta)
-				return MouseEventRouter:OnMouseWheel (self, delta)
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnCursorMoved", "OnMouseMove",
-			function (x, y)
-				local mouseButtons = MouseButtons.Poll ()
-				MouseEventRouter:OnMouseMove (self, mouseButtons, self:GetMousePosition ())
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnCursorEntered", "OnMouseEnter",
-			function ()
-				MouseEventRouter:OnMouseEnter (self)
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnCursorExited", "OnMouseLeave",
-			function ()
-				MouseEventRouter:OnMouseLeave (self)
-			end
-		)
-		
-		self:InstallPanelEventHandler ("Paint", "Render",
-			function (w, h)
-				self:Render (w, h, Photon.Render2d)
-			end
-		)
-		
-		local performLayout = self.Panel.PerformLayout
-		self.Panel.PerformLayout = function (_, w, h)
-			if performLayout then
-				performLayout (_, w, h)
-			end
-			
-			self:OnLayout (self:GetContainerSize ())
-			self.Layout:Dispatch ()
-		end
-		
-		local setVisible = self.Panel.SetVisible
-		self.Panel.SetVisible = function (_, visible)
-			if _:IsVisible () == visible then return end
-			
-			setVisible (_, visible)
-			
-			self:OnVisibleChanged (visible)
-			self.VisibleChanged:Dispatch (visible)
-		end
-	end
-	
-	return self.Panel
-end
-
 -- Internal
 function self:CreatePanel ()
 	local panel = vgui.Create ("DPanel")
@@ -357,27 +335,27 @@ function self:CreatePanel ()
 end
 
 function self:InjectPanel (panel)
-	if self.Panel and self.Panel:IsValid () then
-		self.Panel:Remove ()
+	if self.Handle and self.Handle:IsValid () then
+		self.Handle:Remove ()
 	end
 	
-	self.Panel = panel
+	self.Handle = panel
 end
 
 local methodTable = self
 function self:InstallPanelEventHandler (panelMethodName, methodName, handler)
-	local defaultMethod = self.Panel [panelMethodName]
+	local defaultMethod = self.Handle [panelMethodName]
 	
 	-- Suppress default method if an override is present
 	-- but always call the handler so that events get fired.
 	if self [methodName] == methodTable [methodName] and
 	   defaultMethod then
-		self.Panel [panelMethodName] = function (_, ...)
-			defaultMethod (self.Panel, ...)
+		self.Handle [panelMethodName] = function (_, ...)
+			defaultMethod (self.Handle, ...)
 			return handler (...)
 		end
 	else
-		self.Panel [panelMethodName] = function (_, ...)
+		self.Handle [panelMethodName] = function (_, ...)
 			return handler (...)
 		end
 	end
@@ -388,8 +366,8 @@ function self:InstallThinkHandler ()
 	
 	self.ThinkHandlerInstalled = true
 	
-	local defaultThink = self.Panel.Think
-	self.Panel.Think = function (_)
+	local defaultThink = self.Handle.Think
+	self.Handle.Think = function (_)
 		if defaultThink then
 			defaultThink (_)
 		end
@@ -409,7 +387,7 @@ function self:InstallThinkHandler ()
 		-- animations have completed
 		if not self.Animations or
 		   not next (self.Animations) then
-			self.Panel.Think = defaultThink
+			self.Handle.Think = defaultThink
 			self.ThinkHandlerInstalled = false
 		end
 	end
@@ -422,8 +400,7 @@ function self:CreateRectangleAnimator ()
 	self.RectangleAnimator = Glass.RectangleAnimator (x, y, w, h)
 	self.RectangleAnimator.Updated:AddListener (
 		function (x, y, w, h)
-			View_SetPosition (self, x, y)
-			self:GetPanel ():SetSize (w, h)
+			self.Environment:SetRectangle (self, self:GetHandle (), x, y, w, h)
 		end
 	)
 	

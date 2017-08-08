@@ -2,7 +2,7 @@ local self = {}
 ExternalView = Class (self, GarrysMod.View)
 
 function self:ctor (panel)
-	self.Panel = panel
+	self.Handle = panel
 	
-	PanelViews.Register (panel, self)
+	GarrysMod.Environment:RegisterView (panel, self)
 end

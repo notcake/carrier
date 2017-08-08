@@ -22,6 +22,14 @@ function self:GetEnvironment ()
 	Error ("IView:GetEnvironment : Not implemented.")
 end
 
+function self:GetHandle ()
+	Error ("IView:GetHandle : Not implemented.")
+end
+
+function self:IsHandleCreated ()
+	Error ("IView:IsHandleCreated : Not implemented.")
+end
+
 -- Hierarchy
 function self:AddChild (view)
 	Error ("IView:AddChild : Not implemented.")

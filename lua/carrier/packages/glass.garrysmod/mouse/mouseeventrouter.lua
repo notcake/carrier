@@ -26,7 +26,7 @@ end
 function self:OnReleaseMouse (view)
 	if self.MouseCaptureView == view then
 		self.MouseCaptureView = nil
-		self:SetHoveredView (PanelViews.GetView (vgui.GetHoveredPanel ()))
+		self:SetHoveredView (GarrysMod.Environment:GetView (vgui.GetHoveredPanel ()))
 	end
 end
 
@@ -65,13 +65,13 @@ function self:OnMouseEnter (view)
 	
 	-- view is not necessarily the view with mouse focus
 	-- if a bunch of layout is going on.
-	self:SetHoveredView (PanelViews.GetView (vgui.GetHoveredPanel ()))
+	self:SetHoveredView (GarrysMod.Environment:GetView (vgui.GetHoveredPanel ()))
 end
 
 function self:OnMouseLeave (view)
 	if self.MouseCaptureView then return end
 	
-	self:SetHoveredView (PanelViews.GetView (vgui.GetHoveredPanel ()))
+	self:SetHoveredView (GarrysMod.Environment:GetView (vgui.GetHoveredPanel ()))
 end
 
 -- Internal
@@ -164,7 +164,7 @@ function self:SetHoveredView (view)
 end
 
 function self:ToParent (view, x, y)
-	local dx, dy = view:GetPanel ():GetPos ()
+	local dx, dy = view:GetHandle ():GetPos ()
 	x = x + dx
 	y = y + dy
 	
@@ -176,8 +176,8 @@ function self:UpdateMouseFocus ()
 	
 	if vgui.GetHoveredPanel () then
 		local mouseX, mouseY = gui.MousePos ()
-		local view = PanelViews.GetView (self:HitTest (vgui.GetWorldPanel (), mouseX, mouseY))
-		self:SetHoveredView (PanelViews.GetView (self:HitTest (vgui.GetWorldPanel (), mouseX, mouseY)))
+		local view = GarrysMod.Environment:GetView (self:HitTest (vgui.GetWorldPanel (), mouseX, mouseY))
+		self:SetHoveredView (GarrysMod.Environment:GetView (self:HitTest (vgui.GetWorldPanel (), mouseX, mouseY)))
 	else
 		self:SetHoveredView (nil)
 	end

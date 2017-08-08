@@ -73,14 +73,14 @@ function self:ctor ()
 				local x2, y2 = self.DragRight, self.DragBottom
 				
 				if self.ResizeHorizontal == ResizeDirection.Negative then
-					x1 = math.min (x1 + dx, x2 - self:GetPanel ():GetMinWidth ())
+					x1 = math.min (x1 + dx, x2 - self:GetHandle ():GetMinWidth ())
 				elseif self.ResizeHorizontal == ResizeDirection.Positive then
-					x2 = math.max (x2 + dx, x1 + self:GetPanel ():GetMinWidth ())
+					x2 = math.max (x2 + dx, x1 + self:GetHandle ():GetMinWidth ())
 				end
 				if self.ResizeVertical == ResizeDirection.Negative then
-					y1 = math.min (y1 + dy, y2 - self:GetPanel ():GetMinHeight ())
+					y1 = math.min (y1 + dy, y2 - self:GetHandle ():GetMinHeight ())
 				elseif self.ResizeVertical == ResizeDirection.Positive then
-					y2 = math.max (y2 + dy, y1 + self:GetPanel ():GetMinHeight ())
+					y2 = math.max (y2 + dy, y1 + self:GetHandle ():GetMinHeight ())
 				end
 				
 				self:SetRectangle (x1, y1, x2 - x1, y2 - y1)
@@ -104,8 +104,8 @@ function self:ctor ()
 	
 	self.Layout:AddListener (
 		function (w, h)
-			self.RestoreButton:GetPanel ():SetPos  (self:GetPanel ().btnMaxim:GetPos  ())
-			self.RestoreButton:GetPanel ():SetSize (self:GetPanel ().btnMaxim:GetSize ())
+			self.RestoreButton:GetHandle ():SetPos  (self:GetHandle ().btnMaxim:GetPos  ())
+			self.RestoreButton:GetHandle ():SetSize (self:GetHandle ().btnMaxim:GetSize ())
 		end
 	)
 end
@@ -217,7 +217,7 @@ function self:Render (w, h, render2d)
 	-- render2d:FillRectangle (Color.WithAlpha (GarrysMod.Skin.Default.Colors.Background, 0xC0), 0, 0, w, h)
 	render2d:FillRectangle (GarrysMod.Skin.Default.Colors.Background, 0, 0, w, h)
 	
-	if self:GetPanel ():HasHierarchicalFocus () then
+	if self:GetHandle ():HasHierarchicalFocus () then
 		render2d:DrawRectangle (Color.CornflowerBlue, 0, 0, w, h)
 	else
 		render2d:DrawRectangle (Color.Gray, 0, 0, w, h)
@@ -226,11 +226,11 @@ end
 
 -- IWindow
 function self:GetTitle ()
-	return self:GetPanel ():GetTitle ()
+	return self:GetHandle ():GetTitle ()
 end
 
 function self:SetTitle (title)
-	self:GetPanel ():SetTitle (title)
+	self:GetHandle ():SetTitle (title)
 end
 
 -- View
@@ -288,7 +288,7 @@ function self:Maximize (animated)
 	if self:IsMaximized () then return end
 	
 	self.RestoreButton:SetVisible (true)
-	self:GetPanel ().btnMaxim:SetVisible (false)
+	self:GetHandle ().btnMaxim:SetVisible (false)
 	
 	self.Maximized = true
 	self.RestoredX,     self.RestoredY      = self:GetPosition ()
@@ -305,7 +305,7 @@ function self:Restore (animated)
 	if not self:IsMaximized () then return end
 	
 	self.RestoreButton:SetVisible (false)
-	self:GetPanel ().btnMaxim:SetVisible (true)
+	self:GetHandle ().btnMaxim:SetVisible (true)
 	
 	self.Maximized = false
 		
@@ -322,7 +322,7 @@ end
 
 function self:SetResizable (resizable)
 	self.Resizable = resizable
-	self:GetPanel ():SetSizable (self.Resizable)
+	self:GetHandle ():SetSizable (self.Resizable)
 end
 
 -- Internal

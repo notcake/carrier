@@ -12,7 +12,7 @@ end
 -- IView
 -- Content layout
 function self:GetPreferredSize (maximumWidth, maximumHeight)
-	return self:GetPanel ():GetContentSize ()
+	return self:GetHandle ():GetContentSize ()
 end
 
 -- Internal
@@ -43,29 +43,29 @@ end
 
 function self:SetText (text)
 	self.Text = text
-	self:GetPanel ():SetText (text)
+	self:GetHandle ():SetText (text)
 end
 
 function self:SetFont (font)
 	self.Font = font
-	self:GetPanel ():SetFont (font:GetId ())
+	self:GetHandle ():SetFont (font:GetId ())
 end
 
 function self:SetTextColor (color)
 	self.TextColor = color
-	self:GetPanel ():SetTextColor (_G.Color (Color.ToRGBA8888 (color)))
+	self:GetHandle ():SetTextColor (_G.Color (Color.ToRGBA8888 (color)))
 end
 
 function self:SetHorizontalAlignment (horizontalAlignment)
 	self.HorizontalAlignment = horizontalAlignment
 	
-	self:UpdateAlignment (self:GetPanel ())
+	self:UpdateAlignment (self:GetHandle ())
 end
 
 function self:SetVerticalAlignment (verticalAlignment)
 	self.VerticalAlignment = verticalAlignment
 	
-	self:UpdateAlignment (self:GetPanel ())
+	self:UpdateAlignment (self:GetHandle ())
 end
 
 -- View

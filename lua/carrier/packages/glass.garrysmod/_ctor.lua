@@ -26,8 +26,6 @@ include ("keyboard/keyboard.lua")
 
 include ("layout/contentalignment.lua")
 
-include ("panelviews.lua")
-
 include ("view.lua")
 include ("window.lua")
 include ("window.restorebutton.lua")

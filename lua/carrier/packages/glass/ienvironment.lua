@@ -69,6 +69,18 @@ function self:SetVisible (view, handle)
 end
 
 -- Mouse
+function self:GetCursor (view, handle)
+	Error ("IEnvironment:GetCursor : Not implemented.")
+end
+
+function self:SetCursor (view, handle, cursor)
+	Error ("IEnvironment:SetCursor : Not implemented.")
+end
+
+function self:GetMousePosition (view, handle)
+	Error ("IEnvironment:GetMousePosition : Not implemented.")
+end
+
 function self:CaptureMouse (view, handle)
 	Error ("IEnvironment:CaptureMouse : Not implemented.")
 end
