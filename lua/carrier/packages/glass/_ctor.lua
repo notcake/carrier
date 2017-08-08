@@ -34,8 +34,11 @@ include ("behaviours/dragbehaviour.lua")
 include ("iview.lua")
 include ("iwindow.lua")
 
+include ("animations/ianimatorhost.lua")
 include ("animations/ianimation.lua")
+include ("animations/animatorhost.lua")
 include ("animations/animation.lua")
+include ("animations/vector2danimator.lua")
 include ("animations/rectangleanimator.lua")
 include ("animations/interpolators.lua")
 

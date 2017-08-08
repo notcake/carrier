@@ -1,24 +1,6 @@
 local self = {}
 GarrysMod.View = Class (self, IView)
 
-local Properties = {}
-Properties.Rectangle = function (self, panel, x, y, w, h)
-	Properties.Position (self, panel, x, y)
-	Properties.Size (self, panel, w, h)
-end
-Properties.Position = function (self, panel, x, y)
-	local parent = self:GetParent ()
-	local dx, dy = 0, 0
-	if parent then dx, dy = parent:GetContainerPosition () end
-	
-	panel:SetPos (x + dx, y + dy)
-end
-Properties.X        = function (self, panel, x) Properties.Position (self, panel, x, self:GetY ()) end
-Properties.Y        = function (self, panel, y) Properties.Position (self, panel, self:GetX (), y) end
-Properties.Size     = function (self, panel, w, h) panel:SetSize (w, h) end
-Properties.Width    = function (self, panel, w) panel:SetWide (w) end
-Properties.Height   = function (self, panel, h) panel:SetTall (h) end
-
 function self:ctor ()
 	self.Panel = nil
 	
@@ -63,13 +45,13 @@ function self:SetParent (view)
 end
 
 -- Layout
-local function Setter1 (name)
+local function AnimatedRectangleSetter1 (setter, name)
 	local setterName = "Set" .. name
 	return function (self, x, animation)
 		if animation == true then animation = self:CreateDefaultAnimation () end
 		
 		if not animation then
-			Properties [name] (self, self:GetPanel (), x)
+			setter (self, x)
 		else
 			self:AddAnimation (self:CreateRectangleAnimator ())
 		end
@@ -79,13 +61,13 @@ local function Setter1 (name)
 	end
 end
 
-local function Setter2 (name)
+local function AnimatedRectangleSetter2 (setter, name)
 	local setterName = "Set" .. name
 	return function (self, x1, x2, animation)
 		if animation == true then animation = self:CreateDefaultAnimation () end
 		
 		if not animation then
-			Properties [name] (self, self:GetPanel (), x1, x2)
+			setter (self, x1, x2)
 		else
 			self:AddAnimation (self:CreateRectangleAnimator ())
 		end
@@ -117,9 +99,26 @@ function self:GetPosition ()
 	return x - dx, y - dy
 end
 
-self.SetPosition = Setter2 ("Position")
-self.SetX        = Setter1 ("X")
-self.SetY        = Setter1 ("Y")
+function self:SetPosition (x, y)
+	local parent = self:GetParent ()
+	local dx, dy = 0, 0
+	if parent then dx, dy = parent:GetContainerPosition () end
+	
+	self:GetPanel ():SetPos (x + dx, y + dy)
+end
+
+local View_SetPosition = self.SetPosition
+function self:SetX (x)
+	View_SetPosition (self, x, self:GetY ())
+end
+
+function self:SetY (y)
+	View_SetPosition (self, self:GetX (), y)
+end
+
+self.SetPosition = AnimatedRectangleSetter2 (self.SetPosition, "Position")
+self.SetX        = AnimatedRectangleSetter1 (self.SetX, "X")
+self.SetY        = AnimatedRectangleSetter1 (self.SetY, "Y")
 
 function self:GetSize ()
 	return self:GetPanel ():GetSize ()
@@ -133,9 +132,21 @@ function self:GetHeight ()
 	return self:GetPanel ():GetTall ()
 end
 
-self.SetSize   = Setter2 ("Size")
-self.SetWidth  = Setter1 ("Width")
-self.SetHeight = Setter1 ("Height")
+function self:SetSize (w, h)
+	self:GetPanel ():SetSize (w, h)
+end
+
+function self:SetWide (w)
+	self:GetPanel ():SetWide (w)
+end
+
+function self:SetHeight (h)
+	self:GetPanel ():SetTall (h)
+end
+
+self.SetSize   = AnimatedRectangleSetter2 (self.SetSize,   "Size")
+self.SetWidth  = AnimatedRectangleSetter1 (self.SetWidth,  "Width")
+self.SetHeight = AnimatedRectangleSetter1 (self.SetHeight, "Height")
 
 function self:BringToFront ()
 	self:GetPanel ():MoveToFront ()
@@ -386,11 +397,12 @@ end
 function self:CreateRectangleAnimator ()
 	if self.RectangleAnimator then return self.RectangleAnimator end
 	
-	self.RectangleAnimator = Glass.RectangleAnimator (
+	local x, y, w, h = self:GetRectangle ()
+	self.RectangleAnimator = Glass.RectangleAnimator (x, y, w, h,
 		function (x, y, w, h)
-			Properties.Rectangle (self, self:GetPanel (), x, y, w, h)
-		end,
-		self:GetRectangle ()
+			View_SetPosition (self, x, y)
+			self:GetPanel ():SetSize (w, h)
+		end
 	)
 	
 	return self.RectangleAnimator

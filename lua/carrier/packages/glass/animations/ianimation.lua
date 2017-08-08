@@ -1,5 +1,5 @@
 local self = {}
-Glass.IAnimation = Interface (self)
+Glass.IAnimation = Interface (self, Glass.IAnimatorHost)
 
 function self:ctor ()
 end
@@ -29,13 +29,5 @@ function self:IsCompleted ()
 end
 
 function self:Update (t)
-	Error ("IAnimation:Update : Not implemented.")
-end
-
-function self:AttachAnimator (name, animator)
-	Error ("IAnimation:Update : Not implemented.")
-end
-
-function self:DetachAnimator (name)
 	Error ("IAnimation:Update : Not implemented.")
 end

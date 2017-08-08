@@ -1,5 +1,5 @@
 local self = {}
-Glass.Animation = Class (self, Glass.IAnimation)
+Glass.Animation = Class (self, Glass.AnimatorHost, Glass.IAnimation)
 
 function self:ctor (t0, interpolator, duration, updater)
 	self.StartTime = t0
@@ -10,8 +10,6 @@ function self:ctor (t0, interpolator, duration, updater)
 	self.Interpolator = interpolator
 	
 	self.Updater = updater
-	
-	self.Animators = {}
 end
 
 -- IAnimation
@@ -49,9 +47,7 @@ function self:Update (t)
 		uncompleted = self.Updater (y)
 	end
 	
-	for _, animator in pairs (self.Animators) do
-		animator (y)
-	end
+	self:UpdateAnimators (y)
 	
 	if uncompleted == false then
 		self.Completed = true
@@ -66,9 +62,13 @@ end
 
 function self:AttachAnimator (name, animator)
 	local animator = animator or name
+	
+	self.Animators = self.Animators or {}
 	self.Animators [name] = animator
 end
 
 function self:DetachAnimator (name)
+	if not self.Animators then return end
+	
 	self.Animators [name] = nil
 end
