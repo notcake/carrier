@@ -173,9 +173,18 @@ function self:SetConsumesMouseEvents (consumesMouseEvents)
 end
 
 -- Animations
--- updater (t)
-function self:CreateAnimation (interpolator, duration, updater)
+function self:AddAnimation (animation)
+	Error ("IView:AddAnimation : Not implemented.")
+end
+
+-- updater (t0, t)
+function self:CreateAnimation (updater)
 	Error ("IView:CreateAnimation : Not implemented.")
+end
+
+-- updater (t)
+function self:CreateAnimator (interpolator, duration, updater)
+	Error ("IView:CreateAnimator : Not implemented.")
 end
 
 -- Internal

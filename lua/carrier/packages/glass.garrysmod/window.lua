@@ -295,8 +295,8 @@ function self:Maximize (animated)
 	self.RestoredWidth, self.RestoredHeight = self:GetSize ()
 	
 	local x, y, w, h = 0, 0, self:GetParent ():GetSize ()
-	local animation = animated and self:CreateAnimation (Glass.Interpolators.ExponentialDecay (0.001), 0.25) or nil
-	self:SetRectangle (x, y, w, h, animation)
+	local animator = animated and self:CreateAnimator (Glass.Interpolators.ExponentialDecay (0.001), 0.25) or nil
+	self:SetRectangle (x, y, w, h, animator)
 end
 
 function self:Restore (animated)
@@ -310,8 +310,8 @@ function self:Restore (animated)
 	self.Maximized = false
 		
 	local x, y, w, h = self.RestoredX, self.RestoredY, self.RestoredWidth, self.RestoredHeight
-	local animation = animated and self:CreateAnimation (Glass.Interpolators.ExponentialDecay (0.001), 0.25) or nil
-	self:SetRectangle (x, y, w, h, animation)
+	local animator = animated and self:CreateAnimator (Glass.Interpolators.ExponentialDecay (0.001), 0.25) or nil
+	self:SetRectangle (x, y, w, h, animator)
 end
 
 

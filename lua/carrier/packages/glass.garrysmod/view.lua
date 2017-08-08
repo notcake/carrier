@@ -47,33 +47,33 @@ end
 -- Layout
 local function AnimatedRectangleSetter1 (setter, name)
 	local setterName = "Set" .. name
-	return function (self, x, animation)
-		if animation == true then animation = self:CreateDefaultAnimation () end
+	return function (self, x, animator)
+		if animator == true then animator = self:CreateDefaultAnimation () end
 		
-		if not animation then
+		if not animator then
 			setter (self, x)
 		else
 			self:AddAnimation (self:CreateRectangleAnimator ())
 		end
 		
 		if not self.RectangleAnimator then return end
-		self.RectangleAnimator [setterName] (self.RectangleAnimator, Clock (), x, animation)
+		self.RectangleAnimator [setterName] (self.RectangleAnimator, Clock (), x, animator)
 	end
 end
 
 local function AnimatedRectangleSetter2 (setter, name)
 	local setterName = "Set" .. name
-	return function (self, x1, x2, animation)
-		if animation == true then animation = self:CreateDefaultAnimation () end
+	return function (self, x1, x2, animator)
+		if animator == true then animator = self:CreateDefaultAnimation () end
 		
-		if not animation then
+		if not animator then
 			setter (self, x1, x2)
 		else
 			self:AddAnimation (self:CreateRectangleAnimator ())
 		end
 		
 		if not self.RectangleAnimator then return end
-		self.RectangleAnimator [setterName] (self.RectangleAnimator, Clock (), x1, x2, animation)
+		self.RectangleAnimator [setterName] (self.RectangleAnimator, Clock (), x1, x2, animator)
 	end
 end
 
@@ -83,11 +83,11 @@ function self:GetRectangle ()
 	return x, y, w, h
 end
 
-function self:SetRectangle (x, y, w, h, animation)
-	if animation == true then animation = self:CreateDefaultAnimation () end
+function self:SetRectangle (x, y, w, h, animator)
+	if animator == true then animator = self:CreateDefaultAnimation () end
 	
-	self:SetPosition (x, y, animation)
-	self:SetSize     (w, h, animation)
+	self:SetPosition (x, y, animator)
+	self:SetSize     (w, h, animator)
 end
 
 function self:GetPosition ()
@@ -218,8 +218,22 @@ function self:SetConsumesMouseEvents (consumesMouseEvents)
 end
 
 -- Animations
-function self:CreateAnimation (interpolator, duration, updater)
-	local animation = Glass.Animation (Clock (), interpolator, duration, updater)
+function self:AddAnimation (animation)
+	self.Animations = self.Animations or {}
+	self.Animations [animation] = true
+	
+	self:InstallThinkHandler ()
+end
+
+function self:CreateAnimation (updater)
+	
+end
+
+function self:CreateAnimator (interpolator, duration, updater)
+	local animation = Glass.Animator (Clock (), interpolator, duration)
+	if updater then
+		animation.Updated:AddListener (updater)
+	end
 	
 	self:AddAnimation (animation)
 	return animation
@@ -387,18 +401,12 @@ function self:InstallThinkHandler ()
 	end
 end
 
-function self:AddAnimation (animation)
-	self.Animations = self.Animations or {}
-	self.Animations [animation] = true
-	
-	self:InstallThinkHandler ()
-end
-
 function self:CreateRectangleAnimator ()
 	if self.RectangleAnimator then return self.RectangleAnimator end
 	
 	local x, y, w, h = self:GetRectangle ()
-	self.RectangleAnimator = Glass.RectangleAnimator (x, y, w, h,
+	self.RectangleAnimator = Glass.RectangleAnimator (x, y, w, h)
+	self.RectangleAnimator.Updated:AddListener (
 		function (x, y, w, h)
 			View_SetPosition (self, x, y)
 			self:GetPanel ():SetSize (w, h)
@@ -408,6 +416,6 @@ function self:CreateRectangleAnimator ()
 	return self.RectangleAnimator
 end
 
-function self:CreateDefaultAnimation (interpolator)
-	return self:CreateAnimation (Glass.Interpolators.Linear (), 0.25)
+function self:CreateDefaultAnimator ()
+	return self:CreateAnimator (Glass.Interpolators.Linear (), 0.25)
 end

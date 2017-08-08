@@ -1,16 +1,16 @@
 local self = {}
-Glass.RectangleAnimator = Class (self, Glass.IBaseIAnimation)
+Glass.RectangleAnimator = Class (self, Glass.IAnimation)
 
-function self:ctor (x, y, w, h, updater)
+self.Updated = Event ()
+
+function self:ctor (x, y, w, h)
 	self.Completed = false
 	
 	self.PositionAnimator = Glass.Vector2dAnimator (x, y)
 	self.SizeAnimator     = Glass.Vector2dAnimator (w, h)
-	
-	self.Updater = updater
 end
 
--- IBaseAnimation
+-- IAnimation
 function self:IsCompleted ()
 	return self.Completed
 end
@@ -21,9 +21,7 @@ function self:Update (t)
 	self.PositionAnimator:Update (t)
 	self.SizeAnimator    :Update (t)
 	
-	if self.Updater then
-		self.Updater (self:GetRectangle (t))
-	end
+	self.Updated:Dispatch (self:GetRectangle (t))
 	
 	self.Completed = self.PositionAnimator:IsCompleted () and
 	                 self.SizeAnimator:IsCompleted ()
@@ -46,37 +44,37 @@ function self:GetSize (t)
 	return self.SizeAnimator:GetVector (t)
 end
 
-function self:SetRectangle (t, x, y, w, h, animation)
-	self:SetPosition (t, x, y, animation)
-	self:SetSize     (t, w, h, animation)
+function self:SetRectangle (t, x, y, w, h, animator)
+	self:SetPosition (t, x, y, animator)
+	self:SetSize     (t, w, h, animator)
 end
 
-function self:SetPosition (t, x, y, animation)
-	self.PositionAnimator:SetVector (t, x, y, animation)
-	if animation then self.Completed = false end
+function self:SetPosition (t, x, y, animator)
+	self.PositionAnimator:SetVector (t, x, y, animator)
+	if animator then self.Completed = false end
 end
 
-function self:SetX (t, x, animation)
-	self.PositionAnimator:SetX (t, x, animation)
-	if animation then self.Completed = false end
+function self:SetX (t, x, animator)
+	self.PositionAnimator:SetX (t, x, animator)
+	if animator then self.Completed = false end
 end
 
-function self:SetY (t, y, animation)
-	self.PositionAnimator:SetY (t, y, animation)
-	if animation then self.Completed = false end
+function self:SetY (t, y, animator)
+	self.PositionAnimator:SetY (t, y, animator)
+	if animator then self.Completed = false end
 end
 
-function self:SetSize (t, w, h, animation)
-	self.SizeAnimator:SetVector (t, w, h, animation)
-	if animation then self.Completed = false end
+function self:SetSize (t, w, h, animator)
+	self.SizeAnimator:SetVector (t, w, h, animator)
+	if animator then self.Completed = false end
 end
 
-function self:SetWidth (t, w, animation)
-	self.SizeAnimator:SetX (t, w, animation)
-	if animation then self.Completed = false end
+function self:SetWidth (t, w, animator)
+	self.SizeAnimator:SetX (t, w, animator)
+	if animator then self.Completed = false end
 end
 
-function self:SetHeight (t, h, animation)
-	self.SizeAnimator:SetY (t, h, animation)
-	if animation then self.Completed = false end
+function self:SetHeight (t, h, animator)
+	self.SizeAnimator:SetY (t, h, animator)
+	if animator then self.Completed = false end
 end

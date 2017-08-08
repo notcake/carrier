@@ -28,15 +28,19 @@ include ("layout/direction.lua")
 include ("mouse/cursor.lua")
 include ("mouse/mousebuttons.lua")
 
+include ("keyboard/ikeyboard.lua")
+
 include ("behaviours/buttonbehaviour.lua")
 include ("behaviours/dragbehaviour.lua")
 
 include ("iview.lua")
 include ("iwindow.lua")
 
-include ("animations/ibaseanimation.lua")
 include ("animations/ianimation.lua")
+include ("animations/ianimator.lua")
 include ("animations/animation.lua")
+include ("animations/animator.lua")
+include ("animations/valueanimator.lua")
 include ("animations/vector2danimator.lua")
 include ("animations/rectangleanimator.lua")
 include ("animations/interpolators.lua")
@@ -72,11 +76,18 @@ function Glass.Initialize (destinationTable)
 	
 	destinationTable.Cursor                 = Glass.Cursor
 	destinationTable.MouseButtons           = Glass.MouseButtons
+	
+	destinationTable.IKeyboard              = Glass.IKeyboard
+	
 	destinationTable.IView                  = Glass.IView
 	destinationTable.IWindow                = Glass.IWindow
 	
 	destinationTable.IAnimation             = Glass.IAnimation
+	destinationTable.IAnimator              = Glass.IAnimator
 	destinationTable.Animation              = Glass.Animation
+	destinationTable.Animator               = Glass.Animator
+	destinationTable.ValueAnimator          = Glass.ValueAnimator
+	destinationTable.Vector2dAnimator       = Glass.Vector2dAnimator
 	destinationTable.RectangleAnimator      = Glass.RectangleAnimator
 	
 	destinationTable.Interpolators          = Glass.Interpolators
