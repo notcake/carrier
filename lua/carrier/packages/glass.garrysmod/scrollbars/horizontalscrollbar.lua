@@ -11,6 +11,28 @@ function self:ctor ()
 	
 	self.Grip = Scrollbar.Grip (Glass.Orientation.Horizontal)
 	self.Grip:SetParent (self)
+	
+	self.GripDragX        = nil
+	self.GripDragFraction = nil
+	
+	self.DragBehaviour = Glass.DragBehaviour (self.Grip)
+	self.DragBehaviour.Started:AddListener (
+		function ()
+			self.GripDragX = self:GetMousePosition ()
+			self.GripDragFraction = (self.GripDragX - self.Grip:GetPosition ()) / self:GetGripSize ()
+		end
+	)
+	self.DragBehaviour.Updated:AddListener (
+		function (dx, dy)
+			local x = self.GripDragX + dx - self.GripDragFraction * self:GetGripSize () - self:GetHeight ()
+			self:SetScrollPosition (self:GripPositionToScrollPosition (x))
+		end
+	)
+end
+
+function self:dtor ()
+	self.LeftButtonBehaviour :dtor ()
+	self.RightButtonBehaviour:dtor ()
 end
 
 -- IView
