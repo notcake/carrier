@@ -64,6 +64,8 @@ include ("containers/tableviewcolumn.lua")
 include ("containers/tableviewcolumntype.lua")
 include ("containers/treetableview.lua")
 
+include ("glyph.lua")
+
 function Glass.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
 	
