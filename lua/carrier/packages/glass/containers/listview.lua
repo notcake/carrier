@@ -19,9 +19,15 @@ function Glass.ListView (UI)
 		self.DataSource = ListView.InternalDataSource (self.Canvas)
 		
 		-- Layout
+		self.ZOrderValid = false
+		
+		self.HeaderHeight = 0
+		self.FooterHeight = 0
+		self.ViewWidth       = nil
+		self.ViewHeight      = nil
+		self.OuterViewHeight = nil
+		self.ContentHeight     = nil
 		self.ResolvedItemWidth = nil
-		self.ViewWidth  = nil
-		self.ViewHeight = nil
 		
 		self.VisibleItems     = {}
 		self.VisibleItemTypes = {}
@@ -31,6 +37,11 @@ function Glass.ListView (UI)
 		self.ViewLayoutValid  = false
 		self.ItemLayoutValid  = false
 		
+		self.HeaderFooterLayoutValid = false
+		
+		self.HorizontalScrollPosition = 0
+		self.VerticalScrollPosition   = 0
+		
 		-- Visible range is startIndex, length
 		-- Visible range is also y, dy
 		-- TODO: How does this play with insets?
@@ -38,9 +49,24 @@ function Glass.ListView (UI)
 		self.VerticalScrollbar = UI.VerticalScrollbar ()
 		self.VerticalScrollbar:SetParent (self)
 		self.VerticalScrollbar:SetVisible (false)
+		self.VerticalScrollbar.ScrollAnimated:AddListener (
+			function (scrollPosition)
+				self.VerticalScrollPosition = scrollPosition
+				
+				self:LayoutVisibleItems ()
+			end
+		)
 		self.HorizontalScrollbar = UI.HorizontalScrollbar ()
 		self.HorizontalScrollbar:SetParent (self)
 		self.HorizontalScrollbar:SetVisible (false)
+		self.HorizontalScrollbar.ScrollAnimated:AddListener (
+			function (scrollPosition)
+				self.HorizontalScrollPosition = scrollPosition
+				
+				self:LayoutHeaderFooter ()
+				self:LayoutVisibleItems ()
+			end
+		)
 		self.ScrollbarCorner = UI.ScrollbarCorner ()
 		self.ScrollbarCorner:SetParent (self)
 		self.ScrollbarCorner:SetVisible (false)
@@ -58,7 +84,9 @@ function Glass.ListView (UI)
 	-- IView
 	-- Internal
 	function self:OnLayout (w, h)
-		self.Canvas:SetRectangle (0, 0, w, h)
+		if not self.ZOrderValid then
+			self:LayoutZOrder ()
+		end
 		
 		if self.ViewLayoutWidth  ~= w or
 		   self.ViewLayoutHeight ~= h then
@@ -72,10 +100,29 @@ function Glass.ListView (UI)
 		if not self.ItemLayoutValid then
 			self:LayoutVisibleItems ()
 		end
+		
+		if not self.HeaderFooterLayoutValid then
+			self:LayoutHeaderFooter ()
+		end
+		
 		-- Invalidate item heights on width change
 		
 		-- Invalidate visible range on height change
 		-- Invalidate scroll position on height change
+	end
+	
+	function self:OnMouseWheel (delta)
+		local scrollbar = nil
+		if UI.Keyboard:IsShiftDown () and self.HorizontalScrollbar:IsVisible () then
+			scrollbar = self.HorizontalScrollbar
+		elseif self.VerticalScrollbar:IsVisible () then
+			scrollbar = self.VerticalScrollbar
+		end
+		
+		if not scrollbar then return end
+		
+		scrollbar:ScrollSmallIncrements (-delta, true)
+		return true
 	end
 	
 	-- ListView
@@ -96,7 +143,9 @@ function Glass.ListView (UI)
 			self.Header:SetParent (self)
 		end
 		
+		self:InvalidateZOrder ()
 		self:InvalidateViewLayout ()
+		self:InvalidateHeaderFooterLayout ()
 	end
 	
 	function self:SetFooter (footer)
@@ -108,7 +157,9 @@ function Glass.ListView (UI)
 			self.Footer:SetParent (self)
 		end
 		
+		self:InvalidateZOrder ()
 		self:InvalidateViewLayout ()
+		self:InvalidateHeaderFooterLayout ()
 	end
 	
 	function self:GetItemWidth ()
@@ -160,6 +211,17 @@ function Glass.ListView (UI)
 	end
 	
 	-- Internal
+	function self:LayoutZOrder ()
+		self.ZOrderValid = true
+		
+		if self.Header then self.Header:BringToFront () end
+		if self.Footer then self.Footer:BringToFront () end
+		
+		self.VerticalScrollbar  :BringToFront ()
+		self.HorizontalScrollbar:BringToFront ()
+		self.ScrollbarCorner    :BringToFront ()
+	end
+	
 	function self:LayoutView ()
 		local w, h = self:GetSize ()
 		
@@ -177,6 +239,7 @@ function Glass.ListView (UI)
 		
 		local viewWidth  = w
 		local viewHeight = h
+		local outerViewHeight = h
 		local itemWidth = self.ItemWidth or viewWidth
 		if self.Header then
 			headerHeight = select (2, self.Header:GetPreferredSize (itemWidth, nil))
@@ -210,7 +273,8 @@ function Glass.ListView (UI)
 			horizontalScrollbarHeight = select (2, self.HorizontalScrollbar:GetPreferredSize (w, h))
 			
 			-- Recompute viewHeight for second vertical scrollbar determination
-			viewHeight = viewHeight - horizontalScrollbarHeight
+			viewHeight      = viewHeight      - horizontalScrollbarHeight
+			outerViewHeight = outerViewHeight - horizontalScrollbarHeight
 		end
 		
 		-- Determine vertical scrollbar presence with updated viewHeight
@@ -243,31 +307,49 @@ function Glass.ListView (UI)
 			contentHeight = self.DataSource:GetTotalHeight (itemWidth)
 		end
 		
-		-- Layout header
-		if self.Header then
-			self.Header:SetRectangle (0, 0, math.max (itemWidth, viewWidth), headerHeight)
+		-- Update header height
+		if self.HeaderHeight ~= headerHeight then
+			self.HeaderHeight = headerHeight
+			self.HeaderFooterLayoutValid = false
 		end
 		
-		-- Layout footer
-		if self.Footer then
-			local bottom = h - (horizontalScrollbarNeeded and horizontalScrollbarHeight or 0)
-			self.Footer:SetRectangle (0, bottom - footerHeight, math.max (itemWidth, viewWidth), footerHeight)
+		-- Update footer height
+		if self.FooterHeight ~= footerHeight then
+			self.FooterHeight = footerHeight
+			self.HeaderFooterLayoutValid = false
 		end
+		
+		-- Update item width
+		if self.ResolvedItemWidth ~= itemWidth then
+			self.ResolvedItemWidth = itemWidth
+			self.ItemLayoutValid = false
+			self.HeaderFooterLayoutValid = false
+		end
+		
+		if self.ContentHeight ~= contentHeight then
+			self.ContentHeight = contentHeight
+			self.ItemLayoutValid = false
+		end
+		
+		-- Update view size
+		self.ViewWidth       = viewWidth
+		self.ViewHeight      = viewHeight
+		self.OuterViewHeight = outerViewHeight
 		
 		-- Layout vertical scrollbar
 		self.VerticalScrollbar:SetVisible (verticalScrollbarNeeded)
 		if verticalScrollbarNeeded then
-			self.VerticalScrollbar:SetRectangle (w - verticalScrollbarWidth, 0, verticalScrollbarWidth, h - (horizontalScrollbarNeeded and horizontalScrollbarHeight or 0))
-			self.VerticalScrollbar:SetContentSize (contentHeight)
-			self.VerticalScrollbar:SetViewSize (viewHeight)
+			self.VerticalScrollbar:SetRectangle (self.ViewWidth, 0, verticalScrollbarWidth, self.OuterViewHeight)
+			self.VerticalScrollbar:SetContentSize (self.ContentHeight)
+			self.VerticalScrollbar:SetViewSize (self.ViewHeight)
 		end
 		
 		-- Layout horizontal scrollbar
 		self.HorizontalScrollbar:SetVisible (horizontalScrollbarNeeded)
 		if horizontalScrollbarNeeded then
-			self.HorizontalScrollbar:SetRectangle (0, h - horizontalScrollbarHeight, viewWidth, horizontalScrollbarHeight)
-			self.HorizontalScrollbar:SetContentSize (itemWidth)
-			self.HorizontalScrollbar:SetViewSize (viewWidth)
+			self.HorizontalScrollbar:SetRectangle (0, self.OuterViewHeight, self.ViewWidth, horizontalScrollbarHeight)
+			self.HorizontalScrollbar:SetContentSize (self.ResolvedItemWidth)
+			self.HorizontalScrollbar:SetViewSize (self.ViewWidth)
 		end
 		
 		-- Layout scrollbar corner
@@ -275,17 +357,17 @@ function Glass.ListView (UI)
 		if verticalScrollbarNeeded and horizontalScrollbarNeeded then
 			self.ScrollbarCorner:SetRectangle (self.VerticalScrollbar:GetX (), self.HorizontalScrollbar:GetY (), self.VerticalScrollbar:GetWidth (), self.HorizontalScrollbar:GetHeight ())
 		end
-		
-		self.ViewWidth  = viewWidth
-		self.ViewHeight = viewHeight
-		if self.ResolvedItemWidth ~= itemWidth then
-			self.ResolvedItemWidth = itemWidth
-			self.ItemLayoutValid = false
-		end
 	end
 	
 	function self:LayoutVisibleItems ()
 		self.ItemLayoutValid = true
+		
+		self.Canvas:SetRectangle (
+			-self.HorizontalScrollPosition,
+			-self.VerticalScrollPosition,
+			math.max (self.ResolvedItemWidth, self.ViewWidth),
+			math.max (self.ContentHeight + self.HeaderHeight + self.FooterHeight, self.OuterViewHeight)
+		)
 		
 		local y = 0
 		if self.Header then y = y + self.Header:GetHeight () end
@@ -295,6 +377,30 @@ function Glass.ListView (UI)
 			listViewItem:SetRectangle (0, y, self.ResolvedItemWidth, h)
 			y = y + h
 		end
+	end
+	
+	-- Sizes depend on item width, view width and computed header and footer height
+	-- Footer position depends on view size
+	function self:LayoutHeaderFooter ()
+		self.HeaderFooterLayoutValid = true
+		
+		local headerFooterWidth = math.max (self.ResolvedItemWidth, self.ViewWidth)
+		
+		-- Layout header
+		if self.Header then
+			self.Header:SetRectangle (-self.HorizontalScrollPosition, 0, headerFooterWidth, self.HeaderHeight)
+		end
+		
+		-- Layout footer
+		if self.Footer then
+			self.Footer:SetRectangle (-self.HorizontalScrollPosition, self.OuterViewHeight - self.FooterHeight, headerFooterWidth, self.FooterHeight)
+		end
+	end
+	
+	function self:InvalidateZOrder ()
+		self.ZOrderValid = false
+		
+		self:InvalidateLayout ()
 	end
 	
 	function self:InvalidateViewLayout ()
@@ -309,6 +415,12 @@ function Glass.ListView (UI)
 	
 	function self:InvalidateItemLayout ()
 		self.ItemLayoutValid = false
+		
+		self:InvalidateLayout ()
+	end
+	
+	function self:InvalidateHeaderFooterLayout ()
+		self.HeaderFooterLayoutValid = false
 		
 		self:InvalidateLayout ()
 	end

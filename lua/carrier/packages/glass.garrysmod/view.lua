@@ -225,6 +225,12 @@ function self:AddAnimation (animation)
 	self:InstallThinkHandler ()
 end
 
+function self:RemoveAnimation (animation)
+	if not self.Animations then return end
+	
+	self.Animations [animation] = nil
+end
+
 function self:CreateAnimation (updater)
 	local animation = Glass.Animation (Clock (), updater)
 	

@@ -40,7 +40,7 @@ function self:GetValue (t)
 	
 	local t = self.Animator and self.Animator:GetParameter (t) or 1
 	
-	return x0 + tx * (x1 - x0)
+	return x0 + t * (x1 - x0)
 end
 
 function self:SetValue (t, value, animator)

@@ -54,6 +54,8 @@ function Glass.TableView.Header (UI)
 	end
 	
 	function self:Render (w, h, render2d)
+		render2d:FillRectangle (UI.Skin.Default.Colors.Background, 0, 0, w, h)
+		
 		for column in self.TableView:GetColumns ():GetEnumerator () do
 			if column:IsVisible () then
 				local columnView = self.ColumnViews [column]

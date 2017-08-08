@@ -4,14 +4,32 @@ GarrysMod.VerticalScrollbar = Class (self, Scrollbar)
 function self:ctor ()
 	self.UpButton = Scrollbar.Button (Glass.Direction.Up)
 	self.UpButton:SetParent (self)
-	self.UpButton.MouseUp:AddListener ("Glass.GarrysMod.VerticalScrollbar." .. self:GetHashCode (), self,
+	self.UpButton.MouseDown:AddListener (
+		function (mouseButtons, x, y)
+			self:CreateAnimation (
+				function (t0, t)
+					self:ScrollUp (true)
+				end
+			)
+		end
+	)
+	self.UpButton.MouseUp:AddListener (
 		function (mouseButtons, x, y)
 			self:ScrollUp (true)
 		end
 	)
 	self.DownButton = Scrollbar.Button (Glass.Direction.Down)
 	self.DownButton:SetParent (self)
-	self.DownButton.MouseUp:AddListener ("Glass.GarrysMod.VerticalScrollbar." .. self:GetHashCode (), self,
+	self.DownButton.MouseDown:AddListener (
+		function (mouseButtons, x, y)
+			self:CreateAnimation (
+				function (t0, t)
+					self:ScrollDown (true)
+				end
+			)
+		end
+	)
+	self.DownButton.MouseUp:AddListener (
 		function (mouseButtons, x, y)
 			self:ScrollDown (true)
 		end
@@ -49,7 +67,7 @@ function self:OnLayout (w, h)
 	self.UpButton:SetRectangle (0, 0, w, w)
 	self.DownButton:SetRectangle (0, h - w, w, w)
 	
-	self.Grip:SetRectangle (0, w + self:ScrollPositionToGripPosition (self:GetScrollPosition ()), w, self:GetGripSize ())
+	self.Grip:SetRectangle (0, w + self:ScrollPositionToGripPosition (self:GetAnimatedScrollPosition ()), w, self:GetGripSize ())
 end
 
 -- Scrollbar

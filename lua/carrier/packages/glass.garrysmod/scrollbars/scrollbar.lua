@@ -9,8 +9,15 @@ function self:ctor ()
 	self.ViewSize       = 1
 	
 	self.ScrollPosition = 0
+	self.ScrollPositionAnimator = Glass.ValueAnimator (0)
+	self.ScrollPositionAnimator.Updated:AddListener (
+		function (scrollPosition)
+			self.ScrollAnimated:Dispatch (scrollPosition)
+			self:InvalidateLayout ()
+		end
+	)
 	
-	self.SmallIncrement = 32
+	self.SmallIncrement = 128
 	
 	self:SetConsumesMouseEvents (true)
 end
@@ -62,6 +69,11 @@ function self:GetScrollPosition ()
 	return self.ScrollPosition
 end
 
+function self:GetAnimatedScrollPosition (t)
+	local t = t or Clock ()
+	return self.ScrollPositionAnimator:GetValue (t)
+end
+
 function self:GetSmallIncrement ()
 	return self.SmallIncrement
 end
@@ -92,8 +104,11 @@ function self:SetScrollPosition (scrollPosition, animated)
 	
 	self.Scroll:Dispatch (self.ScrollPosition)
 	if animated then
+		self.ScrollPositionAnimator:SetValue (Clock (), self.ScrollPosition, self:CreateAnimator (Glass.Interpolators.ExponentialDecay (0.001), 0.25))
+		self:AddAnimation (self.ScrollPositionAnimator)
 	else
 		self.ScrollAnimated:Dispatch (self.ScrollPosition)
+		self.ScrollPositionAnimator:SetValue (Clock (), self.ScrollPosition)
 	end
 	
 	self:InvalidateLayout ()
