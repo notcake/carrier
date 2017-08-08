@@ -1,5 +1,5 @@
 local self = {}
-Glass.Vector2dAnimator = Class (self, Glass.Glass.IBaseAnimation)
+Glass.Vector2dAnimator = Class (self, Glass.IBaseAnimation)
 
 function self:ctor (x, y, updater)
 	self.Completed = false

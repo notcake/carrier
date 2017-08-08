@@ -53,24 +53,30 @@ end
 
 function self:SetPosition (t, x, y, animation)
 	self.PositionAnimator:SetVector (t, x, y, animation)
+	if animation then self.Completed = false end
 end
 
 function self:SetX (t, x, animation)
 	self.PositionAnimator:SetX (t, x, animation)
+	if animation then self.Completed = false end
 end
 
 function self:SetY (t, y, animation)
 	self.PositionAnimator:SetY (t, y, animation)
+	if animation then self.Completed = false end
 end
 
 function self:SetSize (t, w, h, animation)
 	self.SizeAnimator:SetVector (t, w, h, animation)
+	if animation then self.Completed = false end
 end
 
 function self:SetWidth (t, w, animation)
 	self.SizeAnimator:SetX (t, w, animation)
+	if animation then self.Completed = false end
 end
 
 function self:SetHeight (t, h, animation)
 	self.SizeAnimator:SetY (t, h, animation)
+	if animation then self.Completed = false end
 end
