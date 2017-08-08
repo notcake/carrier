@@ -1,11 +1,30 @@
 local self = {}
 GarrysMod.View = Class (self, IView)
 
+local Properties = {}
+Properties.Rectangle = function (self, panel, x, y, w, h)
+	Properties.Position (self, panel, x, y)
+	Properties.Size (self, panel, w, h)
+end
+Properties.Position = function (self, panel, x, y)
+	local parent = self:GetParent ()
+	local dx, dy = 0, 0
+	if parent then dx, dy = parent:GetContainerPosition () end
+	
+	panel:SetPos (x + dx, y + dy)
+end
+Properties.X        = function (self, panel, x) Properties.Position (self, panel, x, self:GetY ()) end
+Properties.Y        = function (self, panel, y) Properties.Position (self, panel, self:GetX (), y) end
+Properties.Size     = function (self, panel, w, h) panel:SetSize (w, h) end
+Properties.Width    = function (self, panel, w) panel:SetWide (w) end
+Properties.Height   = function (self, panel, h) panel:SetTall (h) end
+
 function self:ctor ()
 	self.Panel = nil
 	
+	self.RectangleAnimator = nil
+	
 	self.Cursor = Glass.Cursor.Default
-	self.LastClickTime = -math.huge
 	
 	self.Animations = nil
 	self.ThinkHandlerInstalled = false
@@ -44,6 +63,51 @@ function self:SetParent (view)
 end
 
 -- Layout
+local function Setter1 (name)
+	local setterName = "Set" .. name
+	return function (self, x, animation)
+		if animation == true then animation = self:CreateDefaultAnimation () end
+		
+		if not animation then
+			Properties [name] (self, self:GetPanel (), x)
+		else
+			self:AddAnimation (self:CreateRectangleAnimator ())
+		end
+		
+		if not self.RectangleAnimator then return end
+		self.RectangleAnimator [setterName] (self.RectangleAnimator, Clock (), x, animation)
+	end
+end
+
+local function Setter2 (name)
+	local setterName = "Set" .. name
+	return function (self, x1, x2, animation)
+		if animation == true then animation = self:CreateDefaultAnimation () end
+		
+		if not animation then
+			Properties [name] (self, self:GetPanel (), x1, x2)
+		else
+			self:AddAnimation (self:CreateRectangleAnimator ())
+		end
+		
+		if not self.RectangleAnimator then return end
+		self.RectangleAnimator [setterName] (self.RectangleAnimator, Clock (), x1, x2, animation)
+	end
+end
+
+function self:GetRectangle ()
+	local x, y = self:GetPosition ()
+	local w, h = self:GetSize ()
+	return x, y, w, h
+end
+
+function self:SetRectangle (x, y, w, h, animation)
+	if animation == true then animation = self:CreateDefaultAnimation () end
+	
+	self:SetPosition (x, y, animation)
+	self:SetSize     (w, h, animation)
+end
+
 function self:GetPosition ()
 	local parent = self:GetParent ()
 	local dx, dy = 0, 0
@@ -53,41 +117,25 @@ function self:GetPosition ()
 	return x - dx, y - dy
 end
 
-function self:SetPosition (x, y)
-	local parent = self:GetParent ()
-	local dx, dy = 0, 0
-	if parent then dx, dy = parent:GetContainerPosition () end
-	
-	self:GetPanel ():SetPos (x + dx, y + dy)
-end
+self.SetPosition = Setter2 ("Position")
+self.SetX        = Setter1 ("X")
+self.SetY        = Setter1 ("Y")
 
 function self:GetSize ()
 	return self:GetPanel ():GetSize ()
-end
-
-function self:SetSize (w, h)
-	self:GetPanel ():SetSize (w, h)
 end
 
 function self:GetWidth ()
 	return self:GetPanel ():GetWide ()
 end
 
-function self:SetWidth (w)
-	self:GetPanel ():SetWide (w)
-end
-
 function self:GetHeight ()
 	return self:GetPanel ():GetTall ()
 end
 
-function self:SetHeight (h)
-	self:GetPanel ():SetTall (h)
-end
-
-function self:Center ()
-	self:GetPanel ():Center ()
-end
+self.SetSize   = Setter2 ("Size")
+self.SetWidth  = Setter1 ("Width")
+self.SetHeight = Setter1 ("Height")
 
 function self:BringToFront ()
 	self:GetPanel ():MoveToFront ()
@@ -159,14 +207,11 @@ function self:SetConsumesMouseEvents (consumesMouseEvents)
 end
 
 -- Animations
-function self:CreateAnimation (updater, ...)
-	local animation = Glass.Animation (Clock (), updater, ...)
+function self:CreateAnimation (interpolator, duration, updater)
+	local animation = Glass.Animation (Clock (), interpolator, duration, updater)
+	
 	self:AddAnimation (animation)
-end
-
-function self:CreateInterpolatedAnimation (interpolator, duration, updater, ...)
-	local animation = Glass.InterpolatedAnimation (Clock (), interpolator, duration, updater, ...)
-	self:AddAnimation (animation)
+	return animation
 end
 
 -- Internal
@@ -336,4 +381,21 @@ function self:AddAnimation (animation)
 	self.Animations [animation] = true
 	
 	self:InstallThinkHandler ()
+end
+
+function self:CreateRectangleAnimator ()
+	if self.RectangleAnimator then return self.RectangleAnimator end
+	
+	self.RectangleAnimator = Glass.RectangleAnimator (
+		function (x, y, w, h)
+			Properties.Rectangle (self, self:GetPanel (), x, y, w, h)
+		end,
+		self:GetRectangle ()
+	)
+	
+	return self.RectangleAnimator
+end
+
+function self:CreateDefaultAnimation (interpolator)
+	return self:CreateAnimation (Glass.Interpolators.Linear (), 0.25)
 end
