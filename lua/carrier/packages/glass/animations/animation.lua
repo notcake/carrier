@@ -10,6 +10,38 @@ function self:ctor (t0, interpolator, duration, updater)
 	self.Interpolator = interpolator
 	
 	self.Updater = updater
+	
+	self.Animators = nil
+end
+
+-- IBaseAnimation
+function self:IsCompleted ()
+	return self.Completed
+end
+
+function self:Update (t)
+	local y = self:GetParameter (t)
+	
+	local uncompleted = nil
+	if self.Updater then
+		uncompleted = self.Updater (y)
+	end
+	
+	if self.Animators then
+		for _, animator in pairs (self.Animators) do
+			animator (y)
+		end
+	end
+	
+	if uncompleted == false then
+		self.Completed = true
+	end
+	
+	if t >= self.StartTime + self.Duration then
+		self.Completed = true
+	end
+	
+	return not self.Completed
 end
 
 -- IAnimation
@@ -33,31 +65,6 @@ function self:GetParameter (t)
 	local t = (t - self.StartTime) / self.Duration
 	t = math.max (0, math.min (1, t))
 	return self.Interpolator (t)
-end
-
-function self:IsCompleted ()
-	return self.Completed
-end
-
-function self:Update (t)
-	local y = self:GetParameter (t)
-	
-	local uncompleted = nil
-	if self.Updater then
-		uncompleted = self.Updater (y)
-	end
-	
-	self:UpdateAnimators (y)
-	
-	if uncompleted == false then
-		self.Completed = true
-	end
-	
-	if t >= self.StartTime + self.Duration then
-		self.Completed = true
-	end
-	
-	return not self.Completed
 end
 
 function self:AttachAnimator (name, animator)

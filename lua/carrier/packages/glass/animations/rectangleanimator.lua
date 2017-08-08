@@ -1,39 +1,18 @@
 local self = {}
-Glass.RectangleAnimator = Class (self, Glass.AnimatorHost, Glass.IAnimation)
+Glass.RectangleAnimator = Class (self, Glass.IBaseIAnimation)
 
 function self:ctor (x, y, w, h, updater)
+	self.Completed = false
+	
 	self.PositionAnimator = Glass.Vector2dAnimator (x, y)
 	self.SizeAnimator     = Glass.Vector2dAnimator (w, h)
 	
 	self.Updater = updater
 end
 
--- IAnimation
-function self:GetStartTime ()
-	return math.min (self.PositionAnimator:GetStartTime (), self.SizeAnimator:GetStartTime ())
-end
-
-function self:GetEndTime ()
-	return math.max (self.PositionAnimator:GetEndTime (), self.SizeAnimator:GetEndTime ())
-end
-
-function self:GetDuration ()
-	return self:GetEndTime () - self:GetStartTime ()
-end
-
-function self:GetInterpolator ()
-	return Glass.Interpolators.Linear ()
-end
-
-function self:GetParameter (t)
-	t = (t - self:GetStartTime ()) / self:GetDuration ()
-	t = math.max (0, math.min (1, t))
-	return t
-end
-
+-- IBaseAnimation
 function self:IsCompleted ()
-	return self.PositionAnimator:IsCompleted () and
-	       self.SizeAnimator:IsCompleted ()
+	return self.Completed
 end
 
 function self:Update (t)
@@ -46,7 +25,10 @@ function self:Update (t)
 		self.Updater (self:GetRectangle (t))
 	end
 	
-	return not self:IsCompleted ()
+	self.Completed = self.PositionAnimator:IsCompleted () and
+	                 self.SizeAnimator:IsCompleted ()
+	
+	return not self.Completed
 end
 
 -- RectangleAnimator

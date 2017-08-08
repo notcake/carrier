@@ -1,5 +1,5 @@
 local self = {}
-Glass.Vector2dAnimator = Class (self, Glass.AnimatorHost, Glass.IAnimation)
+Glass.Vector2dAnimator = Class (self, Glass.Glass.IBaseAnimation)
 
 function self:ctor (x, y, updater)
 	self.Completed = false
@@ -15,35 +15,7 @@ function self:ctor (x, y, updater)
 	self.Updater = updater
 end
 
--- IAnimation
-function self:GetStartTime ()
-	return math.min (
-		self.XAnimation and self.XAnimation:GetStartTime () or math.huge,
-		self.YAnimation and self.YAnimation:GetStartTime () or math.huge
-	)
-end
-
-function self:GetEndTime ()
-	return math.max (
-		self.XAnimation and self.XAnimation:GetEndTime () or -math.huge,
-		self.YAnimation and self.YAnimation:GetEndTime () or -math.huge
-	)
-end
-
-function self:GetDuration ()
-	return self:GetEndTime () - self:GetStartTime ()
-end
-
-function self:GetInterpolator ()
-	return Glass.Interpolators.Linear ()
-end
-
-function self:GetParameter (t)
-	t = (t - self:GetStartTime ()) / self:GetDuration ()
-	t = math.max (0, math.min (1, t))
-	return t
-end
-
+-- IBaseAnimation
 function self:IsCompleted ()
 	return self.Completed
 end
@@ -68,7 +40,7 @@ function self:Update (t)
 	return not self.Completed
 end
 
--- RectangleAnimator
+-- Vector2dAnimator
 function self:GetVector (t)
 	local x0, y0 = self.InitialX, self.InitialY
 	local x1, y1 = self.FinalX,   self.FinalY
