@@ -1,5 +1,11 @@
 Glass.Interpolators = {}
 
+function Glass.Interpolators.Step ()
+	return function (t)
+		return 1
+	end
+end
+
 function Glass.Interpolators.Linear ()
 	return function (t)
 		return t

@@ -35,71 +35,72 @@ function self:SetParent (view)
 end
 
 -- Layout
-function self:GetPosition ()
-	Error ("IView:GetPosition : Not implemented.")
-end
-
-function self:SetPosition (x, y)
-	Error ("IView:SetPosition : Not implemented.")
-end
-
-function self:GetX ()
-	local x, y = self:GetPosition ()
-	return x
-end
-
-function self:SetX (x)
-	local _, y = self:GetPosition ()
-	self:SetPosition (x, y)
-end
-
-function self:GetY ()
-	local x, y = self:GetPosition ()
-	return y
-end
-
-function self:SetY (y)
-	local x, _ = self:GetPosition ()
-	self:SetPosition (x, y)
-end
-
-function self:GetSize ()
-	Error ("IView:GetSize : Not implemented.")
-end
-
-function self:SetSize (w, h)
-	Error ("IView:SetSize : Not implemented.")
-end
-
-function self:GetWidth ()
-	Error ("IView:GetWidth : Not implemented.")
-end
-
-function self:SetWidth (w)
-	Error ("IView:SetWidth : Not implemented.")
-end
-
-function self:GetHeight ()
-	Error ("IView:GetHeight : Not implemented.")
-end
-
-function self:SetHeight (h)
-	Error ("IView:SetHeight : Not implemented.")
-end
-
 function self:GetRectangle ()
 	local x, y = self:GetPosition ()
 	local w, h = self:GetSize ()
 	return x, y, w, h
 end
 
-function self:SetRectangle (x, y, w, h)
-	self:SetPosition (x, y)
-	self:SetSize (w, h)
+function self:SetRectangle (x, y, w, h, animation)
+	Error ("IView:SetRectangle : Not implemented.")
 end
 
-function self:Center ()
-	Error ("IView:Center : Not implemented.")
+function self:GetPosition ()
+	Error ("IView:GetPosition : Not implemented.")
+end
+
+function self:SetPosition (x, y, animation)
+	Error ("IView:SetPosition : Not implemented.")
+end
+
+function self:GetX ()
+	local x, _ = self:GetPosition ()
+	return x
+end
+
+function self:GetY ()
+	local _, y = self:GetPosition ()
+	return y
+end
+
+function self:SetX (x, animation)
+	self:SetPosition (x, self:GetY (), animation)
+end
+
+function self:SetY (y, animation)
+	self:SetPosition (self:GetX (), y, animation)
+end
+
+function self:GetSize ()
+	Error ("IView:GetSize : Not implemented.")
+end
+
+function self:SetSize (w, h, animation)
+	Error ("IView:SetSize : Not implemented.")
+end
+
+function self:GetWidth ()
+	local w, _ = self:GetSize ()
+	return w
+end
+
+function self:GetHeight ()
+	local _, h = self:GetSize ()
+	return h
+end
+
+function self:SetWidth (w, animation)
+	self:SetSize (w, self:GetHeight (), animation)
+end
+
+function self:SetHeight (h, animation)
+	self:SetSize (self:GetWidth (), h, animation)
+end
+
+function self:Center (animation)
+	local parentWidth, parentHeight = self:GetParent ():GetSize ()
+	local w, h = self:GetSize ()
+	self:SetPosition (0.5 * (parentWidth - w), 0.5 * (parentHeight - h), animation)
 end
 
 function self:BringToFront ()
@@ -172,14 +173,9 @@ function self:SetConsumesMouseEvents (consumesMouseEvents)
 end
 
 -- Animations
--- updater (t0, t, ...)
-function self:CreateAnimation (updater, ...)
+-- updater (t)
+function self:CreateAnimation (interpolator, duration, updater)
 	Error ("IView:CreateAnimation : Not implemented.")
-end
-
--- updater (t, ...)
-function self:CreateInterpolatedAnimation (interpolator, duration, updater, ...)
-	Error ("IView:CreateInterpolatedAnimation : Not implemented.")
 end
 
 -- Internal
