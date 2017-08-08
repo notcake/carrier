@@ -3,7 +3,7 @@ Glass.Vector2dAnimator = Class (self, Glass.IAnimation)
 
 self.Updated = Event ()
 
-function self:ctor (x, y, updater)
+function self:ctor (x, y)
 	self.Completed = false
 	
 	self.InitialX = x
@@ -13,8 +13,6 @@ function self:ctor (x, y, updater)
 	
 	self.XAnimator = nil
 	self.YAnimator = nil
-	
-	self.Updater = updater
 end
 
 -- IAnimation

@@ -3,7 +3,7 @@ Glass.ValueAnimator = Class (self, Glass.IAnimation)
 
 self.Updated = Event ()
 
-function self:ctor (value, updater)
+function self:ctor (value)
 	self.Completed = false
 	
 	self.InitialValue = value

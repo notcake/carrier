@@ -177,6 +177,10 @@ function self:AddAnimation (animation)
 	Error ("IView:AddAnimation : Not implemented.")
 end
 
+function self:RemoveAnimation (animation)
+	Error ("IView:RemoveAnimation : Not implemented.")
+end
+
 -- updater (t0, t)
 function self:CreateAnimation (updater)
 	Error ("IView:CreateAnimation : Not implemented.")
