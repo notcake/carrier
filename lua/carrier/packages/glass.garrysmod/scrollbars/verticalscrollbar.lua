@@ -4,36 +4,10 @@ GarrysMod.VerticalScrollbar = Class (self, Scrollbar)
 function self:ctor ()
 	self.UpButton = Scrollbar.Button (Glass.Direction.Up)
 	self.UpButton:SetParent (self)
-	self.UpButton.MouseDown:AddListener (
-		function (mouseButtons, x, y)
-			self:CreateAnimation (
-				function (t0, t)
-					self:ScrollUp (true)
-				end
-			)
-		end
-	)
-	self.UpButton.MouseUp:AddListener (
-		function (mouseButtons, x, y)
-			self:ScrollUp (true)
-		end
-	)
+	self.UpButtonBehaviour = Scrollbar.ButtonBehaviour (self, self.UpButton, -1)
 	self.DownButton = Scrollbar.Button (Glass.Direction.Down)
 	self.DownButton:SetParent (self)
-	self.DownButton.MouseDown:AddListener (
-		function (mouseButtons, x, y)
-			self:CreateAnimation (
-				function (t0, t)
-					self:ScrollDown (true)
-				end
-			)
-		end
-	)
-	self.DownButton.MouseUp:AddListener (
-		function (mouseButtons, x, y)
-			self:ScrollDown (true)
-		end
-	)
+	self.DownButtonBehaviour = Scrollbar.ButtonBehaviour (self, self.DownButton, 1)
 	
 	self.Grip = Scrollbar.Grip (Glass.Orientation.Horizontal)
 	self.Grip:SetParent (self)
@@ -54,6 +28,11 @@ function self:ctor ()
 			self:SetScrollPosition (self:GripPositionToScrollPosition (y))
 		end
 	)
+end
+
+function self:dtor ()
+	self.UpButtonBehaviour  :dtor ()
+	self.DownButtonBehaviour:dtor ()
 end
 
 -- IView

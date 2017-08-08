@@ -121,7 +121,7 @@ function Glass.ListView (UI)
 		
 		if not scrollbar then return end
 		
-		scrollbar:ScrollSmallIncrements (-delta, true)
+		scrollbar:ScrollSmallIncrement (-delta, true)
 		return true
 	end
 	

@@ -33,6 +33,7 @@ include ("label.lua")
 
 include ("scrollbars/scrollbar.lua")
 include ("scrollbars/scrollbar.button.lua")
+include ("scrollbars/scrollbar.buttonbehaviour.lua")
 include ("scrollbars/scrollbar.grip.lua")
 include ("scrollbars/verticalscrollbar.lua")
 include ("scrollbars/horizontalscrollbar.lua")

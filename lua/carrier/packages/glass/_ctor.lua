@@ -34,6 +34,7 @@ include ("behaviours/buttonbehaviour.lua")
 include ("behaviours/dragbehaviour.lua")
 
 include ("iview.lua")
+include ("ibutton.lua")
 include ("iwindow.lua")
 
 include ("animations/ianimation.lua")
@@ -80,6 +81,7 @@ function Glass.Initialize (destinationTable)
 	destinationTable.IKeyboard              = Glass.IKeyboard
 	
 	destinationTable.IView                  = Glass.IView
+	destinationTable.IButton                = Glass.IButton
 	destinationTable.IWindow                = Glass.IWindow
 	
 	destinationTable.IAnimation             = Glass.IAnimation

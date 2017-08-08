@@ -17,7 +17,7 @@ function self:ctor ()
 		end
 	)
 	
-	self.SmallIncrement = 128
+	self.SmallIncrement = 64
 	
 	self:SetConsumesMouseEvents (true)
 end
@@ -43,7 +43,9 @@ function self:GetTrackSize ()
 end
 
 function self:GetGripSize ()
-	return self:GetTrackSize () * self:GetViewSize () / self:GetContentSize ()
+	local gripSize = self:GetTrackSize () * self:GetViewSize () / self:GetContentSize ()
+	gripSize = math.floor (gripSize + 0.5)
+	return math.min (self:GetTrackSize (), math.max (8, gripSize))
 end
 
 function self:GripPositionToScrollPosition (gripPosition)
@@ -83,6 +85,7 @@ function self:SetContentSize (contentSize)
 	
 	self.ContentSize = contentSize
 	
+	self:SetScrollPosition (self:GetScrollPosition ())
 	self:InvalidateLayout ()
 end
 
@@ -91,6 +94,7 @@ function self:SetViewSize (viewSize)
 	
 	self.ViewSize = viewSize
 	
+	self:SetScrollPosition (self:GetScrollPosition ())
 	self:InvalidateLayout ()
 end
 
@@ -118,6 +122,6 @@ function self:SetSmallIncrement (smallIncrement)
 	self.SmallIncrement = smallIncrement
 end
 
-function self:ScrollSmallIncrements (n, animated)
+function self:ScrollSmallIncrement (n, animated)
 	self:SetScrollPosition (self:GetScrollPosition () + n * self:GetSmallIncrement (), animated)
 end

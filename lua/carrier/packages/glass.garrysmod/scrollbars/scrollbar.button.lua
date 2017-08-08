@@ -1,5 +1,5 @@
 ﻿local self = {}
-Scrollbar.Button = Class (self, GarrysMod.View)
+Scrollbar.Button = Class (self, GarrysMod.View, Glass.IButton)
 
 local font = GarrysMod.Font.Create ("Webdings", 20)
 
@@ -33,4 +33,12 @@ end
 -- Button
 function self:GetDirection ()
 	return self.Direction
+end
+
+function self:IsHovered ()
+	return self.ButtonBehaviour:IsHovered ()
+end
+
+function self:IsPressed ()
+	return self.ButtonBehaviour:IsPressed ()
 end
