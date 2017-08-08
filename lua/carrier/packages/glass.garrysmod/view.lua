@@ -226,17 +226,20 @@ function self:AddAnimation (animation)
 end
 
 function self:CreateAnimation (updater)
-	
-end
-
-function self:CreateAnimator (interpolator, duration, updater)
-	local animation = Glass.Animator (Clock (), interpolator, duration)
-	if updater then
-		animation.Updated:AddListener (updater)
-	end
+	local animation = Glass.Animation (Clock (), updater)
 	
 	self:AddAnimation (animation)
 	return animation
+end
+
+function self:CreateAnimator (interpolator, duration, updater)
+	local animator = Glass.Animator (Clock (), interpolator, duration)
+	if updater then
+		animator.Updated:AddListener (updater)
+	end
+	
+	self:AddAnimation (animator)
+	return animator
 end
 
 -- Internal
