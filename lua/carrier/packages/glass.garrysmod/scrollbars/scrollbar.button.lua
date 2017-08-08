@@ -27,7 +27,7 @@ function self:Render (w, h, render2d)
 	elseif self.Direction == Glass.Direction.Down  then glyph = "▼"
 	elseif self.Direction == Glass.Direction.Left  then glyph = "◀"
 	elseif self.Direction == Glass.Direction.Right then glyph = "▶" end
-	GarrysMod.TextRenderer:DrawTextAligned (glyph, font, GarrysMod.Skin.Default.Colors.Text, 0.5 * w, 0.5 * h, Glass.HorizontalAlignment.Center, Glass.VerticalAlignment.Center)
+	self:GetEnvironment ():GetTextRenderer ():DrawTextAligned (glyph, font, GarrysMod.Skin.Default.Colors.Text, 0.5 * w, 0.5 * h, Glass.HorizontalAlignment.Center, Glass.VerticalAlignment.Center)
 end
 
 -- Button

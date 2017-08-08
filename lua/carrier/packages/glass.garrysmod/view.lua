@@ -23,6 +23,11 @@ function self:dtor ()
 end
 
 -- IView
+-- Environment
+function self:GetEnvironment ()
+	return GarrysMod.Environment
+end
+
 -- Hierarchy
 function self:AddChild (view)
 	view:GetPanel ():SetParent (self:GetPanel ())

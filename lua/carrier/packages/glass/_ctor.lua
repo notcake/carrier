@@ -17,6 +17,8 @@ Pool = require ("Pylon.Pool")
 
 Color = require ("Pylon.Color")
 
+include ("ienvironment.lua")
+
 include ("fonts/ifont.lua")
 include ("fonts/fontweight.lua")
 

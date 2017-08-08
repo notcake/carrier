@@ -12,6 +12,8 @@ Glass.Initialize (GarrysMod)
 
 Photon = require ("Photon.GarrysMod")
 
+include ("environment.lua")
+
 include ("fonts/font.lua")
 
 include ("defaultskin.lua")
@@ -54,7 +56,5 @@ GarrysMod.TreeTableView = Glass.TreeTableView (GarrysMod)
 
 MouseEventRouter = MouseEventRouter ()
 GarrysMod.Desktop = Desktop ()
-
-GarrysMod.TextRenderer = Photon.TextRenderer
 
 return GarrysMod

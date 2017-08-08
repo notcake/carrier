@@ -17,6 +17,11 @@ self.DoubleClick    = Event ()
 function self:ctor ()
 end
 
+-- Environment
+function self:GetEnvironment ()
+	Error ("IView:GetEnvironment : Not implemented.")
+end
+
 -- Hierarchy
 function self:AddChild (view)
 	Error ("IView:AddChild : Not implemented.")
