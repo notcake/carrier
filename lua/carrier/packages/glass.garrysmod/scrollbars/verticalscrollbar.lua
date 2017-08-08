@@ -28,6 +28,9 @@ function self:ctor ()
 			self:SetScrollPosition (self:GripPositionToScrollPosition (y))
 		end
 	)
+	
+	self.TrackAnimation = nil
+	self.ButtonBehaviour = Glass.ButtonBehaviour (self)
 end
 
 function self:dtor ()
@@ -56,6 +59,16 @@ end
 
 function self:GetTrackSize ()
 	return self:GetHeight () - self:GetWidth () * 2
+end
+
+-- Internal
+function self:ScrollTrack (x, y)
+	local scrollPosition = self:GripPositionToScrollPosition (y - self:GetWidth () - 0.5 * self.Grip:GetHeight ())
+	if y < self.Grip:GetY () + 0.5 * self.Grip:GetHeight () then
+		self:SetScrollPosition (math.max (scrollPosition, self:GetScrollPosition () - self:GetSmallIncrement ()))
+	else
+		self:SetScrollPosition (math.min (scrollPosition, self:GetScrollPosition () + self:GetSmallIncrement ()))
+	end
 end
 
 -- VerticalScrollbar

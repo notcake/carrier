@@ -58,6 +58,16 @@ function self:GetTrackSize ()
 	return self:GetWidth () - self:GetHeight () * 2
 end
 
+-- Internal
+function self:ScrollTrack (x, y)
+	local scrollPosition = self:GripPositionToScrollPosition (x - self:GetHeight () - 0.5 * self.Grip:GetWidth ())
+	if x < self.Grip:GetX () + 0.5 * self.Grip:GetWidth () then
+		self:SetScrollPosition (math.max (scrollPosition, self:GetScrollPosition () - self:GetSmallIncrement ()))
+	else
+		self:SetScrollPosition (math.min (scrollPosition, self:GetScrollPosition () + self:GetSmallIncrement ()))
+	end
+end
+
 -- HorizontalScrollbar
 function self:ScrollLeft (animated)
 	self:ScrollSmallIncrements (-1, animated)

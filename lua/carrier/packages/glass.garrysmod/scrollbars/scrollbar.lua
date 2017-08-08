@@ -19,6 +19,9 @@ function self:ctor ()
 	
 	self.SmallIncrement = 64
 	
+	self.TrackAnimation = nil
+	self.ButtonBehaviour = Glass.ButtonBehaviour (self)
+	
 	self:SetConsumesMouseEvents (true)
 end
 
@@ -26,6 +29,24 @@ end
 -- Internal
 function self:Render (w, h, render2d)
 	render2d:FillRectangle (Color.FromRGBA8888 (240, 240, 240, 255), 0, 0, w, h)
+end
+
+function self:OnMouseDown (mouseButtons, x, y)
+	if mouseButtons == Glass.MouseButtons.Left then
+		self.TrackAnimation = self:CreateAnimation (
+			function (t0, t)
+				if not self.ButtonBehaviour:IsPressed () then return end
+				self:ScrollTrack (self:GetMousePosition ())
+			end
+		)
+	end
+end
+
+function self:OnMouseUp (mouseButtons, x, y)
+	if mouseButtons == Glass.MouseButtons.Left then
+		self:RemoveAnimation (self.TrackAnimation)
+		self:ScrollTrack (x, y)
+	end
 end
 
 -- Scrollbar
@@ -126,4 +147,9 @@ end
 
 function self:ScrollSmallIncrement (n, animated)
 	self:SetScrollPosition (self:GetScrollPosition () + n * self:GetSmallIncrement (), animated)
+end
+
+-- Internal
+function self:ScrollTrack (x, y)
+	Error ("Scrollbar:ScrollTrack : Not implemented.")
 end
