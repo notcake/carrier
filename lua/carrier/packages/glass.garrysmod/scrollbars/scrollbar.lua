@@ -108,8 +108,10 @@ function self:SetScrollPosition (scrollPosition, animated)
 	
 	self.Scroll:Dispatch (self.ScrollPosition)
 	if animated then
-		self.ScrollPositionAnimator:SetValue (Clock (), self.ScrollPosition, self:CreateAnimator (Glass.Interpolators.ExponentialDecay (0.001), 0.25))
-		self:AddAnimation (self.ScrollPositionAnimator)
+		-- Add animations to parent so that animations continue even if
+		-- we're hidden
+		self.ScrollPositionAnimator:SetValue (Clock (), self.ScrollPosition, self:GetParent ():CreateAnimator (Glass.Interpolators.ExponentialDecay (0.001), 0.25))
+		self:GetParent ():AddAnimation (self.ScrollPositionAnimator)
 	else
 		self.ScrollAnimated:Dispatch (self.ScrollPosition)
 		self.ScrollPositionAnimator:SetValue (Clock (), self.ScrollPosition)

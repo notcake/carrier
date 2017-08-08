@@ -336,21 +336,19 @@ function Glass.ListView (UI)
 		self.ViewHeight      = viewHeight
 		self.OuterViewHeight = outerViewHeight
 		
+		-- Scrollbar content sizes and view sizes have to be updated even if invisible
+		-- so that we animate back to the top left properly
 		-- Layout vertical scrollbar
 		self.VerticalScrollbar:SetVisible (verticalScrollbarNeeded)
-		if verticalScrollbarNeeded then
-			self.VerticalScrollbar:SetRectangle (self.ViewWidth, 0, verticalScrollbarWidth, self.OuterViewHeight)
-			self.VerticalScrollbar:SetContentSize (self.ContentHeight)
-			self.VerticalScrollbar:SetViewSize (self.ViewHeight)
-		end
+		self.VerticalScrollbar:SetRectangle (self.ViewWidth, 0, verticalScrollbarWidth, self.OuterViewHeight)
+		self.VerticalScrollbar:SetContentSize (self.ContentHeight)
+		self.VerticalScrollbar:SetViewSize (self.ViewHeight)
 		
 		-- Layout horizontal scrollbar
 		self.HorizontalScrollbar:SetVisible (horizontalScrollbarNeeded)
-		if horizontalScrollbarNeeded then
-			self.HorizontalScrollbar:SetRectangle (0, self.OuterViewHeight, self.ViewWidth, horizontalScrollbarHeight)
-			self.HorizontalScrollbar:SetContentSize (self.ResolvedItemWidth)
-			self.HorizontalScrollbar:SetViewSize (self.ViewWidth)
-		end
+		self.HorizontalScrollbar:SetRectangle (0, self.OuterViewHeight, self.ViewWidth, horizontalScrollbarHeight)
+		self.HorizontalScrollbar:SetContentSize (self.ResolvedItemWidth)
+		self.HorizontalScrollbar:SetViewSize (self.ViewWidth)
 		
 		-- Layout scrollbar corner
 		self.ScrollbarCorner:SetVisible (verticalScrollbarNeeded and horizontalScrollbarNeeded)
