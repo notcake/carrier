@@ -262,6 +262,14 @@ function self:CreatePanel ()
 end
 
 -- Window
+function self:Show ()
+	self:SetVisible (true)
+end
+
+function self:Hide ()
+	self:SetVisible (false)
+end
+
 function self:CanMaximize ()
 	return self.Maximizable
 end
@@ -287,7 +295,8 @@ function self:Maximize (animated)
 	self.RestoredWidth, self.RestoredHeight = self:GetSize ()
 	
 	local x, y, w, h = 0, 0, self:GetParent ():GetSize ()
-	self:SetRectangleAnimated (x, y, w, h, animated and Glass.Interpolators.ExponentialDecay (0.001) or nil, 0.25)
+	local animation = animated and self:CreateAnimation (Glass.Interpolators.ExponentialDecay (0.001), 0.25) or nil
+	self:SetRectangle (x, y, w, h, animation)
 end
 
 function self:Restore (animated)
@@ -301,8 +310,10 @@ function self:Restore (animated)
 	self.Maximized = false
 		
 	local x, y, w, h = self.RestoredX, self.RestoredY, self.RestoredWidth, self.RestoredHeight
-	self:SetRectangleAnimated (x, y, w, h, animated and Glass.Interpolators.ExponentialDecay (0.001) or nil, 0.25)
+	local animation = animated and self:CreateAnimation (Glass.Interpolators.ExponentialDecay (0.001), 0.25) or nil
+	self:SetRectangle (x, y, w, h, animation)
 end
+
 
 function self:SetMaximizable (maximizable)
 	self.Maximizable = maximizable
@@ -338,22 +349,5 @@ function self:HitTest (x, y)
 		return DragMode.Move
 	else
 		return DragMode.None
-	end
-end
-
-function self:SetRectangleAnimated (x, y, w, h, interpolator, duration)
-	if interpolator then
-		local x0, y0, w0, h0 = self:GetRectangle ()
-		local x1, y1, w1, h1 = x, y, w, h
-		self:CreateInterpolatedAnimation (interpolator, duration,
-			function (t)
-				local x, y = x0 + t * (x1 - x0), y0 + t * (y1 - y0)
-				local w, h = w0 + t * (w1 - w0), h0 + t * (h1 - h0)
-				
-				self:SetRectangle (x, y, w, h)
-			end
-		)
-	else
-		self:SetRectangle (x, y, w, h)
 	end
 end
