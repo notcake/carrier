@@ -35,11 +35,9 @@ include ("iview.lua")
 include ("iwindow.lua")
 
 include ("animations/ianimation.lua")
-include ("animations/iinterpolatedanimation.lua")
 include ("animations/animation.lua")
-include ("animations/interpolatedanimation.lua")
-
-include ("interpolators.lua")
+include ("animations/rectangleanimator.lua")
+include ("animations/interpolators.lua")
 
 include ("containers/listview.lua")
 include ("containers/ilistviewdatasource.lua")
@@ -76,9 +74,8 @@ function Glass.Initialize (destinationTable)
 	destinationTable.IWindow                = Glass.IWindow
 	
 	destinationTable.IAnimation             = Glass.IAnimation
-	destinationTable.IInterpolatedAnimation = Glass.IInterpolatedAnimation
 	destinationTable.Animation              = Glass.Animation
-	destinationTable.InterpolatedAnimation  = Glass.InterpolatedAnimation
+	destinationTable.RectangleAnimator      = Glass.RectangleAnimator
 	
 	destinationTable.Interpolators          = Glass.Interpolators
 	
