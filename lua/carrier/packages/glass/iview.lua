@@ -217,6 +217,8 @@ function self:UpdateAnimations (t)
 end
 
 -- Internal
+function self:OnHandleDestroyed () end
+
 function self:OnEnvironmentAttached (environment) end
 function self:OnEnvironmentDetached (environment) end
 

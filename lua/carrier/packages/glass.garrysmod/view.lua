@@ -32,8 +32,7 @@ end
 function DummyPanel:Remove () end
 
 function self:GetHandle ()
-	if not self.Handle or
-	   not self.Handle:IsValid () then
+	if not self.Handle then
 		self.Handle = DummyPanel
 		self.Handle = self:CreatePanel ()
 	end
@@ -42,7 +41,7 @@ function self:GetHandle ()
 end
 
 function self:IsHandleCreated ()
-	return self.Handle and self.Handle:IsValid () or false
+	return self.Handle ~= nil
 end
 
 -- Hierarchy
@@ -268,6 +267,10 @@ function self:UpdateAnimations (t)
 end
 
 -- Internal
+function self:OnHandleDestroyed ()
+	self.Handle = nil
+end
+
 function self:OnMouseDown (mouseButtons, x, y) end
 function self:OnMouseMove (mouseButtons, x, y) end
 function self:OnMouseUp   (mouseButtons, x, y) end

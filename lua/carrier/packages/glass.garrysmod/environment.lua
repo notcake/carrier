@@ -322,6 +322,13 @@ function self:InstallPanelEvents (view, handle)
 		view:OnVisibleChanged (visible)
 		view.VisibleChanged:Dispatch (visible)
 	end
+	
+	local onRemoved = handle.OnRemoved
+	handle.OnRemoved = function (handle)
+		onRemoved (handle)
+		
+		view:OnHandleDestroyed ()
+	end
 end
 
 GarrysMod.Environment = GarrysMod.Environment ()
