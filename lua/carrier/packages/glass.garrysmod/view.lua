@@ -36,72 +36,6 @@ function self:GetHandle ()
 	   not self.Handle:IsValid () then
 		self.Handle = DummyPanel
 		self.Handle = self:CreatePanel ()
-		GarrysMod.Environment:RegisterView (self.Handle, self)
-		
-		self:InstallPanelEventHandler ("OnMousePressed", "OnMouseDown",
-			function (mouseCode)
-				local mouseButtons = MouseButtons.FromNative (mouseCode)
-				MouseEventRouter:OnMouseDown (self, mouseButtons, self:GetMousePosition ())
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnMouseReleased", "OnMouseUp",
-			function (mouseCode)
-				local mouseButtons = MouseButtons.FromNative (mouseCode)
-				MouseEventRouter:OnMouseUp (self, mouseButtons, self:GetMousePosition ())
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnMouseWheeled", "OnMouseWheel",
-			function (delta)
-				return MouseEventRouter:OnMouseWheel (self, delta)
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnCursorMoved", "OnMouseMove",
-			function (x, y)
-				local mouseButtons = MouseButtons.Poll ()
-				MouseEventRouter:OnMouseMove (self, mouseButtons, self:GetMousePosition ())
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnCursorEntered", "OnMouseEnter",
-			function ()
-				MouseEventRouter:OnMouseEnter (self)
-			end
-		)
-		
-		self:InstallPanelEventHandler ("OnCursorExited", "OnMouseLeave",
-			function ()
-				MouseEventRouter:OnMouseLeave (self)
-			end
-		)
-		
-		self:InstallPanelEventHandler ("Paint", "Render",
-			function (w, h)
-				self:Render (w, h, Photon.Render2d)
-			end
-		)
-		
-		local performLayout = self.Handle.PerformLayout
-		self.Handle.PerformLayout = function (_, w, h)
-			if performLayout then
-				performLayout (_, w, h)
-			end
-			
-			self:OnLayout (self:GetContainerSize ())
-			self.Layout:Dispatch ()
-		end
-		
-		local setVisible = self.Handle.SetVisible
-		self.Handle.SetVisible = function (_, visible)
-			if _:IsVisible () == visible then return end
-			
-			setVisible (_, visible)
-			
-			self:OnVisibleChanged (visible)
-			self.VisibleChanged:Dispatch (visible)
-		end
 	end
 	
 	return self.Handle
@@ -348,10 +282,7 @@ function self:Render (w, h, render2d) end
 -- View
 -- Internal
 function self:CreatePanel ()
-	local panel = vgui.Create ("DPanel")
-	panel.Paint = function (self, w, h) end
-	
-	return panel
+	return self:GetEnvironment ():CreateHandle (self)
 end
 
 function self:InjectPanel (panel)
@@ -360,25 +291,6 @@ function self:InjectPanel (panel)
 	end
 	
 	self.Handle = panel
-end
-
-local methodTable = self
-function self:InstallPanelEventHandler (panelMethodName, methodName, handler)
-	local defaultMethod = self.Handle [panelMethodName]
-	
-	-- Suppress default method if an override is present
-	-- but always call the handler so that events get fired.
-	if self [methodName] == methodTable [methodName] and
-	   defaultMethod then
-		self.Handle [panelMethodName] = function (_, ...)
-			defaultMethod (self.Handle, ...)
-			return handler (...)
-		end
-	else
-		self.Handle [panelMethodName] = function (_, ...)
-			return handler (...)
-		end
-	end
 end
 
 function self:CreateRectangleAnimator ()

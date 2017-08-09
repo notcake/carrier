@@ -16,12 +16,13 @@ function self:GetPreferredSize (maximumWidth, maximumHeight)
 	return self:GetEnvironment ():GetLabelPreferredSize (self, self:GetHandle (), maximumWidth, maximumHeight)
 end
 
+-- View
 -- Internal
--- Suppress DLabel mouse handlers, since they capture the mouse
-function self:OnMouseDown (mouseButtons, x, y) end
-function self:OnMouseUp   (mouseButtons, x, y) end
+function self:CreatePanel ()
+	return self:GetEnvironment ():CreateLabelHandle (self)
+end
 
--- ILabel
+-- Label
 function self:GetText ()
 	return self.Text
 end
@@ -90,9 +91,4 @@ function self:SetVerticalAlignment (verticalAlignment)
 	if self:IsHandleCreated () then
 		self:GetEnvironment ():SetLabelVerticalAlignment (self, self:GetHandle (), self.VerticalAlignment)
 	end
-end
-
--- View
-function self:CreatePanel ()
-	return self:GetEnvironment ():CreateLabelHandle (self)
 end

@@ -235,7 +235,7 @@ end
 
 -- View
 function self:CreatePanel ()
-	local panel = vgui.Create ("DFrame")
+	local panel = self:GetEnvironment ():CreateWindowHandle (self)
 	panel:SetSizable (self:IsResizable ())
 	panel:SetDeleteOnClose (false)
 	panel:MakePopup ()

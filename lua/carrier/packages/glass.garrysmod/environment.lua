@@ -15,17 +15,34 @@ function self:GetTextRenderer ()
 end
 
 function self:CreateHandle (view)
-	Error ("IEnvironment:CreateHandle : Not implemented.")
+	local handle = vgui.Create ("DPanel")
+	
+	self:InstallPanelEvents (view, handle)
+	self:RegisterView (handle, view)
+	
+	return handle
+end
+
+function self:CreateWindowHandle (view)
+	local handle = vgui.Create ("DFrame")
+	
+	self:InstallPanelEvents (view, handle)
+	self:RegisterView (handle, view)
+	
+	return handle
 end
 
 function self:CreateLabelHandle (view)
 	local handle = vgui.Create ("DLabel")
 	
+	self:InstallPanelEvents (view, handle)
+	self:RegisterView (handle, view)
+	
 	self:SetLabelText (view, handle, view:GetText ())
 	self:SetLabelFont (view, handle, view:GetFont ())
 	self:SetLabelTextColor (view, handle, view:GetTextColor ())
 	self:SetLabelHorizontalAlignment (view, handle, view:GetHorizontalAlignment ())
-	-- self:SetLabelVerticalAlignment   (view, handle, view:GetVerticalAlignment   ())
+	-- self:SetLabelVerticalAlignment (view, handle, view:GetVerticalAlignment ())
 	-- No need to update vertical alignment, since both alignments are updated simultaneously
 	
 	return handle
@@ -251,6 +268,60 @@ end
 
 function self:UnregisterView (handle, view)
 	self.HandleViews [handle] = nil
+end
+
+-- Internal
+function self:InstallPanelEvents (view, handle)
+	handle.OnMousePressed = function (_, mouseCode)
+		local mouseButtons = MouseButtons.FromNative (mouseCode)
+		MouseEventRouter:OnMouseDown (view, mouseButtons, view:GetMousePosition ())
+	end
+	
+	handle.OnMouseReleased = function (_, mouseCode)
+		local mouseButtons = MouseButtons.FromNative (mouseCode)
+		MouseEventRouter:OnMouseUp (view, mouseButtons, view:GetMousePosition ())
+	end
+	
+	handle.OnMouseWheeled = function (_, delta)
+		return MouseEventRouter:OnMouseWheel (view, delta)
+	end
+	
+	handle.OnCursorMoved = function (_, x, y)
+		local mouseButtons = MouseButtons.Poll ()
+		MouseEventRouter:OnMouseMove (view, mouseButtons, view:GetMousePosition ())
+	end
+	
+	handle.OnCursorEntered = function (_)
+		MouseEventRouter:OnMouseEnter (view)
+	end
+	
+	handle.OnCursorExited = function (_)
+		MouseEventRouter:OnMouseLeave (view)
+	end
+	
+	handle.Paint = function (_, w, h)
+		view:Render (w, h, Photon.Render2d)
+	end
+	
+	local performLayout = handle.PerformLayout
+	handle.PerformLayout = function (handle, w, h)
+		if performLayout then
+			performLayout (handle, w, h)
+		end
+		
+		view:OnLayout (view:GetContainerSize ())
+		view.Layout:Dispatch ()
+	end
+	
+	local setVisible = handle.SetVisible
+	handle.SetVisible = function (handle, visible)
+		if handle:IsVisible () == visible then return end
+		
+		setVisible (handle, visible)
+		
+		view:OnVisibleChanged (visible)
+		view.VisibleChanged:Dispatch (visible)
+	end
 end
 
 GarrysMod.Environment = GarrysMod.Environment ()
