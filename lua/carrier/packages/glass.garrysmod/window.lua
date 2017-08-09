@@ -102,6 +102,13 @@ function self:ctor ()
 	)
 	self.RestoreButton:SetVisible (false)
 	
+	self.Layout:AddListener (
+		function (w, h)
+			self.RestoreButton:GetHandle ():SetPos  (self:GetHandle ().btnMaxim:GetPos  ())
+			self.RestoreButton:GetHandle ():SetSize (self:GetHandle ().btnMaxim:GetSize ())
+		end
+	)
+	
 	self:SetVisible (false)
 end
 
@@ -117,11 +124,6 @@ function self:GetContainerSize ()
 end
 
 -- Internal
-function self:OnLayout (w, h)
-	self.RestoreButton:GetHandle ():SetPos  (self:GetHandle ().btnMaxim:GetPos  ())
-	self.RestoreButton:GetHandle ():SetSize (self:GetHandle ().btnMaxim:GetSize ())
-end
-
 function self:OnMouseDown (mouseButtons, x, y)
 	if mouseButtons == Glass.MouseButtons.Left then
 		local dragMode, resizeHorizontal, resizeVertical = self:HitTest (x, y)
