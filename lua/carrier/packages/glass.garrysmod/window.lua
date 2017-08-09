@@ -254,10 +254,8 @@ function self:CreatePanel ()
 	
 	panel:SetMinWidth (8 + 24 + 4 + 31 + 31 + 31 + 4)
 	
-	self.TitleLabel = GarrysMod.Label ()
-	self.TitleLabel:InjectPanel (panel.lblTitle)
-	self.TitleLabel:SetFont (GarrysMod.Skin.Default.Fonts.Default)
-	self.TitleLabel:SetTextColor (GarrysMod.Skin.Default.Colors.Text)
+	self:GetEnvironment ():SetLabelFont (nil, panel.lblTitle, GarrysMod.Skin.Default.Fonts.Default)
+	self:GetEnvironment ():SetLabelTextColor (nil, panel.lblTitle, GarrysMod.Skin.Default.Colors.Text)
 	
 	return panel
 end
