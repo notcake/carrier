@@ -13,20 +13,22 @@ function self:ctor (view, autobind)
 	self.Hovered = false
 	
 	if self.View and autobind ~= false then
-		self.View.MouseEnter:AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseEnter)
-		self.View.MouseLeave:AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseLeave)
-		self.View.MouseDown :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseDown)
-		self.View.MouseMove :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseMove)
-		self.View.MouseUp   :AddListener ("Glass.ButtonBehaviour." .. self:GetHashCode (), self, self.OnMouseUp)
+		local listenerName = "Glass.ButtonBehaviour." .. self:GetHashCode ()
+		self.View.MouseEnter:AddListener (listenerName, self, self.OnMouseEnter)
+		self.View.MouseLeave:AddListener (listenerName, self, self.OnMouseLeave)
+		self.View.MouseDown :AddListener (listenerName, self, self.OnMouseDown)
+		self.View.MouseMove :AddListener (listenerName, self, self.OnMouseMove)
+		self.View.MouseUp   :AddListener (listenerName, self, self.OnMouseUp)
 	end
 end
 
 function self:dtor ()
-	self.View.MouseEnter:RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
-	self.View.MouseLeave:RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
-	self.View.MouseDown :RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
-	self.View.MouseMove :RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
-	self.View.MouseUp   :RemoveListener ("Glass.ButtonBehaviour." .. self:GetHashCode ())
+	local listenerName = "Glass.ButtonBehaviour." .. self:GetHashCode ()
+	self.View.MouseEnter:RemoveListener (listenerName)
+	self.View.MouseLeave:RemoveListener (listenerName)
+	self.View.MouseDown :RemoveListener (listenerName)
+	self.View.MouseMove :RemoveListener (listenerName)
+	self.View.MouseUp   :RemoveListener (listenerName)
 end
 
 -- ButtonBehaviour

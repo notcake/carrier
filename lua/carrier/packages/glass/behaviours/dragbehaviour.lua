@@ -19,16 +19,18 @@ function self:ctor (view, autobind)
 	self.PressStartY = nil
 	
 	if self.View and autobind ~= false then
-		self.View.MouseDown :AddListener ("Glass.DragBehaviour." .. self:GetHashCode (), self, self.OnMouseDown)
-		self.View.MouseMove :AddListener ("Glass.DragBehaviour." .. self:GetHashCode (), self, self.OnMouseMove)
-		self.View.MouseUp   :AddListener ("Glass.DragBehaviour." .. self:GetHashCode (), self, self.OnMouseUp)
+		local listenerName = "Glass.DragBehaviour." .. self:GetHashCode ()
+		self.View.MouseDown :AddListener (listenerName, self, self.OnMouseDown)
+		self.View.MouseMove :AddListener (listenerName, self, self.OnMouseMove)
+		self.View.MouseUp   :AddListener (listenerName, self, self.OnMouseUp)
 	end
 end
 
 function self:dtor ()
-	self.View.MouseDown :RemoveListener ("Glass.DragBehaviour." .. self:GetHashCode ())
-	self.View.MouseMove :RemoveListener ("Glass.DragBehaviour." .. self:GetHashCode ())
-	self.View.MouseUp   :RemoveListener ("Glass.DragBehaviour." .. self:GetHashCode ())
+	local listenerName = "Glass.DragBehaviour." .. self:GetHashCode ()
+	self.View.MouseDown :RemoveListener (listenerName)
+	self.View.MouseMove :RemoveListener (listenerName)
+	self.View.MouseUp   :RemoveListener (listenerName)
 end
 
 -- DragBehaviour
