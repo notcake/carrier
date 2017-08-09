@@ -10,17 +10,13 @@ function self:ctor ()
 	
 	self.Cursor = Glass.Cursor.Default
 	
+	self.AnimationCount = 0
 	self.Animations = nil
-	self.ThinkHandlerInstalled = false
 end
 
 function self:dtor ()
-	GarrysMod.Environment:UnregisterView (self.Handle, self)
-	
-	if self.Handle and
-	   self.Handle:IsValid () then
-		self.Handle:Remove ()
-		self.Handle = nil
+	if self:IsHandleCreated () then
+		self.Environment:DestroyHandle (self, self:GetHandle ())
 	end
 end
 
@@ -285,15 +281,11 @@ end
 -- Animations
 function self:AddAnimation (animation)
 	self.Animations = self.Animations or {}
+	if self.Animations [animation] then return end
 	self.Animations [animation] = true
+	self.AnimationCount = self.AnimationCount + 1
 	
-	self:InstallThinkHandler ()
-end
-
-function self:RemoveAnimation (animation)
-	if not self.Animations then return end
-	
-	self.Animations [animation] = nil
+	self.Environment:AddAnimation (self, self:GetHandle (), animation)
 end
 
 function self:CreateAnimation (updater)
@@ -311,6 +303,34 @@ function self:CreateAnimator (interpolator, duration, updater)
 	
 	self:AddAnimation (animator)
 	return animator
+end
+
+function self:GetAnimationCount ()
+	return self.AnimationCount
+end
+
+function self:GetAnimationEnumerator ()
+	if not self.Animations then return NullEnumerator () end
+	return KeyEnumerator (self.Animations)
+end
+
+function self:RemoveAnimation (animation)
+	if not self.Animations then return end
+	if not self.Animations [animation] then return end
+	
+	self.Animations [animation] = nil
+	self.AnimationCount = self.AnimationCount - 1
+	
+	self.Environment:RemoveAnimation (self, self:GetHandle (), animation)
+end
+
+function self:UpdateAnimations (t)
+	for animation in self:GetAnimationEnumerator () do
+		local uncompleted = animation:Update (t)
+		if not uncompleted then
+			self:RemoveAnimation (animation)
+		end
+	end
 end
 
 -- Internal
@@ -357,38 +377,6 @@ function self:InstallPanelEventHandler (panelMethodName, methodName, handler)
 	else
 		self.Handle [panelMethodName] = function (_, ...)
 			return handler (...)
-		end
-	end
-end
-
-function self:InstallThinkHandler ()
-	if self.ThinkHandlerInstalled then return end
-	
-	self.ThinkHandlerInstalled = true
-	
-	local defaultThink = self.Handle.Think
-	self.Handle.Think = function (_)
-		if defaultThink then
-			defaultThink (_)
-		end
-		
-		-- Run animations
-		if self.Animations then
-			local t = Clock ()
-			for animation, _ in pairs (self.Animations) do
-				local uncompleted = animation:Update (t)
-				if not uncompleted then
-					self.Animations [animation] = nil
-				end
-			end
-		end
-		
-		-- Remove Think handler if all
-		-- animations have completed
-		if not self.Animations or
-		   not next (self.Animations) then
-			self.Handle.Think = defaultThink
-			self.ThinkHandlerInstalled = false
 		end
 	end
 end

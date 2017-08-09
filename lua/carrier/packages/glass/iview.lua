@@ -190,10 +190,6 @@ function self:AddAnimation (animation)
 	Error ("IView:AddAnimation : Not implemented.")
 end
 
-function self:RemoveAnimation (animation)
-	Error ("IView:RemoveAnimation : Not implemented.")
-end
-
 -- updater (t0, t)
 function self:CreateAnimation (updater)
 	Error ("IView:CreateAnimation : Not implemented.")
@@ -204,7 +200,26 @@ function self:CreateAnimator (interpolator, duration, updater)
 	Error ("IView:CreateAnimator : Not implemented.")
 end
 
+function self:GetAnimationCount ()
+	Error ("IView:GetAnimationCount : Not implemented.")
+end
+
+function self:GetAnimationEnumerator ()
+	Error ("IView:GetAnimationEnumerator : Not implemented.")
+end
+
+function self:RemoveAnimation (animation)
+	Error ("IView:RemoveAnimation : Not implemented.")
+end
+
+function self:UpdateAnimations (t)
+	Error ("IView:UpdateAnimations : Not implemented.")
+end
+
 -- Internal
+function self:OnEnvironmentAttached (environment) end
+function self:OnEnvironmentDetached (environment) end
+
 function self:OnLayout (contentWidth, contentHeight) end
 
 function self:OnMouseDown (mouseButtons, x, y) end

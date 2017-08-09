@@ -4,6 +4,8 @@ require ("Pylon.OOP").Initialize (_ENV)
 
 Clock = require ("Pylon.MonotonicClock")
 
+require ("Pylon.Enumeration").Initialize (_ENV)
+
 Color = require ("Pylon.Color")
 
 Glass = require ("Glass")

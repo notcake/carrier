@@ -16,6 +16,10 @@ function self:CreateHandle (view)
 	Error ("IEnvironment:CreateHandle : Not implemented.")
 end
 
+function self:DestroyHandle (view, handle)
+	Error ("IEnvironment:DestroyHandle : Not implemented.")
+end
+
 -- Hierarchy
 function self:GetParent (view, handle)
 	Error ("IEnvironment:GetParent : Not implemented.")
@@ -91,4 +95,13 @@ end
 
 function self:ReleaseMouse (view, handle)
 	Error ("IEnvironment:ReleaseMouse : Not implemented.")
+end
+
+-- Animations
+function self:AddAnimation (view, handle, animation)
+	Error ("IEnvironment:AddAnimation : Not implemented.")
+end
+
+function self:RemoveAnimation (view, handle, animation)
+	Error ("IEnvironment:RemoveAnimation : Not implemented.")
 end

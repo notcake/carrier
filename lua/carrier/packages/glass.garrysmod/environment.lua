@@ -18,6 +18,14 @@ function self:CreateHandle (view)
 	Error ("IEnvironment:CreateHandle : Not implemented.")
 end
 
+function self:DestroyHandle (view, handle)
+	self:UnregisterView (view, handle)
+	
+	if handle and handle:IsValid () then
+		handle:Remove ()
+	end
+end
+
 -- Hierarchy
 function self:AddChild (view, handle, childView)
 	childView:GetHandle ():SetParent (handle)
@@ -130,6 +138,34 @@ end
 function self:ReleaseMouse (view, handle)
 	handle:MouseCapture (false)
 	MouseEventRouter:OnReleaseMouse (view)
+end
+
+-- Animations
+function self:AddAnimation (view, handle, animation)
+	if handle.ThinkHandlerInstalled then return end
+	
+	handle.ThinkHandlerInstalled = true
+	
+	local defaultThink = handle.Think
+	handle.Think = function (_)
+		if defaultThink then
+			defaultThink (_)
+		end
+		
+		-- Run animations
+		local t = Clock ()
+		view:UpdateAnimations (t)
+		
+		-- Remove Think handler if all
+		-- animations have completed
+		if view:GetAnimationCount () == 0 then
+			handle.Think = defaultThink
+			handle.ThinkHandlerInstalled = false
+		end
+	end
+end
+
+function self:RemoveAnimation (view, handle, animation)
 end
 
 -- Environment
