@@ -56,8 +56,10 @@ function self:Dispatch (...)
 		local success, handled = xpcall (callback, ErrorNoHalt, ...)
 		if success then
 			anyHandled = anyHandled or handled
-		else
+		elseif self.Name then
 			ErrorNoHalt ("Error in event " .. self.Name .. " listener: " .. tostring (callbackName) .. "!\n")
+		else
+			ErrorNoHalt ("Error in event listener: " .. tostring (callbackName) .. "!\n")
 		end
 	end
 	self.Locked = self.Locked - 1
