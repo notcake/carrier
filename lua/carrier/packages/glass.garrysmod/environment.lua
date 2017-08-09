@@ -1,6 +1,34 @@
 local self = {}
 GarrysMod.Environment = Class (self, Glass.IEnvironment)
 
+local vgui_CreateX              = vgui.CreateX
+
+local Panel = FindMetaTable ("Panel")
+local Panel_CursorPos                 = Panel.CursorPos
+local Panel_GetParent                 = Panel.GetParent
+local Panel_GetPos                    = Panel.GetPos
+local Panel_GetSize                   = Panel.GetSize
+local Panel_GetText                   = Panel.GetText
+local Panel_InvalidateLayout          = Panel.InvalidateLayout
+local Panel_IsValid                   = Panel.IsValid
+local Panel_IsVisible                 = Panel.IsVisible
+local Panel_LocalToScreen             = Panel.LocalToScreen
+local Panel_MouseCapture              = Panel.MouseCapture
+local Panel_MoveToBack                = Panel.MoveToBack
+local Panel_MoveToFront               = Panel.MoveToFront
+local Panel_Remove                    = Panel.Remove
+local Panel_SetContentAlignment       = Panel.SetContentAlignment
+local Panel_SetCursor                 = Panel.SetCursor
+local Panel_SetFGColor                = Panel.SetFGColor
+local Panel_SetFontInternal           = Panel.SetFontInternal
+local Panel_SetPaintBackgroundEnabled = Panel.SetPaintBackgroundEnabled
+local Panel_SetParent                 = Panel.SetParent
+local Panel_SetPos                    = Panel.SetPos
+local Panel_SetSize                   = Panel.SetSize
+local Panel_SetText                   = Panel.SetText
+local Panel_SetTextInset              = Panel.SetTextInset
+local Panel_SetVisible                = Panel.SetVisible
+
 function self:ctor ()
 	self.HandleViews = setmetatable ({}, { __mode = "k" })
 end
@@ -15,7 +43,7 @@ function self:GetTextRenderer ()
 end
 
 function self:CreateHandle (view)
-	local handle = vgui.Create ("DPanel")
+	local handle = vgui_CreateX ("Panel")
 	
 	self:SetRectangle (view, handle, view:GetRectangle ())
 	if not view:IsVisible () then
@@ -41,14 +69,18 @@ function self:CreateWindowHandle (view)
 end
 
 function self:CreateLabelHandle (view)
-	local handle = vgui.Create ("DLabel")
+	local handle = vgui_CreateX ("Label")
+	Panel_SetPaintBackgroundEnabled (handle, false)
+	
+	handle.ApplySchemeSettings = function (handle)
+		self:SetLabelTextColor (view, handle, view:GetTextColor ())
+	end
 	
 	self:InstallPanelEvents (view, handle)
 	self:RegisterView (handle, view)
 	
 	self:SetLabelText (view, handle, view:GetText ())
 	self:SetLabelFont (view, handle, view:GetFont ())
-	self:SetLabelTextColor (view, handle, view:GetTextColor ())
 	self:SetLabelHorizontalAlignment (view, handle, view:GetHorizontalAlignment ())
 	-- self:SetLabelVerticalAlignment (view, handle, view:GetVerticalAlignment ())
 	-- No need to update vertical alignment, since both alignments are updated simultaneously
@@ -67,11 +99,11 @@ end
 -- View
 -- Hierarchy
 function self:AddChild (view, handle, childView)
-	childView:GetHandle ():SetParent (handle)
+	Panel_SetParent (childView:GetHandle (), handle)
 end
 
 function self:RemoveChild (view, handle, childView)
-	childView:GetHandle ():SetParent (nil)
+	Panel_SetParent (childView:GetHandle (), nil)
 end
 
 function self:GetParent (view, handle)
@@ -79,7 +111,7 @@ function self:GetParent (view, handle)
 end
 
 function self:SetParent (view, handle, parentHandle)
-	handle:SetParent (parentHandle)
+	Panel_SetParent (handle, parentHandle)
 end
 
 -- Bounds
@@ -90,11 +122,11 @@ function self:GetRectangle (view, handle)
 end
 
 function self:GetPosition (view, handle)
-	local parentView = self:GetView (handle:GetParent ())
+	local parentView = self:GetView (Panel_GetParent (handle))
 	local dx, dy = 0, 0
 	if parentView then dx, dy = parentView:GetContainerPosition () end
 	
-	local x, y = handle:GetPos ()
+	local x, y = Panel_GetPos (handle)
 	return x - dx, y - dy
 end
 
@@ -108,37 +140,37 @@ function self:SetRectangle (view, handle, x, y, w, h)
 end
 
 function self:SetPosition (view, handle, x, y)
-	local parentView = self:GetView (handle:GetParent ())
+	local parentView = self:GetView (Panel_GetParent (handle))
 	local dx, dy = 0, 0
 	if parentView then dx, dy = parentView:GetContainerPosition () end
 	
-	handle:SetPos (x + dx, y + dy)
+	Panel_SetPos (handle, x + dx, y + dy)
 end
 
 function self:SetSize (view, handle, w, h)
-	handle:SetSize (w, h)
+	Panel_SetSize (handle, w, h)
 end
 
 -- Layout
 function self:BringToFront (view, handle)
-	handle:MoveToFront ()
+	Panel_MoveToFront (handle)
 end
 
 function self:MoveToBack (view, handle)
-	handle:MoveToBack ()
+	Panel_MoveToBack (handle)
 end
 
 function self:InvalidateLayout (view, handle)
-	handle:InvalidateLayout ()
+	Panel_InvalidateLayout (handle)
 end
 
 -- Appearance
 function self:IsVisible (view, handle)
-	return handle:IsVisible ()
+	return Panel_IsVisible (handle)
 end
 
 function self:SetVisible (view, handle, visible)
-	handle:SetVisible (visible)
+	Panel_SetVisible (handle, visible)
 end
 
 -- Mouse
@@ -147,23 +179,23 @@ function self:GetCursor (view, handle)
 end
 
 function self:SetCursor (view, handle, cursor)
-	handle:SetCursor (Cursor.ToNative (cursor))
+	Panel_SetCursor (handle, Cursor.ToNative (cursor))
 end
 
 function self:GetMousePosition (view, handle)
-	local x, y = handle:CursorPos ()
+	local x, y = Panel_CursorPos (handle)
 	
 	-- Fix coordinates by inverting the bad ScreenToLocal transform
 	-- This happens when view layout is done outside of a legitimate layout event
-	x, y = handle:LocalToScreen (x, y)
+	x, y = Panel_LocalToScreen (handle, x, y)
 	
 	-- Manual ScreenToLocal
 	local panel = handle
 	while panel do
-		local dx, dy = panel:GetPos ()
+		local dx, dy = Panel_GetPos (panel)
 		x, y = x - dx, y - dy
 		
-		panel = panel:GetParent ()
+		panel = Panel_GetParent (panel)
 	end
 	
 	return x, y
@@ -171,11 +203,11 @@ end
 
 function self:CaptureMouse (view, handle)
 	MouseEventRouter:OnCaptureMouse (view)
-	handle:MouseCapture (true)
+	Panel_MouseCapture (handle, true)
 end
 
 function self:ReleaseMouse (view, handle)
-	handle:MouseCapture (false)
+	Panel_MouseCapture (handle, false)
 	MouseEventRouter:OnReleaseMouse (view)
 end
 
@@ -213,7 +245,7 @@ function self:GetLabelPreferredSize (view, handle, maximumWidth, maximumHeight)
 end
 
 function self:GetLabelText (view, handle)
-	return handle:GetText ()
+	return Panel_GetText (handle)
 end
 
 function self:GetLabelFont (view, handle)
@@ -233,25 +265,25 @@ function self:GetVerticalAlignment (view, handle)
 end
 
 function self:SetLabelText (view, handle, text)
-	handle:SetText (text)
+	Panel_SetText (handle, text)
 end
 
 function self:SetLabelFont (view, handle, font)
-	handle:SetFont (font:GetId ())
+	Panel_SetFontInternal (handle, font:GetId ())
 end
 
 function self:SetLabelTextColor (view, handle, textColor)
-	handle:SetTextColor (_G.Color (Color.ToRGBA8888 (textColor)))
+	Panel_SetFGColor (handle, Color.ToRGBA8888 (textColor))
 end
 
 function self:SetLabelHorizontalAlignment (view, handle, horizontalAlignment)
-	handle:SetContentAlignment (ContentAlignment.FromAlignment (horizontalAlignment, view:GetVerticalAlignment ()))
+	Panel_SetContentAlignment (handle, ContentAlignment.FromAlignment (horizontalAlignment, view:GetVerticalAlignment ()))
 	
-	handle:SetTextInset (self.HorizontalAlignment == Glass.HorizontalAlignment.Right and 1 or 0, 0)
+	Panel_SetTextInset (handle, self.HorizontalAlignment == Glass.HorizontalAlignment.Right and 1 or 0, 0)
 end
 
 function self:SetLabelVerticalAlignment (view, handle, verticalAlignment)
-	handle:SetContentAlignment (ContentAlignment.FromAlignment (view:GetHorizontalAlignment (), verticalAlignment))
+	Panel_SetContentAlignment (handle, ContentAlignment.FromAlignment (view:GetHorizontalAlignment (), verticalAlignment))
 end
 
 -- Environment
@@ -280,30 +312,32 @@ end
 
 -- Internal
 function self:InstallPanelEvents (view, handle)
-	handle.OnMousePressed = function (_, mouseCode)
+	local methodTable = handle:GetTable ()
+	
+	methodTable.OnMousePressed = function (_, mouseCode)
 		local mouseButtons = MouseButtons.FromNative (mouseCode)
 		MouseEventRouter:OnMouseDown (view, mouseButtons, view:GetMousePosition ())
 	end
 	
-	handle.OnMouseReleased = function (_, mouseCode)
+	methodTable.OnMouseReleased = function (_, mouseCode)
 		local mouseButtons = MouseButtons.FromNative (mouseCode)
 		MouseEventRouter:OnMouseUp (view, mouseButtons, view:GetMousePosition ())
 	end
 	
-	handle.OnMouseWheeled = function (_, delta)
+	methodTable.OnMouseWheeled = function (_, delta)
 		return MouseEventRouter:OnMouseWheel (view, delta)
 	end
 	
-	handle.OnCursorMoved = function (_, x, y)
+	methodTable.OnCursorMoved = function (_, x, y)
 		local mouseButtons = MouseButtons.Poll ()
 		MouseEventRouter:OnMouseMove (view, mouseButtons, view:GetMousePosition ())
 	end
 	
-	handle.OnCursorEntered = function (_)
+	methodTable.OnCursorEntered = function (_)
 		MouseEventRouter:OnMouseEnter (view)
 	end
 	
-	handle.OnCursorExited = function (_)
+	methodTable.OnCursorExited = function (_)
 		MouseEventRouter:OnMouseLeave (view)
 	end
 	
@@ -311,8 +345,8 @@ function self:InstallPanelEvents (view, handle)
 		view:Render (w, h, Photon.Render2d)
 	end
 	
-	local performLayout = handle.PerformLayout
-	handle.PerformLayout = function (handle, w, h)
+	local performLayout = methodTable.PerformLayout
+	methodTable.PerformLayout = function (handle, w, h)
 		if performLayout then
 			performLayout (handle, w, h)
 		end
@@ -322,7 +356,7 @@ function self:InstallPanelEvents (view, handle)
 	end
 	
 	local setVisible = handle.SetVisible
-	handle.SetVisible = function (handle, visible)
+	methodTable.SetVisible = function (handle, visible)
 		if handle:IsVisible () == visible then return end
 		
 		setVisible (handle, visible)
@@ -332,9 +366,11 @@ function self:InstallPanelEvents (view, handle)
 		end
 	end
 	
-	local onRemoved = handle.OnRemoved
-	handle.OnRemoved = function (handle)
-		onRemoved (handle)
+	local onRemove = methodTable.OnRemove
+	methodTable.OnRemove = function (handle)
+		if onRemove then
+			onRemove (handle)
+		end
 		
 		self:UnregisterView (handle, view)
 		view:OnHandleDestroyed ()
