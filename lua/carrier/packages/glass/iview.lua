@@ -1,7 +1,6 @@
 local self = {}
 Glass.IView = Interface (self)
 
-self.Layout         = Event ()
 self.VisibleChanged = Event ()
 
 self.MouseDown      = Event ()

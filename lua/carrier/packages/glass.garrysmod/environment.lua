@@ -318,7 +318,6 @@ function self:InstallPanelEvents (view, handle)
 		end
 		
 		view:OnLayout (view:GetContainerSize ())
-		view.Layout:Dispatch ()
 	end
 	
 	local setVisible = handle.SetVisible
