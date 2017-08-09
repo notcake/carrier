@@ -12,8 +12,6 @@ end
 -- IView
 -- Internal
 function self:Render (w, h, render2d)
-	if not self:GetHandle ().m_bBackground then return end
-	
 	if self.ButtonBehaviour:IsPressed () or self.ButtonBehaviour:IsMouseCaptured () then
 		return self:GetHandle ():GetSkin ().tex.Window.Restore_Down (0, 0, w, h)
 	end	
