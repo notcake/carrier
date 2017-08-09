@@ -17,6 +17,14 @@ end
 function self:CreateHandle (view)
 	local handle = vgui.Create ("DPanel")
 	
+	self:SetRectangle (view, handle, view:GetRectangle ())
+	if not view:IsVisible () then
+		self:SetVisible (view, handle, view:IsVisible ())
+	end
+	if view:GetCursor () ~= Glass.Cursor.Default then
+		self:SetCursor (view, handle, view:GetCursor ())
+	end
+	
 	self:InstallPanelEvents (view, handle)
 	self:RegisterView (handle, view)
 	
@@ -319,8 +327,9 @@ function self:InstallPanelEvents (view, handle)
 		
 		setVisible (handle, visible)
 		
-		view:OnVisibleChanged (visible)
-		view.VisibleChanged:Dispatch (visible)
+		if view:IsVisible () ~= visible then
+			view:SetVisible (visible)
+		end
 	end
 	
 	local onRemoved = handle.OnRemoved

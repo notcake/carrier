@@ -6,17 +6,22 @@ function self:ctor ()
 	
 	self.Handle = nil
 	
-	self.RectangleAnimator = nil
+	self.X       = 0
+	self.Y       = 0
+	self.Width   = 128
+	self.Height  = 128
+	self.Visible = true
+	self.Cursor  = Glass.Cursor.Default
 	
-	self.Cursor = Glass.Cursor.Default
+	self.RectangleAnimator = nil
 	
 	self.AnimationCount = 0
 	self.Animations = nil
 end
 
 function self:dtor ()
-	if self:IsHandleCreated () then
-		self.Environment:DestroyHandle (self, self:GetHandle ())
+	if self.Handle then
+		self.Environment:DestroyHandle (self, self.Handle)
 	end
 end
 
@@ -99,7 +104,7 @@ local function AnimatedRectangleSetter2 (setter, name)
 end
 
 function self:GetRectangle ()
-	return self.Environment:GetRectangle (self, self:GetHandle ())
+	return self.X, self.Y, self.Width, self.Height
 end
 
 function self:SetRectangle (x, y, w, h, animator)
@@ -110,19 +115,30 @@ function self:SetRectangle (x, y, w, h, animator)
 end
 
 function self:GetPosition ()
-	return self.Environment:GetPosition (self, self:GetHandle ())
+	return self.X, self.Y
+end
+
+function self:GetX ()
+	return self.X
+end
+
+function self:GetY ()
+	return self.Y
 end
 
 function self:SetPosition (x, y)
+	self.X, self.Y = x, y
 	self.Environment:SetPosition (self, self:GetHandle (), x, y)
 end
 
 function self:SetX (x)
-	self.Environment:SetPosition (self, self:GetHandle (), x, self:GetY ())
+	self.X = x
+	self.Environment:SetPosition (self, self:GetHandle (), x, self.Y)
 end
 
 function self:SetY (y)
-	self.Environment:SetPosition (self, self:GetHandle (), self:GetX (), y)
+	self.Y = y
+	self.Environment:SetPosition (self, self:GetHandle (), self.X, y)
 end
 
 self.SetPosition = AnimatedRectangleSetter2 (self.SetPosition, "Position")
@@ -130,29 +146,30 @@ self.SetX        = AnimatedRectangleSetter1 (self.SetX, "X")
 self.SetY        = AnimatedRectangleSetter1 (self.SetY, "Y")
 
 function self:GetSize ()
-	return self.Environment:GetSize (self, self:GetHandle ())
+	return self.Width, self.Height
 end
 
 function self:GetWidth ()
-	local w, _ = self.Environment:GetSize (self, self:GetHandle ())
-	return w
+	return self.Width
 end
 
 function self:GetHeight ()
-	local _, h = self.Environment:GetSize (self, self:GetHandle ())
-	return h
+	return self.Height
 end
 
 function self:SetSize (w, h)
+	self.Width, self.Height = w, h
 	self.Environment:SetSize (self, self:GetHandle (), w, h)
 end
 
 function self:SetWide (w)
-	self.Environment:SetSize (self, self:GetHandle (), w, self:GetHeight ())
+	self.Width = w
+	self.Environment:SetSize (self, self:GetHandle (), w, self.Height)
 end
 
 function self:SetHeight (h)
-	self.Environment:SetSize (self, self:GetHandle (), self:GetWidth (), h)
+	self.Height = h
+	self.Environment:SetSize (self, self:GetHandle (), self.Width, h)
 end
 
 self.SetSize   = AnimatedRectangleSetter2 (self.SetSize,   "Size")
@@ -169,16 +186,26 @@ end
 
 -- Content layout
 function self:InvalidateLayout ()
-	self.Environment:InvalidateLayout (self, self:GetHandle ())
+	if not self.Handle then return end
+	self.Environment:InvalidateLayout (self, self.Handle)
 end
 
 -- Appearance
 function self:IsVisible ()
-	return self.Environment:IsVisible (self, self:GetHandle ())
+	return self.Visible
 end
 
 function self:SetVisible (visible)
-	self.Environment:SetVisible (self, self:GetHandle (), visible)
+	if self.Visible == visible then return end
+	
+	self.Visible = visible
+	
+	if self.Handle then
+		self.Environment:SetVisible (self, self.Handle, visible)
+	end
+	
+	self:OnVisibleChanged (visible)
+	self.VisibleChanged:Dispatch (visible)
 end
 
 -- Mouse
@@ -187,20 +214,28 @@ function self:GetCursor ()
 end
 
 function self:SetCursor (cursor)
+	if self.Cursor == cursor then return end
+	
 	self.Cursor = cursor
-	self.Environment:SetCursor (self, self:GetHandle (), cursor)
+	
+	if self.Handle then
+		self.Environment:SetCursor (self, self.Handle, cursor)
+	end
 end
 
 function self:GetMousePosition ()
+	if not self.Handle then return nil, nil end
 	return self.Environment:GetMousePosition (self, self:GetHandle ())
 end
 
 function self:CaptureMouse ()
-	self.Environment:CaptureMouse (self, self:GetHandle ())
+	if not self.Handle then return end
+	self.Environment:CaptureMouse (self, self.Handle)
 end
 
 function self:ReleaseMouse ()
-	self.Environment:ReleaseMouse (self, self:GetHandle ())
+	if not self.Handle then return end
+	self.Environment:ReleaseMouse (self, self.Handle)
 end
 
 function self:IsMouseEventConsumer ()
@@ -218,7 +253,9 @@ function self:AddAnimation (animation)
 	self.Animations [animation] = true
 	self.AnimationCount = self.AnimationCount + 1
 	
-	self.Environment:AddAnimation (self, self:GetHandle (), animation)
+	if self.Handle then
+		self.Environment:AddAnimation (self, self.Handle, animation)
+	end
 end
 
 function self:CreateAnimation (updater)
@@ -254,7 +291,9 @@ function self:RemoveAnimation (animation)
 	self.Animations [animation] = nil
 	self.AnimationCount = self.AnimationCount - 1
 	
-	self.Environment:RemoveAnimation (self, self:GetHandle (), animation)
+	if self.Handle then
+		self.Environment:RemoveAnimation (self, self.Handle, animation)
+	end
 end
 
 function self:UpdateAnimations (t)

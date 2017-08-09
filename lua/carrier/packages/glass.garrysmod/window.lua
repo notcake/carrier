@@ -108,6 +108,8 @@ function self:ctor ()
 			self.RestoreButton:GetHandle ():SetSize (self:GetHandle ().btnMaxim:GetSize ())
 		end
 	)
+	
+	self:SetVisible (false)
 end
 
 -- IView
@@ -240,7 +242,6 @@ function self:CreatePanel ()
 	panel:SetDeleteOnClose (false)
 	panel:MakePopup ()
 	panel:SetKeyboardInputEnabled (false)
-	panel:SetVisible (false)
 	
 	-- Disable default resizing and moving behaviour
 	panel.Think = nil
