@@ -324,7 +324,7 @@ function self:Render (w, h, render2d) end
 -- View
 -- Internal
 function self:CreatePanel ()
-	return self:GetEnvironment ():CreateHandle (self)
+	return self.Environment:CreateHandle (self)
 end
 
 function self:InjectPanel (panel)
