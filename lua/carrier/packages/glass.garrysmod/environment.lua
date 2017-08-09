@@ -327,6 +327,7 @@ function self:InstallPanelEvents (view, handle)
 	handle.OnRemoved = function (handle)
 		onRemoved (handle)
 		
+		self:UnregisterView (handle, view)
 		view:OnHandleDestroyed ()
 	end
 end
