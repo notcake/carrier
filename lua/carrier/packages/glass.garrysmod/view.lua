@@ -342,6 +342,7 @@ function self:CreateRectangleAnimator ()
 	self.RectangleAnimator = Glass.RectangleAnimator (x, y, w, h)
 	self.RectangleAnimator.Updated:AddListener (
 		function (x, y, w, h)
+			self.X, self.Y, self.Width, self.Height = x, y, w, h
 			self.Environment:SetRectangle (self, self:GetHandle (), x, y, w, h)
 		end
 	)
