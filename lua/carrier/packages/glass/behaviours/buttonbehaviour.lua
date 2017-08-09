@@ -38,6 +38,10 @@ function self:IsHovered ()
 	return self.Hovered
 end
 
+function self:IsMouseCaptured ()
+	return self.RawPressed
+end
+
 function self:OnMouseEnter ()
 	self:SetHovered (true)
 end
