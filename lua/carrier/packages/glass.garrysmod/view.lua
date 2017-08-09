@@ -240,7 +240,7 @@ end
 
 -- Content layout
 function self:InvalidateLayout ()
-	self:GetHandle ():InvalidateLayout ()
+	self.Environment:InvalidateLayout (self, self:GetHandle ())
 end
 
 -- Appearance

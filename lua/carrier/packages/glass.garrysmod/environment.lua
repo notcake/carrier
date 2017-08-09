@@ -14,6 +14,10 @@ function self:GetTextRenderer ()
 	return Photon.TextRenderer
 end
 
+function self:CreateHandle (view)
+	Error ("IEnvironment:CreateHandle : Not implemented.")
+end
+
 -- Hierarchy
 function self:AddChild (view, handle, childView)
 	childView:GetHandle ():SetParent (handle)
@@ -75,6 +79,10 @@ end
 
 function self:MoveToBack (view, handle)
 	handle:MoveToBack ()
+end
+
+function self:InvalidateLayout (view, handle)
+	handle:InvalidateLayout ()
 end
 
 -- Appearance

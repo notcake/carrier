@@ -12,8 +12,8 @@ function self:GetTextRenderer ()
 	Error ("IEnvironment:GetTextRenderer : Not implemented.")
 end
 
-function self:CreateView ()
-	Error ("IEnvironment:CreateView : Not implemented.")
+function self:CreateHandle (view)
+	Error ("IEnvironment:CreateHandle : Not implemented.")
 end
 
 -- Hierarchy
@@ -57,6 +57,10 @@ end
 
 function self:MoveToBack (view, handle)
 	Error ("IEnvironment:MoveToBack : Not implemented.")
+end
+
+function self:InvalidateLayout (view, handle)
+	Error ("IEnvironment:InvalidateLayout : Not implemented.")
 end
 
 -- Appearance
