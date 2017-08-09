@@ -1,26 +1,11 @@
 local self = {}
-OOP.Event = OOP.Class (self, OOP.ICloneable)
+OOP.Event = OOP.Class (self)
 
 function self:ctor (name)
 	self.Name = name
 	
 	self.Locked    = 0
 	self.Listeners = {}
-end
-
--- ICloneable
-function self:Copy (source)
-	self.Name = source.Name
-	
-	if next (self.Listeners) then
-		self:ClearListeners ()
-	end
-	
-	for callbackName, callback in pairs (source.Listeners) do
-		self:AddListener (callbackName, callback)
-	end
-	
-	return self
 end
 
 -- Event

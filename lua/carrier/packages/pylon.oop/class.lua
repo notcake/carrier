@@ -216,7 +216,7 @@ function self:CreateAuxiliaryConstructor ()
 	
 	return function (self, ...)
 		for eventName, event in pairs (events) do
-			self [eventName] = event:Clone ()
+			self [eventName] = OOP.Event ()
 		end
 		
 		for i = 1, #initializedProperties do
