@@ -132,6 +132,9 @@ function self:SetHoveredView (view)
 	
 	-- Compute previous ancestry stack (reversed)
 	local previousView = previousView
+	if previousView and not previousView:GetHandle ():IsValid () then
+		previousView = nil
+	end
 	while previousView do
 		previousStack [#previousStack + 1] = previousView
 		previousView = previousView:GetParent ()
