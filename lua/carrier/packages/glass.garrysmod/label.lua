@@ -12,7 +12,8 @@ end
 -- IView
 -- Content layout
 function self:GetPreferredSize (maximumWidth, maximumHeight)
-	return self:GetHandle ():GetContentSize ()
+	if not self:IsHandleCreated () then return self:GetSize () end
+	return self:GetEnvironment ():GetLabelPreferredSize (self, self:GetHandle (), maximumWidth, maximumHeight)
 end
 
 -- Internal
@@ -42,50 +43,56 @@ function self:GetVerticalAlignment ()
 end
 
 function self:SetText (text)
+	if self.Text == text then return end
+	
 	self.Text = text
-	self:GetHandle ():SetText (text)
+	
+	if self:IsHandleCreated () then
+		self:GetEnvironment ():SetLabelText (self, self:GetHandle (), self.Text)
+	end
 end
 
 function self:SetFont (font)
+	if self.Font == font then return end
+	
 	self.Font = font
-	self:GetHandle ():SetFont (font:GetId ())
+	
+	if self:IsHandleCreated () then
+		self:GetEnvironment ():SetLabelFont (self, self:GetHandle (), self.Font)
+	end
 end
 
-function self:SetTextColor (color)
-	self.TextColor = color
-	self:GetHandle ():SetTextColor (_G.Color (Color.ToRGBA8888 (color)))
+function self:SetTextColor (textColor)
+	if self.TextColor == textColor then return end
+	
+	self.TextColor = textColor
+	
+	if self:IsHandleCreated () then
+		self:GetEnvironment ():SetLabelTextColor (self, self:GetHandle (), self.TextColor)
+	end
 end
 
 function self:SetHorizontalAlignment (horizontalAlignment)
+	if self.HorizontalAlignment == horizontalAlignment then return end
+	
 	self.HorizontalAlignment = horizontalAlignment
 	
-	self:UpdateAlignment (self:GetHandle ())
+	if self:IsHandleCreated () then
+		self:GetEnvironment ():SetLabelHorizontalAlignment (self, self:GetHandle (), self.HorizontalAlignment)
+	end
 end
 
 function self:SetVerticalAlignment (verticalAlignment)
+	if self.VerticalAlignment == verticalAlignment then return end
+	
 	self.VerticalAlignment = verticalAlignment
 	
-	self:UpdateAlignment (self:GetHandle ())
+	if self:IsHandleCreated () then
+		self:GetEnvironment ():SetLabelVerticalAlignment (self, self:GetHandle (), self.VerticalAlignment)
+	end
 end
 
 -- View
 function self:CreatePanel ()
-	local label = vgui.Create ("DLabel")
-	label:SetText (self.Text)
-	label:SetFont (self.Font:GetId ())
-	label:SetTextColor (_G.Color (Color.ToRGBA8888 (GarrysMod.Skin.Default.Colors.Text)))
-	self:UpdateAlignment (label)
-	return label
-end
-
--- Label
--- Internal
-function self:UpdateAlignment (label)
-	label:SetContentAlignment (ContentAlignment.FromAlignment (self.HorizontalAlignment, self.VerticalAlignment))
-	
-	if self.HorizontalAlignment == Glass.HorizontalAlignment.Right then
-		label:SetTextInset (1, 0)
-	else
-		label:SetTextInset (0, 0)
-	end
+	return self:GetEnvironment ():CreateLabelHandle (self)
 end

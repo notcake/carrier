@@ -16,10 +16,19 @@ function self:CreateHandle (view)
 	Error ("IEnvironment:CreateHandle : Not implemented.")
 end
 
+function self:CreateWindowHandle (view)
+	Error ("IEnvironment:CreateWindowHandle : Not implemented.")
+end
+
+function self:CreateLabelHandle (view)
+	Error ("IEnvironment:CreateLabelHandle : Not implemented.")
+end
+
 function self:DestroyHandle (view, handle)
 	Error ("IEnvironment:DestroyHandle : Not implemented.")
 end
 
+-- View
 -- Hierarchy
 function self:GetParent (view, handle)
 	Error ("IEnvironment:GetParent : Not implemented.")
@@ -104,4 +113,45 @@ end
 
 function self:RemoveAnimation (view, handle, animation)
 	Error ("IEnvironment:RemoveAnimation : Not implemented.")
+end
+
+-- Label
+function self:GetLabelText (view, handle)
+	Error ("IEnvironment:GetLabelText : Not implemented.")
+end
+
+function self:GetLabelFont (view, handle)
+	Error ("IEnvironment:GetLabelFont : Not implemented.")
+end
+
+function self:GetLabelTextColor (view, handle)
+	Error ("IEnvironment:GetLabelTextColor : Not implemented.")
+end
+
+function self:GetHorizontalAlignment (view, handle)
+	Error ("IEnvironment:GetHorizontalAlignment : Not implemented.")
+end
+
+function self:GetVerticalAlignment (view, handle)
+	Error ("IEnvironment:GetVerticalAlignment : Not implemented.")
+end
+
+function self:SetLabelText (view, handle, text)
+	Error ("IEnvironment:SetLabelText : Not implemented.")
+end
+
+function self:SetLabelFont (view, handle, font)
+	Error ("IEnvironment:SetLabelFont : Not implemented.")
+end
+
+function self:SetLabelTextColor (view, handle, textColor)
+	Error ("IEnvironment:SetLabelTextColor : Not implemented.")
+end
+
+function self:SetHorizontalAlignment (view, handle, horizontalAlignment)
+	Error ("IEnvironment:SetHorizontalAlignment : Not implemented.")
+end
+
+function self:SetVerticalAlignment (view, handle, verticalAlignment)
+	Error ("IEnvironment:SetVerticalAlignment : Not implemented.")
 end

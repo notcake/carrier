@@ -18,6 +18,19 @@ function self:CreateHandle (view)
 	Error ("IEnvironment:CreateHandle : Not implemented.")
 end
 
+function self:CreateLabelHandle (view)
+	local handle = vgui.Create ("DLabel")
+	
+	self:SetLabelText (view, handle, view:GetText ())
+	self:SetLabelFont (view, handle, view:GetFont ())
+	self:SetLabelTextColor (view, handle, view:GetTextColor ())
+	self:SetLabelHorizontalAlignment (view, handle, view:GetHorizontalAlignment ())
+	-- self:SetLabelVerticalAlignment   (view, handle, view:GetVerticalAlignment   ())
+	-- No need to update vertical alignment, since both alignments are updated simultaneously
+	
+	return handle
+end
+
 function self:DestroyHandle (view, handle)
 	self:UnregisterView (view, handle)
 	
@@ -26,6 +39,7 @@ function self:DestroyHandle (view, handle)
 	end
 end
 
+-- View
 -- Hierarchy
 function self:AddChild (view, handle, childView)
 	childView:GetHandle ():SetParent (handle)
@@ -166,6 +180,53 @@ function self:AddAnimation (view, handle, animation)
 end
 
 function self:RemoveAnimation (view, handle, animation)
+end
+
+-- Label
+function self:GetLabelPreferredSize (view, handle, maximumWidth, maximumHeight)
+	return handle:GetContentSize (maximumWidth, maximumHeight)
+end
+
+function self:GetLabelText (view, handle)
+	return handle:GetText ()
+end
+
+function self:GetLabelFont (view, handle)
+	return view:GetFont ()
+end
+
+function self:GetLabelTextColor (view, handle)
+	return view:GetTextColor ()
+end
+
+function self:GetHorizontalAlignment (view, handle)
+	return view:GetHorizontalAlignment ()
+end
+
+function self:GetVerticalAlignment (view, handle)
+	return view:GetVerticalAlignment ()
+end
+
+function self:SetLabelText (view, handle, text)
+	handle:SetText (text)
+end
+
+function self:SetLabelFont (view, handle, font)
+	handle:SetFont (font:GetId ())
+end
+
+function self:SetLabelTextColor (view, handle, textColor)
+	handle:SetTextColor (_G.Color (Color.ToRGBA8888 (textColor)))
+end
+
+function self:SetLabelHorizontalAlignment (view, handle, horizontalAlignment)
+	handle:SetContentAlignment (ContentAlignment.FromAlignment (horizontalAlignment, view:GetVerticalAlignment ()))
+	
+	handle:SetTextInset (self.HorizontalAlignment == Glass.HorizontalAlignment.Right and 1 or 0, 0)
+end
+
+function self:SetLabelVerticalAlignment (view, handle, verticalAlignment)
+	handle:SetContentAlignment (ContentAlignment.FromAlignment (view:GetHorizontalAlignment (), verticalAlignment))
 end
 
 -- Environment
