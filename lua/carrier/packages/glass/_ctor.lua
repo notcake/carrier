@@ -133,6 +133,14 @@ function Glass.Initialize (destinationTable)
 	destinationTable.IListViewDataSource    = Glass.IListViewDataSource
 	destinationTable.ITableViewDataSource   = Glass.ITableViewDataSource
 	
+	destinationTable.ListView               = Glass.ListView
+	destinationTable.ListViewItem           = Glass.ListViewItem
+	destinationTable.TableView              = Glass.TableView
+	destinationTable.TableViewColumn        = Glass.TableViewColumn
+	destinationTable.TableViewColumnType    = Glass.TableViewColumnType
+	destinationTable.TableViewItem          = Glass.TableViewItem
+	destinationTable.TreeTableView          = Glass.TreeTableView
+	
 	return destinationTable
 end
 

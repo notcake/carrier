@@ -1,5 +1,5 @@
 local self = {}
-ListView.InternalDataSource = Class (self, Glass.IListViewDataSource)
+Glass.ListView.InternalDataSource = Class (self, Glass.IListViewDataSource)
 
 self.Reloaded      = Event ()
 self.ItemsInserted = Event ()
