@@ -4,6 +4,8 @@ Glass.TableView.Header = Class (self, Glass.View)
 self.TotalWidthChanged = Event ()
 
 function self:ctor (tableView)
+	self.ListenerName = "Glass.TableView.Header." .. self:GetHashCode ()
+	
 	self.TableView = tableView
 	
 	self.ColumnViews       = {}
@@ -15,12 +17,18 @@ function self:ctor (tableView)
 	self.ColumnLayoutHeight = nil
 	self.ColumnLayoutValid  = false
 	
-	self.TableView:GetColumns ().Changed:AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.UpdateColumns)
+	self.TableView:GetColumns ().Cleared       :AddListener (self.ListenerName, self, self.UpdateColumns)
+	self.TableView:GetColumns ().ColumnAdded   :AddListener (self.ListenerName, self, self.CreateColumnViews)
+	self.TableView:GetColumns ().ColumnInserted:AddListener (self.ListenerName, self, self.CreateColumnViews)
+	self.TableView:GetColumns ().ColumnRemoved :AddListener (self.ListenerName, self, self.DestroyColumnViews)
 	self:UpdateColumns ()
 end
 
 function self:dtor ()
-	self.TableView:GetColumns ().Changed:RemoveListener ("Glass.TableView.Header." .. self:GetHashCode ())
+	self.TableView:GetColumns ().Cleared       :RemoveListener (self.ListenerName)
+	self.TableView:GetColumns ().ColumnAdded   :RemoveListener (self.ListenerName)
+	self.TableView:GetColumns ().ColumnInserted:RemoveListener (self.ListenerName)
+	self.TableView:GetColumns ().ColumnRemoved :RemoveListener (self.ListenerName)
 	
 	for column, columnView in pairs (self.ColumnViews) do
 		self:DestroyColumnViews (column)
@@ -158,8 +166,8 @@ function self:CreateColumnViews (column)
 	local columnResizeGrip = Glass.TableView.ColumnResizeGrip (column)
 	columnResizeGrip:SetParent (self)
 	
-	column.WidthChanged  :AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.InvalidateColumnLayout)
-	column.VisibleChanged:AddListener ("Glass.TableView.Header." .. self:GetHashCode (), self, self.InvalidateColumnLayout)
+	column.WidthChanged  :AddListener (self.ListenerName, self, self.InvalidateColumnLayout)
+	column.VisibleChanged:AddListener (self.ListenerName, self, self.InvalidateColumnLayout)
 	
 	self.ColumnViews [column] = columnView
 	self.ColumnResizeGrips [column] = columnResizeGrip
@@ -171,8 +179,8 @@ function self:CreateColumnViews (column)
 end
 
 function self:DestroyColumnViews (column)
-	column.WidthChanged  :RemoveListener ("Glass.TableView.Header." .. self:GetHashCode ())
-	column.VisibleChanged:RemoveListener ("Glass.TableView.Header." .. self:GetHashCode ())
+	column.WidthChanged  :RemoveListener (self.ListenerName)
+	column.VisibleChanged:RemoveListener (self.ListenerName)
 	
 	self.ColumnViews [column]:dtor ()
 	self.ColumnViews [column] = nil

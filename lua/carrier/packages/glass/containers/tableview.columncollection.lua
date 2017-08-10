@@ -41,7 +41,7 @@ function self:Clear ()
 		self.Columns [i] = nil
 	end
 	
-	self.ColumnsCleared:Dispatch ()
+	self.Cleared:Dispatch ()
 	self.LayoutChanged:Dispatch ()
 	self.Changed:Dispatch ()
 end
