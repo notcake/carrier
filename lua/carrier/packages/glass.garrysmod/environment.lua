@@ -34,6 +34,8 @@ function self:ctor ()
 	
 	self.FontCache = FontCache
 	
+	self.Keyboard = Keyboard ()
+	
 	self.HandleViews = setmetatable ({}, { __mode = "k" })
 	
 	self.RootView = self:GetView (vgui.GetWorldPanel ())
@@ -54,6 +56,10 @@ end
 
 function self:GetRootView ()
 	return self.RootView
+end
+
+function self:GetKeyboard ()
+	return self.Keyboard
 end
 
 function self:CreateHandle (view, parentHandle)

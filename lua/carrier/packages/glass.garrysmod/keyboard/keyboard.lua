@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.Keyboard = Class (self, Glass.IKeyboard)
+Keyboard = Class (self, Glass.IKeyboard)
 
 function self:ctor ()
 end
@@ -15,5 +15,3 @@ end
 function self:IsAltDown ()
 	return input.IsKeyDown (KEY_LALT)
 end
-
-GarrysMod.Keyboard = GarrysMod.Keyboard ()

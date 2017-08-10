@@ -20,6 +20,10 @@ function self:GetRootView ()
 	Error ("IEnvironment:GetRootView : Not implemented.")
 end
 
+function self:GetKeyboard ()
+	Error ("IEnvironment:GetKeyboard : Not implemented.")
+end
+
 function self:CreateHandle (view, parentHandle)
 	Error ("IEnvironment:CreateHandle : Not implemented.")
 end
