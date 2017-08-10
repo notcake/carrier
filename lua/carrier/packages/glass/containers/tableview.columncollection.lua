@@ -10,6 +10,8 @@ self.ColumnInserted = Event ()
 self.ColumnRemoved  = Event ()
 
 function self:ctor ()
+	self.ListenerName = "Glass.TableView.ColumnCollection." .. self:GetHashCode ()
+	
 	self.Columns     = {}
 	self.ColumnsById = {}
 end
@@ -34,9 +36,9 @@ function self:Clear ()
 	
 	for i = #self.Columns, 1, -1 do
 		local column = self.Columns [i]
-		column.AlignmentChanged:RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
-		column.WidthChanged    :RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
-		column.VisibleChanged  :RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
+		column.AlignmentChanged:RemoveListener (self.ListenerName)
+		column.WidthChanged    :RemoveListener (self.ListenerName)
+		column.VisibleChanged  :RemoveListener (self.ListenerName)
 		
 		self.Columns [i] = nil
 	end
@@ -60,9 +62,9 @@ function self:Insert (i, id, name)
 	table.insert (self.Columns, i, column)
 	self.ColumnsById [id] = column
 	
-	column.AlignmentChanged:AddListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode (), self, self.DispatchLayoutChanged)
-	column.WidthChanged    :AddListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode (), self, self.DispatchLayoutChanged)
-	column.VisibleChanged  :AddListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode (), self, self.DispatchLayoutChanged)
+	column.AlignmentChanged:AddListener (self.ListenerName, self, self.DispatchLayoutChanged)
+	column.WidthChanged    :AddListener (self.ListenerName, self, self.DispatchLayoutChanged)
+	column.VisibleChanged  :AddListener (self.ListenerName, self, self.DispatchLayoutChanged)
 	
 	if i == #self.Columns then
 		self.ColumnAdded:Dispatch (column)
@@ -85,8 +87,9 @@ function self:Remove (iOrColumn)
 	local column = self.Columns [i]
 	table.remove (self.Columns, i)
 	
-	column.WidthChanged  :RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
-	column.VisibleChanged:RemoveListener ("Glass.TableView.ColumnCollection." .. self:GetHashCode ())
+	column.AlignmentChanged:RemoveListener (self.ListenerName)
+	column.WidthChanged    :RemoveListener (self.ListenerName)
+	column.VisibleChanged  :RemoveListener (self.ListenerName)
 	
 	self.ColumnRemoved:Dispatch (i, column)
 	self.LayoutChanged:Dispatch ()
