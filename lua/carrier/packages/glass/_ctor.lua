@@ -57,6 +57,14 @@ include ("animations/interpolators.lua")
 include ("view.lua")
 include ("label.lua")
 
+include ("scrollbars/scrollbar.lua")
+include ("scrollbars/scrollbar.button.lua")
+include ("scrollbars/scrollbar.buttonbehaviour.lua")
+include ("scrollbars/scrollbar.grip.lua")
+include ("scrollbars/verticalscrollbar.lua")
+include ("scrollbars/horizontalscrollbar.lua")
+include ("scrollbars/scrollbarcorner.lua")
+
 include ("containers/listview.lua")
 include ("containers/ilistviewdatasource.lua")
 include ("containers/listviewitem.lua")
@@ -117,6 +125,10 @@ function Glass.Initialize (destinationTable)
 	
 	destinationTable.View                   = Glass.View
 	destinationTable.Label                  = Glass.Label
+	
+	destinationTable.VerticalScrollbar      = Glass.VerticalScrollbar
+	destinationTable.HorizontalScrollbar    = Glass.HorizontalScrollbar
+	destinationTable.ScrollbarCorner        = Glass.ScrollbarCorner
 	
 	destinationTable.IListViewDataSource    = Glass.IListViewDataSource
 	destinationTable.ITableViewDataSource   = Glass.ITableViewDataSource

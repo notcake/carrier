@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.ScrollbarCorner = Class (self, Glass.View)
+Glass.ScrollbarCorner = Class (self, Glass.View)
 
 function self:ctor ()
 end
@@ -7,7 +7,14 @@ end
 -- IView
 -- Content layout
 function self:GetPreferredSize (maximumWidth, maximumHeight)
-	return GarrysMod.Skin.Default.Metrics.ScrollbarThickness, GarrysMod.Skin.Default.Metrics.ScrollbarThickness
+	local thickness = self:GetThickness ()
+	return thickness, thickness
+end
+
+-- ScrollbarCorner
+-- Metrics
+function self:GetThickness ()
+	return self:GetSkin ():GetScrollbarThickness ()
 end
 
 -- Internal

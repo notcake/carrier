@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.VerticalScrollbar = Class (self, Scrollbar)
+Glass.VerticalScrollbar = Class (self, Scrollbar)
 
 function self:ctor ()
 	self.UpButton = Scrollbar.Button (Glass.Direction.Up)

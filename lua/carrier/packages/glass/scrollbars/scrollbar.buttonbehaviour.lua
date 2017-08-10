@@ -9,7 +9,7 @@ function self:ctor (scrollbar, button, smallIncrementMultiplier)
 	
 	self.HoldAnimation = nil
 	
-	self.Button.MouseDown:AddListener ("Glass.GarrysMod.Scrollbar.ButtonBehaviour." .. self:GetHashCode (),
+	self.Button.MouseDown:AddListener ("Glass.Scrollbar.ButtonBehaviour." .. self:GetHashCode (),
 		function (mouseButtons, x, y)
 			if mouseButtons == Glass.MouseButtons.Left then
 				self.HoldAnimation = self.Scrollbar:CreateAnimation (
@@ -21,7 +21,7 @@ function self:ctor (scrollbar, button, smallIncrementMultiplier)
 			end
 		end
 	)
-	self.Button.MouseUp:AddListener ("Glass.GarrysMod.Scrollbar.ButtonBehaviour." .. self:GetHashCode (),
+	self.Button.MouseUp:AddListener ("Glass.Scrollbar.ButtonBehaviour." .. self:GetHashCode (),
 		function (mouseButtons, x, y)
 			if mouseButtons == Glass.MouseButtons.Left then
 				self.Scrollbar:RemoveAnimation (self.HoldAnimation)
@@ -32,6 +32,6 @@ function self:ctor (scrollbar, button, smallIncrementMultiplier)
 end
 
 function self:dtor ()
-	self.Button.MouseDown:RemoveListener ("Glass.GarrysMod.Scrollbar.ButtonBehaviour." .. self:GetHashCode ())
-	self.Button.MouseUp  :RemoveListener ("Glass.GarrysMod.Scrollbar.ButtonBehaviour." .. self:GetHashCode ())
+	self.Button.MouseDown:RemoveListener ("Glass.Scrollbar.ButtonBehaviour." .. self:GetHashCode ())
+	self.Button.MouseUp  :RemoveListener ("Glass.Scrollbar.ButtonBehaviour." .. self:GetHashCode ())
 end

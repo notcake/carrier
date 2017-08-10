@@ -26,14 +26,6 @@ include ("layout/contentalignment.lua")
 include ("window.lua")
 include ("window.restorebutton.lua")
 
-include ("scrollbars/scrollbar.lua")
-include ("scrollbars/scrollbar.button.lua")
-include ("scrollbars/scrollbar.buttonbehaviour.lua")
-include ("scrollbars/scrollbar.grip.lua")
-include ("scrollbars/verticalscrollbar.lua")
-include ("scrollbars/horizontalscrollbar.lua")
-include ("scrollbars/scrollbarcorner.lua")
-
 include ("externalview.lua")
 
 include ("environment.lua")
