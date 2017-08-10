@@ -18,8 +18,8 @@ end
 
 -- View
 -- Internal
-function self:CreatePanel ()
-	return self:GetEnvironment ():CreateLabelHandle (self)
+function self:CreateHandleInEnvironment (environment, parent)
+	return environment:CreateLabelHandle (self, parent:GetHandle ())
 end
 
 -- Label

@@ -14,8 +14,6 @@ Glass.Initialize (GarrysMod)
 
 Photon = require ("Photon.GarrysMod")
 
-include ("environment.lua")
-
 include ("fonts/font.lua")
 
 include ("defaultskin.lua")
@@ -42,6 +40,8 @@ include ("scrollbars/horizontalscrollbar.lua")
 include ("scrollbars/scrollbarcorner.lua")
 
 include ("externalview.lua")
+
+include ("environment.lua")
 
 -- Desktop
 include ("desktop.lua")

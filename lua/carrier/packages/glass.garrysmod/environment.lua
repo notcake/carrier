@@ -1,7 +1,7 @@
 local self = {}
 GarrysMod.Environment = Class (self, Glass.IEnvironment)
 
-local vgui_CreateX              = vgui.CreateX
+local vgui_CreateX                    = vgui.CreateX
 
 local Panel = FindMetaTable ("Panel")
 local Panel_CursorPos                 = Panel.CursorPos
@@ -31,6 +31,8 @@ local Panel_SetVisible                = Panel.SetVisible
 
 function self:ctor ()
 	self.HandleViews = setmetatable ({}, { __mode = "k" })
+	
+	self.RootView = self:GetView (vgui.GetWorldPanel ())
 end
 
 -- IEnvironment
@@ -42,8 +44,12 @@ function self:GetTextRenderer ()
 	return Photon.TextRenderer
 end
 
-function self:CreateHandle (view)
-	local handle = vgui_CreateX ("Panel")
+function self:GetRootView ()
+	return self.RootView
+end
+
+function self:CreateHandle (view, parentHandle)
+	local handle = vgui_CreateX ("Panel", parentHandle)
 	
 	self:SetRectangle (view, handle, view:GetRectangle ())
 	if not view:IsVisible () then
@@ -59,8 +65,8 @@ function self:CreateHandle (view)
 	return handle
 end
 
-function self:CreateWindowHandle (view)
-	local handle = vgui.Create ("DFrame")
+function self:CreateWindowHandle (view, parentHandle)
+	local handle = vgui.Create ("DFrame", parentHandle)
 	
 	self:InstallPanelEvents (view, handle)
 	self:RegisterView (handle, view)
@@ -68,8 +74,8 @@ function self:CreateWindowHandle (view)
 	return handle
 end
 
-function self:CreateLabelHandle (view)
-	local handle = vgui_CreateX ("Label")
+function self:CreateLabelHandle (view, parentHandle)
+	local handle = vgui_CreateX ("Label", parentHandle)
 	Panel_SetPaintBackgroundEnabled (handle, false)
 	
 	handle.ApplySchemeSettings = function (handle)
@@ -98,20 +104,20 @@ end
 
 -- View
 -- Hierarchy
-function self:AddChild (view, handle, childView)
-	Panel_SetParent (childView:GetHandle (), handle)
-end
-
-function self:RemoveChild (view, handle, childView)
-	Panel_SetParent (childView:GetHandle (), nil)
-end
-
 function self:GetParent (view, handle)
 	return self:GetView (handle:GetParent ())
 end
 
 function self:SetParent (view, handle, parentHandle)
 	Panel_SetParent (handle, parentHandle)
+end
+
+function self:BringChildToFront (view, handle, childHandle)
+	Panel_MoveToFront (childHandle)
+end
+
+function self:SendChildToBack (view, handle, childHandle)
+	Panel_MoveToBack (childHandle)
 end
 
 -- Bounds
@@ -152,14 +158,6 @@ function self:SetSize (view, handle, w, h)
 end
 
 -- Layout
-function self:BringToFront (view, handle)
-	Panel_MoveToFront (handle)
-end
-
-function self:MoveToBack (view, handle)
-	Panel_MoveToBack (handle)
-end
-
 function self:InvalidateLayout (view, handle)
 	Panel_InvalidateLayout (handle)
 end
@@ -213,27 +211,7 @@ end
 
 -- Animations
 function self:AddAnimation (view, handle, animation)
-	if handle.ThinkHandlerInstalled then return end
-	
-	handle.ThinkHandlerInstalled = true
-	
-	local defaultThink = handle.Think
-	handle.Think = function (_)
-		if defaultThink then
-			defaultThink (_)
-		end
-		
-		-- Run animations
-		local t = Clock ()
-		view:UpdateAnimations (t)
-		
-		-- Remove Think handler if all
-		-- animations have completed
-		if view:GetAnimationCount () == 0 then
-			handle.Think = defaultThink
-			handle.ThinkHandlerInstalled = false
-		end
-	end
+	self:InstallThink (view, handle)
 end
 
 function self:RemoveAnimation (view, handle, animation)
@@ -296,7 +274,7 @@ function self:GetView (handle)
 		return nil
 	end
 	
-	view = ExternalView (handle)
+	view = ExternalView (self, handle)
 	self:RegisterView (handle, view)
 	
 	return view
@@ -372,8 +350,39 @@ function self:InstallPanelEvents (view, handle)
 			onRemove (handle)
 		end
 		
-		self:UnregisterView (handle, view)
-		view:OnHandleDestroyed ()
+		-- Unlink and call IView:DestroyHandle if it hasn't already happened
+		if self.HandleViews [handle] then
+			self:UnregisterView (handle, view)
+			view:DestroyHandle ()
+		end
+	end
+	
+	if view:GetAnimationCount () > 0 then
+		self:InstallThink (view, handle)
+	end
+end
+
+function self:InstallThink (view, handle)
+	if handle.ThinkHandlerInstalled then return end
+	
+	handle.ThinkHandlerInstalled = true
+	
+	local defaultThink = handle.Think
+	handle.Think = function (_)
+		if defaultThink then
+			defaultThink (_)
+		end
+		
+		-- Run animations
+		local t = Clock ()
+		view:UpdateAnimations (t)
+		
+		-- Remove Think handler if all
+		-- animations have completed
+		if view:GetAnimationCount () == 0 then
+			handle.Think = defaultThink
+			handle.ThinkHandlerInstalled = false
+		end
 	end
 end
 

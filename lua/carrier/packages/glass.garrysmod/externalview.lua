@@ -1,13 +1,16 @@
 local self = {}
 ExternalView = Class (self, GarrysMod.View)
 
-function self:ctor (panel)
-	self.Handle = panel
-	
-	GarrysMod.Environment:RegisterView (panel, self)
+function self:ctor (environment, panel)
+	self:InjectHandle (environment, panel)
 end
 
 -- IView
+-- Hierarchy
+function self:GetParent ()
+	return self.Environment:GetParent (self, self.Handle)
+end
+
 -- Layout
 function self:GetRectangle ()
 	local x, y = self:GetPosition ()

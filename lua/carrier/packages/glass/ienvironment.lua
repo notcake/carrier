@@ -12,15 +12,19 @@ function self:GetTextRenderer ()
 	Error ("IEnvironment:GetTextRenderer : Not implemented.")
 end
 
-function self:CreateHandle (view)
+function self:GetRootView ()
+	Error ("IEnvironment:GetRootView : Not implemented.")
+end
+
+function self:CreateHandle (view, parentHandle)
 	Error ("IEnvironment:CreateHandle : Not implemented.")
 end
 
-function self:CreateWindowHandle (view)
+function self:CreateWindowHandle (view, parentHandle)
 	Error ("IEnvironment:CreateWindowHandle : Not implemented.")
 end
 
-function self:CreateLabelHandle (view)
+function self:CreateLabelHandle (view, parentHandle)
 	Error ("IEnvironment:CreateLabelHandle : Not implemented.")
 end
 
@@ -36,6 +40,14 @@ end
 
 function self:SetParent (view, handle, parentHandle)
 	Error ("IEnvironment:SetParent : Not implemented.")
+end
+
+function self:BringChildToFront (view, handle, childHandle)
+	Error ("IEnvironment:BringChildToFront : Not implemented.")
+end
+
+function self:SendChildToBack (view, handle, childHandle)
+	Error ("IEnvironment:SendChildToBack : Not implemented.")
 end
 
 -- Bounds
@@ -64,14 +76,6 @@ function self:SetSize (view, handle, w, h)
 end
 
 -- Layout
-function self:BringToFront (view, handle)
-	Error ("IEnvironment:BringToFront : Not implemented.")
-end
-
-function self:MoveToBack (view, handle)
-	Error ("IEnvironment:MoveToBack : Not implemented.")
-end
-
 function self:InvalidateLayout (view, handle)
 	Error ("IEnvironment:InvalidateLayout : Not implemented.")
 end

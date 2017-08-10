@@ -2,16 +2,18 @@ local self = {}
 GarrysMod.View = Class (self, IView)
 
 function self:ctor ()
-	self.Environment = GarrysMod.Environment
+	self.Environment = nil
+	self.Handle      = nil
 	
-	self.Handle = nil
+	self.Parent      = nil
+	self.Children    = nil
 	
-	self.X       = 0
-	self.Y       = 0
-	self.Width   = 128
-	self.Height  = 128
-	self.Visible = true
-	self.Cursor  = Glass.Cursor.Default
+	self.X           = 0
+	self.Y           = 0
+	self.Width       = 128
+	self.Height      = 128
+	self.Visible     = true
+	self.Cursor      = Glass.Cursor.Default
 	
 	self.RectangleAnimator = nil
 	
@@ -21,7 +23,7 @@ end
 
 function self:dtor ()
 	if self.Handle then
-		self.Environment:DestroyHandle (self, self.Handle)
+		self:DestroyHandle ()
 	end
 end
 
@@ -30,18 +32,39 @@ end
 function self:GetEnvironment ()
 	return self.Environment
 end
-local DummyPanel = {}
-function DummyPanel:IsValid ()
-	Error ("Cannot use View:GetHandle () within View:CreatePanel ()!")
-end
-function DummyPanel:Remove () end
 
-function self:GetHandle ()
-	if not self.Handle then
-		self.Handle = DummyPanel
-		self.Handle = self:CreatePanel ()
+function self:CreateHandle ()
+	if self.Handle then return self.Handle end
+	
+	-- Create own handle
+	self.Environment = self:GetParent ():GetEnvironment ()
+	self.Handle = self:CreateHandleInEnvironment (self.Environment, self:GetParent ())
+	
+	-- Create child handles recursively
+	if self.Children then
+		for i = 1, #self.Children do
+			self.Children [i]:CreateHandle ()
+		end
+	end
+end
+
+function self:DestroyHandle ()
+	if not self.Handle then return end
+	
+	-- Destroy child handles recursively
+	if self.Children then
+		for i = 1, #self.Children do
+			self.Children [i]:DestroyHandle ()
+		end
 	end
 	
+	-- Destroy own handle
+	self.Environment:DestroyHandle (self, self.Handle)
+	self.Environment = nil
+	self.Handle = nil
+end
+
+function self:GetHandle ()
 	return self.Handle
 end
 
@@ -51,22 +74,85 @@ end
 
 -- Hierarchy
 function self:AddChild (view)
-	self.Environment:AddChild (self, self:GetHandle (), view)
+	-- Add to children
+	self.Children = self.Children or {}
+	self.Children [#self.Children + 1] = view
+	
+	-- Update parent
+	view:SetParent (self)
 end
 
 function self:RemoveChild (view)
-	self.Environment:RemoveChild (self, self:GetHandle (), view)
+	-- Remove from children
+	local childIndex = self:IndexOfChild (view)
+	if not childIndex then return end
+	
+	table.remove (self.Children, childIndex)
+	
+	-- Update parent
+	if view:GetParent () == self then
+		view:SetParent (nil)
+	end
 end
 
 function self:GetParent ()
-	return self.Environment:GetParent (self, self:GetHandle ())
+	return self.Parent
 end
 
 function self:SetParent (view)
+	if self.Parent == view then return end
+	
+	local previousParent = self.Parent
+	local previousEnvironment = previousParent and previousParent:GetEnvironment ()
+	self.Parent = view
+	
+	if previousParent then
+		previousParent:RemoveChild (self)
+	end
+	
 	if view then
 		view:AddChild (self)
+	end
+	
+	local environment = view and view:GetEnvironment ()
+	
+	if previousEnvironment == environment then
+		-- Reparent within the same environment
+		if self.Handle then
+			self.Environment:SetParent (self, self.Handle, view:GetHandle ())
+		end
 	else
-		self.Environment:SetParent (self, self:GetHandle (), nil)
+		-- Switch environments
+		if previousEnvironment then
+			self:DestroyHandle ()
+		end
+		if environment then
+			self:CreateHandle ()
+		end
+	end
+end
+
+function self:BringChildToFront (view)
+	local childIndex = self:IndexOfChild (view)
+	if not childIndex then return end
+	
+	table.remove (self.Children, childIndex)
+	self.Children [#self.Children + 1] = view
+	
+	if self.Handle then
+		self.Environment:BringChildToFront (self, self.Handle, view:GetHandle ())
+	end
+end
+
+function self:SendChildToBack (view)
+	local childIndex = self:IndexOfChild (view)
+	if not childIndex then return end
+	
+	table.remove (self.Children, childIndex)
+	table.insert (self.Children, 1, view)
+	
+	if self.Handle then
+		self.Environment:SendChildToBack (self, self.Handle, view:GetHandle ())
 	end
 end
 
@@ -128,17 +214,26 @@ end
 
 function self:SetPosition (x, y)
 	self.X, self.Y = x, y
-	self.Environment:SetPosition (self, self:GetHandle (), x, y)
+	
+	if self.Handle then
+		self.Environment:SetPosition (self, self.Handle, x, y)
+	end
 end
 
 function self:SetX (x)
 	self.X = x
-	self.Environment:SetPosition (self, self:GetHandle (), x, self.Y)
+	
+	if self.Handle then
+		self.Environment:SetPosition (self, self.Handle, x, self.Y)
+	end
 end
 
 function self:SetY (y)
 	self.Y = y
-	self.Environment:SetPosition (self, self:GetHandle (), self.X, y)
+	
+	if self.Handle then
+		self.Environment:SetPosition (self, self.Handle, self.X, y)
+	end
 end
 
 self.SetPosition = AnimatedRectangleSetter2 (self.SetPosition, "Position")
@@ -159,30 +254,31 @@ end
 
 function self:SetSize (w, h)
 	self.Width, self.Height = w, h
-	self.Environment:SetSize (self, self:GetHandle (), w, h)
+	
+	if self.Handle then
+		self.Environment:SetSize (self, self.Handle, w, h)
+	end
 end
 
 function self:SetWide (w)
 	self.Width = w
-	self.Environment:SetSize (self, self:GetHandle (), w, self.Height)
+	
+	if self.Handle then
+		self.Environment:SetSize (self, self.Handle, w, self.Height)
+	end
 end
 
 function self:SetHeight (h)
 	self.Height = h
-	self.Environment:SetSize (self, self:GetHandle (), self.Width, h)
+	
+	if self.Handle then
+		self.Environment:SetSize (self, self.Handle, self.Width, h)
+	end
 end
 
 self.SetSize   = AnimatedRectangleSetter2 (self.SetSize,   "Size")
 self.SetWidth  = AnimatedRectangleSetter1 (self.SetWidth,  "Width")
 self.SetHeight = AnimatedRectangleSetter1 (self.SetHeight, "Height")
-
-function self:BringToFront ()
-	self.Environment:BringToFront (self, self:GetHandle ())
-end
-
-function self:SendToBack ()
-	self.Environment:SendToBack (self, self:GetHandle ())
-end
 
 -- Content layout
 function self:InvalidateLayout ()
@@ -306,10 +402,6 @@ function self:UpdateAnimations (t)
 end
 
 -- Internal
-function self:OnHandleDestroyed ()
-	self.Handle = nil
-end
-
 function self:OnMouseDown (mouseButtons, x, y) end
 function self:OnMouseMove (mouseButtons, x, y) end
 function self:OnMouseUp   (mouseButtons, x, y) end
@@ -323,16 +415,27 @@ function self:Render (w, h, render2d) end
 
 -- View
 -- Internal
-function self:CreatePanel ()
-	return self.Environment:CreateHandle (self)
+function self:CreateHandleInEnvironment (environment, parent)
+	return environment:CreateHandle (self, parent:GetHandle ())
 end
 
-function self:InjectPanel (panel)
-	if self.Handle and self.Handle:IsValid () then
-		self.Handle:Remove ()
+function self:InjectHandle (environment, handle)
+	self:DestroyHandle ()
+	
+	self.Environment = environment
+	self.Handle      = handle
+end
+
+function self:IndexOfChild (view)
+	if not self.Children then return nil end
+	
+	for i = 1, #self.Children do
+		if self.Children [i] == view then
+			return i
+		end
 	end
 	
-	self.Handle = panel
+	return nil
 end
 
 function self:CreateRectangleAnimator ()

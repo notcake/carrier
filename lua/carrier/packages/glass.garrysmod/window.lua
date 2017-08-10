@@ -110,6 +110,8 @@ function self:ctor ()
 	)
 	
 	self:SetVisible (false)
+	
+	self:SetParent (GarrysMod.Environment:GetRootView ())
 end
 
 -- IView
@@ -236,8 +238,8 @@ function self:SetTitle (title)
 end
 
 -- View
-function self:CreatePanel ()
-	local panel = self:GetEnvironment ():CreateWindowHandle (self)
+function self:CreateHandleInEnvironment (environment, parent)
+	local panel = environment:CreateWindowHandle (self, parent:GetHandle ())
 	panel:SetSizable (self:IsResizable ())
 	panel:SetDeleteOnClose (false)
 	panel:MakePopup ()

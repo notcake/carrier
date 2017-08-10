@@ -22,6 +22,14 @@ function self:GetEnvironment ()
 	Error ("IView:GetEnvironment : Not implemented.")
 end
 
+function self:CreateHandle ()
+	Error ("IView:CreateHandle : Not implemented.")
+end
+
+function self:DestroyHandle ()
+	Error ("IView:DestroyHandle : Not implemented.")
+end
+
 function self:GetHandle ()
 	Error ("IView:GetHandle : Not implemented.")
 end
@@ -45,6 +53,14 @@ end
 
 function self:SetParent (view)
 	Error ("IView:SetParent : Not implemented.")
+end
+
+function self:BringChildToFront (view)
+	Error ("IView:BringChildToFront : Not implemented.")
+end
+
+function self:SendChildToBack (view)
+	Error ("IView:SendChildToBack : Not implemented.")
 end
 
 -- Layout
@@ -117,11 +133,11 @@ function self:Center (animation)
 end
 
 function self:BringToFront ()
-	Error ("IView:BringToFront : Not implemented.")
+	self:GetParent ():BringChildToFront (self)
 end
 
 function self:SendToBack ()
-	Error ("IView:SendToBack : Not implemented.")
+	self:GetParent ():SendChildToBack (self)
 end
 
 -- Content layout
@@ -217,8 +233,6 @@ function self:UpdateAnimations (t)
 end
 
 -- Internal
-function self:OnHandleDestroyed () end
-
 function self:OnEnvironmentAttached (environment) end
 function self:OnEnvironmentDetached (environment) end
 
