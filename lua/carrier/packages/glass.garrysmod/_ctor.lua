@@ -9,14 +9,11 @@ require ("Pylon.Enumeration").Initialize (_ENV)
 Color = require ("Pylon.Color")
 
 Glass = require ("Glass")
-Glass.Initialize (_ENV)
 Glass.Initialize (GarrysMod)
 
 Photon = require ("Photon.GarrysMod")
 
-include ("fonts/font.lua")
-
-include ("defaultskin.lua")
+FontCache = require ("GarrysMod.FontCache")
 
 include ("mouse/cursor.lua")
 include ("mouse/mousebuttons.lua")
@@ -26,10 +23,8 @@ include ("keyboard/keyboard.lua")
 
 include ("layout/contentalignment.lua")
 
-include ("view.lua")
 include ("window.lua")
 include ("window.restorebutton.lua")
-include ("label.lua")
 
 include ("scrollbars/scrollbar.lua")
 include ("scrollbars/scrollbar.button.lua")

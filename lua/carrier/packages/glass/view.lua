@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.View = Class (self, IView)
+Glass.View = Class (self, Glass.IView)
 
 function self:ctor ()
 	self.Environment = nil
@@ -36,8 +36,11 @@ end
 function self:CreateHandle ()
 	if self.Handle then return self.Handle end
 	
+	local t0 = SysTime()
+	
 	-- Create own handle
 	self.Environment = self:GetParent ():GetEnvironment ()
+	self:OnSkinChanged (self.Environment:GetSkin ())
 	self.Handle = self:CreateHandleInEnvironment (self.Environment, self:GetParent ())
 	
 	-- Create child handles recursively
@@ -70,6 +73,12 @@ end
 
 function self:IsHandleCreated ()
 	return self.Handle ~= nil
+end
+
+-- Skin
+function self:GetSkin ()
+	if not self.Environment then return nil end
+	return self.Environment:GetSkin ()
 end
 
 -- Hierarchy

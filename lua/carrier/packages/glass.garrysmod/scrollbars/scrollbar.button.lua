@@ -1,7 +1,7 @@
 ﻿local self = {}
-Scrollbar.Button = Class (self, GarrysMod.View, Glass.IButton)
+Scrollbar.Button = Class (self, Glass.View, Glass.IButton)
 
-local font = GarrysMod.Font.Create ("Webdings", 20)
+local font = Glass.Font ("Webdings", 20)
 
 function self:ctor (direction)
 	self.Direction = direction
@@ -27,7 +27,7 @@ function self:Render (w, h, render2d)
 	elseif self.Direction == Glass.Direction.Down  then glyph = "▼"
 	elseif self.Direction == Glass.Direction.Left  then glyph = "◀"
 	elseif self.Direction == Glass.Direction.Right then glyph = "▶" end
-	self:GetEnvironment ():GetTextRenderer ():DrawTextAligned (glyph, font, GarrysMod.Skin.Default.Colors.Text, 0.5 * w, 0.5 * h, Glass.HorizontalAlignment.Center, Glass.VerticalAlignment.Center)
+	self:GetEnvironment ():GetTextRenderer ():DrawTextAligned (glyph, font, self:GetSkin ():GetTextColor (), 0.5 * w, 0.5 * h, Glass.HorizontalAlignment.Center, Glass.VerticalAlignment.Center)
 end
 
 -- Button

@@ -30,6 +30,10 @@ local Panel_SetTextInset              = Panel.SetTextInset
 local Panel_SetVisible                = Panel.SetVisible
 
 function self:ctor ()
+	self.Skin = Glass.Skin ()
+	
+	self.FontCache = FontCache
+	
 	self.HandleViews = setmetatable ({}, { __mode = "k" })
 	
 	self.RootView = self:GetView (vgui.GetWorldPanel ())
@@ -44,6 +48,10 @@ function self:GetTextRenderer ()
 	return Photon.TextRenderer
 end
 
+function self:GetSkin ()
+	return self.Skin
+end
+
 function self:GetRootView ()
 	return self.RootView
 end
@@ -51,16 +59,10 @@ end
 function self:CreateHandle (view, parentHandle)
 	local handle = vgui_CreateX ("Panel", parentHandle)
 	
-	self:SetRectangle (view, handle, view:GetRectangle ())
-	if not view:IsVisible () then
-		self:SetVisible (view, handle, view:IsVisible ())
-	end
-	if view:GetCursor () ~= Glass.Cursor.Default then
-		self:SetCursor (view, handle, view:GetCursor ())
-	end
-	
 	self:InstallPanelEvents (view, handle)
 	self:RegisterView (handle, view)
+	
+	self:ApplyViewProperties (view, handle)
 	
 	return handle
 end
@@ -70,6 +72,8 @@ function self:CreateWindowHandle (view, parentHandle)
 	
 	self:InstallPanelEvents (view, handle)
 	self:RegisterView (handle, view)
+	
+	self:ApplyViewProperties (view, handle)
 	
 	return handle
 end
@@ -85,11 +89,15 @@ function self:CreateLabelHandle (view, parentHandle)
 	self:InstallPanelEvents (view, handle)
 	self:RegisterView (handle, view)
 	
+	self:ApplyViewProperties (view, handle)
+	
 	self:SetLabelText (view, handle, view:GetText ())
+	-- No need to update text class, since it only updates the font, which we do below
+	-- self:SetLabelTextClass (view, handle, view:GetText ())
 	self:SetLabelFont (view, handle, view:GetFont ())
+	-- No need to update vertical alignment, since both alignments are updated simultaneously
 	self:SetLabelHorizontalAlignment (view, handle, view:GetHorizontalAlignment ())
 	-- self:SetLabelVerticalAlignment (view, handle, view:GetVerticalAlignment ())
-	-- No need to update vertical alignment, since both alignments are updated simultaneously
 	
 	return handle
 end
@@ -246,12 +254,19 @@ function self:SetLabelText (view, handle, text)
 	Panel_SetText (handle, text)
 end
 
-function self:SetLabelFont (view, handle, font)
-	Panel_SetFontInternal (handle, font:GetId ())
+function self:SetLabelTextClass (view, handle, textClass)
+	if handle:GetFont () ~= nil then return end
+	local font = self.Skin:GetFont (textClass)
+	Panel_SetFontInternal (handle, self.FontCache:GetFontId (font))
 end
 
 function self:SetLabelTextColor (view, handle, textColor)
 	Panel_SetFGColor (handle, Color.ToRGBA8888 (textColor))
+end
+
+function self:SetLabelFont (view, handle, font)
+	local font = font or self.Skin:GetFont (view:GetTextClass ())
+	Panel_SetFontInternal (handle, self.FontCache:GetFontId (font))
 end
 
 function self:SetLabelHorizontalAlignment (view, handle, horizontalAlignment)
@@ -262,6 +277,15 @@ end
 
 function self:SetLabelVerticalAlignment (view, handle, verticalAlignment)
 	Panel_SetContentAlignment (handle, ContentAlignment.FromAlignment (view:GetHorizontalAlignment (), verticalAlignment))
+end
+
+-- Window
+function self:GetWindowTitle (view, handle)
+	return handle:GetTitle ()
+end
+
+function self:SetWindowTitle (view, handle, title)
+	handle:SetTitle (title)
 end
 
 -- Environment
@@ -359,6 +383,16 @@ function self:InstallPanelEvents (view, handle)
 	
 	if view:GetAnimationCount () > 0 then
 		self:InstallThink (view, handle)
+	end
+end
+
+function self:ApplyViewProperties (view, handle)
+	self:SetRectangle (view, handle, view:GetRectangle ())
+	if not view:IsVisible () then
+		self:SetVisible (view, handle, view:IsVisible ())
+	end
+	if view:GetCursor () ~= Glass.Cursor.Default then
+		self:SetCursor (view, handle, view:GetCursor ())
 	end
 end
 

@@ -1,5 +1,5 @@
 local self = {}
-Scrollbar = Class (self, GarrysMod.View)
+Scrollbar = Class (self, Glass.View)
 
 self.Scroll         = Event ()
 self.ScrollAnimated = Event ()
@@ -56,7 +56,7 @@ function self:GetOrientation ()
 end
 
 function self:GetThickness ()
-	return GarrysMod.Skin.Default.Metrics.ScrollbarThickness
+	return self:GetSkin ():GetScrollbarThickness ()
 end
 
 function self:GetTrackSize ()

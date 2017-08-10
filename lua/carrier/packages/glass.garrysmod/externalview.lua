@@ -1,5 +1,5 @@
 local self = {}
-ExternalView = Class (self, GarrysMod.View)
+ExternalView = Class (self, Glass.View)
 
 function self:ctor (environment, panel)
 	self:InjectHandle (environment, panel)

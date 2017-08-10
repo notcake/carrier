@@ -38,6 +38,11 @@ function self:IsHandleCreated ()
 	Error ("IView:IsHandleCreated : Not implemented.")
 end
 
+-- Skin
+function self:GetSkin ()
+	Error ("IView:GetSkin : Not implemented.")
+end
+
 -- Hierarchy
 function self:AddChild (view)
 	Error ("IView:AddChild : Not implemented.")
@@ -127,7 +132,10 @@ function self:SetHeight (h, animation)
 end
 
 function self:Center (animation)
-	local parentWidth, parentHeight = self:GetParent ():GetSize ()
+	local parent = self:GetParent ()
+	if not parent then return end
+	
+	local parentWidth, parentHeight = parent:GetSize ()
 	local w, h = self:GetSize ()
 	self:SetPosition (0.5 * (parentWidth - w), 0.5 * (parentHeight - h), animation)
 end
@@ -233,8 +241,7 @@ function self:UpdateAnimations (t)
 end
 
 -- Internal
-function self:OnEnvironmentAttached (environment) end
-function self:OnEnvironmentDetached (environment) end
+function self:OnSkinChanged (skin) end
 
 function self:OnLayout (contentWidth, contentHeight) end
 

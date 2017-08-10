@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.Window.RestoreButton = Class (self, GarrysMod.View)
+GarrysMod.Window.RestoreButton = Class (self, Glass.View)
 
 function self:ctor ()
 	self.ButtonBehaviour = Glass.ButtonBehaviour (self)

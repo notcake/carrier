@@ -84,6 +84,9 @@ function Glass.ListView (UI)
 	-- IView
 	-- Internal
 	function self:OnLayout (w, h)
+		local Profiler = Carrier.LoadPackage ("dt.Profiler").Profiler
+		Profiler:BeginSection ("Glass.ListView.OnLayout")
+		
 		if not self.ZOrderValid then
 			self:LayoutZOrder ()
 		end
@@ -109,6 +112,8 @@ function Glass.ListView (UI)
 		
 		-- Invalidate visible range on height change
 		-- Invalidate scroll position on height change
+		
+		Profiler:EndSection ()
 	end
 	
 	function self:OnMouseWheel (delta)

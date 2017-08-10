@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.Window = Class (self, GarrysMod.View, IWindow)
+GarrysMod.Window = Class (self, Glass.View, Glass.IWindow)
 
 local DragMode = Enum (
 	{
@@ -18,6 +18,8 @@ local ResizeDirection = Enum (
 )
 
 function self:ctor ()
+	self.Title = ""
+	
 	self.TitleBarHeight = 24
 	
 	self.Maximizable = true
@@ -110,8 +112,6 @@ function self:ctor ()
 	)
 	
 	self:SetVisible (false)
-	
-	self:SetParent (GarrysMod.Environment:GetRootView ())
 end
 
 -- IView
@@ -218,8 +218,8 @@ function self:Render (w, h, render2d)
 	
 	render.SetStencilEnable (false)
 	
-	-- render2d:FillRectangle (Color.WithAlpha (GarrysMod.Skin.Default.Colors.Background, 0xC0), 0, 0, w, h)
-	render2d:FillRectangle (GarrysMod.Skin.Default.Colors.Background, 0, 0, w, h)
+	-- render2d:FillRectangle (Color.WithAlpha (self:GetEnvironment ():GetSkin ():GetBackgroundColor (), 0xC0), 0, 0, w, h)
+	render2d:FillRectangle (self:GetEnvironment ():GetSkin ():GetBackgroundColor (), 0, 0, w, h)
 	
 	if self:GetHandle ():HasHierarchicalFocus () then
 		render2d:DrawRectangle (Color.CornflowerBlue, 0, 0, w, h)
@@ -230,11 +230,17 @@ end
 
 -- IWindow
 function self:GetTitle ()
-	return self:GetHandle ():GetTitle ()
+	return self.Title
 end
 
 function self:SetTitle (title)
-	self:GetHandle ():SetTitle (title)
+	if self.Title == title then return end
+	
+	self.Title = title
+	
+	if self:IsHandleCreated () then
+		self:GetEnvironment ():SetWindowTitle (self, self:GetHandle (), title)
+	end
 end
 
 -- View
@@ -256,8 +262,8 @@ function self:CreateHandleInEnvironment (environment, parent)
 	
 	panel:SetMinWidth (8 + 24 + 4 + 31 + 31 + 31 + 4)
 	
-	panel.lblTitle:SetFont (GarrysMod.Skin.Default.Fonts.Default:GetId ())
-	panel.lblTitle:SetTextColor (_G.Color (Color.ToRGBA8888 (GarrysMod.Skin.Default.Colors.Text)))
+	panel.lblTitle:SetFont (FontCache:GetFontId (environment:GetSkin ():GetDefaultFont ()))
+	panel.lblTitle:SetTextColor (_G.Color (Color.ToRGBA8888 (environment:GetSkin ():GetTextColor ())))
 	
 	return panel
 end

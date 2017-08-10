@@ -1,5 +1,5 @@
 local self = {}
-GarrysMod.ScrollbarCorner = Class (self, GarrysMod.View)
+GarrysMod.ScrollbarCorner = Class (self, Glass.View)
 
 function self:ctor ()
 end

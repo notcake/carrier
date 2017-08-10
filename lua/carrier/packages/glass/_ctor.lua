@@ -19,8 +19,13 @@ Color = require ("Pylon.Color")
 
 include ("ienvironment.lua")
 
-include ("fonts/ifont.lua")
+include ("iskin.lua")
+include ("skin.lua")
+
 include ("fonts/fontweight.lua")
+include ("fonts/ifont.lua")
+include ("fonts/font.lua")
+include ("textclass.lua")
 
 include ("layout/horizontalalignment.lua")
 include ("layout/verticalalignment.lua")
@@ -36,6 +41,7 @@ include ("behaviours/buttonbehaviour.lua")
 include ("behaviours/dragbehaviour.lua")
 
 include ("iview.lua")
+include ("ilabel.lua")
 include ("ibutton.lua")
 include ("iwindow.lua")
 
@@ -47,6 +53,9 @@ include ("animations/valueanimator.lua")
 include ("animations/vector2danimator.lua")
 include ("animations/rectangleanimator.lua")
 include ("animations/interpolators.lua")
+
+include ("view.lua")
+include ("label.lua")
 
 include ("containers/listview.lua")
 include ("containers/ilistviewdatasource.lua")
@@ -71,8 +80,15 @@ include ("glyph.lua")
 function Glass.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
 	
-	destinationTable.IFont                  = Glass.IFont
+	destinationTable.IEnvironment           = Glass.IEnvironment
+	
+	destinationTable.ISkin                  = Glass.ISkin
+	destinationTable.Skin                   = Glass.Skin
+	
 	destinationTable.FontWeight             = Glass.FontWeight
+	destinationTable.IFont                  = Glass.IFont
+	destinationTable.Font                   = Glass.Font
+	destinationTable.TextClass              = Glass.TextClass
 	
 	destinationTable.HorizontalAlignment    = Glass.HorizontalAlignment
 	destinationTable.VerticalAlignment      = Glass.VerticalAlignment
@@ -85,6 +101,7 @@ function Glass.Initialize (destinationTable)
 	destinationTable.IKeyboard              = Glass.IKeyboard
 	
 	destinationTable.IView                  = Glass.IView
+	destinationTable.ILabel                 = Glass.ILabel
 	destinationTable.IButton                = Glass.IButton
 	destinationTable.IWindow                = Glass.IWindow
 	
@@ -97,6 +114,9 @@ function Glass.Initialize (destinationTable)
 	destinationTable.RectangleAnimator      = Glass.RectangleAnimator
 	
 	destinationTable.Interpolators          = Glass.Interpolators
+	
+	destinationTable.View                   = Glass.View
+	destinationTable.Label                  = Glass.Label
 	
 	destinationTable.IListViewDataSource    = Glass.IListViewDataSource
 	destinationTable.ITableViewDataSource   = Glass.ITableViewDataSource

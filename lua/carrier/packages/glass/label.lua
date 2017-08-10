@@ -1,10 +1,11 @@
 local self = {}
-GarrysMod.Label = Class (self, GarrysMod.View, ILabel)
+Glass.Label = Class (self, Glass.View, Glass.ILabel)
 
 function self:ctor ()
 	self.Text = ""
-	self.TextColor = Color.Black
-	self.Font = GarrysMod.Skin.Default.Fonts.Default
+	self.TextClass = Glass.TextClass.Default
+	self.TextColor = nil
+	self.Font = nil
 	self.HorizontalAlignment = Glass.HorizontalAlignment.Left
 	self.VerticalAlignment   = Glass.VerticalAlignment.Center
 end
@@ -16,23 +17,32 @@ function self:GetPreferredSize (maximumWidth, maximumHeight)
 	return self:GetEnvironment ():GetLabelPreferredSize (self, self:GetHandle (), maximumWidth, maximumHeight)
 end
 
+-- Internal
+function self:OnSkinChanged (skin)
+	self:SetTextColor (skin:GetTextColor ())
+end
+
 -- View
 -- Internal
 function self:CreateHandleInEnvironment (environment, parent)
 	return environment:CreateLabelHandle (self, parent:GetHandle ())
 end
 
--- Label
+-- ILabel
 function self:GetText ()
 	return self.Text
 end
 
-function self:GetFont ()
-	return self.Font
+function self:GetTextClass ()
+	return self.TextClass
 end
 
 function self:GetTextColor ()
 	return self.TextColor
+end
+
+function self:GetFont ()
+	return self.Font
 end
 
 function self:GetHorizontalAlignment ()
@@ -53,13 +63,13 @@ function self:SetText (text)
 	end
 end
 
-function self:SetFont (font)
-	if self.Font == font then return end
+function self:SetTextClass(textClass)
+	if self.TextClass == textClass then return end
 	
-	self.Font = font
+	self.TextClass = textClass
 	
 	if self:IsHandleCreated () then
-		self:GetEnvironment ():SetLabelFont (self, self:GetHandle (), self.Font)
+		self:GetEnvironment ():SetLabelTextClass (self, self:GetHandle (), self.TextClass)
 	end
 end
 
@@ -70,6 +80,16 @@ function self:SetTextColor (textColor)
 	
 	if self:IsHandleCreated () then
 		self:GetEnvironment ():SetLabelTextColor (self, self:GetHandle (), self.TextColor)
+	end
+end
+
+function self:SetFont (font)
+	if self.Font == font then return end
+	
+	self.Font = font
+	
+	if self:IsHandleCreated () then
+		self:GetEnvironment ():SetLabelFont (self, self:GetHandle (), self.Font)
 	end
 end
 

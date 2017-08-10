@@ -9,14 +9,14 @@ end
 function self:GetTextSize (text, font)
 	local text = self:Delocalize (text)
 	
-	surface.SetFont (font:GetId ())
+	surface.SetFont (FontCache:GetFontId (font))
 	return surface.GetTextSize (text)
 end
 
 function self:DrawText (text, font, color, x, y)
 	local text = self:Delocalize (text)
 	
-	surface.SetFont (font:GetId ())
+	surface.SetFont (FontCache:GetFontId (font))
 	surface.SetTextColor (Color.ToRGBA8888 (color))
 	surface.SetTextPos (x, y)
 	surface.DrawText (text)
@@ -31,7 +31,7 @@ function self:DrawTextAligned (text, font, color, x, y, horizontalAlignment, ver
 	
 	local text = self:Delocalize (text)
 	
-	surface.SetFont (font:GetId ())
+	surface.SetFont (FontCache:GetFontId (font))
 	surface.SetTextColor (Color.ToRGBA8888 (color))
 	
 	local w, h = surface.GetTextSize (text)

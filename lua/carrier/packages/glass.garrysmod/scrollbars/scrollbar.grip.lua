@@ -1,5 +1,5 @@
 local self = {}
-Scrollbar.Grip = Class (self, GarrysMod.View)
+Scrollbar.Grip = Class (self, Glass.View)
 
 function self:ctor (orientation)
 	self.Orientation = orientation

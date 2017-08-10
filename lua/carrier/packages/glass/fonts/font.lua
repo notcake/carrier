@@ -1,32 +1,12 @@
 local self = {}
-GarrysMod.Font = Class (self, IFont)
+Glass.Font = Class (self, IFont)
 
-function GarrysMod.Font.Create (name, size, weight)
-	local weight = weight or FontWeight.Regular
+function self:ctor (name, size, weight)
+	local weight = weight or Glass.FontWeight.Regular
 	
-	local id = "Glass.GarrysMod.Font_" .. name .. "_" .. size .. "_" .. weight
-	
-	surface.CreateFont (id,
-		{
-			font     = name,
-			size     = size,
-			weight   = weight,
-			extended = true
-		}
-	)
-	
-	return GarrysMod.Font (id, name, size, weight)
-end
-
-function self:ctor (id, name, size, weight)
-	self.Id     = id
 	self.Name   = name
 	self.Size   = size
 	self.Weight = weight
-end
-
-function self:GetId ()
-	return self.Id
 end
 
 function self:GetName ()

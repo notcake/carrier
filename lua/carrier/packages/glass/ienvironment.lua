@@ -12,6 +12,10 @@ function self:GetTextRenderer ()
 	Error ("IEnvironment:GetTextRenderer : Not implemented.")
 end
 
+function self:GetSkin ()
+	Error ("IEnvironment:GetSkin : Not implemented.")
+end
+
 function self:GetRootView ()
 	Error ("IEnvironment:GetRootView : Not implemented.")
 end
@@ -124,12 +128,16 @@ function self:GetLabelText (view, handle)
 	Error ("IEnvironment:GetLabelText : Not implemented.")
 end
 
-function self:GetLabelFont (view, handle)
-	Error ("IEnvironment:GetLabelFont : Not implemented.")
+function self:GetLabelTextClass (view, handle)
+	Error ("IEnvironment:GetLabelTextClass : Not implemented.")
 end
 
 function self:GetLabelTextColor (view, handle)
 	Error ("IEnvironment:GetLabelTextColor : Not implemented.")
+end
+
+function self:GetLabelFont (view, handle)
+	Error ("IEnvironment:GetLabelFont : Not implemented.")
 end
 
 function self:GetHorizontalAlignment (view, handle)
@@ -144,12 +152,25 @@ function self:SetLabelText (view, handle, text)
 	Error ("IEnvironment:SetLabelText : Not implemented.")
 end
 
-function self:SetLabelFont (view, handle, font)
-	Error ("IEnvironment:SetLabelFont : Not implemented.")
+function self:SetLabelTextClass (view, handle, textClass)
+	Error ("IEnvironment:SetLabelTextClass : Not implemented.")
 end
 
 function self:SetLabelTextColor (view, handle, textColor)
 	Error ("IEnvironment:SetLabelTextColor : Not implemented.")
+end
+
+function self:SetLabelFont (view, handle, font)
+	Error ("IEnvironment:SetLabelFont : Not implemented.")
+end
+
+-- Window
+function self:GetWindowTitle (view, handle)
+	Error ("IEnvironment:GetWindowTitle : Not implemented.")
+end
+
+function self:SetWindowTitle (view, handle, title)
+	Error ("IEnvironment:SetWindowTitle : Not implemented.")
 end
 
 function self:SetHorizontalAlignment (view, handle, horizontalAlignment)
