@@ -81,6 +81,8 @@ function self:CreateWindowHandle (view, parentHandle)
 	
 	self:ApplyViewProperties (view, handle)
 	
+	self:SetWindowTitle (view, handle, view:GetTitle ())
+	
 	return handle
 end
 
