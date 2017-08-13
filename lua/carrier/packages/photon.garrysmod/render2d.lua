@@ -4,7 +4,7 @@ Render2d = Class (self, Photon.IRender2d)
 function self:ctor (graphicsContext)
 	self.GraphicsContext = graphicsContext
 	
-	self.GlyphRenderer = GlyphRenderer (self.GraphicsContext)
+	self.GlyphRenderer = GlyphRenderer (self.GraphicsContext, self)
 end
 
 function self:dtor ()
@@ -34,6 +34,18 @@ function self:FillRectangle (color, x, y, w, h)
 	surface.DrawRect (x, y, w, h)
 end
 
-function self:DrawGlyph (glyph, color, x, y)
-	self.GlyphRenderer:DrawGlyph (glyph, color, x, y)
+function self:FillPolygon (color, polygon)
+	draw.NoTexture ()
+	surface.SetDrawColor (Color.ToRGBA8888 (color))
+	
+	local t = {}
+	for i = 1, polygon:GetPointCount () do
+		local x, y = polygon:GetPoint (i)
+		t [#t + 1] = { x = x, y = y }
+	end
+	surface.DrawPoly (t)
+end
+
+function self:DrawGlyph (color, glyph, x, y)
+	self.GlyphRenderer:DrawGlyph (color, glyph, x, y)
 end

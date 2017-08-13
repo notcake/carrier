@@ -40,7 +40,7 @@ end
 
 function self:WithRenderTarget (renderTarget, f)
 	self:PushRenderTarget (renderTarget)
-	local success, err = pcall (f)
+	local success, err = xpcall (f, debug.traceback)
 	self:PopRenderTarget ()
 	
 	if not success then

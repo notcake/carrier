@@ -14,6 +14,7 @@ include ("itexture.lua")
 include ("irendertarget.lua")
 
 include ("glyph.lua")
+include ("polygon.lua")
 
 function Photon.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
@@ -27,6 +28,7 @@ function Photon.Initialize (destinationTable)
 	destinationTable.IRenderTarget    = Photon.IRenderTarget
 	
 	destinationTable.Glyph            = Photon.Glyph
+	destinationTable.Polygon          = Photon.Polygon
 	
 	return destinationTable
 end

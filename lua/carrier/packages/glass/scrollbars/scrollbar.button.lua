@@ -22,12 +22,12 @@ function self:Render (w, h, render2d)
 		render2d:FillRectangle (Color.WithAlpha (Color.LightBlue, 192), 0, 0, w, h)
 	end
 	
-	local glyph = ""
-	if     self.Direction == Glass.Direction.Up    then glyph = "▲"
-	elseif self.Direction == Glass.Direction.Down  then glyph = "▼"
-	elseif self.Direction == Glass.Direction.Left  then glyph = "◀"
-	elseif self.Direction == Glass.Direction.Right then glyph = "▶" end
-	self:GetEnvironment ():GetTextRenderer ():DrawTextAligned (glyph, font, self:GetSkin ():GetTextColor (), 0.5 * w, 0.5 * h, Glass.HorizontalAlignment.Center, Glass.VerticalAlignment.Center)
+	local glyph = Scrollbar.Button.Glyphs.Up
+	if     self.Direction == Glass.Direction.Up    then glyph = Scrollbar.Button.Glyphs.Up
+	elseif self.Direction == Glass.Direction.Down  then glyph = Scrollbar.Button.Glyphs.Down
+	elseif self.Direction == Glass.Direction.Left  then glyph = Scrollbar.Button.Glyphs.Left
+	elseif self.Direction == Glass.Direction.Right then glyph = Scrollbar.Button.Glyphs.Right end
+	render2d:DrawGlyph (Color.WithAlpha (Color.Black, 0xE8), glyph, 0.5 * (self:GetWidth () - glyph:GetWidth ()), 0.5 * (self:GetHeight () - glyph:GetHeight ()))
 end
 
 -- Button

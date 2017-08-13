@@ -35,9 +35,9 @@ function self:dtor ()
 end
 
 -- GlyphRenderer
-function self:DrawGlyph (glyph, color, x, y)
+function self:DrawGlyph (color, glyph, x, y)
 	local allocation = self:CacheGlyph (glyph)
-	if allocation then
+	if allocation and _G.AAA then
 		local cacheX, cacheY = allocation.X, allocation.Y
 
 		surface.SetMaterial (self.AtlasMaterial)
@@ -56,7 +56,7 @@ function self:DrawGlyph (glyph, color, x, y)
 		local matrix = Matrix ()
 		matrix:Translate (Vector (x, y, 0))
 		cam.PushModelMatrix (matrix)
-		local success, err = pcall (glyph.Render, glyph, self.Render2d, color)
+		local success, err = xpcall (glyph.Render, debug.traceback, glyph, self.Render2d, color)
 		cam.PopModelMatrix ()
 		
 		if not success then
@@ -121,7 +121,7 @@ function self:CacheGlyph (glyph)
 						local matrix = Matrix ()
 						matrix:Translate (Vector (dxs [i], dys [i], 0))
 						cam.PushModelMatrix (matrix)
-						local success, err = pcall (glyph.Render, glyph, self.Render2d, Color.White)
+						local success, err = xpcall (glyph.Render, debug.traceback, glyph, self.Render2d, Color.White)
 						cam.PopModelMatrix ()
 						cam.End2D ()
 						
@@ -165,7 +165,7 @@ function self:FindRow (width, height)
 	
 	for i = 1, #self.Rows do
 		local row = self.Rows [i]
-		if row.Height >= glyph:GetHeight () then
+		if row.Height >= height then
 			if #row == 0 then return row end
 			
 			if self.Atlas:GetWidth () - row [#row].X - row [#row].Width >= width then
