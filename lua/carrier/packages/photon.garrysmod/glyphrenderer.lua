@@ -37,7 +37,7 @@ end
 -- GlyphRenderer
 function self:DrawGlyph (color, glyph, x, y)
 	local allocation = self:CacheGlyph (glyph)
-	if allocation and _G.AAA then
+	if allocation then
 		local cacheX, cacheY = allocation.X, allocation.Y
 
 		surface.SetMaterial (self.AtlasMaterial)

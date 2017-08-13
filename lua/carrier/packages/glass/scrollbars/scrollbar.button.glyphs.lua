@@ -21,5 +21,4 @@ for name, polygon in pairs (Scrollbar.Button.Polygons) do
 			render2d:FillConvexPolygon (color, polygon)
 		end
 	)
-
 end
