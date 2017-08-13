@@ -19,3 +19,7 @@ end
 function self:FillRectangle (color, x, y, w, h)
 	Error ("IRender2d:FillRectangle : Not implemented.")
 end
+
+function self:DrawGlyph (glyph, color, x, y)
+	Error ("IRender2d:DrawGlyph : Not implemented.")
+end

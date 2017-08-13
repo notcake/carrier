@@ -1,9 +1,9 @@
 local self = {}
-Glass.Glyph = Class (self)
+Photon.Glyph = Class (self)
 
-function self:ctor (w, h, renderer)
-	self.Width  = w
-	self.Height = h
+function self:ctor (width, height, renderer)
+	self.Width  = width
+	self.Height = height
 	
 	self.Renderer = renderer
 end
@@ -20,6 +20,6 @@ function self:GetHeight ()
 	return self.Height
 end
 
-function self:Render (render2d)
-	self.Renderer (render2d)
+function self:Render (render2d, color)
+	self.Renderer (render2d, color)
 end

@@ -5,6 +5,7 @@ require ("Pylon.OOP").Initialize (_ENV)
 Color = require ("Pylon.Color")
 
 Photon = require ("Photon")
+Photon.Initialize (GarrysMod)
 
 Glass = require ("Glass")
 
@@ -14,6 +15,11 @@ include ("graphicscontext.lua")
 include ("render2d.lua")
 include ("render3d.lua")
 include ("textrenderer.lua")
+
+include ("texture.lua")
+include ("rendertarget.lua")
+
+include ("glyphrenderer.lua")
 
 GarrysMod.GraphicsContext = GraphicsContext ()
 GarrysMod.Render2d        = GarrysMod.GraphicsContext.Render2d

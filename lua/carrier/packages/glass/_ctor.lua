@@ -17,6 +17,8 @@ Pool = require ("Pylon.Pool")
 
 Color = require ("Pylon.Color")
 
+Photon = require ("Photon")
+
 include ("ienvironment.lua")
 
 include ("iskin.lua")
@@ -82,8 +84,6 @@ include ("containers/itableviewdatasource.lua")
 include ("containers/tableviewcolumn.lua")
 include ("containers/tableviewcolumntype.lua")
 include ("containers/treetableview.lua")
-
-include ("glyph.lua")
 
 function Glass.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
