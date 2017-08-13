@@ -34,7 +34,7 @@ function self:FillRectangle (color, x, y, w, h)
 	surface.DrawRect (x, y, w, h)
 end
 
-function self:FillPolygon (color, polygon)
+function self:FillConvexPolygon (color, polygon)
 	draw.NoTexture ()
 	surface.SetDrawColor (Color.ToRGBA8888 (color))
 	

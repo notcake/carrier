@@ -20,8 +20,8 @@ function self:FillRectangle (color, x, y, w, h)
 	Error ("IRender2d:FillRectangle : Not implemented.")
 end
 
-function self:FillPolygon (color, polygon)
-	Error ("IRender2d:FillPolygon : Not implemented.")
+function self:FillConvexPolygon (color, polygon)
+	Error ("IRender2d:FillConvexPolygon : Not implemented.")
 end
 
 function self:DrawGlyph (color, glyph, x, y)

@@ -18,7 +18,7 @@ Scrollbar.Button.Polygons.Down:Rotate (math.rad (180), 8, 8)
 for name, polygon in pairs (Scrollbar.Button.Polygons) do
 	Scrollbar.Button.Glyphs [name] = Photon.Glyph (16, 16,
 		function (render2d, color)
-			render2d:FillPolygon (color, polygon)
+			render2d:FillConvexPolygon (color, polygon)
 		end
 	)
 
