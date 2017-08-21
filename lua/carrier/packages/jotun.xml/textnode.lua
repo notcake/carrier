@@ -1,5 +1,5 @@
 local self = {}
-Xml.TextNode = Class (self, Node)
+Xml.TextNode = Class (self, Xml.Node)
 
 function self:ctor (text)
 	self.Text = text

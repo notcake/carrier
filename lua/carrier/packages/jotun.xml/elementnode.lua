@@ -1,5 +1,5 @@
 local self = {}
-Xml.ElementNode = Class (self, Node)
+Xml.ElementNode = Class (self, Xml.Node)
 
 function self:ctor (name)
 	self.Name = name
@@ -26,7 +26,7 @@ function self:ToString ()
 	if self:GetChildCount () > 0 then
 		str = str .. ">"
 		for node in self:GetChildEnumerator () do
-			str = str .. tostring (node)
+			str = str .. node:ToString ()
 		end
 		str = str .. "</" .. self.Name .. ">"
 	else

