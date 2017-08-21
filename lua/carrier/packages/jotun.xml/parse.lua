@@ -3,7 +3,7 @@ local rightAngleBracket = string.byte (">")
 local exclamationMark   = string.byte ("!")
 local forwardSlash      = string.byte ("/")
 
-function Xml.Parse (str)
+function Xml.Parse (str, yield)
 	local stack = {}
 	
 	local parser = StringParser (str)
@@ -13,13 +13,14 @@ function Xml.Parse (str)
 		if parser:AcceptLiteral ("<") then
 			parser:AcceptWhitespace ()
 			
-			if parser:Accept ("/") then
+			if parser:AcceptLiteral ("/") then
 				-- Closing tag
 				parser:AcceptWhitespace ()
 				
 				local name = parser:AcceptPattern ("[^ \r\n\t>]+")
 				parser:AcceptWhitespace ()
 				parser:AcceptLiteral (">")
+				parser:AcceptWhitespace ()
 				
 				-- Remove element from stack
 				if stack [#stack] and
@@ -32,8 +33,16 @@ function Xml.Parse (str)
 				
 				-- Advance
 				startIndex = nextStartIndex
-			elseif parser:Accept ("!") then
-				assert (false)
+			elseif parser:AcceptLiteral ("!") then
+				if parser:AcceptLiteral ("[CDATA[") then
+					local text = parser:AcceptPattern ("(.-)()]]>") or
+								 parser:AcceptPattern ("(.-)()$")
+					parser:AcceptLiteral ("]]>")
+					parser:AcceptWhitespace ()
+					yield (Xml.TagType.Text, Xml.TextNode (text))
+				else
+					assert(false)
+				end
 			else
 				-- Opening tag
 				local name = parser:AcceptPattern ("[^ \r\n\t/>]+")

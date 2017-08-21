@@ -75,29 +75,35 @@ function Enumeration.SingleValueEnumerator (v)
 	)
 end
 
-function Enumeration.YieldEnumerator (f)
-	local thread = coroutine_create (f)
+function Enumeration.YieldEnumerator (f, ...)
+	local argumentCount, arguments = CompactList.Pack (...)
+	argumentCount, arguments = CompactList.Append (argumentCount, arguments, coroutine.yield)
+	
+	local thread = coroutine_create (
+		function ()
+			return f (CompactList.Unpack (argumentCount, arguments))
+		end
+	)
 	return EnumeratorFunction:RegisterFunction (
 		function ()
 			if coroutine_status (thread) == "dead" then return nil end
-			local success, a, b, c, d, e, f = coroutine_resume (thread)
-			if not success then
-				Error (a)
-				return nil
-			end
-			return a, b, c, d, e, f
+			
+			return (
+				function (success, ...)
+					if not success then
+						Error (...)
+						return nil
+					end
+					
+					return ...
+				end
+			) (coroutine_resume (thread))
 		end
 	)
 end
 
 function Enumeration.YieldEnumeratorFactory (f)
 	return function (...)
-		local argumentCount, arguments = CompactList.Pack (...)
-		
-		return Enumerator.YieldEnumerator (
-			function ()
-				return f (CompactList.Unpack (argumentCount, arguments))
-			end
-		)
+		return Enumeration.YieldEnumerator (f, ...)
 	end
 end

@@ -1,4 +1,4 @@
-Glass = {}
+Xml = {}
 
 Error = require ("Pylon.Error")
 
@@ -17,5 +17,17 @@ include ("elementnode.lua")
 include ("commentnode.lua")
 include ("textnode.lua")
 include ("parse.lua")
+
+local escapes =
+{
+	["&"] = "&amp;",
+	["<"] = "&lt;",
+	[">"] = "&gt;",
+	["\""] = "&quot;"
+}
+
+function Xml.Escape (str)
+	return string.gsub (str, "[&<>\"]", escapes)
+end
 
 return Xml

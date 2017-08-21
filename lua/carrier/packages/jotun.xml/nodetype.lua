@@ -1,7 +1,7 @@
 Xml.NodeType = Enum (
 	{
-		Element,
-		Comment,
-		Text
+		Element = 1,
+		Comment = 4,
+		Text    = 8
 	}
 )

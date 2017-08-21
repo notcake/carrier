@@ -5,6 +5,10 @@ function self:ctor ()
 	self.Parent = nil
 end
 
+function self:GetNodeType ()
+	Error ("Node:GetNodeType : Not implemented.")
+end
+
 function self:GetParent ()
 	return self.Parent
 end
@@ -21,4 +25,8 @@ function self:SetParent (element)
 	if self.Parent then
 		self.Parent:AddChild (self)
 	end
+end
+
+function self:ToString ()
+	Error ("Node:ToString : Not implemented.")
 end

@@ -11,6 +11,32 @@ function self:ctor (name)
 	self.AttributeValues  = nil
 end
 
+-- Node
+function self:GetNodeType ()
+	return Xml.NodeType.Element
+end
+
+function self:ToString ()
+	local str = "<" .. self.Name
+	
+	for name, value in self:GetAttributeEnumerator () do
+		str = str .. " " .. name .. "=\"" .. Xml.Escape (value) .. "\""
+	end
+	
+	if self:GetChildCount () > 0 then
+		str = str .. ">"
+		for node in self:GetChildEnumerator () do
+			str = str .. tostring (node)
+		end
+		str = str .. "</" .. self.Name .. ">"
+	else
+		str = str .. "/>"
+	end
+	
+	return str
+end
+
+-- ElementNode
 function self:GetName ()
 	return self.Name
 end
@@ -23,6 +49,16 @@ function self:AddChild (node)
 	self.Children [#self.Children + 1] = node
 	
 	node:SetParent (self)
+end
+
+function self:GetChild (i)
+	if not self.Children then return nil end
+	return self.Children [i]
+end
+
+function self:GetChildCount ()
+	if not self.Children then return 0 end
+	return #self.Children
 end
 
 function self:GetChildEnumerator ()
@@ -79,6 +115,18 @@ function self:GetAttribute (name)
 	local index = self.AttributeIndices [name] or
 	              self.AttributeIndices [string.lower (name)]
 	return self.AttributeValues [index]
+end
+
+function self:GetAttributeEnumerator ()
+	if not self.AttributeNames then
+		return function () return nil, nil end
+	end
+	
+	local i = 0
+	return function ()
+		i = i + 1
+		return self.AttributeNames [i], self.AttributeValues [i]
+	end
 end
 
 function self:RemoveAttribute (name)

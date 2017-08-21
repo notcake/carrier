@@ -5,6 +5,11 @@ function self:ctor (text)
 	self.Text = text
 end
 
-function self:__tostring ()
-	return self.Text
+-- Node
+function self:GetNodeType ()
+	return Xml.NodeType.Text
+end
+
+function self:ToString ()
+	return Xml.Escape (self.Text)
 end
