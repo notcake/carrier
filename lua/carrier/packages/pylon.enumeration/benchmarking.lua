@@ -70,7 +70,7 @@ end
 function YieldEnumeratorFactory (f)
 	return function (...)
 		local arguments = {...}
-		local argumentCount = table.maxn (arguments)
+		local argumentCount = select ("#", ...)
 		
 		return YieldEnumerator (
 			function ()

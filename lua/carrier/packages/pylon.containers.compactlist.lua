@@ -1,5 +1,8 @@
 local CompactList = {}
 
+local select = select
+local unpack = unpack
+
 function CompactList.Append (n, data, x)
 	if n == 0 then
 		return 1, x

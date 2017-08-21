@@ -1,10 +1,10 @@
-local pairs  = pairs
-local unpack = unpack
+local CompactList = require ("Pylon.Containers.CompactList")
+
+local pairs = pairs
 
 local coroutine_create = coroutine.create
 local coroutine_resume = coroutine.resume
 local coroutine_status = coroutine.status
-local table_maxn       = table.maxn
 
 function Enumeration.ArrayEnumerator (tbl)
 	local i = 0
@@ -92,12 +92,11 @@ end
 
 function Enumeration.YieldEnumeratorFactory (f)
 	return function (...)
-		local arguments = {...}
-		local argumentCount = table_maxn (arguments)
+		local argumentCount, arguments = CompactList.Pack (...)
 		
 		return Enumerator.YieldEnumerator (
 			function ()
-				return f (unpack (arguments, 1, argumentCount))
+				return f (CompactList.Unpack (argumentCount, arguments))
 			end
 		)
 	end
