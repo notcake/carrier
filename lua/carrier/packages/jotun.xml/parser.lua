@@ -61,6 +61,25 @@ function self:ctor (str, yield)
 							stack [#stack]:RemoveChild (text)
 						end
 					end
+				elseif self.Parser:AcceptLiteral ("--") then
+					local text = self.Parser:AcceptPattern ("(.-)()%-%->") or
+								 self.Parser:AcceptPattern ("(.-)()$")
+					self.Parser:AcceptLiteral ("-->")
+					self.Parser:AcceptWhitespace ()
+					
+					-- Emit comment
+					local comment = Xml.CommentNode (text)
+					if stack [#stack] then
+						stack [#stack]:AddChild (comment)
+					end
+					
+					if yield then
+						yield (Xml.TagType.Comment, comment)
+					
+						if stack [#stack] then
+							stack [#stack]:RemoveChild (comment)
+						end
+					end
 				else
 					assert(false)
 				end
@@ -92,6 +111,10 @@ function self:ctor (str, yield)
 								local value = self.Parser:AcceptPattern ("[^\"]*")
 								element:AddAttribute (name, value)
 								self.Parser:AcceptLiteral ("\"")
+							elseif self.Parser:AcceptLiteral ("'") then
+								local value = self.Parser:AcceptPattern ("[^']*")
+								element:AddAttribute (name, value)
+								self.Parser:AcceptLiteral ("'")
 							else
 								local value = self.Parser:AcceptPattern ("[^ \t\r\n>/]*")
 								element:AddAttribute (name, value)
