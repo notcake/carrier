@@ -13,3 +13,8 @@ end
 function self:ToString ()
 	return "<!-- " .. self.Text .. " -->"
 end
+
+-- CommentNode
+function self:GetText ()
+	return self.Text
+end

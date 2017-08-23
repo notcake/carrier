@@ -84,11 +84,22 @@ function Color.PackedARGB8888.FromHTMLColor (color, a)
 	if namedColor then
 		return a == nil and namedColor or Color.PackedARGB8888.WithAlpha (namedColor, a)
 	else
-		-- #RRGGBB
+		-- #RRGGBB or #RGB
 		if string.sub (color, 1, 1) == "#" then
 			color = string.sub (color, 2)
 		end
-		return Color.PackedARGB8888.FromPackedRGB888 (tonumber (color, 16), a or 255)
+		
+		if string.len (color) == 3 then
+			local r = tonumber (string.sub (color, 1, 1), 16) or 0
+			local g = tonumber (string.sub (color, 2, 2), 16) or 0
+			local b = tonumber (string.sub (color, 3, 3), 16) or 0
+			r = r * 16 + r
+			g = g * 16 + g
+			b = b * 16 + b
+			return Color.PackedARGB8888.FromRGBA8888 (r, g, b, a or 255)
+		else
+			return Color.PackedARGB8888.FromPackedRGB888 (tonumber (color, 16) or 0, a or 255)
+		end
 	end
 end
 

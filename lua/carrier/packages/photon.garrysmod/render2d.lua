@@ -16,6 +16,10 @@ function self:GetGraphicsContext ()
 	return self.GraphicsContext
 end
 
+function self:GetTextRenderer ()
+	return self.GraphicsContext:GetTextRenderer ()
+end
+
 function self:DrawLine (color, x1, y1, x2, y2)
 	local x1, y1 = math.floor (x1), math.floor (y1)
 	local x2, y2 = math.floor (x2), math.floor (y2)

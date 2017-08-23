@@ -8,6 +8,10 @@ function self:GetGraphicsContext ()
 	Error ("IRender2d:GetGraphicsContext : Not implemented.")
 end
 
+function self:GetTextRenderer ()
+	Error ("IRender2d:GetTextRenderer : Not implemented.")
+end
+
 function self:DrawLine (color, x1, y1, x2, y2)
 	Error ("IRender2d:DrawLine : Not implemented.")
 end

@@ -13,3 +13,8 @@ end
 function self:ToString ()
 	return Xml.Escape (self.Text)
 end
+
+-- TextNode
+function self:GetText ()
+	return self.Text
+end

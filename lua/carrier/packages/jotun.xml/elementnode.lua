@@ -41,6 +41,20 @@ function self:GetName ()
 	return self.Name
 end
 
+function self:GetInnerText ()
+	local innerText = ""
+	
+	for node in self:GetChildEnumerator () do
+		if node:GetNodeType () == Xml.NodeType.Element then
+			innerText = innerText .. node:GetInnerText ()
+		elseif node:GetNodeType () == Xml.NodeType.Text then
+			innerText = innerText .. node:GetText ()
+		end
+	end
+	
+	return innerText
+end
+
 -- Children
 function self:AddChild (node)
 	if self:IndexOfChild (node) then return end

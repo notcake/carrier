@@ -26,9 +26,9 @@ function self:GetWeight ()
 end
 
 function self:WithSize (size)
-	return GarrysMod.Font.Create (self:GetName (), size, self:GetWeight ())
+	return Glass.Font (self:GetName (), size, self:GetWeight ())
 end
 
 function self:WithWeight (weight)
-	return GarrysMod.Font.Create (self:GetName (), self:GetSize (), weight)
+	return Glass.Font (self:GetName (), self:GetSize (), weight)
 end
