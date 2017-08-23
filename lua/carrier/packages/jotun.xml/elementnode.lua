@@ -76,6 +76,7 @@ function self:GetChildCount ()
 end
 
 function self:GetChildEnumerator ()
+	if not self.Children then return NullEnumerator () end
 	return ArrayEnumerator (self.Children)
 end
 
