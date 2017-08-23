@@ -187,9 +187,8 @@ function Svg.Path.FromXmlElement (element)
 			
 			x, y = x + dx, y + dy
 			path:ArcTo (x, y, rx, ry, angle, largerArc, clockwise)
-		elseif c == "Z" then
-			path:ClosePath ()
-		elseif c == "z" then
+		elseif c == "Z" or
+		       c == "z" then
 			path:ClosePath ()
 		else
 			-- ???
@@ -308,6 +307,7 @@ function self:GetEnumerator ()
 			local x, y = self.PathArguments [j], self.PathArguments [j + 1]
 			local rx, ry = self.PathArguments [j + 2], self.PathArguments [j + 3]
 			local angle, largerArc, clockwise = self.PathArguments [j + 4], self.PathArguments [j + 5], self.PathArguments [j + 6]
+			j = j + 7
 			return command, x, y, rx, ry, angle, largerArc, clockwise
 		elseif command == Svg.PathCommand.ClosePath then
 			return command

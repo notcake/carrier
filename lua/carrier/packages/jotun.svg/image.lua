@@ -32,19 +32,13 @@ function Svg.Image.FromXmlDocument (document)
 	return image
 end
 
-function self:ctor (viewX, viewY, viewWidth, viewHeight, children)
+function self:ctor (viewX, viewY, viewWidth, viewHeight)
 	self.ViewX      = viewX      or   0
 	self.ViewY      = viewY      or   0
 	self.ViewWidth  = viewWidth  or 128
 	self.ViewHeight = viewHeight or 128
 	
 	self.Children = {}
-	
-	if children then
-		for _, v in pairs (children) do
-			self.Children [#self.Children + 1] = v
-		end
-	end
 end
 
 -- View
