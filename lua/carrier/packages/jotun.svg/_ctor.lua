@@ -21,6 +21,7 @@ include ("image.lua")
 include ("element.lua")
 include ("path.lua")
 include ("pathcommand.lua")
+include ("pathparser.lua")
 include ("text.lua")
 
 return Svg

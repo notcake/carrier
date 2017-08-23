@@ -11,7 +11,7 @@ function Svg.Path.FromXmlElement (element)
 	path:SetStrokeColor (string.lower (stroke) ~= "none" and Color.FromHTMLColor (stroke) or nil)
 	
 	local d = element:GetAttribute ("d") or ""
-	local parser = StringParser (d)
+	local parser = PathParser (d)
 	
 	local x0, y0 = 0, 0
 	local x, y = 0, 0
@@ -21,169 +21,169 @@ function Svg.Path.FromXmlElement (element)
 		local c = parser:AcceptPattern (".")
 		parser:AcceptWhitespace ()
 		if c == "M" then
-			x = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			y = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			x, y = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
 			
 			x0, y0 = x, y
 			path:MoveTo (x, y)
+			
+			local x1, y1 = parser:AcceptOptionalCoordinatePair ()
+			while x1 do
+				parser:AcceptCommaWhitespace ()
+				
+				x, y = x1, y1
+				path:LineTo (x, y)
+				
+				x1, y1 = parser:AcceptOptionalCoordinatePair ()
+			end
 		elseif c == "m" then
-			local dx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dy = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dx, dy = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
 			
 			x, y = x + dx, y + dy
 			x0, y0 = x, y
 			path:MoveTo (x, y)
+			
+			dx, dy = parser:AcceptOptionalCoordinatePair ()
+			while dx do
+				parser:AcceptCommaWhitespace ()
+				
+				x, y = x + dx, y + dy
+				path:LineTo (x, y)
+				
+				dx, dy = parser:AcceptOptionalCoordinatePair ()
+			end
 		elseif c == "L" then
-			x = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			y = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			x, y = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
 			
 			path:LineTo (x, y)
+			
+			local x1, y1 = parser:AcceptOptionalCoordinatePair ()
+			while x1 do
+				parser:AcceptCommaWhitespace ()
+				
+				x, y = x1, y1
+				path:LineTo (x, y)
+				
+				x1, y1 = parser:AcceptOptionalCoordinatePair ()
+			end
 		elseif c == "l" then
-			local dx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dy = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dx, dy = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
 			
 			x, y = x + dx, y + dy
 			path:LineTo (x, y)
+			
+			dx, dy = parser:AcceptOptionalCoordinatePair ()
+			while dx do
+				parser:AcceptCommaWhitespace ()
+				
+				x, y = x + dx, y + dy
+				path:LineTo (x, y)
+				
+				dx, dy = parser:AcceptOptionalCoordinatePair ()
+			end
 		elseif c == "H" then
-			x = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			x = parser:AcceptNumber () or 0
 			
 			path:LineTo (x, y)
 		elseif c == "h" then
-			local dx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dx = parser:AcceptNumber () or 0
 			
 			x = x + dx
 			path:LineTo (x, y)
 		elseif c == "V" then
-			y = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			y = parser:AcceptNumber () or 0
 			
 			path:LineTo (x, y)
 		elseif c == "v" then
-			local dy = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dy = parser:AcceptNumber () or 0
 			
 			y = y + dy
 			path:LineTo (x, y)
 		elseif c == "Q" then
-			local controlX = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local controlX, controlY = parser:AcceptCoordinatePair ()
 			parser:AcceptPattern ("[%s,]*")
-			local controlY = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			x = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			y = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			x, y = parser:AcceptCoordinatePair ()
 			
 			path:QuadraticBezierCurveTo (x, y, controlX, controlY)
 		elseif c == "q" then
-			local dControlX = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dControlX, dControlY = parser:AcceptCoordinatePair ()
 			parser:AcceptPattern ("[%s,]*")
-			local dControlY = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dy = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dx, dy = parser:AcceptCoordinatePair ()
 			
 			local controlX, controlY = x + dControlX, y + dControlY
 			x, y = x + dx, y + dy
 			path:QuadraticBezierCurveTo (x, y, controlX, controlY)
 		elseif c == "C" then
-			local controlX1 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local controlY1 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local controlX2 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local controlY2 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			x = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			y = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local controlX1, controlY1 = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
+			local controlX2, controlY2 = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
+			x, y = parser:AcceptCoordinatePair ()
 			
 			path:CubicBezierCurveTo (x, y, controlX1, controlY1, controlX2, controlY2)
 		elseif c == "c" then
-			local dControlX1 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dControlY1 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dControlX2 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dControlY2 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dy = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dControlX1, dControlY1 = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
+			local dControlX2, dControlY2 = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
+			local dx, dy = parser:AcceptCoordinatePair ()
 			
 			local controlX1, controlY1 = x + dControlX1, y + dControlY1
 			local controlX2, controlY2 = x + dControlX2, y + dControlY2
 			x, y = x + dx, y + dy
 			path:CubicBezierCurveTo (x, y, controlX1, controlY1, controlX2, controlY2)
 		elseif c == "T" then
-			x = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			y = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			x, y = parser:AcceptCoordinatePair ()
 			
 			path:ContinueQuadraticBezierCurveTo (x, y)
 		elseif c == "t" then
-			local dx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dy = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dx, dy = parser:AcceptCoordinatePair ()
 			
 			x, y = x + dx, y + dy
 			path:ContinueQuadraticBezierCurveTo (x, y)
 		elseif c == "S" then
-			local controlX2 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local controlY2 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			x = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			y = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local controlX2, controlY2 = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
+			x, y = parser:AcceptCoordinatePair ()
 			
 			path:CubicBezierCurveTo (x, y, controlX2, controlY2)
 		elseif c == "s" then
-			local dControlX2 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dControlY2 = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dy = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local dControlX2, dControlY2 = parser:AcceptCoordinatePair ()
+			parser:AcceptCommaWhitespace ()
+			local dx, dy = parser:AcceptCoordinatePair ()
 			
 			local controlX2, controlY2 = x + dControlX2, y + dControlY2
 			x, y = x + dx, y + dy
 			path:CubicBezierCurveTo (x, y, controlX2, controlY2)
 		elseif c == "A" then
-			local rx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local ry = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local angle = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local largerArc = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) ~= 0
-			parser:AcceptPattern ("[%s,]*")
-			local clockwise = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) ~= 0
-			parser:AcceptPattern ("[%s,]*")
-			x = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			y = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local rx = parser:AcceptNumber () or 0
+			parser:AcceptCommaWhitespace ()
+			local ry = parser:AcceptNumber () or 0
+			parser:AcceptCommaWhitespace ()
+			local angle = parser:AcceptNumber () or 0
+			parser:AcceptCommaWhitespace ()
+			local largerArc = tonumber (parser:AcceptPattern ("[01]")) ~= 0
+			parser:AcceptCommaWhitespace ()
+			local clockwise = tonumber (parser:AcceptPattern ("[01]")) ~= 0
+			parser:AcceptCommaWhitespace ()
+			x, y = parser:AcceptCoordinatePair ()
 			
 			path:ArcTo (x, y, rx, ry, angle, largerArc, clockwise)
 		elseif c == "a" then
-			local rx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local ry = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local angle = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local largerArc = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) ~= 0
-			parser:AcceptPattern ("[%s,]*")
-			local clockwise = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) ~= 0
-			parser:AcceptPattern ("[%s,]*")
-			local dx = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
-			parser:AcceptPattern ("[%s,]*")
-			local dy = tonumber (parser:AcceptPattern ("%-?%d*%.?%d*")) or 0
+			local rx = parser:AcceptNumber () or 0
+			parser:AcceptCommaWhitespace ()
+			local ry = parser:AcceptNumber () or 0
+			parser:AcceptCommaWhitespace ()
+			local angle = parser:AcceptNumber () or 0
+			parser:AcceptCommaWhitespace ()
+			local largerArc = tonumber (parser:AcceptPattern ("[01]")) ~= 0
+			parser:AcceptCommaWhitespace ()
+			local clockwise = tonumber (parser:AcceptPattern ("[01]")) ~= 0
+			parser:AcceptCommaWhitespace ()
+			local dx, dy = parser:AcceptCoordinatePair ()
 			
 			x, y = x + dx, y + dy
 			path:ArcTo (x, y, rx, ry, angle, largerArc, clockwise)
