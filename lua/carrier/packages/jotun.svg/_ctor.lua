@@ -12,6 +12,8 @@ Xml = require ("Jotun.Xml")
 
 Color = require ("Pylon.Color")
 
+Cat = require ("Cat")
+
 Photon = require ("Photon")
 Glass  = require ("Glass")
 

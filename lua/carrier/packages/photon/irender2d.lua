@@ -28,6 +28,10 @@ function self:FillConvexPolygon (color, polygon)
 	Error ("IRender2d:FillConvexPolygon : Not implemented.")
 end
 
+function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundingW, boundingH)
+	Error ("IRender2d:FillPolygonEvenOdd : Not implemented.")
+end
+
 function self:DrawGlyph (color, glyph, x, y)
 	Error ("IRender2d:DrawGlyph : Not implemented.")
 end
