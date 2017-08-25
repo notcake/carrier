@@ -61,20 +61,20 @@ end
 -- Approximation
 local UnpackedVector2d_LengthSquared = Cat.UnpackedVector2d.LengthSquared
 local UnpackedQuadraticBezier2d_SubdivideHalf = Cat.UnpackedQuadraticBezier2d.SubdivideHalf
+local function UnpackedQuadraticBezier2d_ApproximateTail (x0, y0, x1, y1, x2, y2, maximumSpacingSquared, callback)
+	if UnpackedVector2d_LengthSquared (x1 - x0, y1 - y0) +
+	   UnpackedVector2d_LengthSquared (x2 - x1, y2 - y1) > maximumSpacingSquared then
+		local _, _, cx0, cy0, midX, midY,
+			  _, _, cx1, cy1, _, _ = UnpackedQuadraticBezier2d_SubdivideHalf (x0, y0, x1, y1, x2, y2)
+		UnpackedQuadraticBezier2d_ApproximateTail (x0, y0, cx0, cy0, midX, midY, maximumSpacingSquared, callback)
+		UnpackedQuadraticBezier2d_ApproximateTail (midX, midY, cx1, cy1, x2, y2, maximumSpacingSquared, callback)
+	else
+		callback (x2, y2)
+	end
+end
+
 function Cat.UnpackedQuadraticBezier2d.Approximate (x0, y0, x1, y1, x2, y2, maximumSpacing, callback)
 	callback (x0, y0)
 	
-	local function approximate (x0, y0, x1, y1, x2, y2, maximumSpacingSquared, callback)
-		if UnpackedVector2d_LengthSquared (x1 - x0, y1 - y0) +
-		   UnpackedVector2d_LengthSquared (x2 - x1, y2 - y1) > maximumSpacingSquared then
-			local _, _, cx0, cy0, midX, midY,
-			      _, _, cx1, cy1, _, _ = UnpackedQuadraticBezier2d_SubdivideHalf (x0, y0, x1, y1, x2, y2)
-			approximate (x0, y0, cx0, cy0, midX, midY, maximumSpacingSquared, callback)
-			approximate (midX, midY, cx1, cy1, x2, y2, maximumSpacingSquared, callback)
-		else
-			callback (x2, y2)
-		end
-	end
-	
-	approximate (x0, y0, x1, y1, x2, y2, maximumSpacing * maximumSpacing, callback)
+	UnpackedQuadraticBezier2d_ApproximateTail (x0, y0, x1, y1, x2, y2, maximumSpacing * maximumSpacing, callback)
 end

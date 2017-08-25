@@ -5,6 +5,9 @@ function self:ctor (graphicsContext)
 	self.GraphicsContext = graphicsContext
 	
 	self.GlyphRenderer = GlyphRenderer (self.GraphicsContext, self)
+	
+	self.ConvexPolygonBuffer = PolygonBuffer ()
+	self.EvenOddPolygonBuffers = {}
 end
 
 function self:dtor ()
@@ -42,12 +45,9 @@ function self:FillConvexPolygon (color, polygon)
 	draw.NoTexture ()
 	surface.SetDrawColor (Color.ToRGBA8888 (color))
 	
-	local t = {}
-	for i = 1, polygon:GetPointCount () do
-		local x, y = polygon:GetPoint (i)
-		t [#t + 1] = { x = x, y = y }
-	end
-	surface.DrawPoly (t)
+	self.ConvexPolygonBuffer:Bind (polygon)
+	surface.DrawPoly (self.ConvexPolygonBuffer:GetBuffer ())
+	self.ConvexPolygonBuffer:Unbind ()
 end
 
 function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundingW, boundingH)
@@ -56,16 +56,14 @@ function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundin
 	local boundingW = boundingW or ScrW ()
 	local boundingH = boundingH or ScrH ()
 	
-	local ts = {}
+	-- Resize
+	for i = #self.EvenOddPolygonBuffers + 1, #polygons do
+		self.EvenOddPolygonBuffers [i] = PolygonBuffer ()
+	end
+	
+	-- Bind
 	for i = 1, #polygons do
-		local t = {}
-		ts [#ts + 1] = t
-		
-		local polygon = polygons [i]
-		for i = 1, polygon:GetPointCount () do
-			local x, y = polygon:GetPoint (i)
-			t [#t + 1] = { x = x, y = y }
-		end
+		self.EvenOddPolygonBuffers [i]:Bind (polygons [i])
 	end
 	
 	render.SetStencilEnable (true)
@@ -75,16 +73,19 @@ function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundin
 	render.SetStencilFailOperation (STENCILOPERATION_INVERT)
 	
 	-- Note: Backface culling doesn't happen with stencils!
-	for i = 1, #ts do
-		surface.DrawPoly (ts [i])
+	for i = 1, #polygons do
+		surface.DrawPoly (self.EvenOddPolygonBuffers [i]:GetBuffer ())
+	end
+	
+	-- Unbind
+	for i = 1, #polygons do
+		self.EvenOddPolygonBuffers [i]:Unbind ()
 	end
 	
 	render.SetStencilTestMask (0x01)
 	render.SetStencilReferenceValue (0x01)
+	render.SetStencilWriteMask (0x00)
 	render.SetStencilCompareFunction (STENCILCOMPARISONFUNCTION_EQUAL)
-	render.SetStencilPassOperation (STENCILOPERATION_KEEP)
-	render.SetStencilFailOperation (STENCILOPERATION_KEEP)
-	render.SetStencilZFailOperation (STENCILOPERATION_KEEP)
 	
 	surface.SetDrawColor (Color.ToRGBA8888 (color))
 	surface.DrawRect (boundingX, boundingY, boundingW, boundingH)

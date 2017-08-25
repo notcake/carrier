@@ -212,68 +212,86 @@ end
 -- Element
 function self:Render (render2d, x, y)
 	if self.FillColor ~= nil then
-		local polygons = {}
-		local polygon = nil
-		local x0, y0 = 0, 0
-		local lastX, lastY = 0, 0
-		for command, x, y, cx1, cy1, cx2, cy2 in self:GetEnumerator () do
-			if command == Svg.PathCommand.MoveTo then
-				polygon = Photon.Polygon ()
-				polygons [#polygons + 1] = polygon
-				polygon:AddPoint (x, y)
-				x0, y0 = x, y
-			elseif command == Svg.PathCommand.LineTo then
-				if not polygon then
-					polygon = Photon.Polygon ()
-					polygons [#polygons + 1] = polygon
-					polygon:AddPoint (x0, y0)
-				end
-				
-				polygon:AddPoint (x, y)
-			elseif command == Svg.PathCommand.QuadraticBezierCurveTo then
-				if not polygon then
-					polygon = Photon.Polygon ()
-					polygons [#polygons + 1] = polygon
-					polygon:AddPoint (x0, y0)
-				end
-				
-				Cat.UnpackedQuadraticBezier2d.Approximate (lastX, lastY, cx1, cy1, x, y, 1,
-					function (x, y)
-						if Cat.UnpackedVector3d.Equals (x, y, lastX, lastY) then return end
-						
-						polygon:AddPoint (x, y)
+		if not self.Polygons then
+			local polygonCount = 0
+			self.Polygons = self.Polygons or {}
+			local polygon = nil
+			local x0, y0 = 0, 0
+			local lastX, lastY = 0, 0
+			for command, x, y, cx1, cy1, cx2, cy2 in self:GetEnumerator () do
+				if command == Svg.PathCommand.MoveTo then
+					polygonCount = polygonCount + 1
+					polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+					polygon:Clear ()
+					self.Polygons [polygonCount] = polygon
+					polygon:AddPoint (x, y)
+					x0, y0 = x, y
+				elseif command == Svg.PathCommand.LineTo then
+					if not polygon then
+						polygonCount = polygonCount + 1
+						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon:Clear ()
+						self.Polygons [polygonCount] = polygon
+						polygon:AddPoint (x0, y0)
 					end
-				)
-			elseif command == Svg.PathCommand.CubicBezierCurveTo then
-				if not polygon then
-					polygon = Photon.Polygon ()
-					polygons [#polygons + 1] = polygon
-					polygon:AddPoint (x0, y0)
-				end
-				
-				Cat.UnpackedCubicBezier2d.Approximate (lastX, lastY, cx1, cy1, cx2, cy2, x, y, 1,
-					function (x, y)
-						if Cat.UnpackedVector3d.Equals (x, y, lastX, lastY) then return end
-						
-						polygon:AddPoint (x, y)
+					
+					polygon:AddPoint (x, y)
+				elseif command == Svg.PathCommand.QuadraticBezierCurveTo then
+					if not polygon then
+						polygonCount = polygonCount + 1
+						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon:Clear ()
+						self.Polygons [polygonCount] = polygon
+						polygon:AddPoint (x0, y0)
 					end
-				)
-			elseif command == Svg.PathCommand.ClosePath then
-				polygon = nil
-			else
-				if not polygon then
-					polygon = Photon.Polygon ()
-					polygons [#polygons + 1] = polygon
-					polygon:AddPoint (x0, y0)
+					
+					Cat.UnpackedQuadraticBezier2d.Approximate (lastX, lastY, cx1, cy1, x, y, 1,
+						function (x, y)
+							if Cat.UnpackedVector3d.Equals (x, y, lastX, lastY) then return end
+							
+							polygon:AddPoint (x, y)
+						end
+					)
+				elseif command == Svg.PathCommand.CubicBezierCurveTo then
+					if not polygon then
+						polygonCount = polygonCount + 1
+						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon:Clear ()
+						self.Polygons [polygonCount] = polygon
+						polygon:AddPoint (x0, y0)
+					end
+					
+					Cat.UnpackedCubicBezier2d.Approximate (lastX, lastY, cx1, cy1, cx2, cy2, x, y, 1,
+						function (x, y)
+							if Cat.UnpackedVector3d.Equals (x, y, lastX, lastY) then return end
+							
+							polygon:AddPoint (x, y)
+						end
+					)
+				elseif command == Svg.PathCommand.ClosePath then
+					polygon = nil
+				else
+					if not polygon then
+						polygonCount = polygonCount + 1
+						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon:Clear ()
+						self.Polygons [polygonCount] = polygon
+						polygon:AddPoint (x0, y0)
+					end
+					
+					polygon:AddPoint (x, y)
 				end
 				
-				polygon:AddPoint (x, y)
+				lastX, lastY = x, y
 			end
 			
-			lastX, lastY = x, y
+			
+			for i = #self.Polygons, polygonCount + 1, -1 do
+				self.Polygons [i] = nil
+			end
 		end
 		
-		render2d:FillPolygonEvenOdd (self.FillColor, polygons)
+		render2d:FillPolygonEvenOdd (self.FillColor, self.Polygons)
 	end
 	
 	if self.StrokeColor ~= nil then

@@ -2,6 +2,7 @@ local self = {}
 Photon.Polygon = Class (self, ICloneable)
 
 function self:ctor ()
+	self.PointCount = 0
 	self.Xs = {}
 	self.Ys = {}
 	
@@ -14,14 +15,11 @@ end
 
 -- ICloneable
 function self:Copy (source)
-	for i = 1, #source.Xs do
+	for i = 1, source.PointCount do
 		self.Xs [i] = source.Xs [i]
 		self.Ys [i] = source.Ys [i]
 	end
-	for i = #self.Xs, #source.Xs + 1, -1 do
-		self.Xs [i] = nil
-		self.Ys [i] = nil
-	end
+	self.PointCount = source.PointCount
 	
 	self.BoundsValid = source.BoundsValid
 	self.MinimumX = source.MinimumX
@@ -32,9 +30,15 @@ end
 
 -- Polygon
 function self:AddPoint (x, y)
-	self.Xs [#self.Xs + 1] = x
-	self.Ys [#self.Ys + 1] = y
+	self.PointCount = self.PointCount + 1
+	self.Xs [self.PointCount] = x
+	self.Ys [self.PointCount] = y
 	
+	self.BoundsValid = false
+end
+
+function self:Clear ()
+	self.PointCount = 0
 	self.BoundsValid = false
 end
 
@@ -43,7 +47,7 @@ function self:GetPoint (i)
 end
 
 function self:GetPointCount ()
-	return #self.Xs
+	return self.PointCount
 end
 
 function self:GetBoundingRectangle ()
@@ -53,7 +57,7 @@ function self:GetBoundingRectangle ()
 		local x1 = -math.huge
 		local y1 = -math.huge
 		
-		for i = 1, #self.Xs do
+		for i = 1, self.PointCount do
 			x0 = math.min (x0, self.Xs [i])
 			x1 = math.max (x1, self.Xs [i])
 			y0 = math.min (y0, self.Ys [i])
@@ -67,7 +71,7 @@ end
 function self:Rotate (rad, x0, y0)
 	local x0, y0 = x0 or 0, y0 or 0
 	
-	for i = 1, #self.Xs do
+	for i = 1, self.PointCount do
 		local x, y = self.Xs [i] - x0, self.Ys [i] - y0
 		
 		local x1 = x * math.cos (rad) - y * math.sin (rad)
@@ -81,7 +85,7 @@ function self:Rotate (rad, x0, y0)
 end
 
 function self:Translate (dx, dy)
-	for i = 1, #self.Xs do
+	for i = 1, self.PointCount do
 		self.Xs [i] = self.Xs [i] + dx
 		self.Ys [i] = self.Ys [i] + dy
 	end

@@ -11,6 +11,8 @@ Glass = require ("Glass")
 
 FontCache = require ("GarrysMod.FontCache")
 
+include ("polygonbuffer.lua")
+
 include ("graphicscontext.lua")
 include ("render2d.lua")
 include ("render3d.lua")
