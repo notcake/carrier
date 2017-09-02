@@ -1,10 +1,10 @@
 local OOP = require ("Pylon.OOP")
 
-local string_find  = string.find
-local string_match = string.match
-
 local self = {}
 local StringParser = OOP.Class (self)
+
+local string_find  = string.find
+local string_match = string.match
 
 function self:ctor (input)
 	self.Input    = input

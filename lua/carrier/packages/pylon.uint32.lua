@@ -36,12 +36,45 @@ end
 -- ~25 ns
 function UInt32.Multiply (a, b)
 	local a0, a1 = bit_band (a, 0xFFFF), bit_rshift (a, 16)
-	local c = a0 * b
-	local low, high = c % 4294967296, math_floor (c / 4294967296)
+	local c0 = a0 * b
+	local low, high = c0 % 4294967296, math_floor (c0 / 4294967296)
 	
-	local c = a1 * b
-	low  = low  + bit_lshift (c, 16)
-	high = high + math_floor (c / 0x00010000)
+	local c1 = a1 * b
+	low  = low  + bit_lshift (c1, 16)
+	high = high + math_floor (c1 / 0x00010000)
+	
+	-- Carry
+	high = high + math_floor (low / 4294967296)
+	low  = low % 4294967296
+	
+	return low, high
+end
+
+function UInt32.MultiplyAdd1 (a, b, c)
+	local a0, a1 = bit_band (a, 0xFFFF), bit_rshift (a, 16)
+	local c0 = a0 * b
+	local low, high = c0 % 4294967296 + c, math_floor (c0 / 4294967296)
+	
+	local c1 = a1 * b
+	low  = low  + bit_lshift (c1, 16)
+	high = high + math_floor (c1 / 0x00010000)
+	
+	-- Carry
+	high = high + math_floor (low / 4294967296)
+	low  = low % 4294967296
+	
+	return low, high
+end
+UInt32.MultiplyAdd = UInt32.MultiplyAdd1
+
+function UInt32.MultiplyAdd2 (a, b, c, d)
+	local a0, a1 = bit_band (a, 0xFFFF), bit_rshift (a, 16)
+	local c0 = a0 * b
+	local low, high = c0 % 4294967296 + c + d, math_floor (c0 / 4294967296)
+	
+	local c1 = a1 * b
+	low  = low  + bit_lshift (c1, 16)
+	high = high + math_floor (c1 / 0x00010000)
 	
 	-- Carry
 	high = high + math_floor (low / 4294967296)

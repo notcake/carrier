@@ -1,8 +1,6 @@
 local UInt24 = {}
 
 local bit_band   = bit.band
-local bit_lshift = bit.lshift
-local bit_rshift = bit.rshift
 local math_floor = math.floor
 
 -- ~11 ns
@@ -32,6 +30,17 @@ end
 -- ~12 ns
 function UInt24.Multiply (a, b)
 	local c = a * b
+	return bit_band (c, 0x00FFFFFF), math_floor (c / 0x01000000)
+end
+
+function UInt24.MultiplyAdd1 (a, b, c)
+	local c = a * b + c
+	return bit_band (c, 0x00FFFFFF), math_floor (c / 0x01000000)
+end
+UInt24.MultiplyAdd = UInt24.MultiplyAdd1
+
+function UInt24.MultiplyAdd2 (a, b, c, d)
+	local c = a * b + c + d
 	return bit_band (c, 0x00FFFFFF), math_floor (c / 0x01000000)
 end
 
