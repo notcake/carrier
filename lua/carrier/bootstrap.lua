@@ -8,7 +8,7 @@ Carrier = {}
 local packages        = {}
 local orderedPackages = {} -- Package names ordered by load completion times
 
-function Carrier.Package(name)
+function Carrier.Package (name)
 	local package =
 	{
 		Name = name,
@@ -185,6 +185,8 @@ function Carrier.LoadPackage (packageName)
 	
 	return package.Exports
 end
+Carrier.Require = Carrier.LoadPackage
+Carrier.require = Carrier.LoadPackage
 
 function Carrier.UnloadPackage (packageName)
 	if not packages [packageName] then return end
