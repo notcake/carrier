@@ -5,6 +5,10 @@ local bit_lshift = bit.lshift
 local bit_rshift = bit.rshift
 local math_floor = math.floor
 
+UInt32.Minimum  = 0x00000000
+UInt32.Maximum  = 0xFFFFFFFF
+UInt32.BitCount = 32
+
 -- Note: Branchless implementations of these operations with mods and divs
 --       are faster than branching ones, except when the branch predictor
 --       is always right.
@@ -83,10 +87,20 @@ function UInt32.MultiplyAdd2 (a, b, c, d)
 	return low, high
 end
 
+function UInt32.Divide (low, high, divisor)
+	local q0, r0 = math_floor (low  / divisor), low  % divisor
+	local q1, r1 = math_floor (high / divisor), high % divisor
+	local q2, r2 = math_floor (4294967296 / divisor), 4294967296 % divisor
+	local r = r0 + r1 * r2
+	local q3, r3 = math_floor (r / divisor), r % divisor
+	return q0 + q1 * q2 * divisor + r1 * q2 + r2 * q1 + q3, r3
+end
+
 UInt32.add = UInt32.Add
 UInt32.adc = UInt32.AddWithCarry
 UInt32.sub = UInt32.Subtract
 UInt32.sbb = UInt32.SubtractWithBorrow
 UInt32.mul = UInt32.Multiply
+UInt32.div = UInt32.Divide
 
 return UInt32

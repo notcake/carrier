@@ -3,6 +3,10 @@ local UInt24 = {}
 local bit_band   = bit.band
 local math_floor = math.floor
 
+UInt24.Minimum  = 0x00000000
+UInt24.Maximum  = 0x00FFFFFF
+UInt24.BitCount = 24
+
 -- ~11 ns
 function UInt24.Add (a, b)
 	local c = a + b
@@ -44,10 +48,16 @@ function UInt24.MultiplyAdd2 (a, b, c, d)
 	return bit_band (c, 0x00FFFFFF), math_floor (c / 0x01000000)
 end
 
+function UInt24.Divide (low, high, divisor)
+	local a = low + 0x01000000 * high
+	return math_floor (a / divisor), a % divisor
+end
+
 UInt24.add = UInt24.Add
 UInt24.adc = UInt24.AddWithCarry
 UInt24.sub = UInt24.Subtract
 UInt24.sbb = UInt24.SubtractWithBorrow
 UInt24.mul = UInt24.Multiply
+UInt24.div = UInt24.Divide
 
 return UInt24
