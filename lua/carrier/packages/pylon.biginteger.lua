@@ -8,6 +8,8 @@ local tonumber      = tonumber
 
 local bit_band      = bit.band
 local bit_rshift    = bit.rshift
+local math_floor    = math.floor
+local math_log      = math.log
 local math_max      = math.max
 local string_format = string.format
 local string_sub    = string.sub
@@ -99,6 +101,13 @@ function self:ctor ()
 	self [1] = 0
 end
 
+function self:GetBitCount ()
+	local leadingBitCount = 1 + math_floor (math_log (self [#self]) / math_log (2))
+	leadingBitCount = math_max (0, leadingBitCount)
+	local bitCount = (#self - 1) * UInt24.BitCount
+	return bitCount + leadingBitCount
+end
+
 function self:IsZero ()
 	return #self == 1 and self [1] == 0
 end
@@ -186,6 +195,20 @@ function self:MultiplySmall (b, out)
 	out:Normalize ()
 	
 	return out
+end
+
+function self:Divide (b, out1, out2)
+	local quotient  = out1 or BigInteger ()
+	local remainder = self:Clone (out2)
+	local a = self
+	
+	quotient:TruncateAndZero (#a - #b + 1)
+	
+	for i = #a - #b + 1, 1, -1 do
+		-- elementCount of quotient is at most i + 1
+	end
+	
+	return quotient, remainder
 end
 
 function self:DivideSmall (b, out)
