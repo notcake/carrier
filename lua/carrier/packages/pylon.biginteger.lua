@@ -32,7 +32,7 @@ function BigInteger.FromDecimal (str)
 	-- Pull off powers of 2
 	local factor = 1
 	while #d > 0 do
-		if factor == 0x01000000 then
+		if factor > UInt24.Maximum then
 			factor = 1
 			n [#n + 1] = 0
 		end
@@ -76,11 +76,7 @@ function BigInteger.FromHex (str)
 	end
 	
 	-- Normalize
-	for i = #n, 2, -1 do
-		if n [i] ~= 0 then break end
-		
-		n [i] = nil
-	end
+	n:Normalize ()
 	
 	return n
 end
@@ -103,6 +99,10 @@ function self:ctor ()
 	self [1] = 0
 end
 
+function self:IsZero ()
+	return #self == 1 and self [1] == 0
+end
+
 function self:Add (b, out)
 	local out = out or BigInteger ()
 	local a = self
@@ -121,12 +121,22 @@ function self:Add (b, out)
 	end
 	
 	-- Clear
-	for i = #out, #a + 2, -1 do
-		out [i] = nil
-	end
+	out:Truncate (#a + 1)
 	
 	-- Carry
 	out [#a + 1] = cf > 0 and cf or nil
+	
+	return out
+end
+
+function self:Clone (out)
+	local out = out or BigInteger ()
+	
+	for i = 1, #self do
+		out [i] = self [i]
+	end
+	
+	out:Truncate (#self)
 	
 	return out
 end
@@ -136,14 +146,7 @@ function self:Multiply (b, out)
 	local a = self
 	
 	-- Prepare for convolution
-	for i = 1, #a + #b do
-		out [i] = 0
-	end
-	
-	-- Clear
-	for i = #out, #a + #b + 1, -1 do
-		out [i] = nil
-	end
+	out:TruncateAndZero (#a + #b)
 	
 	-- Multiply
 	for i = 1, #a do
@@ -159,29 +162,108 @@ function self:Multiply (b, out)
 		end
 	end
 	
-	-- Normalize
-	for i = #out, 2, -1 do
-		if out [i] ~= 0 then break end
-		
-		out [i] = nil
-	end
+	out:Normalize ()
 	
 	return out
+end
+
+function self:MultiplySmall (b, out)
+	local out = out or BigInteger ()
+	local a = self
+	
+	local high = 0
+	for i = 1, #a do
+		out [i], high = UInt24.MultiplyAdd1 (a [i], b, high)
+	end
+	
+	-- Clear
+	out:Truncate (#a + 1)
+	
+	-- Carry
+	out [#a + 1] = high
+	
+	-- Normalize
+	out:Normalize ()
+	
+	return out
+end
+
+function self:DivideSmall (b, out)
+	local out = out or BigInteger ()
+	local a = self
+	
+	-- Clear
+	out:Truncate (#a)
+	
+	-- Divide
+	local remainder = 0
+	out [#a], remainder = UInt24.Divide (a [#a], 0, b)
+	for i = #a - 1, 1, -1 do
+		out [i], remainder = UInt24.Divide (a [i], remainder, b)
+	end
+	
+	-- Normalize
+	out:Normalize ()
+	
+	return out, remainder
+end
+
+function self:ToDecimal ()
+	local n = self:Clone ()
+	
+	-- Strip off digits in groups of 7
+	local t = {}
+	repeat
+		n, t [#t + 1] = n:DivideSmall (10000000, n)
+	until n:IsZero ()
+	
+	-- Reverse
+	for i = 1, #t / 2 do
+		t [i], t [#t - i + 1] = t [#t - i + 1], t [i]
+	end
+	
+	-- Format
+	t [1] = tonumber (t [1])
+	for i = 2, #t do
+		t [i] = string_format ("%07d", t [i])
+	end
+	
+	return table_concat (t)
 end
 
 function self:ToHex ()
 	local t = {}
 	
-	t [1] = string_format ("%02x", self [#self])
-	if #t [1] % 2 == 1 then
-		t [1] = "0" .. t [1]
-	end
-	
+	-- Format
+	t [1] = string_format ("%x", self [#self])
 	for i = #self - 1, 1, -1 do
 		t [#t + 1] = string_format ("%06x", self [i])
 	end
 	
 	return table_concat (t)
+end
+
+-- Internal
+function self:Normalize ()
+	for i = #self, 2, -1 do
+		if self [i] ~= 0 then break end
+		
+		self [i] = nil
+	end
+end
+
+function self:Truncate (elementCount)
+	for i = #self, elementCount + 1, -1 do
+		self [i] = nil
+	end
+end
+
+function self:TruncateAndZero (elementCount)
+	for i = 1, elementCount do
+		self [i] = 0
+	end
+	
+	self:Truncate (elementCount)
 end
 
 return BigInteger
