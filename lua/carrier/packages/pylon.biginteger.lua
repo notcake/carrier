@@ -7,21 +7,62 @@ local BigInteger = OOP.Class (self)
 local tonumber      = tonumber
 
 local bit_band      = bit.band
+local bit_lshift    = bit.lshift
 local bit_rshift    = bit.rshift
 local math_floor    = math.floor
 local math_log      = math.log
 local math_max      = math.max
+local string_byte   = string.byte
+local string_char   = string.char
 local string_format = string.format
 local string_sub    = string.sub
 local table_concat  = table.concat
 
+local UInt24_Maximum            = UInt24.Maximum
+local UInt24_BitCount           = UInt24.BitCount
+
+local UInt24_Add                = UInt24.Add
+local UInt24_AddWithCarry       = UInt24.AddWithCarry
+local UInt24_MultiplyAdd2       = UInt24.MultiplyAdd2
+local UInt24_Subtract           = UInt24.Subtract
+local UInt24_SubtractWithBorrow = UInt24.SubtractWithBorrow
+local UInt24_CountLeadingZeros  = UInt24.CountLeadingZeros
+
+function BigInteger.FromBlob (data)
+	local n = BigInteger ()
+	
+	n [1] = nil
+	for i = #data - 2, 1, -3 do
+		local c0, c1, c2 = string_byte (data, i, i + 2)
+		n [#n + 1] = c0 * 0x00010000 + c1 * 0x00000100 + c2
+	end
+	
+	if #data % 3 ~= 0 then
+		local c = 0
+		for i = 1, #data % 3 do
+			c = c * 0x0100
+			c = c + string_byte (data, i)
+		end
+		n [#n + 1] = c
+	end
+	
+	-- Normalize
+	n:Normalize ()
+	
+	return n
+end
+
 function BigInteger.FromDecimal (str)
 	local n = BigInteger ()
 	
-	-- Convert to decimal digit array
+	-- Convert to decimal bignum
 	local d = {}
-	for i = #str, 1, -1 do
-		d [#d + 1] = string_sub (str, i, i)
+	for i = #str - 7, 1, -8 do
+		d [#d + 1] = tonumber (string_sub (str, i, i + 7))
+	end
+	
+	if #str % 8 ~= 0 then
+		d [#d + 1] = tonumber (string_sub (str, 1, #str % 8))
 	end
 	
 	-- Normalize
@@ -31,36 +72,22 @@ function BigInteger.FromDecimal (str)
 		d [i] = nil
 	end
 	
-	-- Pull off powers of 2
-	local factor = 1
-	while #d > 0 do
-		if factor > UInt24.Maximum then
-			factor = 1
-			n [#n + 1] = 0
+	-- Strip off hex digits in groups of 6
+	n [1] = nil
+	repeat
+		local remainder = 0
+		for i = #d, 1, -1 do
+			local a = d [i] + remainder * 100000000
+			d [i], remainder = math_floor (a / 0x01000000), bit_band (a, 0x00FFFFFF)
 		end
 		
-		-- Pull off bit
-		if d [1] % 2 == 1 then
-			d [1] = d [1] - 1
-			n [#n] = n [#n] + factor
-		end
-		
-		-- Divide d by 2
-		for i = 1, #d do
-			if d [i] % 2 == 1 then
-				d [i] = d [i] - 1
-				d [i - 1] = d [i - 1] + 5
-			end
-			d [i] = d [i] / 2
-		end
+		n [#n + 1] = remainder
 		
 		-- Normalize
 		if d [#d] == 0 then
 			d [#d] = nil
 		end
-		
-		factor = factor * 2
-	end
+	until #d == 0
 	
 	return n
 end
@@ -198,15 +225,52 @@ function self:MultiplySmall (b, out)
 end
 
 function self:Divide (b, out1, out2)
+	if #b == 1 then
+		local quotient, remainder = self:DivideSmall (b [1], out1)
+		return quotient, BigInteger.FromUInt32 (remainder)
+	end
 	local quotient  = out1 or BigInteger ()
 	local remainder = self:Clone (out2)
 	local a = self
 	
 	quotient:TruncateAndZero (#a - #b + 1)
 	
+	-- HACK: Pull in 25 bits of divisor to calculate the quotient
+	local additionalBitCount = UInt24_CountLeadingZeros (b [#b]) + 1
+	local d = b [#b] * bit_lshift (1, additionalBitCount) + bit_rshift (b [#b - 1], UInt24.BitCount - additionalBitCount)
+	
 	for i = #a - #b + 1, 1, -1 do
-		-- elementCount of quotient is at most i + 1
+		local r1 = remainder [i + #b] or 0
+		local r0 = remainder [i + #b - 1]
+		
+		-- HACK: Pull in 25 bits of divisor to calculate the quotient
+		local r = (r1 * (UInt24_Maximum + 1) + r0) * bit_lshift (1, additionalBitCount) + bit_rshift (remainder [i + #b - 2], UInt24_BitCount - additionalBitCount)
+		local q = math_floor (r / d)
+		
+		local p0, p1 = 0, 0
+		local borrow = 0
+		for j = 1, #b do
+			p0, p1 = UInt24_MultiplyAdd2 (b [j], q, p1, borrow)
+			remainder [i + j - 1], borrow = UInt24_Subtract (remainder [i + j - 1], p0)
+		end
+		
+		remainder [i + #b], borrow = UInt24_SubtractWithBorrow (remainder [i + #b] or 0, p1, borrow)
+		
+		if borrow > 0 then
+			q = q - 1
+			
+			local carry = 0
+			for j = 1, #b do
+				remainder [i + j - 1], carry = UInt24_AddWithCarry (remainder [i + j - 1], b [j], carry)
+			end
+			remainder [i + #b] = UInt24_Add (remainder [i + #b], carry)
+		end
+		
+		quotient [i] = q
 	end
+	
+	-- Normalize remainder
+	remainder:Normalize ()
 	
 	return quotient, remainder
 end
@@ -220,8 +284,7 @@ function self:DivideSmall (b, out)
 	
 	-- Divide
 	local remainder = 0
-	out [#a], remainder = UInt24.Divide (a [#a], 0, b)
-	for i = #a - 1, 1, -1 do
+	for i = #a, 1, -1 do
 		out [i], remainder = UInt24.Divide (a [i], remainder, b)
 	end
 	
@@ -229,6 +292,89 @@ function self:DivideSmall (b, out)
 	out:Normalize ()
 	
 	return out, remainder
+end
+
+function self:ExponentiateSmall (exponent)
+	local out = BigInteger.FromUInt32 (1)
+	
+	local factor = self:Clone ()
+	local mask = 1
+	while mask <= exponent do
+		if bit_band (exponent, mask) ~= 0 then
+			out = out:Multiply (factor)
+		end
+		
+		mask = mask * 2
+		factor = factor:Multiply (factor)
+	end
+	
+	return out
+end
+
+function self:ExponentiateMod (exponent, mod)
+	local out = BigInteger.FromUInt32 (1)
+	
+	local factor = self:Clone ()
+	for i = 1, #exponent do
+		local mask = 1
+		for j = 1, UInt24.BitCount do
+			if bit_band (exponent [i], mask) ~= 0 then
+				out = out:Multiply (factor):Mod (mod)
+			end
+			
+			mask = mask * 2
+			factor = factor:Multiply (factor):Mod (mod)
+		end
+	end
+	
+	return out
+end
+
+function self:Mod (b, out1, out2)
+	local quotient, remainder = self:Divide (b, out1, out2)
+	return remainder, quotient
+end
+
+function self:ModSmall (b)
+	local a = self
+	
+	-- Divide
+	local _, remainder = UInt24.Divide (a [#a], 0, b)
+	for i = #a - 1, 1, -1 do
+		_, remainder = UInt24.Divide (a [i], remainder, b)
+	end
+	
+	return remainder
+end
+
+function self:ToBlob ()
+	local t = {}
+	
+	-- Format start
+	local x = self [#self]
+	local c0 = bit_rshift (x, 16)
+	local c1 = bit_band (bit_rshift (x, 8), 0xFF)
+	local c2 = bit_band (x, 0xFF)
+	
+	if c0 > 0 then
+		t [#t + 1] = string_char (c0, c1, c2)
+	elseif c1 > 0 then
+		t [#t + 1] = string_char (c1, c2)
+	else
+		t [#t + 1] = string_char (c2)
+	end
+	
+	-- Format rest
+	for i = #self - 1, 1, -1 do
+		local x = self [i]
+		local c0 = bit_rshift (x, 16)
+		local c1 = bit_band (bit_rshift (x, 8), 0xFF)
+		local c2 = bit_band (x, 0xFF)
+		
+		t [#t + 1] = string_char (c0, c1, c2)
+	end
+	
+	return table_concat (t)
 end
 
 function self:ToDecimal ()
@@ -258,7 +404,7 @@ function self:ToHex ()
 	local t = {}
 	
 	-- Format
-	t [1] = string_format ("%x", self [#self])
+	t [#t + 1] = string_format ("%x", self [#self])
 	for i = #self - 1, 1, -1 do
 		t [#t + 1] = string_format ("%06x", self [i])
 	end

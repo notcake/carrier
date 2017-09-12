@@ -4,6 +4,8 @@ local bit_band   = bit.band
 local bit_lshift = bit.lshift
 local bit_rshift = bit.rshift
 local math_floor = math.floor
+local math_log   = math.log
+local math_max   = math.max
 
 UInt32.Minimum  = 0x00000000
 UInt32.Maximum  = 0xFFFFFFFF
@@ -90,10 +92,15 @@ end
 function UInt32.Divide (low, high, divisor)
 	local q0, r0 = math_floor (low  / divisor), low  % divisor
 	local q1, r1 = math_floor (high / divisor), high % divisor
-	local q2, r2 = math_floor (4294967296 / divisor), 4294967296 % divisor
-	local r = r0 + r1 * r2
-	local q3, r3 = math_floor (r / divisor), r % divisor
-	return q0 + q1 * q2 * divisor + r1 * q2 + r2 * q1 + q3, r3
+	local qBase, rBase = math_floor (4294967296 / divisor), 4294967296 % divisor
+	local r = r0 + r1 * rBase
+	local q2, r2 = math_floor (r / divisor), r % divisor
+	return q0 + q1 * qBase * divisor + r1 * qBase + rBase * q1 + q2, r2
+end
+
+local k = math_log (2)
+function UInt24.CountLeadingZeros (x)
+	return 32 - math_max (0, math_floor (1 + math_log (x) / k))
 end
 
 UInt32.add = UInt32.Add
@@ -102,5 +109,6 @@ UInt32.sub = UInt32.Subtract
 UInt32.sbb = UInt32.SubtractWithBorrow
 UInt32.mul = UInt32.Multiply
 UInt32.div = UInt32.Divide
+UInt32.clz = UInt32.CountLeadingZeros
 
 return UInt32
