@@ -20,6 +20,10 @@ function self:GetSize ()
 	Error ("IBaseStream:GetSize : Not implemented.")
 end
 
+function self:IsEndOfStream ()
+	return self:GetPosition () >= self:GetSize ()
+end
+
 function self:SeekAbsolute (seekPos)
 	Error ("IBaseStream:SeekAbsolute : Not implemented.")
 end
