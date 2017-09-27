@@ -14,6 +14,10 @@ function self:ctor (enum)
 	end
 end
 
+function self:GetName (value)
+	return self.Names [value]
+end
+
 function self:ToString (value)
 	return self.Names [value] or string.format ("0x%08x", value)
 end
