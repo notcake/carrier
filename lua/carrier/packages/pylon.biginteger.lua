@@ -124,6 +124,20 @@ function BigInteger.FromUInt32 (x)
 	return n
 end
 
+function BigInteger.FromUInt64 (x)
+	local n = BigInteger ()
+	n [1] = x % 0x01000000
+	n [2] = math_floor (x / 0x01000000) % 0x01000000
+	n [3] = math_floor (x / 0x01000000 / 0x01000000) % 0x01000000
+	n:Normalize ()
+	return n
+end
+
+function BigInteger.FromInt64 (x)
+	-- TODO: Implement negative numbers
+	return BigInteger.FromUInt64 (x)
+end
+
 function self:ctor ()
 	self [1] = 0
 end
@@ -400,16 +414,25 @@ function self:ToDecimal ()
 	return table_concat (t)
 end
 
-function self:ToHex ()
+function self:ToHex (digitCount)
 	local t = {}
 	
 	-- Format
-	t [#t + 1] = string_format ("%x", self [#self])
+	if digitCount then
+		digitCount = digitCount - 6 * (#self - 1)
+	else
+		digitCount = 1
+	end
+	t [#t + 1] = string_format ("%0" .. digitCount .. "x", self [#self])
 	for i = #self - 1, 1, -1 do
 		t [#t + 1] = string_format ("%06x", self [i])
 	end
 	
 	return table_concat (t)
+end
+
+function self:ToUInt32 ()
+	return self [1] + bit_lshift (bit_band (self [2] or 0, 0xFF), UInt24.BitCount)
 end
 
 -- Internal
@@ -433,6 +456,50 @@ function self:TruncateAndZero (elementCount)
 	end
 	
 	self:Truncate (elementCount)
+end
+
+function self:__unm ()
+	return self:Negate ()
+end
+
+function self:__add (b)
+	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	return self:Add (b)
+end
+
+function self:__sub (b)
+	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	return self:Subtract (b)
+end
+
+function self:__mul (b)
+	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	return self:Multiply (b)
+end
+
+function self:__div (b)
+	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	return self:Divide (b)
+end
+
+function self:__mod (b)
+	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	return self:Mod (b)
+end
+
+function self:__eq (b)
+	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	return self:Equals (b)
+end
+
+function self:__lt (b)
+	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	return self:IsLessThan (b)
+end
+
+function self:__le (b)
+	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	return self:IsLessThanOrEqual (b)
 end
 
 return BigInteger
