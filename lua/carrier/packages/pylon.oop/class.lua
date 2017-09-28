@@ -549,7 +549,18 @@ end
 
 local metamethods =
 {
-	"__call"
+	"__call",
+	"__tostring",
+	"__unm",
+	"__add",
+	"__sub",
+	"__mul",
+	"__div",
+	"__mod",
+	"__pow",
+	"__eq",
+	"__lt",
+	"__le"
 }
 function self:ResolveMetamethods (metatable)
 	local baseClass = self:GetBaseClass ()
