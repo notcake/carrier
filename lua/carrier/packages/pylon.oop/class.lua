@@ -11,7 +11,9 @@ function self:ctor (methodTable, firstBaseClass, ...)
 	
 	self.MethodTable                          = methodTable
 	self.FinalizedMethodTable                 = nil
+	self.FinalizedMethodTableSources          = nil
 	self.FlattenedMethodTable                 = nil
+	self.FlattenedMethodTableSources          = nil
 	
 	self.Events                               = nil
 	self.Properties                           = nil
@@ -105,10 +107,10 @@ end
 
 function self:GetFinalizedMethodTable ()
 	if not self.FinalizedMethodTable then
-		self.FinalizedMethodTable = self:CreateFinalizedMethodTable ()
+		self.FinalizedMethodTable, self.FinalizedMethodTableSources = self:CreateFinalizedMethodTable ()
 	end
 	
-	return self.FinalizedMethodTable
+	return self.FinalizedMethodTable, self.FinalizedMethodTableSources
 end
 
 function self:GetFlattenedConstructor ()
@@ -129,10 +131,10 @@ end
 
 function self:GetFlattenedMethodTable ()
 	if not self.FlattenedMethodTable then
-		self.FlattenedMethodTable = self:CreateFlattenedMethodTable ()
+		self.FlattenedMethodTable, self.FlattenedMethodTableSources = self:CreateFlattenedMethodTable ()
 	end
 	
-	return self.FlattenedMethodTable
+	return self.FlattenedMethodTable, self.FlattenedMethodTableSources
 end
 
 function self:GetMetatable ()
@@ -228,14 +230,8 @@ function self:CreateAuxiliaryConstructor ()
 end
 
 function self:CreateFinalizedMethodTable ()
-	local finalizedMethodTable = {}
-	
-	if self.BaseClasses [1] then
-		setmetatable (finalizedMethodTable, { __index = self.BaseClasses [1]:GetFinalizedMethodTable () })
-	end
-	
-	-- This class
-	finalizedMethodTable._Class = self
+	local finalizedMethodTable        = {}
+	local finalizedMethodTableSources = {}
 	
 	-- Properties
 	local properties = self:GetProperties ()
@@ -275,16 +271,45 @@ function self:CreateFinalizedMethodTable ()
 		end
 	end
 	
+	-- Mark own sources
+	for methodName, _ in pairs (finalizedMethodTable) do
+		finalizedMethodTableSources [methodName] = self
+	end
+	
+	-- This class
+	finalizedMethodTable._Class = self
+	finalizedMethodTableSources._Class = self
+	
 	-- Other base classes
-	for i = #self.BaseClasses, 2, -1 do
-		for methodName, method in pairs (self.BaseClasses [i]:GetFlattenedMethodTable ()) do
-			if not finalizedMethodTable [methodName] then
-				finalizedMethodTable [methodName] = method
+	if #self.BaseClasses >= 2 then
+		local baseFlattenedMethodTable0, baseFlattenedMethodTableSources0 = self.BaseClasses [1]:GetFlattenedMethodTable ()
+		for i = #self.BaseClasses, 2, -1 do
+			local baseFlattenedMethodTable1, baseFlattenedMethodTableSources1 = self.BaseClasses [i]:GetFlattenedMethodTable ()
+			for methodName, method in pairs (baseFlattenedMethodTable1) do
+				if not finalizedMethodTable [methodName] then
+					-- Add in new methods or overrides
+					local shouldOverride = not baseFlattenedMethodTableSources0 [methodName]
+					if not shouldOverride then
+						local source0 = baseFlattenedMethodTableSources0 [methodName]
+						local source1 = baseFlattenedMethodTableSources1 [methodName]
+						shouldOverride = source0 ~= source1 and source1:GetFlattenedBaseClasses () [source0]
+					end
+					if shouldOverride then
+						finalizedMethodTable [methodName] = method
+						finalizedMethodTableSources [methodName] = baseFlattenedMethodTableSources1 [methodName]
+					end
+				end
 			end
 		end
 	end
 	
-	return finalizedMethodTable
+	-- Install the base class fallback last, since the override resolution
+	-- above needs finalizedMethodTable to be raw
+	if self.BaseClasses [1] then
+		setmetatable (finalizedMethodTable, { __index = self.BaseClasses [1]:GetFinalizedMethodTable () })
+	end
+	
+	return finalizedMethodTable, finalizedMethodTableSources
 end
 
 function self:CreateFlattenedConstructor ()
@@ -296,7 +321,7 @@ function self:CreateFlattenedConstructor ()
 	end
 	
 	return function (self, ...)
-		for i = #constructorList, 1, -1 do
+		for i = 1, #constructorList do
 			constructorList [i] (self, ...)
 		end
 	end
@@ -305,7 +330,7 @@ end
 function self:CreateFlattenedDestructor ()
 	local destructorList = {}
 	local flattenedBaseClasses = self:GetFlattenedBaseClasses ()
-	for i = 1, #flattenedBaseClasses do
+	for i = #flattenedBaseClasses, 1, -1 do
 		destructorList [#destructorList + 1] = flattenedBaseClasses [i]:GetMethodTable ().dtor
 	end
 	
@@ -317,25 +342,30 @@ function self:CreateFlattenedDestructor ()
 end
 
 function self:CreateFlattenedMethodTable ()
-	local flattenedMethodTable = {}
+	local flattenedMethodTable        = {}
+	local flattenedMethodTableSources = {}
 	
 	for i = #self.BaseClasses, 1, -1 do
-		for methodName, method in pairs (self.BaseClasses [i]:GetFlattenedMethodTable ()) do
+		local baseFlattenedMethodTable, baseFlattenedMethodTableSources = self.BaseClasses [i]:GetFlattenedMethodTable ()
+		for methodName, method in pairs (baseFlattenedMethodTable) do
 			flattenedMethodTable [methodName] = method
+			flattenedMethodTableSources [methodName] = baseFlattenedMethodTableSources [methodName]
 		end
 	end
 	
-	for methodName, method in pairs (self:GetFinalizedMethodTable ()) do
+	local finalizedMethodTable, finalizedMethodTableSources = self:GetFinalizedMethodTable ()
+	for methodName, method in pairs (finalizedMethodTable) do
 		flattenedMethodTable [methodName] = method
+		flattenedMethodTableSources [methodName] = finalizedMethodTableSources [methodName]
 	end
 	
-	return flattenedMethodTable
+	return flattenedMethodTable, flattenedMethodTableSources
 end
 
 function self:CreateFlattenedPropertySerializer ()
 	local propertySerializerList = {}
 	local flattenedBaseClasses = self:GetFlattenedBaseClasses ()
-	for i = #flattenedBaseClasses, 1, -1 do
+	for i = 1, #flattenedBaseClasses do
 		propertySerializerList [#propertySerializerList + 1] = flattenedBaseClasses [i]:GetPropertySerializer ()
 	end
 	
@@ -353,7 +383,7 @@ end
 function self:CreateFlattenedPropertyDeserializer ()
 	local propertyDeserializerList = {}
 	local flattenedBaseClasses = self:GetFlattenedBaseClasses ()
-	for i = #flattenedBaseClasses, 1, -1 do
+	for i = 1, #flattenedBaseClasses do
 		propertyDeserializerList [#propertyDeserializerList + 1] = flattenedBaseClasses [i]:GetPropertyDeserializer ()
 	end
 	
@@ -371,7 +401,7 @@ end
 function self:CreateFlattenedPropertyCopier ()
 	local propertyCopierList = {}
 	local flattenedBaseClasses = self:GetFlattenedBaseClasses ()
-	for i = #flattenedBaseClasses, 1, -1 do
+	for i = 1, #flattenedBaseClasses do
 		propertyCopierList [#propertyCopierList + 1] = flattenedBaseClasses [i]:GetPropertyCopier ()
 	end
 	
@@ -481,7 +511,7 @@ function self:GetFlattenedBaseClasses ()
 	if not self.FlattenedBaseClasses then
 		self.FlattenedBaseClasses = {}
 		
-		Algorithms.DepthFirstSearch (
+		Algorithms.DepthFirstSearchPostOrder (
 			self,
 			function (class)
 				local i = 0
@@ -492,6 +522,7 @@ function self:GetFlattenedBaseClasses ()
 			end,
 			function (class)
 				self.FlattenedBaseClasses [#self.FlattenedBaseClasses + 1] = class
+				self.FlattenedBaseClasses [class] = true
 			end
 		)
 	end
