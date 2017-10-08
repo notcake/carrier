@@ -7,9 +7,11 @@ local math_floor = math.floor
 local math_log   = math.log
 local math_max   = math.max
 
-UInt32.Minimum  = 0x00000000
-UInt32.Maximum  = 0xFFFFFFFF
-UInt32.BitCount = 32
+UInt32.Zero               = 0x00000000
+UInt32.Minimum            = 0x00000000
+UInt32.Maximum            = 0xFFFFFFFF
+UInt32.MostSignificantBit = 0x80000000
+UInt32.BitCount           = 32
 
 -- Note: Branchless implementations of these operations with mods and divs
 --       are faster than branching ones, except when the branch predictor

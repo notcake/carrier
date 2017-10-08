@@ -6,9 +6,11 @@ local math_floor = math.floor
 local math_log   = math.log
 local math_max   = math.max
 
-UInt16.Minimum  = 0x0000
-UInt16.Maximum  = 0xFFFF
-UInt16.BitCount = 16
+UInt16.Zero               = 0x0000
+UInt16.Minimum            = 0x0000
+UInt16.Maximum            = 0xFFFF
+UInt16.MostSignificantBit = 0x8000
+UInt16.BitCount           = 16
 
 -- ~11 ns
 function UInt16.Add (a, b)

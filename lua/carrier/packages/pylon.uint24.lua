@@ -5,9 +5,11 @@ local math_floor = math.floor
 local math_log   = math.log
 local math_max   = math.max
 
-UInt24.Minimum  = 0x00000000
-UInt24.Maximum  = 0x00FFFFFF
-UInt24.BitCount = 24
+UInt24.Zero               = 0x00000000
+UInt24.Minimum            = 0x00000000
+UInt24.Maximum            = 0x00FFFFFF
+UInt24.MostSignificantBit = 0x00800000
+UInt24.BitCount           = 24
 
 -- ~11 ns
 function UInt24.Add (a, b)
