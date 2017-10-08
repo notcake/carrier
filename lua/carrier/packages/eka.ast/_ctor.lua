@@ -10,4 +10,7 @@ include ("expression.lua")
 include ("binaryexpression.lua")
 include ("literal.lua")
 
+include ("ibinaryoperator.lua")
+include ("binaryoperator.lua")
+
 return AST

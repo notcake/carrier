@@ -1,7 +1,7 @@
 Bytecode.BranchType = Enum (
 	{
-		None          = 0,
-		Conditional   = 1,
-		Unconditional = 2
+		None        = 0x00,
+		Conditional = 0x01,
+		Terminal    = 0x02
 	}
 )

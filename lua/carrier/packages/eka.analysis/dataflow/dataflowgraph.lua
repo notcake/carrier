@@ -64,3 +64,11 @@ end
 function self:GetOutputNodeEnumerator ()
 	return KeyEnumerator (self.OutputNodeSet)
 end
+
+function self:IsInputNode (node)
+	return self.InputNodeSet [node] or false
+end
+
+function self:IsOutputNode (node)
+	return self.OutputNodeSet [node] or false
+end
