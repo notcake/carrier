@@ -5,6 +5,15 @@ function Array.Concat (t, separator)
 end
 Array.concat = Array.Concat
 
+function Array.Copy (t)
+	local out = {}
+	for i = 1, #t do
+		out [i] = t [i]
+	end
+	return out
+end
+Array.copy = Array.Copy
+
 function Array.Filter (t, f)
 	local out = {}
 	for i = 1, #t do
@@ -24,7 +33,7 @@ function Array.FlatMap (t, f)
 			out [#out + 1] = results [j]
 		end
 	end
-	return t
+	return out
 end
 Array.flatMap = Array.FlatMap
 
@@ -40,7 +49,7 @@ function Array.Map (t, f)
 	for i = 1, #t do
 		out [i] = f (t [i])
 	end
-	return t
+	return out
 end
 Array.map = Array.Map
 
