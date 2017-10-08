@@ -69,6 +69,14 @@ function self:ToArray ()
 	return array
 end
 
+function self:ToSet ()
+	local set = {}
+	for x in self do
+		set [x] = true
+	end
+	return set
+end
+
 function self:Unpack ()
 	local value = self ()
 	if not value then return end
