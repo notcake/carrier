@@ -221,9 +221,9 @@ function self:ctor ()
 end
 
 function self:GetBitCount ()
-	local leadingBitCount = 1 + math_floor (math_log (self [#self]) / math_log (2))
+	local leadingBitCount = 1 + math_floor (math_log (self [#self - 1]) / math_log (2))
 	leadingBitCount = math_max (0, leadingBitCount)
-	local bitCount = (#self - 1) * UInt24_BitCount
+	local bitCount = (#self - 2) * UInt24_BitCount
 	return bitCount + leadingBitCount
 end
 
@@ -483,7 +483,7 @@ function self:Exponentiate (exponent)
 	local exponentBitCount = exponent:GetBitCount ()
 	
 	local factor = self:Clone ()
-	for i = 1, #exponent do
+	for i = 1, #exponent - 1 do
 		local mask = 1
 		for j = 1, math.min (UInt24_BitCount, exponentBitCount - (i - 1) * UInt24_BitCount) do
 			if bit_band (exponent [i], mask) ~= 0 then
@@ -502,7 +502,7 @@ function self:ExponentiateMod (exponent, mod)
 	local out = BigInteger.FromUInt32 (1)
 	
 	local factor = self:Clone ()
-	for i = 1, #exponent do
+	for i = 1, #exponent - 1 do
 		local mask = 1
 		for j = 1, UInt24_BitCount do
 			if bit_band (exponent [i], mask) ~= 0 then
