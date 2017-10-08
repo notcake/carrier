@@ -4,13 +4,23 @@ local UInt24 = require ("Pylon.UInt24")
 local self = {}
 local BigInteger = OOP.Class (self)
 
+-- Two's complement BigInteger.
+-- Numbers are stored in little endian form.
+-- The last element is the sign element and always 0x0000 or 0xFFFF.
+-- There are always 1 or more elements
+
 local tonumber      = tonumber
 
 local bit_band      = bit.band
+local bit_bnot      = bit.bnot
+local bit_bor       = bit.bor
+local bit_bxor      = bit.bxor
 local bit_lshift    = bit.lshift
 local bit_rshift    = bit.rshift
+local math_abs      = math.abs
 local math_floor    = math.floor
 local math_log      = math.log
+local math_min      = math.min
 local math_max      = math.max
 local string_byte   = string.byte
 local string_char   = string.char
@@ -18,25 +28,35 @@ local string_format = string.format
 local string_sub    = string.sub
 local table_concat  = table.concat
 
+local UInt24_Zero               = UInt24.Zero
 local UInt24_Maximum            = UInt24.Maximum
+local UInt24_MostSignificantBit = UInt24.MostSignificantBit
 local UInt24_BitCount           = UInt24.BitCount
 
 local UInt24_Add                = UInt24.Add
 local UInt24_AddWithCarry       = UInt24.AddWithCarry
+local UInt24_Divide             = UInt24.Divide
 local UInt24_MultiplyAdd2       = UInt24.MultiplyAdd2
 local UInt24_Subtract           = UInt24.Subtract
 local UInt24_SubtractWithBorrow = UInt24.SubtractWithBorrow
 local UInt24_CountLeadingZeros  = UInt24.CountLeadingZeros
 
+local Sign_Negative = UInt24_Maximum
+local Sign_Positive = UInt24_Zero
+
 function BigInteger.FromBlob (data)
 	local n = BigInteger ()
 	
+	-- Clear elements
 	n [1] = nil
+	
+	-- Process groups of 3 bytes
 	for i = #data - 2, 1, -3 do
 		local c0, c1, c2 = string_byte (data, i, i + 2)
 		n [#n + 1] = c0 * 0x00010000 + c1 * 0x00000100 + c2
 	end
 	
+	-- Process remaining bytes
 	if #data % 3 ~= 0 then
 		local c = 0
 		for i = 1, #data % 3 do
@@ -46,7 +66,8 @@ function BigInteger.FromBlob (data)
 		n [#n + 1] = c
 	end
 	
-	-- Normalize
+	-- Append sign and normalize
+	n [#n + 1] = Sign_Positive
 	n:Normalize ()
 	
 	return n
@@ -55,14 +76,19 @@ end
 function BigInteger.FromDecimal (str)
 	local n = BigInteger ()
 	
+	-- Sign
+	local sign     = string_sub (str, 1, 1)
+	local negative = string_sub (str, 1, 1) == "-"
+	local signLength = (sign == "-" or sign == "+") and 1 or 0
+	
 	-- Convert to decimal bignum
 	local d = {}
-	for i = #str - 7, 1, -8 do
+	for i = #str - 7, 1 + signLength, -8 do
 		d [#d + 1] = tonumber (string_sub (str, i, i + 7))
 	end
 	
-	if #str % 8 ~= 0 then
-		d [#d + 1] = tonumber (string_sub (str, 1, #str % 8))
+	if (#str - signLength) % 8 ~= 0 then
+		d [#d + 1] = tonumber (string_sub (str, 1 + signLength, signLength + (#str - signLength) % 8))
 	end
 	
 	-- Normalize
@@ -89,6 +115,14 @@ function BigInteger.FromDecimal (str)
 		end
 	until #d == 0
 	
+	-- Append positive sign and normalize
+	n [#n + 1] = Sign_Positive
+	n:Normalize ()
+	
+	if negative then
+		n = n:Negate (n)
+	end
+	
 	return n
 end
 
@@ -96,85 +130,209 @@ function BigInteger.FromHex (str)
 	local n = BigInteger ()
 	
 	n [1] = nil
+	
+	-- Process groups of 3 bytes
 	for i = #str - 5, 1, -6 do
 		n [#n + 1] = tonumber (string_sub (str, i, i + 5), 16)
 	end
 	
+	-- Process remaining bytes
 	if #str % 6 ~= 0 then
 		n [#n + 1] = tonumber (string_sub (str, 1, #str % 6), 16)
 	end
 	
-	-- Normalize
+	-- Append sign and normalize
+	n [#n + 1] = Sign_Positive
 	n:Normalize ()
 	
 	return n
 end
 
 function BigInteger.FromUInt8 (x)
-	local n = BigInteger ()
-	n [1] = x
-	return n
+	return BigInteger.FromInt8 (x)
+end
+
+function BigInteger.FromUInt16 (x)
+	return BigInteger.FromInt16 (x)
 end
 
 function BigInteger.FromUInt32 (x)
-	local n = BigInteger ()
-	n [1] = bit_band (x, 0x00FFFFFF)
-	n [2] = bit_rshift (x, 24)
-	n [2] = n [2] ~= 0 and n [2] or nil
-	return n
+	return BigInteger.FromInt32 (x)
 end
 
 function BigInteger.FromUInt64 (x)
+	return BigInteger.FromInt64 (x)
+end
+
+function BigInteger.FromInt8 (x)
+	return BigInteger.FromInt16 (x)
+end
+
+function BigInteger.FromInt16 (x)
+	local n = BigInteger ()
+	n [1] = x % 0x01000000
+	n [2] = x >= 0 and Sign_Positive or Sign_Negative
+	n:Normalize ()
+	return n
+end
+
+function BigInteger.FromInt32 (x)
 	local n = BigInteger ()
 	n [1] = x % 0x01000000
 	n [2] = math_floor (x / 0x01000000) % 0x01000000
-	n [3] = math_floor (x / 0x01000000 / 0x01000000) % 0x01000000
+	n [3] = x >= 0 and Sign_Positive or Sign_Negative
 	n:Normalize ()
 	return n
 end
 
 function BigInteger.FromInt64 (x)
-	-- TODO: Implement negative numbers
-	return BigInteger.FromUInt64 (x)
+	local n = BigInteger ()
+	n [1] = x % 0x01000000
+	n [2] = math_floor (x / 0x01000000) % 0x01000000
+	n [3] = math_floor (x / 0x01000000 / 0x01000000) % 0x01000000
+	n [4] = x >= 0 and Sign_Positive or Sign_Negative
+	n:Normalize ()
+	return n
+end
+
+function BigInteger.FromDouble (x)
+	local n = BigInteger ()
+	
+	if x == math.huge or x == -math.huge or x ~= x then
+		return n -- 0
+	else
+		n [1] = nil
+		x = math_floor (x)
+		while x ~= 0 and x ~= -1 do
+			n [#n + 1] = x % 0x01000000
+			x = math_floor (x / 0x01000000)
+		end
+		
+		-- Append sign and normalize
+		n [#n + 1] = x >= 0 and Sign_Positive or Sign_Negative
+		n:Normalize ()
+		
+		return n
+	end
 end
 
 function self:ctor ()
-	self [1] = 0
+	self [1] = Sign_Positive
 end
 
 function self:GetBitCount ()
 	local leadingBitCount = 1 + math_floor (math_log (self [#self]) / math_log (2))
 	leadingBitCount = math_max (0, leadingBitCount)
-	local bitCount = (#self - 1) * UInt24.BitCount
+	local bitCount = (#self - 1) * UInt24_BitCount
 	return bitCount + leadingBitCount
 end
 
+function self:IsPositive ()
+	return self [#self] == Sign_Positive and #self > 1
+end
+
+function self:IsNegative ()
+	return self [#self] == Sign_Negative
+end
+
 function self:IsZero ()
-	return #self == 1 and self [1] == 0
+	return #self == 1 and self [1] == Sign_Positive
+end
+
+-- Comparisons
+function self:Equals (b)
+	local a = self
+	if #a ~= #b then return false end
+	
+	for i = 1, #a do
+		if a [i] ~= b [i] then return false end
+	end
+	
+	return true
+end
+
+-- Arithmetic
+function self:Negate (b, out)
+	-- Flip all bits
+	out = self:Not (out)
+	
+	-- Add 1
+	local cf = 1
+	for i = 1, #out do
+		if cf == 0 then break end
+		out [i], cf = UInt24_Add (out [i], cf)
+	end
+	
+	-- The interesting cases are 0 and when the number is
+	-- the largest negative number of its size
+	--      0000 ->      FFFF -> 1      0000
+	-- FFFF 0000 -> 0000 FFFF -> 0 0001 0000
+	
+	-- Extend positive sign on carry
+	if out [#out] == 1 then
+		out [#out + 1] = Sign_Positive
+	end
+	
+	return out
 end
 
 function self:Add (b, out)
 	local out = out or BigInteger ()
 	local a = self
 	
-	if #b > #a then
-		a, b = b, a
-	end
-	
+	-- 0000 0001 + 0000 FFFF = 0 0001 0000 -> 0000 0001 0000
+	-- FFFF 0001 +      FFFF = 1 FFFF 0000
+	-- FFFF 0001 + FFFF FFFE = 1 FFFE FFFF -> FFFF FFFE FFFF
+	-- 0000 0003 + FFFF FFFE = 1 0000 0001
+	-- 0000 0001 + FFFF FFFE = 0 FFFF FFFF
 	local cf = 0
-	for i = 1, #b do
-		out [i], cf = UInt24.AddWithCarry (a [i], b [i], cf)
+	for i = 1, math_min(#a, #b) do
+		out [i], cf = UInt24_AddWithCarry (a [i], b [i], cf)
 	end
 	
-	for i = #b + 1, #a do
-		out [i], cf = UInt24.Add (a [i], cf)
-	end
+	-- Process sign extended part
+	for i = #a + 1, #b do out [i], cf = UInt24_Add (a [#a], b [i], cf) end
+	for i = #b + 1, #a do out [i], cf = UInt24_Add (a [i], b [#b], cf) end
 	
 	-- Clear
-	out:Truncate (#a + 1)
+	out:Truncate (math_max (#a, #b))
 	
 	-- Carry
-	out [#a + 1] = cf > 0 and cf or nil
+	if out [#out] ~= Sign_Positive and
+	   out [#out] ~= Sign_Negative then
+		out [#out + 1] = cf == 0 and Sign_Positive or Sign_Negative
+	end
+	
+	-- Normalize
+	out:Normalize ()
+	
+	return out
+end
+
+function self:Subtract (b, out)
+	local out = out or BigInteger ()
+	local a = self
+	
+	local cf = 0
+	for i = 1, math_min (#a, #b) do
+		out [i], cf = UInt24_SubtractWithBorrow (a [i], b [i], cf)
+	end
+	
+	-- Process sign extended part
+	for i = #a + 1, #b do out [i], cf = UInt24_SubtractWithBorrow (a [#a], b [i], cf) end
+	for i = #b + 1, #a do out [i], cf = UInt24_SubtractWithBorrow (a [i], b [#b], cf) end
+	
+	-- Clear
+	out:Truncate (math_max (#a, #b))
+	
+	-- Carry
+	if out [#out] ~= Sign_Positive and
+	   out [#out] ~= Sign_Negative then
+		out [#out + 1] = cf == 0 and Sign_Negative or Sign_Positive
+	end
+	
+	-- Normalize
+	out:Normalize ()
 	
 	return out
 end
@@ -202,35 +360,21 @@ function self:Multiply (b, out)
 	for i = 1, #a do
 		local high = 0
 		for j = 1, #b do
-			out [i + j - 1], high = UInt24.MultiplyAdd2 (a [i], b [j], out [i + j - 1], high)
+			out [i + j - 1], high = UInt24_MultiplyAdd2 (a [i], b [j], out [i + j - 1], high)
 		end
 		
 		-- Carry
 		for j = i + #b, #a + #b do
-			out [j], high = UInt24.Add (out [j], high)
+			out [j], high = UInt24_Add (out [j], high)
 			if high == 0 then break end
 		end
 	end
-	
-	out:Normalize ()
-	
-	return out
-end
 
-function self:MultiplySmall (b, out)
-	local out = out or BigInteger ()
-	local a = self
+	-- Clear junk
+	out:Truncate (math_max (1, #a - 1 + #b - 1))
 	
-	local high = 0
-	for i = 1, #a do
-		out [i], high = UInt24.MultiplyAdd1 (a [i], b, high)
-	end
-	
-	-- Clear
-	out:Truncate (#a + 1)
-	
-	-- Carry
-	out [#a + 1] = high
+	-- Sign
+	out [#out + 1] = (a:IsZero() or b:IsZero()) and Sign_Positive or bit_bxor(a [#a], b [#b])
 	
 	-- Normalize
 	out:Normalize ()
@@ -239,45 +383,54 @@ function self:MultiplySmall (b, out)
 end
 
 function self:Divide (b, out1, out2)
-	if #b == 1 then
-		local quotient, remainder = self:DivideSmall (b [1], out1)
-		return quotient, BigInteger.FromUInt32 (remainder)
+	if #b == 2 then
+		local quotient, remainder = self:DivideInt24 (b:IsNegative () and -(UInt24_Maximum - b [1] + 1) or b [1], out1)
+		return quotient, BigInteger.FromInt32 (remainder)
 	end
 	local quotient  = out1 or BigInteger ()
-	local remainder = self:Clone (out2)
+	local remainder = self:IsNegative () and self:Negate (out2) or self:Clone (out2)
 	local a = self
 	
-	quotient:TruncateAndZero (#a - #b + 1)
+	if b:IsZero () then
+		quotient:TruncateAndZero (1)
+		return quotient, remainder
+	end
+	
+	local negative = a:IsNegative () ~= b:IsNegative ()
+	if a:IsNegative () then a = a:Negate () end
+	if b:IsNegative () then b = b:Negate () end
+	
+	quotient:TruncateAndZero (#a - #b + 2)
 	
 	-- HACK: Pull in 25 bits of divisor to calculate the quotient
-	local additionalBitCount = UInt24_CountLeadingZeros (b [#b]) + 1
-	local d = b [#b] * bit_lshift (1, additionalBitCount) + bit_rshift (b [#b - 1], UInt24.BitCount - additionalBitCount)
+	local additionalBitCount = UInt24_CountLeadingZeros (b [#b - 1]) + 1
+	local d = b [#b - 1] * bit_lshift (1, additionalBitCount) + bit_rshift (b [#b - 2], UInt24_BitCount - additionalBitCount)
 	
 	for i = #a - #b + 1, 1, -1 do
-		local r1 = remainder [i + #b] or 0
-		local r0 = remainder [i + #b - 1]
+		local r1 = remainder [i + #b - 1] or 0
+		local r0 = remainder [i + #b - 2]
 		
 		-- HACK: Pull in 25 bits of divisor to calculate the quotient
-		local r = (r1 * (UInt24_Maximum + 1) + r0) * bit_lshift (1, additionalBitCount) + bit_rshift (remainder [i + #b - 2], UInt24_BitCount - additionalBitCount)
+		local r = (r1 * (UInt24_Maximum + 1) + r0) * bit_lshift (1, additionalBitCount) + bit_rshift (remainder [i + #b - 3], UInt24_BitCount - additionalBitCount)
 		local q = math_floor (r / d)
 		
 		local p0, p1 = 0, 0
 		local borrow = 0
-		for j = 1, #b do
+		for j = 1, #b - 1 do
 			p0, p1 = UInt24_MultiplyAdd2 (b [j], q, p1, borrow)
 			remainder [i + j - 1], borrow = UInt24_Subtract (remainder [i + j - 1], p0)
 		end
 		
-		remainder [i + #b], borrow = UInt24_SubtractWithBorrow (remainder [i + #b] or 0, p1, borrow)
+		remainder [i + #b - 1], borrow = UInt24_SubtractWithBorrow (remainder [i + #b - 1] or 0, p1, borrow)
 		
 		if borrow > 0 then
 			q = q - 1
 			
 			local carry = 0
-			for j = 1, #b do
+			for j = 1, #b - 1 do
 				remainder [i + j - 1], carry = UInt24_AddWithCarry (remainder [i + j - 1], b [j], carry)
 			end
-			remainder [i + #b] = UInt24_Add (remainder [i + #b], carry)
+			remainder [i + #b - 1] = UInt24_Add (remainder [i + #b - 1], carry)
 		end
 		
 		quotient [i] = q
@@ -286,12 +439,23 @@ function self:Divide (b, out1, out2)
 	-- Normalize remainder
 	remainder:Normalize ()
 	
+	if negative then
+		quotient = quotient:Negate (quotient)
+	end
+	
 	return quotient, remainder
 end
 
-function self:DivideSmall (b, out)
+function self:DivideInt24 (b, out)
 	local out = out or BigInteger ()
 	local a = self
+	
+	local negative = a:IsNegative () ~= (b < 0)
+	local b = math_abs (b)
+	
+	if a:IsNegative () then
+		a = a:Negate ()
+	end
 	
 	-- Clear
 	out:Truncate (#a)
@@ -299,27 +463,36 @@ function self:DivideSmall (b, out)
 	-- Divide
 	local remainder = 0
 	for i = #a, 1, -1 do
-		out [i], remainder = UInt24.Divide (a [i], remainder, b)
+		out [i], remainder = UInt24_Divide (a [i], remainder, b)
 	end
 	
 	-- Normalize
 	out:Normalize ()
 	
+	if negative then
+		out = out:Negate (out)
+	end
+	
 	return out, remainder
 end
 
-function self:ExponentiateSmall (exponent)
+function self:Exponentiate (exponent)
 	local out = BigInteger.FromUInt32 (1)
 	
+	-- Avoid computing factors all the way to self ^ (2 ^ UInt24.BitCount)
+	local exponentBitCount = exponent:GetBitCount ()
+	
 	local factor = self:Clone ()
-	local mask = 1
-	while mask <= exponent do
-		if bit_band (exponent, mask) ~= 0 then
-			out = out:Multiply (factor)
+	for i = 1, #exponent do
+		local mask = 1
+		for j = 1, math.min (UInt24_BitCount, exponentBitCount - (i - 1) * UInt24_BitCount) do
+			if bit_band (exponent [i], mask) ~= 0 then
+				out = out:Multiply (factor)
+			end
+			
+			mask = mask * 2
+			factor = factor:Multiply (factor)
 		end
-		
-		mask = mask * 2
-		factor = factor:Multiply (factor)
 	end
 	
 	return out
@@ -331,7 +504,7 @@ function self:ExponentiateMod (exponent, mod)
 	local factor = self:Clone ()
 	for i = 1, #exponent do
 		local mask = 1
-		for j = 1, UInt24.BitCount do
+		for j = 1, UInt24_BitCount do
 			if bit_band (exponent [i], mask) ~= 0 then
 				out = out:Multiply (factor):Mod (mod)
 			end
@@ -349,23 +522,107 @@ function self:Mod (b, out1, out2)
 	return remainder, quotient
 end
 
-function self:ModSmall (b)
+-- Bitwise operations
+function self:And (b, out)
+	local out = out or BigInteger ()
 	local a = self
 	
-	-- Divide
-	local _, remainder = UInt24.Divide (a [#a], 0, b)
-	for i = #a - 1, 1, -1 do
-		_, remainder = UInt24.Divide (a [i], remainder, b)
+	-- Normalize so that a is longer than b
+	if #a < #b then a, b = b, a end
+	
+	-- Shared elements
+	for i = 1, #b do
+		out [i] = bit_band (a [i], b [i])
 	end
 	
-	return remainder
+	if b:IsNegative () then
+		-- Tail of 1s, copy a across
+		for i = #b + 1, #a do
+			out [i] = a [i]
+		end
+		out:Truncate (#a)
+	else
+		-- Tail of 0s, no more non-zero bits
+		out:Truncate (#b)
+		out:Normalize ()
+	end
+	
+	return out
+end
+
+function self:Or (b, out)
+	local out = out or BigInteger ()
+	local a = self
+	
+	-- Normalize so that a is longer than b
+	if #a < #b then a, b = b, a end
+	
+	-- Shared elements
+	for i = 1, #b do
+		out [i] = bit_bor (a [i], b [i])
+	end
+	
+	if b:IsNegative () then
+		-- Tail of 1s, no more non-one bits
+		out:Truncate (#b)
+		out:Normalize ()
+	else
+		-- Tail of 0s, copy a across
+		for i = #b + 1, #a do
+			out [i] = a [i]
+		end
+		out:Truncate (#a)
+	end
+	
+	return out
+end
+
+function self:Xor (b, out)
+	local out = out or BigInteger ()
+	local a = self
+	
+	-- Normalize so that a is longer than b
+	if #a < #b then a, b = b, a end
+	
+	-- Shared elements
+	for i = 1, #b do
+		out [i] = bit_bxor (a [i], b [i])
+	end
+	
+	if b:IsNegative () then
+		-- Tail of 1s, copy inverted a across
+		for i = #b + 1, #a do
+			out [i] = bit_bxor (a [i], UInt24_Maximum)
+		end
+		out:Truncate (#a)
+	else
+		-- Tail of 0s, copy a across
+		for i = #b + 1, #a do
+			out [i] = a [i]
+		end
+		out:Truncate (#a)
+	end
+	
+	return out
+end
+
+function self:Not (out)
+	local out = out or BigInteger ()
+	
+	for i = 1, #self do
+		out [i] = bit_bxor (self [i], UInt24_Maximum)
+	end
+	
+	out:Truncate (#self)
+	
+	return out
 end
 
 function self:ToBlob ()
 	local t = {}
 	
 	-- Format start
-	local x = self [#self]
+	local x = self [#self - 1]
 	local c0 = bit_rshift (x, 16)
 	local c1 = bit_band (bit_rshift (x, 8), 0xFF)
 	local c2 = bit_band (x, 0xFF)
@@ -379,7 +636,7 @@ function self:ToBlob ()
 	end
 	
 	-- Format rest
-	for i = #self - 1, 1, -1 do
+	for i = #self - 2, 1, -1 do
 		local x = self [i]
 		local c0 = bit_rshift (x, 16)
 		local c1 = bit_band (bit_rshift (x, 8), 0xFF)
@@ -392,12 +649,13 @@ function self:ToBlob ()
 end
 
 function self:ToDecimal ()
-	local n = self:Clone ()
+	local negative = self:IsNegative ()
+	local n = negative and self:Negate () or self:Clone ()
 	
 	-- Strip off digits in groups of 7
 	local t = {}
 	repeat
-		n, t [#t + 1] = n:DivideSmall (10000000, n)
+		n, t [#t + 1] = n:DivideInt24 (10000000, n)
 	until n:IsZero ()
 	
 	-- Reverse
@@ -406,7 +664,7 @@ function self:ToDecimal ()
 	end
 	
 	-- Format
-	t [1] = tonumber (t [1])
+	t [1] = (negative and "-" or "") .. tonumber (t [1])
 	for i = 2, #t do
 		t [i] = string_format ("%07d", t [i])
 	end
@@ -415,6 +673,8 @@ function self:ToDecimal ()
 end
 
 function self:ToHex (digitCount)
+	if #self == 1 then return self [#self] == UInt24_Zero and "00" or "FF" end
+	
 	local t = {}
 	
 	-- Format
@@ -423,8 +683,8 @@ function self:ToHex (digitCount)
 	else
 		digitCount = 1
 	end
-	t [#t + 1] = string_format ("%0" .. digitCount .. "x", self [#self])
-	for i = #self - 1, 1, -1 do
+	t [#t + 1] = string_format ("%0" .. digitCount .. "x", self [#self - 1])
+	for i = #self - 2, 1, -1 do
 		t [#t + 1] = string_format ("%06x", self [i])
 	end
 	
@@ -432,15 +692,16 @@ function self:ToHex (digitCount)
 end
 
 function self:ToUInt32 ()
-	return self [1] + bit_lshift (bit_band (self [2] or 0, 0xFF), UInt24.BitCount)
+	return self [1] + bit_lshift (bit_band (self [2] or 0, 0xFF), UInt24_BitCount)
 end
 
 -- Internal
 function self:Normalize ()
-	for i = #self, 2, -1 do
-		if self [i] ~= 0 then break end
+	local sign = self [#self]
+	for i = #self - 1, 1, -1 do
+		if self [i] ~= sign then break end
 		
-		self [i] = nil
+		self [i + 1] = nil
 	end
 end
 
@@ -463,43 +724,52 @@ function self:__unm ()
 end
 
 function self:__add (b)
-	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
 	return self:Add (b)
 end
 
 function self:__sub (b)
-	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
 	return self:Subtract (b)
 end
 
 function self:__mul (b)
-	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
 	return self:Multiply (b)
 end
 
 function self:__div (b)
-	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
 	return self:Divide (b)
 end
 
 function self:__mod (b)
-	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
 	return self:Mod (b)
 end
 
+function self:__pow (b)
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
+	return self:Exponentiate (b)
+end
+
 function self:__eq (b)
-	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
 	return self:Equals (b)
 end
 
 function self:__lt (b)
-	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
 	return self:IsLessThan (b)
 end
 
 function self:__le (b)
-	if type (b) == "number" then b = BigInteger.FromInt64 (b) end
+	if type (b) == "number" then b = BigInteger.FromDouble (b) end
 	return self:IsLessThanOrEqual (b)
+end
+
+function self:__tostring ()
+	return self:ToDecimal ()
 end
 
 return BigInteger
