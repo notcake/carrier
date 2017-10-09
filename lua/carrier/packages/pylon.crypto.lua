@@ -1,3 +1,0 @@
-local Crypto = {}
-
-return Crypto
