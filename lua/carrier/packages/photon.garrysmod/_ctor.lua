@@ -23,10 +23,12 @@ include ("rendertarget.lua")
 
 include ("glyphrenderer.lua")
 
-GarrysMod.GraphicsContext = GraphicsContext ()
-GarrysMod.Render2d        = GarrysMod.GraphicsContext.Render2d
-GarrysMod.Render3d        = GarrysMod.GraphicsContext.Render3d
-GarrysMod.TextRenderer    = GarrysMod.GraphicsContext.TextRenderer
+if CLIENT then
+	GarrysMod.GraphicsContext = GraphicsContext ()
+	GarrysMod.Render2d        = GarrysMod.GraphicsContext.Render2d
+	GarrysMod.Render3d        = GarrysMod.GraphicsContext.Render3d
+	GarrysMod.TextRenderer    = GarrysMod.GraphicsContext.TextRenderer
+end
 
 function GarrysMod.Initialize (destinationTable)
 	destinationTable = destinationTable or {}
