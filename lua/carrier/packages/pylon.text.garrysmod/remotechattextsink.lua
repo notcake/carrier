@@ -7,7 +7,6 @@ end
 
 -- LineBufferedTextSink
 function self:AppendBuffer (text, color)
-	self.Buffer [#self.Buffer + 1] = color
 	self.Buffer [#self.Buffer + 1] = text
 end
 
