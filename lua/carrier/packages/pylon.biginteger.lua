@@ -285,14 +285,15 @@ function self:Add (b, out)
 	-- FFFF 0001 + FFFF FFFE = 1 FFFE FFFF -> FFFF FFFE FFFF
 	-- 0000 0003 + FFFF FFFE = 1 0000 0001
 	-- 0000 0001 + FFFF FFFE = 0 FFFF FFFF
+	-- 0000 0001 +      FFFF = 0 FFFF 0000
 	local cf = 0
 	for i = 1, math_min(#a, #b) do
 		out [i], cf = UInt24_AddWithCarry (a [i], b [i], cf)
 	end
 	
 	-- Process sign extended part
-	for i = #a + 1, #b do out [i], cf = UInt24_Add (a [#a], b [i], cf) end
-	for i = #b + 1, #a do out [i], cf = UInt24_Add (a [i], b [#b], cf) end
+	for i = #a + 1, #b do out [i], cf = UInt24_AddWithCarry (a [#a], b [i], cf) end
+	for i = #b + 1, #a do out [i], cf = UInt24_AddWithCarry (a [i], b [#b], cf) end
 	
 	-- Clear
 	out:Truncate (math_max (#a, #b))
