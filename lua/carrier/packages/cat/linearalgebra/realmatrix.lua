@@ -75,7 +75,17 @@ function self:Add (b, out)
 end
 
 function self:Subtract (b, out)
-	return self:Add (b, out)
+	local a = self
+	assert (a.w == b.w)
+	assert (a.h == b.h)
+	
+	local out = out or Cat.RealMatrix (0, 0)
+	out.w, out.h = a.w, a.h
+	
+	for i = 0, a.w * a.h - 1 do
+		out [i] = a [i] - b [i]
+	end
+	return out
 end
 
 function self:Multiply (b, out)
