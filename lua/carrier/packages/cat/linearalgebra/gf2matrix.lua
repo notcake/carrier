@@ -250,9 +250,6 @@ function self:Solve (b)
 	
 	rref = rref:ReducedRowEchelonForm (rref)
 	
-	-- Compute null space
-	local nullSpace = rref:NullSpace ()
-	
 	-- Find first solution and null space
 	local x0 = Cat.GF2Matrix (self.w, 1)
 	local nullSpace = {}

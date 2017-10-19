@@ -237,9 +237,6 @@ function self:Solve (b)
 	
 	rref = rref:ReducedRowEchelonForm (rref)
 	
-	-- Compute null space
-	local nullSpace = rref:NullSpace ()
-	
 	-- Find first solution and null space
 	local x0 = Cat.RealMatrix (self.w, 1)
 	local nullSpace = {}
