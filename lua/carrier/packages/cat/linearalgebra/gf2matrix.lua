@@ -146,7 +146,7 @@ function self:Invert (out)
 		rref [i * rref.w + self.w + i] = 1
 	end
 	
-	rref = rref:ReducedRowEchelonForm ()
+	rref = rref:ReducedRowEchelonForm (rref)
 	
 	-- rref = [I self^-1]
 	for y = 0, out.h - 1 do
@@ -248,7 +248,7 @@ function self:Solve (b)
 		rref [y * rref.w + self.w] = b [y]
 	end
 	
-	rref = rref:ReducedRowEchelonForm ()
+	rref = rref:ReducedRowEchelonForm (rref)
 	
 	-- Compute null space
 	local nullSpace = rref:NullSpace ()
