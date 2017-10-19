@@ -108,7 +108,13 @@ function self:Multiply (b, out)
 end
 
 function self:Negate (out)
-	return out and self:Clone (out) or self
+	local out = out or Cat.RealMatrix (0, 0)
+	out.w, out.h = self.w, self.h
+	
+	for i = 0, self.w * self.h - 1 do
+		out [i] = -self [i]
+	end
+	return out
 end
 
 -- Matrix operations
