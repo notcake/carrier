@@ -18,7 +18,7 @@ include ("rings/complex.lua")
 include ("rings/gf2.lua")
 
 Cat.LinearAlgebra = {}
-include ("linearalgebra/matrix.lua")
+include ("linearalgebra/realmatrix.lua")
 include ("linearalgebra/genericmatrix.lua")
 include ("linearalgebra/complexmatrix.lua")
 include ("linearalgebra/gf2matrix.lua")
