@@ -215,8 +215,8 @@ function self:ReducedRowEchelonForm (out)
 						end
 					end
 				end
-				x = x + 1
 				
+				x = x + 1
 				break
 			else
 				-- Failed, try next column
@@ -228,7 +228,7 @@ function self:ReducedRowEchelonForm (out)
 	return out
 end
 
-function self:Solve (b)
+function self:Solve (b, out)
 	assert (b.w == 1)
 	assert (self.h == b.h)
 	
@@ -284,11 +284,13 @@ end
 function self:Transpose (out)
 	local out = out or Cat.GF2Matrix (0, 0)
 	out.w, out.h = self.h, self.w
+	
 	for y = 0, self.h - 1 do
 		for x = 0, self.w - 1 do
 			out [x * out.w + y] = self [y * self.w + x];
 		end
 	end
+	
 	return out
 end
 
@@ -316,6 +318,7 @@ function self:GetRow (y, out)
 end
 
 function self:SetColumn (x, column)
+	assert (column.w == 1)
 	assert (self.h == column.h)
 	
 	for y = 0, self.h - 1 do
@@ -326,6 +329,7 @@ function self:SetColumn (x, column)
 end
 
 function self:SetRow (y, row)
+	assert (row.h == 1)
 	assert (self.w == row.w)
 	
 	for x = 0, self.w - 1 do
@@ -342,9 +346,9 @@ function self:ColumnToUInt32 ()
 	
 	local x = 0
 	for i = 31, 0, -1 do
-		x = x * 2
-		x = x + self [i]
+		x = x * 2 + self [i]
 	end
+	
 	return x
 end
 
@@ -353,24 +357,24 @@ function self:RowToUInt32 ()
 	assert (self.h ==  1)
 	
 	local x = 0
-	for i = 31, 0, -1 do
-		x = x * 2
-		x = x + self [i]
+	for i = 31, 0, -1 d
+		x = x * 2 + self [i]
 	end
+	
 	return x
 end
 
 function self:ToString ()
 	local rows = {}
 	for y = 0, self.h - 1 do
-		local column = { "[" }
+		local column = {}
 		for x = 0, self.w - 1 do
 			column [#column + 1] = self [y * self.w + x]
 		end
-		column [#column + 1] = "]"
 		
-		rows [#rows + 1] = table.concat (column)
+		rows [#rows + 1] = "[ " .. table.concat (column) .. " ]"
 	end
+	
 	return table.concat (rows, "\n")
 end
 

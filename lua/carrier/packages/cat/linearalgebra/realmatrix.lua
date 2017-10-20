@@ -218,8 +218,8 @@ function self:ReducedRowEchelonForm ()
 						end
 					end
 				end
-				x = x + 1
 				
+				x = x + 1
 				break
 			else
 				-- Failed, try next column
@@ -231,7 +231,7 @@ function self:ReducedRowEchelonForm ()
 	return out
 end
 
-function self:Solve (b)
+function self:Solve (b, out)
 	assert (b.w == 1)
 	assert (self.h == b.h)
 	
@@ -287,11 +287,13 @@ end
 function self:Transpose (out)
 	local out = out or Cat.RealMatrix (0, 0)
 	out.w, out.h = self.h, self.w
+	
 	for y = 0, self.h - 1 do
 		for x = 0, self.w - 1 do
 			out [x * out.w + y] = self [y * self.w + x];
 		end
 	end
+	
 	return out
 end
 
@@ -319,6 +321,7 @@ function self:GetRow (y, out)
 end
 
 function self:SetColumn (x, column)
+	assert (column.w == 1)
 	assert (self.h == column.h)
 	
 	for y = 0, self.h - 1 do
@@ -329,6 +332,7 @@ function self:SetColumn (x, column)
 end
 
 function self:SetRow (y, row)
+	assert (row.h == 1)
 	assert (self.w == row.w)
 	
 	for x = 0, self.w - 1 do
@@ -349,6 +353,7 @@ function self:ToString ()
 		
 		rows [#rows + 1] = "[ " .. table.concat (column, ", ") .. " ]"
 	end
+	
 	return table.concat (rows, "\n")
 end
 
