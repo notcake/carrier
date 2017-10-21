@@ -57,6 +57,7 @@ end
 
 function self:Set (y, x, value)
 	self [y * self.w + x] = value
+	return self
 end
 
 -- Arithmetic

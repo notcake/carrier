@@ -79,6 +79,7 @@ end
 
 function self:Set (y, x, value)
 	self [y * self.w + x] = value
+	return self
 end
 
 -- Arithmetic
@@ -357,7 +358,7 @@ function self:RowToUInt32 ()
 	assert (self.h ==  1)
 	
 	local x = 0
-	for i = 31, 0, -1 d
+	for i = 31, 0, -1 do
 		x = x * 2 + self [i]
 	end
 	
