@@ -12,7 +12,7 @@ local uint8Cache = {}
 for i = 0, 255 do
 	local c = i
 	local crc = 0
-	for i = 1, 8 do
+	for j = 1, 8 do
 		local a = bit_band (c, 1)
 		local b = bit_band (crc, 1)
 		
@@ -20,7 +20,7 @@ for i = 0, 255 do
 		crc = bit_rshift (crc, 1)
 		
 		if bit_bxor (a, b) == 1 then
-			crc = bit_bxor (crc, 0xedb88320)
+			crc = bit_bxor (crc, 0xEDB88320)
 		end
 	end
 	
