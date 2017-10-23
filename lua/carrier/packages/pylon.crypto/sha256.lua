@@ -5,7 +5,9 @@ local bit_band      = bit.band
 local bit_bnot      = bit.bnot
 local bit_bxor      = bit.bxor
 local bit_lshift    = bit.lshift
+local bit_ror       = bit.ror
 local bit_rshift    = bit.rshift
+local bit_tobit     = bit.tobit
 local math_floor    = math.floor
 local string_byte   = string.byte
 local string_format = string.format
@@ -125,11 +127,6 @@ local K =
 	0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
 	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 }
-
-local function ror (x, n)
-	return bit_rshift (x, n) + bit_lshift (x, 32 - n)
-end
-
 local w = {}
 function self:Block (block)
 	for i = 1, blockSize do
@@ -137,18 +134,18 @@ function self:Block (block)
 	end
 	
 	for i = 17, 64 do
-		local s0 = bit_bxor (ror (w [i - 15],  7), ror (w [i - 15], 18), bit_rshift (w [i - 15],  3))
-		local s1 = bit_bxor (ror (w [i -  2], 17), ror (w [i -  2], 19), bit_rshift (w [i -  2], 10))
+		local s0 = bit_bxor (bit_ror (w [i - 15],  7), bit_ror (w [i - 15], 18), bit_rshift (w [i - 15],  3))
+		local s1 = bit_bxor (bit_ror (w [i -  2], 17), bit_ror (w [i -  2], 19), bit_rshift (w [i -  2], 10))
 		w [i] = w [i - 16] + s0 + w [i - 7] + s1
 	end
 	
 	local h0, h1, h2, h3, h4, h5, h6, h7 = self.State [1], self.State [2], self.State [3], self.State [4], self.State [5], self.State [6], self.State [7], self.State [8]
 	
 	for i = 1, 64 do
-		local S1 = bit_bxor (ror (h4, 6), ror (h4, 11), ror (h4, 25))
+		local S1 = bit_bxor (bit_ror (h4, 6), bit_ror (h4, 11), bit_ror (h4, 25))
 		local ch = bit_bxor (bit_band (h4, h5), bit_band (bit_bnot (h4), h6))
-		local temp1 = bit_band (h7 + S1 + ch + K [i] + w [i], 0xFFFFFFFF)
-		local S0 = bit_bxor (ror (h0, 2), ror (h0, 13), ror (h0, 22))
+		local temp1 = bit_tobit (h7 + S1 + ch + bit_tobit (K [i] + w [i]))
+		local S0 = bit_bxor (bit_ror (h0, 2), bit_ror (h0, 13), bit_ror (h0, 22))
 		local maj = bit_bxor (bit_band (h0, h1), bit_band (h0, h2), bit_band (h1, h2))
 		local temp2 = S0 + maj
 		
