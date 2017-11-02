@@ -680,7 +680,7 @@ function self:ToHex (digitCount)
 	
 	-- Format
 	if digitCount then
-		digitCount = digitCount - 6 * (#self - 1)
+		digitCount = math_max (0, digitCount - 6 * (#self - 2))
 	else
 		digitCount = 1
 	end
