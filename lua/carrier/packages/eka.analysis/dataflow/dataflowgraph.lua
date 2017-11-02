@@ -4,6 +4,7 @@ Analysis.DataFlowGraph = Class (self)
 function self:ctor ()
 	self.InputNodeSet    = {}
 	self.OutputNodeSet   = {}
+	self.OutputNodes     = {}
 	self.NodeSet         = {}
 	
 	self.InputNodeCount  = 0
@@ -30,6 +31,7 @@ end
 function self:AddOutputNode (node)
 	if self.OutputNodeSet [node] then return end
 	self.OutputNodeSet [node] = true
+	self.OutputNodes [#self.OutputNodes + 1] = node
 	self.OutputNodeCount = self.OutputNodeCount + 1
 	
 	if self.NodeSet [node] then return end
@@ -62,7 +64,7 @@ function self:GetInputNodeEnumerator ()
 end
 
 function self:GetOutputNodeEnumerator ()
-	return KeyEnumerator (self.OutputNodeSet)
+	return ArrayEnumerator (self.OutputNodes)
 end
 
 function self:IsInputNode (node)
