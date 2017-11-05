@@ -240,6 +240,29 @@ function self:IsZero ()
 end
 
 -- Comparisons
+function self:Compare (b)
+	local a = self
+	
+	-- Check signs
+	if a [#a] ~= b [#b] then return a [#a] == Sign_Negative and -1 or 1 end
+	
+	if #a == #b then
+		for i = #a - 1, 1, -1 do
+			if a [i] < b [i] then
+				return a [#a] == Sign_Positive and -1 or  1
+			elseif a [i] > b [i] then
+				return a [#a] == Sign_Positive and  1 or -1
+			end
+		end
+		
+		return 0
+	elseif #a < #b then
+		return a [#a] == Sign_Positive and -1 or  1
+	else
+		return a [#a] == Sign_Positive and  1 or -1
+	end
+end
+
 function self:Equals (b)
 	local a = self
 	if #a ~= #b then return false end
@@ -250,6 +273,11 @@ function self:Equals (b)
 	
 	return true
 end
+
+function self:IsLessThan           (b) return self:Compare (b) == -1 end
+function self:IsLessThanOrEqual    (b) return self:Compare (b) ~=  1 end
+function self:IsGreaterThan        (b) return self:Compare (b) ==  1 end
+function self:IsGreaterThanOrEqual (b) return self:Compare (b) ~= -1 end
 
 -- Arithmetic
 function self:Negate (b, out)
@@ -619,6 +647,48 @@ function self:Not (out)
 	return out
 end
 
+-- Miscellaneous
+function self:ModularInverse (p, out)
+	return self:ExponentiateMod (p:Subtract (BigInteger.FromDouble (2)), p, out)
+end
+
+function self:Root (n)
+	if self:IsNegative () then return false, nil end
+	if not n:IsPositive () then return false, nil end
+	if self:IsZero () then return true, self end
+	if self:Equals (BigInteger.FromDouble (1)) then return true, self end
+	if n:Equals (BigInteger.FromDouble (1)) then return true, self end
+	
+	local one = BigInteger.FromDouble (1)
+	local two = BigInteger.FromDouble (2)
+	
+	-- lowerBound inclusive, upperBound inclusive
+	local temp1 = BigInteger ()
+	local temp2 = BigInteger ()
+	local lowerBound = one:Clone ()
+	local upperBound = two:Exponentiate (BigInteger.FromDouble (self:GetBitCount ()) / n + 1)
+	local mid = BigInteger ()
+	while not lowerBound:Equals (upperBound) do
+		temp1 = lowerBound:Add (upperBound, temp1)
+		temp1 = temp1:Add (one, temp1)
+		mid = temp1:Divide (two, mid, temp2)
+		
+		temp1 = mid:Exponentiate (n, temp1)
+		local cmp = temp1:Compare (self)
+		if cmp == 0 then
+			return true, mid
+		elseif cmp == 1 then
+			upperBound = mid:Subtract (one)
+		elseif cmp == -1 then
+			lowerBound = mid:Clone (lowerBound)
+		end
+	end
+	
+	temp1 = lowerBound:Exponentiate (n, temp1)
+	return temp1:Equals (self), lowerBound
+end
+
+-- Conversions
 function self:ToBlob ()
 	local t = {}
 	
