@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.CRC32
+
 local bit = require ("bit")
 
 local bit_band    = bit.band

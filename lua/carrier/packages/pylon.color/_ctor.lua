@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Color
+
 Color = {}
 
 include ("webcolors.lua")

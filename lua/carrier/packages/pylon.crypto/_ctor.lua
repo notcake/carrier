@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Crypto
+
 Crypto = {}
 
 bit = require ("bit")

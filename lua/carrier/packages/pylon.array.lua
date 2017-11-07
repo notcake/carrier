@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Array
+
 Array = {}
 
 function Array.Concat (t, separator)

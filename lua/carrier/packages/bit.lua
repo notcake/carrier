@@ -1,1 +1,3 @@
+-- PACKAGE bit
+
 return bit

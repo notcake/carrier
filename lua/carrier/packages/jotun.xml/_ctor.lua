@@ -1,3 +1,5 @@
+-- PACKAGE Jotun.Xml
+
 Xml = {}
 
 Error = require ("Pylon.Error")

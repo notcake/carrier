@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.HTTP
+
 HTTP = {}
 
 Error = require ("Pylon.Error")

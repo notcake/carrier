@@ -1,3 +1,5 @@
+-- PACKAGE Cat
+
 Cat = {}
 
 Error = require ("Pylon.Error")

@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Util
+
 Util = {}
 
 Error = require ("Pylon.Error")

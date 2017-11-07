@@ -1,3 +1,5 @@
+-- PACKAGE Eka.StringParser
+
 local OOP = require ("Pylon.OOP")
 
 local self = {}

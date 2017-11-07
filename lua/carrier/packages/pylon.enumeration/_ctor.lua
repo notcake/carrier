@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Enumeration
+
 Enumeration = {}
 
 Error = require ("Pylon.Error")

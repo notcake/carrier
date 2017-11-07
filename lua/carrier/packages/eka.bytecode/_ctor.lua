@@ -1,3 +1,5 @@
+-- PACKAGE Eka.Bytecode
+
 Bytecode = {}
 
 Error = require ("Pylon.Error")

@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Algorithms
+
 Algorithms = {}
 
 include ("depthfirstsearch.lua")

@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Containers.CompactList
+
 local CompactList = {}
 
 local select = select

@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Pool
+
 local OOP = require ("Pylon.OOP")
 
 local self = {}

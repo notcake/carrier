@@ -1,3 +1,5 @@
+-- PACKAGE GarrysMod.FontCache
+
 OOP = require ("Pylon.OOP")
 
 Glass = require ("Glass")

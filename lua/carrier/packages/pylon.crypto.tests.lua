@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Crypto.Tests
+
 local Crypto = require ("Pylon.Crypto")
 
 return function ()

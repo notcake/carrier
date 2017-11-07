@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.BitConverter
+
 local BitConverter = {}
 
 local bit_band   = bit.band

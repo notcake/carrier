@@ -1,3 +1,5 @@
+-- PACKAGE Photon
+
 Photon = {}
 
 Error = require ("Pylon.Error")

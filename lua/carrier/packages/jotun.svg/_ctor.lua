@@ -1,3 +1,5 @@
+-- PACKAGE Jotun.Svg
+
 Svg = {}
 
 Error = require ("Pylon.Error")

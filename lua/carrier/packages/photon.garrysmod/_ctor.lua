@@ -1,3 +1,5 @@
+-- PACKAGE Photon.GarrysMod
+
 GarrysMod = {}
 
 require ("Pylon.OOP").Initialize (_ENV)

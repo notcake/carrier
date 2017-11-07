@@ -1,3 +1,5 @@
+-- PACKAGE Eka.Glass.GarrysMod
+
 GarrysMod = {}
 
 require ("Pylon.OOP").Initialize (_ENV)

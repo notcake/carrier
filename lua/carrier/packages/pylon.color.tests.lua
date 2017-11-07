@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Color
+
 local Color = require ("Pylon.Color")
 
 return function ()

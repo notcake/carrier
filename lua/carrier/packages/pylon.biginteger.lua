@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.BigInteger
+
 local OOP    = require ("Pylon.OOP")
 local UInt24 = require ("Pylon.UInt24")
 

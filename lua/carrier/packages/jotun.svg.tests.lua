@@ -1,3 +1,5 @@
+-- PACKAGE Jotun.Svg.Tests
+
 local Color = require ("Pylon.Color")
 local Svg   = require ("Jotun.Svg")
 

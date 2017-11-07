@@ -1,3 +1,5 @@
+-- PACKAGE Eka.Analysis
+
 Analysis = {}
 
 Error = require ("Pylon.Error")

@@ -1,3 +1,5 @@
+-- PACKAGE bit.Lua
+
 local bit = {}
 
 function bit.band (a, b) return a & b end

@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.UInt24.Tests
+
 local Clock  = require_provider ("Pylon.MonotonicClock")
 local Util   = require ("Pylon.Util")
 local UInt24 = require ("Pylon.UInt24")

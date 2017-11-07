@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Async.GarrysMod
+
 local CompactList = require ("Pylon.Containers.CompactList")
 local Future      = require ("Pylon.Future")
 local Clock       = require_provider ("Pylon.MonotonicClock")

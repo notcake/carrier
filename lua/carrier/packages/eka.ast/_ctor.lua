@@ -1,3 +1,5 @@
+-- PACKAGE Eka.AST
+
 AST = {}
 
 Error = require ("Pylon.Error")

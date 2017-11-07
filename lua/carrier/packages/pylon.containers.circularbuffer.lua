@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Containers.CircularBuffer
+
 local OOP = require ("Pylon.OOP")
 local ICollection = require ("Pylon.Containers.ICollection")
 

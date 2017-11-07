@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Table
+
 local Table = {}
 
 function Table.Callable (f)

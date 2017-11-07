@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.String
+
 String = {}
 
 local hexMap = {}

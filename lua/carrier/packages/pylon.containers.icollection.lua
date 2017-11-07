@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Containers.ICollection
+
 local Error = require ("Pylon.Error")
 local OOP = require ("Pylon.OOP")
 local Enumeration = require ("Pylon.Enumeration")

@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Containers.CircularBuffer.Tests
+
 local CircularBuffer = require ("Pylon.Containers.CircularBuffer")
 
 function Test (buffer, elements)

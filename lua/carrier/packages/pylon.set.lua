@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Set
+
 Set = {}
 
 function Set.ToArray (set)

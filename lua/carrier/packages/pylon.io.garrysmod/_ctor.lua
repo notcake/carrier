@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.IO.GarrysMod
+
 GarrysMod = {}
 
 Error = require ("Pylon.Error")

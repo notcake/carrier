@@ -1,3 +1,5 @@
+-- PACKAGE Jotun.Xml.Tests
+
 local Xml = require ("Jotun.Xml")
 
 local fml = [[

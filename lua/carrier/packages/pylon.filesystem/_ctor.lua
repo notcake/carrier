@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.FileSystem
+
 local FileSystem = {}
 
 Error = require ("Pylon.Error")

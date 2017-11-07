@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Functional
+
 local Functional = {}
 
 function Functional.Curry (f, x)

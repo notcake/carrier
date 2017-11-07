@@ -1,3 +1,5 @@
+-- PACKAGE Eka.LuaJIT
+
 LuaJIT = {}
 
 Error = require ("Pylon.Error")

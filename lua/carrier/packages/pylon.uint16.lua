@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.UInt16
+
 local UInt16 = {}
 
 local bit_band   = bit.band

@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Future
+
 local OOP = require ("Pylon.OOP")
 
 local CompactList = require ("Pylon.Containers.CompactList")

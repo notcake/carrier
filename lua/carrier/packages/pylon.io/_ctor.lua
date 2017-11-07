@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.IO
+
 IO = {}
 
 Error = require ("Pylon.Error")

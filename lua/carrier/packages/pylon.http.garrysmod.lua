@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.HTTP.GarrysMod
+
 local GarrysMod = {}
 
 local HTTP = require ("Pylon.HTTP")

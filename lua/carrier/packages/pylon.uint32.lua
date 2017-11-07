@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.UInt32
+
 local UInt32 = {}
 
 local bit_band   = bit.band

@@ -1,3 +1,5 @@
+-- PACKAGE Eka.Glass
+
 Glass = {}
 
 Error = require ("Pylon.Error")
