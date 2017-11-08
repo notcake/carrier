@@ -1,4 +1,4 @@
--- PACKAGE Eka.Glass.GarrysMod
+-- PACKAGE Glass.GarrysMod
 
 GarrysMod = {}
 
