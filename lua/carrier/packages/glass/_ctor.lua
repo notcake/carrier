@@ -1,4 +1,4 @@
--- PACKAGE Eka.Glass
+-- PACKAGE Glass
 
 Glass = {}
 
