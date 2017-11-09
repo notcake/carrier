@@ -12,6 +12,10 @@ local math_floor    = math.floor
 local string_byte   = string.byte
 local string_format = string.format
 
+function Crypto.SHA256.Compute (x)
+	return Crypto.SHA256 ():Update (x):Finish ()
+end
+
 function self:ctor ()
 	self.State = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 }
 	
