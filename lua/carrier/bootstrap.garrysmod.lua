@@ -204,7 +204,7 @@ end
 
 function Carrier.Initialize ()
 	hook.Add ("OnReloaded", "Carrier", Carrier.InvalidatePackageCache)
-	hook.Add ("ShutDown", "Carrier",   Carrier.Uninitialize)
+	hook.Add ("ShutDown",   "Carrier", Carrier.Uninitialize)
 	
 	local t0 = SysTime ()
 	Carrier.Packages = Carrier.LoadPackage ("Carrier.Packages")
