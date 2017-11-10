@@ -186,7 +186,7 @@ function self:IsDerivedFrom (class)
 end
 
 function self:IsInstance (object)
-	if not istable (object) then return false end
+	if type (object) ~= "table" then return false end
 	local class = object._Class
 	if not class then return false end
 	
