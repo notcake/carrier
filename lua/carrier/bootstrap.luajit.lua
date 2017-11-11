@@ -135,5 +135,8 @@ else
 	local packageName = arg [1]
 	arg [0] = "luajit " .. arg [0] .. " " .. arg [1]
 	table.remove (arg, 1)
-	Carrier.Require (packageName)
+	local f = Carrier.Require (packageName)
+	if type (f) == "function" then
+		f (unpack (arg, 0, #arg))
+	end
 end
