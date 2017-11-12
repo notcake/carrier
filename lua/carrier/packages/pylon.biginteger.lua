@@ -417,13 +417,13 @@ function self:Square (out)
 	return self:Multiply (self, out)
 end
 
-function self:Divide (b, out1, out2)
+function self:Divide (b, quotient, remainder)
 	if #b <= 2 then
-		local quotient, remainder = self:DivideInt24 (b:IsNegative () and -(UInt24_Maximum - b [1] + 1) or b [1], out1)
+		local quotient, remainder = self:DivideInt24 (b:IsNegative () and -(UInt24_Maximum - b [1] + 1) or b [1], quotient)
 		return quotient, BigInteger.FromInt32 (remainder)
 	end
-	local quotient  = out1 or BigInteger ()
-	local remainder = self:IsNegative () and self:Negate (out2) or self:Clone (out2)
+	local quotient  = quotient or BigInteger ()
+	local remainder = self:IsNegative () and self:Negate (remainder) or self:Clone (remainder)
 	local a = self
 	
 	if b:IsZero () then
@@ -513,6 +513,7 @@ end
 
 function self:Exponentiate (exponent)
 	local out = BigInteger.FromUInt32 (1)
+	local buffer = BigInteger ()
 	
 	-- Avoid computing factors all the way to self ^ (2 ^ UInt24.BitCount)
 	local exponentBitCount = exponent:GetBitCount ()
@@ -522,11 +523,11 @@ function self:Exponentiate (exponent)
 		local mask = 1
 		for j = 1, math.min (UInt24_BitCount, exponentBitCount - (i - 1) * UInt24_BitCount) do
 			if bit_band (exponent [i], mask) ~= 0 then
-				out = out:Multiply (factor)
+				out, buffer = out:Multiply (factor, buffer), out
 			end
 			
 			mask = mask * 2
-			factor = factor:Square ()
+			factor, buffer = factor:Square (buffer), factor
 		end
 	end
 	
@@ -535,25 +536,29 @@ end
 
 function self:ExponentiateMod (exponent, mod)
 	local out = BigInteger.FromUInt32 (1)
+	local product  = BigInteger ()
+	local quotient = BigInteger ()
 	
 	local factor = self:Clone ()
 	for i = 1, #exponent - 1 do
 		local mask = 1
 		for j = 1, UInt24_BitCount do
 			if bit_band (exponent [i], mask) ~= 0 then
-				out = out:Multiply (factor):Mod (mod)
+				product = out:Multiply (factor, product)
+				out = product:Mod (mod, out, quotient)
 			end
 			
 			mask = mask * 2
-			factor = factor:Square ():Mod (mod)
+			product = factor:Square (product)
+			factor = product:Mod (mod, factor, quotient)
 		end
 	end
 	
 	return out
 end
 
-function self:Mod (b, out1, out2)
-	local quotient, remainder = self:Divide (b, out1, out2)
+function self:Mod (b, remainder, quotient)
+	local quotient, remainder = self:Divide (b, quotient, remainder)
 	return remainder, quotient
 end
 
