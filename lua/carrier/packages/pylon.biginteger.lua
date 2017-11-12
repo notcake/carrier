@@ -418,7 +418,7 @@ function self:Square (out)
 end
 
 function self:Divide (b, out1, out2)
-	if #b == 2 then
+	if #b <= 2 then
 		local quotient, remainder = self:DivideInt24 (b:IsNegative () and -(UInt24_Maximum - b [1] + 1) or b [1], out1)
 		return quotient, BigInteger.FromInt32 (remainder)
 	end
