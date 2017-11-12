@@ -199,7 +199,7 @@ function Carrier.UnloadPackage (packageName)
 end
 
 function Carrier.Reload ()
-	include ("carrier/bootstrap.lua")
+	include ("carrier/bootstrap.garrysmod.lua")
 end
 
 function Carrier.Initialize ()
