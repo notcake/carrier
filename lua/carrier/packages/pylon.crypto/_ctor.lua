@@ -11,4 +11,9 @@ OOP.Initialize (_ENV)
 
 include ("sha256.lua")
 
+Crypto.AES = {}
+include ("aes.sbox.lua")
+
+include ("photon128.lua")
+
 return Crypto
