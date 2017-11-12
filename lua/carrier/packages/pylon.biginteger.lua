@@ -413,6 +413,10 @@ function self:Multiply (b, out)
 	return out
 end
 
+function self:Square (out)
+	return self:Multiply (self, out)
+end
+
 function self:Divide (b, out1, out2)
 	if #b == 2 then
 		local quotient, remainder = self:DivideInt24 (b:IsNegative () and -(UInt24_Maximum - b [1] + 1) or b [1], out1)
@@ -522,7 +526,7 @@ function self:Exponentiate (exponent)
 			end
 			
 			mask = mask * 2
-			factor = factor:Multiply (factor)
+			factor = factor:Square ()
 		end
 	end
 	
@@ -541,7 +545,7 @@ function self:ExponentiateMod (exponent, mod)
 			end
 			
 			mask = mask * 2
-			factor = factor:Multiply (factor):Mod (mod)
+			factor = factor:Square ():Mod (mod)
 		end
 	end
 	
