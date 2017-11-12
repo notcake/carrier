@@ -9,6 +9,7 @@ Error = require ("Pylon.Error")
 OOP = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
+include ("md5.lua")
 include ("sha256.lua")
 
 Crypto.AES = {}
