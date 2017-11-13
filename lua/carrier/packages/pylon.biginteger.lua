@@ -27,6 +27,7 @@ local math_max      = math.max
 local string_byte   = string.byte
 local string_char   = string.char
 local string_format = string.format
+local string_rep    = string.rep
 local string_sub    = string.sub
 local table_concat  = table.concat
 
@@ -38,6 +39,7 @@ local UInt24_BitCount           = UInt24.BitCount
 local UInt24_Add                = UInt24.Add
 local UInt24_AddWithCarry       = UInt24.AddWithCarry
 local UInt24_Divide             = UInt24.Divide
+local UInt24_Multiply           = UInt24.Multiply
 local UInt24_MultiplyAdd2       = UInt24.MultiplyAdd2
 local UInt24_Subtract           = UInt24.Subtract
 local UInt24_SubtractWithBorrow = UInt24.SubtractWithBorrow
@@ -281,6 +283,10 @@ function self:IsLessThanOrEqual    (b) return self:Compare (b) ~=  1 end
 function self:IsGreaterThan        (b) return self:Compare (b) ==  1 end
 function self:IsGreaterThanOrEqual (b) return self:Compare (b) ~= -1 end
 
+-- Miscellaneous
+function self:IsEven () return self [1] % 2 == 0 end
+function self:IsOdd  () return self [1] % 2 == 1 end
+
 -- Arithmetic
 function self:Negate (b, out)
 	-- Flip all bits
@@ -385,7 +391,7 @@ function self:Multiply (b, out)
 	local a = self
 	
 	-- Prepare for convolution
-	out:TruncateAndZero (#a + #b)
+	out:TruncateAndZero (#a + #b - 1)
 	
 	-- Multiply
 	for i = 1, #a do
@@ -395,18 +401,18 @@ function self:Multiply (b, out)
 		end
 		
 		-- Carry
-		for j = i + #b, #a + #b do
-			out [j], high = UInt24_Add (out [j], high)
+		for j = i + #b, #a + #b - 1 do
 			if high == 0 then break end
+			out [j], high = UInt24_Add (out [j], high)
 		end
 	end
-
+	
 	-- Clear junk
 	out:Truncate (math_max (1, #a - 1 + #b - 1))
 	
 	-- Sign
 	out [#out + 1] = (a:IsZero() or b:IsZero()) and Sign_Positive or bit_bxor(a [#a], b [#b])
-	
+		
 	-- Normalize
 	out:Normalize ()
 	
@@ -414,7 +420,56 @@ function self:Multiply (b, out)
 end
 
 function self:Square (out)
-	return self:Multiply (self, out)
+	local out = out or BigInteger ()
+	local a = self
+	
+	-- Prepare for convolution
+	out:TruncateAndZero (#a * 2 - 1)
+	
+	-- Multiply
+	--    | x0  x1  x2  x3
+	-- ---+----------------
+	-- x0 | x00 x01 x02 x03
+	-- x1 | x10 x11 x12 x13
+	-- x2 | x20 x21 x22 x23
+	-- x3 | x30 x31 x32 x33
+	-- Contributions are symmetric about the diagonal
+	for i = 1, #a do
+		local high = 0
+		for j = 1, i - 1 do
+			out [i + j - 1], high = UInt24_MultiplyAdd2 (a [i], a [j], out [i + j - 1], high)
+		end
+		
+		-- Carry
+		for j = i * 2 - 1, #a * 2 - 1 do
+			if high == 0 then break end
+			out [j], high = UInt24_Add (out [j], high)
+		end
+	end
+	
+	-- Double
+	local carry = 0
+	for i = 1, #a * 2 - 1 do
+		out [i], carry = UInt24_AddWithCarry (out [i], out [i], carry)
+	end
+	
+	-- Diagonal
+	local high = 0
+	for i = 1, #a - 1 do
+		out [i + i - 1], high = UInt24_MultiplyAdd2 (a [i], a [i], out [i + i - 1], high)
+		out [i + i], high = UInt24_Add (out [i + i], high)
+	end
+
+	-- Clear junk
+	out:Truncate (math_max (1, #a * 2 - 2))
+	
+	-- Sign
+	out [#out + 1] = Sign_Positive
+	
+	-- Normalize
+	out:Normalize ()
+	
+	return out
 end
 
 function self:Divide (b, quotient, remainder)
@@ -435,7 +490,7 @@ function self:Divide (b, quotient, remainder)
 	if a:IsNegative () then a = a:Negate () end
 	if b:IsNegative () then b = b:Negate () end
 	
-	quotient:TruncateAndZero (#a - #b + 2)
+	quotient:TruncateAndZero (math_max (1, #a - #b + 2))
 	
 	-- HACK: Pull in 25 bits of divisor to calculate the quotient
 	local additionalBitCount = UInt24_CountLeadingZeros (b [#b - 1]) + 1
@@ -471,7 +526,8 @@ function self:Divide (b, quotient, remainder)
 		quotient [i] = q
 	end
 	
-	-- Normalize remainder
+	-- Normalize
+	quotient:Normalize ()
 	remainder:Normalize ()
 	
 	if negative then
@@ -513,7 +569,7 @@ end
 
 function self:Exponentiate (exponent)
 	local out = BigInteger.FromUInt32 (1)
-	local buffer = BigInteger ()
+	local temp = BigInteger ()
 	
 	-- Avoid computing factors all the way to self ^ (2 ^ UInt24.BitCount)
 	local exponentBitCount = exponent:GetBitCount ()
@@ -523,18 +579,20 @@ function self:Exponentiate (exponent)
 		local mask = 1
 		for j = 1, math.min (UInt24_BitCount, exponentBitCount - (i - 1) * UInt24_BitCount) do
 			if bit_band (exponent [i], mask) ~= 0 then
-				out, buffer = out:Multiply (factor, buffer), out
+				out, temp = out:Multiply (factor, temp), out
 			end
 			
 			mask = mask * 2
-			factor, buffer = factor:Square (buffer), factor
+			factor, temp = factor:Square (temp), factor
 		end
 	end
 	
 	return out
 end
 
-function self:ExponentiateMod (exponent, mod)
+function self:ExponentiateMod (exponent, m)
+	if m:IsOdd () and #exponent >= 4 then return self:MontgomeryExponentiateMod (exponent, m) end
+	
 	local out = BigInteger.FromUInt32 (1)
 	local product  = BigInteger ()
 	local quotient = BigInteger ()
@@ -545,12 +603,12 @@ function self:ExponentiateMod (exponent, mod)
 		for j = 1, UInt24_BitCount do
 			if bit_band (exponent [i], mask) ~= 0 then
 				product = out:Multiply (factor, product)
-				out = product:Mod (mod, out, quotient)
+				out = product:Mod (m, out, quotient)
 			end
 			
 			mask = mask * 2
 			product = factor:Square (product)
-			factor = product:Mod (mod, factor, quotient)
+			factor = product:Mod (m, factor, quotient)
 		end
 	end
 	
@@ -663,7 +721,7 @@ function self:ModularInverse (m)
 	local a, b = m, self
 	local previousR, r = a:Clone (), b:Clone ()
 	local previousT, t = BigInteger (), BigInteger.FromDouble (1)
-	local buffer = BigInteger ()
+	local temp = BigInteger ()
 	local q = BigInteger ()
 	
 	-- a s_0 + b t_0 = r_0 = a => s_0 = 1, t_0 = 0
@@ -674,14 +732,14 @@ function self:ModularInverse (m)
 	--       = (a s_i-1 - a s_i q_i) + (b t_i-1 - b t_i q_i)
 	--       = a (s_i-1 - s_i q_i) + b (t_i-1 - t_i q_i)
 	while not r:IsZero () do
-		q, buffer = previousR:Divide (r, q, buffer)
-		previousR, r, buffer = r, buffer, previousR
+		q, temp = previousR:Divide (r, q, temp)
+		previousR, r, temp = r, temp, previousR
 		
 		-- s_i+1 = s_i-1 - s_i q_i
 		-- t_i+1 = t_i-1 - t_i q_i
-		buffer = t:Multiply (q, buffer)
-		buffer, q = previousT:Subtract (buffer, q), buffer
-		previousT, t, buffer = t, buffer, previousT
+		temp = t:Multiply (q, temp)
+		temp, q = previousT:Subtract (temp, q), temp
+		previousT, t, temp = t, temp, previousT
 	end
 	
 	-- r_i = gcd(self, m)
@@ -691,7 +749,7 @@ function self:ModularInverse (m)
 	if previousR:IsPositive () and (#previousR > 2 or previousR [1] > 1) then return nil end
 	
 	-- Return normalized inverse
-	return previousT:IsNegative () and previousT:Add (m, buffer) or previousT
+	return previousT:IsNegative () and previousT:Add (m, temp) or previousT
 end
 
 function self:Root (n)
@@ -786,7 +844,7 @@ function self:ToDecimal ()
 end
 
 function self:ToHex (digitCount)
-	if #self == 1 then return self [#self] == UInt24_Zero and "00" or "FF" end
+	if #self == 1 then return string_rep (self [#self] == UInt24_Zero and "0" or "f", digitCount or 2) end
 	
 	local t = {}
 	
@@ -794,8 +852,15 @@ function self:ToHex (digitCount)
 	if digitCount then
 		digitCount = math_max (0, digitCount - 6 * (#self - 2))
 	else
-		digitCount = 1
+		digitCount = 2
 	end
+	
+	-- Infinite Fs for negative numbers
+	if self:IsNegative () and digitCount > 6 then
+		t [#t + 1] = string_rep ("f", digitCount - 6)
+		digitCount = 6
+	end
+	
 	t [#t + 1] = string_format ("%0" .. digitCount .. "x", self [#self - 1])
 	for i = #self - 2, 1, -1 do
 		t [#t + 1] = string_format ("%06x", self [i])
@@ -831,6 +896,85 @@ function self:TruncateAndZero (elementCount)
 	end
 	
 	BigInteger_Truncate (self, elementCount)
+end
+
+function self:MontgomeryReduce (m′, m, out, temp)
+	out = out or BigInteger ()
+	
+	-- Prepare for multiplication
+	out:TruncateAndZero (#m + #m - 1)
+	for i = 1, #self do out [i] = self [i] end
+	
+	-- Multiply add
+	for i = 1, #m - 1 do
+		local u = UInt24_Multiply (out [i], m′ [1])
+		
+		local high = 0
+		for j = 1, #m - 1 do
+			out [i + j - 1], high = UInt24_MultiplyAdd2 (u, m [j], high, out [i + j - 1])
+		end
+		
+		-- Carry
+		for j = i + #m - 1, #m + #m - 1 do
+			if high == 0 then break end
+			out [j], high = UInt24_Add (out [j], high)
+		end
+	end
+	
+	-- Divide by r / shift right
+	local shift = #m - 1
+	for i = 1, #out - shift do
+		out [i] = out [i + shift]
+	end
+	for i = #out, #out - shift + 1, -1 do
+		out [i] = nil
+	end
+	
+	-- Normalize
+	out:Normalize ()
+	
+	-- Normalize
+	if out:IsGreaterThanOrEqual (m) then
+		return out:Subtract (m, temp), out
+	else
+		return out, temp
+	end
+end
+
+function self:MontgomeryExponentiateMod (exponent, m)
+	-- temp1 = base
+	-- temp2 = r
+	local temp1 = BigInteger.FromDouble (0x01000000)
+	local temp2 = BigInteger ()
+	for i = 1, #m - 1 do
+		temp2 [i] = 0
+	end
+	temp2 [#m] = 0x00000001
+	temp2 [#m + 1] = Sign_Positive
+	
+	-- m′ = -m^-1 mod base
+	local m′ = m:ModularInverse (temp1)
+	m′ [1] = -m′ [1] + 0x01000000
+	
+	-- out    = R mod m
+	-- factor = aR mod m
+	local out = temp2:Mod (m, BigInteger (), temp1)
+	local factor = self:Multiply (out, temp1):Mod (m, BigInteger (), temp2)
+	for i = 1, #exponent - 1 do
+		local mask = 1
+		for j = 1, UInt24_BitCount do
+			if bit_band (exponent [i], mask) ~= 0 then
+				temp1 = out:Multiply (factor, temp1)
+				out, temp2 = temp1:MontgomeryReduce (m′, m, out, temp2)
+			end
+			
+			mask = mask * 2
+			temp1 = factor:Square (temp1)
+			factor, temp2 = temp1:MontgomeryReduce (m′, m, factor, temp2)
+		end
+	end
+	
+	return out:MontgomeryReduce (m′, m, temp1, temp2)
 end
 
 function self:__unm ()
