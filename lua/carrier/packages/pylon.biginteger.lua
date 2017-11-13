@@ -680,7 +680,7 @@ function self:ModularInverse (m)
 		-- s_i+1 = s_i-1 - s_i q_i
 		-- t_i+1 = t_i-1 - t_i q_i
 		buffer = t:Multiply (q, buffer)
-		buffer = previousT:Subtract (buffer, buffer)
+		buffer, q = previousT:Subtract (buffer, q), buffer
 		previousT, t, buffer = t, buffer, previousT
 	end
 	
@@ -691,7 +691,7 @@ function self:ModularInverse (m)
 	if previousR:IsPositive () and (#previousR > 2 or previousR [1] > 1) then return nil end
 	
 	-- Return normalized inverse
-	return previousT:IsNegative () and previousT:Add (m, previousT) or previousT
+	return previousT:IsNegative () and previousT:Add (m, buffer) or previousT
 end
 
 function self:Root (n)
