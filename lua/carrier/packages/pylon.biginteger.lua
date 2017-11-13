@@ -659,8 +659,39 @@ function self:Not (out)
 end
 
 -- Miscellaneous
-function self:ModularInverse (p, out)
-	return self:ExponentiateMod (p:Subtract (BigInteger.FromDouble (2)), p, out)
+function self:ModularInverse (m)
+	local a, b = m, self
+	local previousR, r = a:Clone (), b:Clone ()
+	local previousT, t = BigInteger (), BigInteger.FromDouble (1)
+	local buffer = BigInteger ()
+	local q = BigInteger ()
+	
+	-- a s_0 + b t_0 = r_0 = a => s_0 = 1, t_0 = 0
+	-- a s_1 + b t_1 = r_1 = b => s_1 = 0, t_1 = 1
+	
+	-- r_i+1 = r_i-1 - r_i q_i
+	--       = (a s_i-1 + b t_i-1) - (a s_i + b t_i) q_i
+	--       = (a s_i-1 - a s_i q_i) + (b t_i-1 - b t_i q_i)
+	--       = a (s_i-1 - s_i q_i) + b (t_i-1 - t_i q_i)
+	while not r:IsZero () do
+		q, buffer = previousR:Divide (r, q, buffer)
+		previousR, r, buffer = r, buffer, previousR
+		
+		-- s_i+1 = s_i-1 - s_i q_i
+		-- t_i+1 = t_i-1 - t_i q_i
+		buffer = t:Multiply (q, buffer)
+		buffer = previousT:Subtract (buffer, buffer)
+		previousT, t, buffer = t, buffer, previousT
+	end
+	
+	-- r_i = gcd(self, m)
+	-- r_i+1 == 0
+	
+	-- gcd must be 1 for there to be an inverse
+	if previousR:IsPositive () and (#previousR > 2 or previousR [1] > 1) then return nil end
+	
+	-- Return normalized inverse
+	return previousT:IsNegative () and previousT:Add (m, previousT) or previousT
 end
 
 function self:Root (n)
@@ -793,12 +824,13 @@ function self:Truncate (elementCount)
 	end
 end
 
+local BigInteger_Truncate = self.Truncate
 function self:TruncateAndZero (elementCount)
 	for i = 1, elementCount do
 		self [i] = 0
 	end
 	
-	self:Truncate (elementCount)
+	BigInteger_Truncate (self, elementCount)
 end
 
 function self:__unm ()
