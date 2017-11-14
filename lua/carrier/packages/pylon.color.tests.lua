@@ -1,4 +1,4 @@
--- PACKAGE Pylon.Color
+-- PACKAGE Pylon.Color.Tests
 
 local Color = require ("Pylon.Color")
 
