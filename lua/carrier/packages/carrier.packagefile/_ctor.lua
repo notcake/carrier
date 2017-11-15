@@ -15,5 +15,6 @@ include ("unknownsection.lua")
 include ("dependenciessection.lua")
 include ("filesystemsection.lua")
 include ("filesystemfile.lua")
+include ("luahashessection.lua")
 
 return PackageFile
