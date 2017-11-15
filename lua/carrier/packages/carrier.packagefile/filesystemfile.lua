@@ -11,7 +11,7 @@ function self:ctor ()
 	self.Path = ""
 	self.CRC32 = 0
 	self.LastModificationTime = 0
-	self.DataLength = 0
+	self.Size = 0
 	self.Data = ""
 end
 
@@ -20,7 +20,7 @@ function self:Serialize (streamWriter)
 	streamWriter:StringN16 (self.Path)
 	streamWriter:UInt32 (self.CRC32)
 	streamWriter:UInt32 (self.LastModificationTime)
-	streamWriter:UInt32 (self.DataLength)
+	streamWriter:UInt32 (self.Size)
 	streamWriter:Bytes (self.Data)
 end
 
@@ -28,8 +28,8 @@ function self:Deserialize (streamReader)
 	self.Path                 = streamReader:StringN16 ()
 	self.CRC32                = streamReader:UInt32 ()
 	self.LastModificationTime = streamReader:UInt32 ()
-	self.DataLength           = streamReader:UInt32 ()
-	self.Data                 = streamReader:Bytes (self.DataLength)
+	self.Size                 = streamReader:UInt32 ()
+	self.Data                 = streamReader:Bytes (self.Size)
 end
 
 -- FileSystemFile
@@ -50,9 +50,9 @@ function self:GetLastModificationTime ()
 end
 
 function self:GetSize ()
-	return self.DataLength
+	return self.Size
 end
 
 function self:GetSerializationLength ()
-	return 2 + #self.Path + 4 + 4 + 4 + self.DataLength
+	return 2 + #self.Path + 4 + 4 + 4 + self.Size
 end
