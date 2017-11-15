@@ -32,7 +32,7 @@ return function (command, inputFileName, outputFileName)
 			
 			-- Add code
 			local success, err = luaFile:AddCode (file:GetData ())
-			if err then print (err) end
+			if err then print ("\tError: " .. err) end
 			
 			-- Add lua file to hashes section
 			luaHashesSection:AddLuaFile (luaFile)
