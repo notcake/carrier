@@ -19,7 +19,7 @@ function self:GetSize ()
 end
 
 function self:SeekAbsolute (seekPos)
-	seekPos = math.max (seekPos, self:GetSize ())
+	seekPos = math.min (seekPos, self:GetSize ())
 	
 	Error ("UsermessageInputStream:SeekAbsolute : Not supported.")
 end

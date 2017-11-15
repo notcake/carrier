@@ -5,7 +5,7 @@ function GarrysMod.FileInputStream.FromPath (path, pathId)
 	local f = file.Open (path, "rb", pathId)
 	if not f then return nil end
 	
-	return GarrysMod.FileInputStream:CreateInstance (f)
+	return GarrysMod.FileInputStream (f)
 end
 
 function self:ctor (file)
@@ -29,7 +29,7 @@ function self:GetSize ()
 end
 
 function self:SeekAbsolute (seekPos)
-	seekPos = math.max (seekPos, self:GetSize ())
+	seekPos = math.min (seekPos, self:GetSize ())
 	self.File:Seek (seekPos)
 end
 

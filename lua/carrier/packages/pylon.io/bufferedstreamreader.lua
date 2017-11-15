@@ -31,7 +31,7 @@ function self:GetSize ()
 end
 
 function self:SeekAbsolute (seekPos)
-	seekPos = math.max (seekPos, self:GetSize ())
+	seekPos = math.min (seekPos, self:GetSize ())
 	self.Position = seekPos
 	
 	if self.Position <  self.BufferPosition or
@@ -66,12 +66,12 @@ function self:Read (size)
 		bytesAvailable = #self.Buffer
 		if size - bytesRead <= bytesAvailable then
 			data [#data + 1] = string.sub (self.Buffer, 1, size - bytesRead)
-			bytesRead = bytesRead + size - bytesRead
 			self.Position = self.Position + size - bytesRead
+			bytesRead = bytesRead + size - bytesRead
 		else
 			data [#data + 1] = self.Buffer
-			bytesRead = bytesRead + bytesAvailable
 			self.Position = self.Position + bytesAvailable
+			bytesRead = bytesRead + bytesAvailable
 		end
 	end
 	
@@ -118,7 +118,7 @@ function self:UInt81 ()
 	local bytesAvailable = #self.Buffer - bufferOffset
 	
 	local uint80 = nil
-	if bytesAvailable == 1 then
+	if bytesAvailable >= 1 then
 		uint80 = string.byte (self.Buffer, bufferOffset + 1, bufferOffset + 1)
 	elseif bytesAvailable <= 0 then
 		bufferOffset, bytesAvailable = self:NextBlock ()
@@ -134,7 +134,7 @@ function self:UInt82 ()
 	local bytesAvailable = #self.Buffer - bufferOffset
 	
 	local uint80, uint81 = nil, nil
-	if bytesAvailable == 2 then
+	if bytesAvailable >= 2 then
 		uint80, uint81 = string.byte (self.Buffer, bufferOffset + 1, bufferOffset + 2)
 	elseif bytesAvailable == 1 then
 		uint80 = string.byte (self.Buffer, bufferOffset + 1, bufferOffset + 1)
@@ -154,7 +154,7 @@ function self:UInt84 ()
 	local bytesAvailable = #self.Buffer - bufferOffset
 	
 	local uint80, uint81, uint82, uint83 = nil, nil, nil, nil
-	if bytesAvailable == 4 then
+	if bytesAvailable >= 4 then
 		uint80, uint81, uint82, uint83 = string.byte (self.Buffer, bufferOffset + 1, bufferOffset + 4)
 	elseif bytesAvailable == 3 then
 		uint80, uint81, uint82 = string.byte (self.Buffer, bufferOffset + 1, bufferOffset + 3)
@@ -182,7 +182,7 @@ function self:UInt88 ()
 	local bytesAvailable = #self.Buffer - bufferOffset
 	
 	local uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = nil, nil, nil, nil, nil, nil, nil, nil
-	if bytesAvailable == 8 then
+	if bytesAvailable >= 8 then
 		uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87 = string.byte (self.Buffer, bufferOffset + 1, bufferOffset + 8)
 	elseif bytesAvailable == 7 then
 		uint80, uint81, uint82, uint83, uint84, uint85, uint86 = string.byte (self.Buffer, bufferOffset + 1, bufferOffset + 7)
