@@ -18,6 +18,7 @@ return function (command, inputFileName, outputFileName)
 		-- Read package
 		local streamReader = inputStream:ToStreamReader ()
 		local packageFile = PackageFile.Deserialize (streamReader)
+		print ("Package " .. packageFile:GetName () .. " " .. packageFile:GetVersion ())
 		streamReader:Close ()
 		
 		-- Process package
@@ -37,7 +38,7 @@ return function (command, inputFileName, outputFileName)
 			luaHashesSection:AddLuaFile (luaFile)
 			
 			-- Print debug
-			print (file:GetPath () .. " (" .. #file:GetData () .. " B, " .. luaFile:GetFunctionCount () .. " functions)")
+			print ("\t" .. file:GetPath () .. " (" .. #file:GetData () .. " B, " .. luaFile:GetFunctionCount () .. " functions)")
 			for i = 1, luaFile:GetFunctionCount () do
 				local startLine, endLine, md5, crc32, sha256 = luaFile:GetFunction (i)
 				assert (#md5 == 16)

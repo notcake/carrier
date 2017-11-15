@@ -60,6 +60,15 @@ function self:Serialize (streamWriter)
 end
 
 -- PackageFile
+function self:GetName ()
+	return self.Name
+end
+
+function self:GetVersion ()
+	return self.Version
+end
+
+-- Sections
 function self:AddSection (section)
 	self:RemoveSection (section:GetName ())
 	
