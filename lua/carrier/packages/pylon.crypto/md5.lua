@@ -116,7 +116,7 @@ function self:Finish ()
 	self.Buffer [blockSize]     = math_floor ((self.Length * 8) / 4294967296)
 	self:Block (self.Buffer)
 	
-	return string_format ("%08x%08x%08x%08x", bit_bswap (self.A), bit_bswap (self.B), bit_bswap (self.C), bit_bswap (self.D))
+	return string_format ("%08x%08x%08x%08x", bit_bswap (self.A) % 4294967296, bit_bswap (self.B) % 4294967296, bit_bswap (self.C) % 4294967296, bit_bswap (self.D) % 4294967296)
 end
 
 -- Internal

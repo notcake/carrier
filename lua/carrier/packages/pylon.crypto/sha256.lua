@@ -116,7 +116,7 @@ function self:Finish ()
 	self.Buffer [blockSize]     = (self.Length * 8) % 4294967296
 	self:Block (self.Buffer)
 	
-	return string_format ("%08x%08x%08x%08x%08x%08x%08x%08x", self.State [1], self.State [2], self.State [3], self.State [4], self.State [5], self.State [6], self.State [7], self.State [8])
+	return string_format ("%08x%08x%08x%08x%08x%08x%08x%08x", self.State [1] % 4294967296, self.State [2] % 4294967296, self.State [3] % 4294967296, self.State [4] % 4294967296, self.State [5] % 4294967296, self.State [6] % 4294967296, self.State [7] % 4294967296, self.State [8] % 4294967296)
 end
 
 -- Internal
