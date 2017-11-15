@@ -1,5 +1,17 @@
+-- Copyright !cake
+-- This software is proprietary and may not be copied, distributed, modified,
+-- incorporated into another software program, linked with another software program,
+-- loaded by another software program or used to create derivative works
+-- without the explicit permission of its author.
+
 local self = {}
 Verification.LuaFile = Class (self, ISerializable)
+
+function Verification.LuaFile.Deserialize (streamReader, extended)
+	local luaFile = Verification.LuaFile (nil, extended)
+	luaFile:Deserialize (streamReader)
+	return luaFile
+end
 
 function self:ctor (path, extended)
 	self.Extended = extended or false
@@ -8,6 +20,8 @@ function self:ctor (path, extended)
 	self.CRC32 = 0
 	self.LastModificationTime = 0
 	self.Size = 0
+	
+	self.DynamicCode = false
 	
 	self.FunctionCount = 0
 	
@@ -27,6 +41,7 @@ function self:Serialize (streamWriter)
 	streamWriter:UInt32 (self.CRC32)
 	streamWriter:UInt32 (self.LastModificationTime)
 	streamWriter:UInt32 (self.Size)
+	streamWriter:Boolean (self.DynamicCode)
 	streamWriter:UInt32 (self.FunctionCount)
 	
 	for i = 1, self.FunctionCount do
@@ -46,6 +61,7 @@ function self:Deserialize (streamReader)
 	self.CRC32                = streamReader:UInt32 ()
 	self.LastModificationTime = streamReader:UInt32 ()
 	self.Size                 = streamReader:UInt32 ()
+	self.DynamicCode          = streamReader:Boolean ()
 	self.FunctionCount        = streamReader:UInt32 ()
 	
 	for i = 1, self.FunctionCount do
@@ -72,6 +88,11 @@ end
 
 function self:AddDump (dump)
 	local inputStream = IO.StringInputStream (dump)
+	
+	-- Dynamic code
+	if string.find (dump, "(loadstring|CompileString|RunString)") then
+		self.DynamicCode = true
+	end
 	
 	-- Header
 	inputStream:Bytes (4) -- Signature
@@ -138,4 +159,24 @@ end
 
 function self:GetFunctionCount ()
 	return self.FunctionCount
+end
+
+function self:GetSerializationLength ()
+	if self.Extended then
+		return 2 + #self.Path + 4 + 4 + 4 + 1 + 4 + self.FunctionCount * (4 + 4 + 16 + 4 + 32)
+	else
+		return 2 + #self.Path + 4 + 4 + 4 + 1 + 4 + self.FunctionCount * (4 + 4 + 16)
+	end
+end
+
+function self:SetCRC32 (crc32)
+	self.CRC32 = crc32
+end
+
+function self:SetLastModificationTime (lastModificationTime)
+	self.LastModificationTime = lastModificationTime
+end
+
+function self:SetSize (size)
+	self.Size = size
 end
