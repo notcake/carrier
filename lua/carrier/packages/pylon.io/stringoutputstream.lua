@@ -1,6 +1,9 @@
 local self = {}
 IO.StringOutputStream = Class (self, IO.StreamWriter)
 
+local string_char = string.char
+local string_sub  = string.sub
+
 function self:ctor ()
 	self.Data     = {}
 	self.Position = 0
@@ -29,7 +32,7 @@ function self:Write (data, length)
 	length = length or #data
 	
 	if length < #data then
-		data = string.sub (data, 1, length)
+		data = string_sub (data, 1, length)
 	end
 	
 	self.Data [#self.Data + 1] = data
@@ -39,25 +42,25 @@ end
 
 -- StreamWriter
 function self:UInt81 (uint80)
-	self.Data [#self.Data + 1] = string.char (uint80)
+	self.Data [#self.Data + 1] = string_char (uint80)
 	self.Size     = self.Size     + 1
 	self.Position = self.Position + 1
 end
 
 function self:UInt82 (uint80, uint81)
-	self.Data [#self.Data + 1] = string.char (uint80, uint81)
+	self.Data [#self.Data + 1] = string_char (uint80, uint81)
 	self.Size     = self.Size     + 2
 	self.Position = self.Position + 2
 end
 
 function self:UInt84 (uint80, uint81, uint82, uint83)
-	self.Data [#self.Data + 1] = string.char (uint80, uint81, uint82, uint83)
+	self.Data [#self.Data + 1] = string_char (uint80, uint81, uint82, uint83)
 	self.Size     = self.Size     + 4
 	self.Position = self.Position + 4
 end
 
 function self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87)
-	self.Data [#self.Data + 1] = string.char (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87)
+	self.Data [#self.Data + 1] = string_char (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87)
 	self.Size     = self.Size     + 8
 	self.Position = self.Position + 8
 end
