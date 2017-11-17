@@ -101,7 +101,7 @@ function self:Multiply (b, out)
 			for k = 0, a.w - 1 do
 				sum = sum + a [y * a.w + k] * b [k * b.w + x]
 			end
-			out [y * out.w + x] = sum % 2
+			out [y * out.w + x] = sum
 		end
 	end
 	
