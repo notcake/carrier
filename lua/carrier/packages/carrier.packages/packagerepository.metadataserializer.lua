@@ -1,1 +1,0 @@
-Packages.PackageRepository.MetadataSerializer = Packages.PackageRepositoryInformation.Serializer
