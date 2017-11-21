@@ -207,12 +207,6 @@ function Carrier.Initialize ()
 	hook.Add ("ShutDown",   "Carrier", Carrier.Uninitialize)
 	
 	local t0 = SysTime ()
-	Carrier.Packages = Carrier.LoadPackage ("Carrier.Packages")
-	Carrier.Packages.UI = Carrier.LoadPackage ("Carrier.Packages.UI")
-
-	Carrier.PackageManager = Carrier.Packages.PackageManager ()
-	Carrier.Packages.UI.RegisterCommands (Carrier.PackageManager)
-	
 	for autoload in pairs (Carrier.LuaFileFind ("carrier/autoload/*.lua")) do
 		local f = CompileFile ("carrier/autoload/" .. autoload)
 		if f then
@@ -228,11 +222,6 @@ function Carrier.Initialize ()
 end
 
 function Carrier.Uninitialize ()
-	if Carrier.PackageManager then
-		Carrier.PackageManager:dtor ()
-		Carrier.PackageManager = nil
-	end
-	
 	for i = #orderedPackages, 1, -1 do
 		Carrier.UnloadPackage (orderedPackages [i])
 	end
