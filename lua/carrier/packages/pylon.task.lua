@@ -4,6 +4,7 @@ local Task = {}
 
 local f           = require ("Pylon.Functional")
 
+local Error       = require ("Pylon.Error")
 local CompactList = require ("Pylon.Containers.CompactList")
 local Future      = require ("Pylon.Future")
 
@@ -31,7 +32,16 @@ function Task.Run (f, ...)
 	
 	coroutine.wrap (
 		function (...)
-			future:Resolve (f (...))
+			local success, err = xpcall (
+				function (...)
+					future:Resolve (f (...))
+				end,
+				debug.traceback,
+				...
+			)
+			if not success then
+				print (err)
+			end
 		end
 	) (...)
 	
