@@ -11,6 +11,10 @@ IO = require ("Pylon.IO")
 Enumeration = require ("Pylon.Enumeration")
 Enumeration.Initialize (_ENV)
 
+Async = require_provider ("Pylon.Async")
+HTTP  = require_provider ("Pylon.HTTP")
+Task  = require ("Pylon.Task")
+
 include ("packages.lua")
 include ("package.lua")
 include ("packagerelease.lua")
