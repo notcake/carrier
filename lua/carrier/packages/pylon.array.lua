@@ -2,35 +2,35 @@
 
 Array = {}
 
-function Array.Concat (t, separator)
-	return table.concat (t, separator)
+function Array.Concat (array, separator)
+	return table.concat (array, separator)
 end
 Array.concat = Array.Concat
 
-function Array.Copy (t)
+function Array.Copy (array)
 	local out = {}
-	for i = 1, #t do
-		out [i] = t [i]
+	for i = 1, #array do
+		out [i] = array [i]
 	end
 	return out
 end
 Array.copy = Array.Copy
 
-function Array.Filter (t, f)
+function Array.Filter (array, f)
 	local out = {}
-	for i = 1, #t do
-		if f (t [i]) then
-			out [#out + 1] = t [i]
+	for i = 1, #array do
+		if f (array [i]) then
+			out [#out + 1] = array [i]
 		end
 	end
 	return out
 end
 Array.filter = Array.Filter
 
-function Array.FlatMap (t, f)
+function Array.FlatMap (array, f)
 	local out = {}
-	for i = 1, #t do
-		local results = f (t [i])
+	for i = 1, #array do
+		local results = f (array [i])
 		for j = 1, #results do
 			out [#out + 1] = results [j]
 		end
@@ -39,20 +39,29 @@ function Array.FlatMap (t, f)
 end
 Array.flatMap = Array.FlatMap
 
-function Array.ForEach (t, f)
-	for i = 1, #t do
-		f (t [i])
+function Array.ForEach (array, f)
+	for i = 1, #array do
+		f (array [i])
 	end
 end
 Array.forEach = Array.ForEach
 
-function Array.Map (t, f)
+function Array.Map (array, f)
 	local out = {}
-	for i = 1, #t do
-		out [i] = f (t [i])
+	for i = 1, #array do
+		out [i] = f (array [i])
 	end
 	return out
 end
 Array.map = Array.Map
+
+function Array.ToSet (array, set)
+	local set = set or {}
+	for i = 1, #array do
+		set [array [i]] = true
+	end
+	return set
+end
+Array.toSet = Array.ToSet
 
 return Array

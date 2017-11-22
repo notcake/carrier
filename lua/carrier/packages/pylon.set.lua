@@ -2,15 +2,6 @@
 
 Set = {}
 
-function Set.ToArray (set)
-	local set = {}
-	for item, _ in pairs (set) do
-		set [#set + 1] = item
-	end
-	return set
-end
-Set.toArray = Set.ToArray
-
 function Set.Filter (set, f)
 	local out = {}
 	for item, _ in pairs (set) do
@@ -48,5 +39,14 @@ function Set.Map (set, f)
 	return t
 end
 Set.map = Set.Map
+
+function Set.ToArray (set, array)
+	local array = array or {}
+	for item, _ in pairs (set) do
+		array [#array + 1] = item
+	end
+	return array
+end
+Set.toArray = Set.ToArray
 
 return Set
