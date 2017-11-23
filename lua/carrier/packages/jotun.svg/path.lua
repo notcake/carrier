@@ -5,10 +5,12 @@ local math_atan2 = math.atan2
 local math_cos   = math.cos
 local math_max   = math.max
 local math_pi    = math.pi
+local math_rad   = math.rad
 local math_sin   = math.sin
 local math_sqrt  = math.sqrt
 
 local Cat_UnpackedMatrix2x2d_VectorMultiply = Cat.UnpackedMatrix2x2d.VectorMultiply
+local Cat_UnpackedVector2d_Equals           = Cat.UnpackedVector2d.Equals
 
 function Svg.Path.FromXmlElement (element)
 	local path = Svg.Path ()
@@ -257,7 +259,7 @@ function self:Render (render2d, x, y)
 					
 					Cat.UnpackedQuadraticBezier2d.Approximate (lastX, lastY, cx1, cy1, x, y, ds,
 						function (x, y)
-							if Cat.UnpackedVector3d.Equals (x, y, lastX, lastY) then return end
+							if Cat_UnpackedVector2d_Equals (x, y, lastX, lastY) then return end
 							
 							polygon:AddPoint (x, y)
 						end
@@ -273,7 +275,7 @@ function self:Render (render2d, x, y)
 					
 					Cat.UnpackedCubicBezier2d.Approximate (lastX, lastY, cx1, cy1, cx2, cy2, x, y, ds,
 						function (x, y)
-							if Cat.UnpackedVector3d.Equals (x, y, lastX, lastY) then return end
+							if Cat_UnpackedVector2d_Equals (x, y, lastX, lastY) then return end
 							
 							polygon:AddPoint (x, y)
 						end
@@ -288,16 +290,16 @@ function self:Render (render2d, x, y)
 					end
 					
 					local rx, ry = cx1, cy1
-					local angle, largerArc = math.rad (cx2), cy2
+					local angle, largerArc = math_rad (cx2), cy2
 					
 					-- Forward matrix from normalized circle space to canvas
 					-- R S
-					local f00, f01, f10, f11 = rx * math.cos (angle), -ry * math.sin (angle),
-					                           rx * math.sin (angle),  ry * math.cos (angle)
+					local f00, f01, f10, f11 = rx * math_cos (angle), -ry * math_sin (angle),
+					                           rx * math_sin (angle),  ry * math_cos (angle)
 					-- Reverse matrix from canvas to normalized circle space
 					-- S^-1 R^-1
-					local r00, r01, r10, r11 =  1 / rx * math.cos (angle), 1 / rx * math.sin (angle),
-					                           -1 / ry * math.sin (angle), 1 / ry * math.cos (angle)
+					local r00, r01, r10, r11 =  1 / rx * math_cos (angle), 1 / rx * math_sin (angle),
+					                           -1 / ry * math_sin (angle), 1 / ry * math_cos (angle)
 					
 					-- Arc is from (0, 0) to (x1, y1) in normalized circle space
 					local x1, y1 = Cat_UnpackedMatrix2x2d_VectorMultiply (r00, r01, r10, r11, x - lastX, y - lastY)
