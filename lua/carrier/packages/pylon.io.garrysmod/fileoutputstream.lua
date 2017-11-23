@@ -10,6 +10,8 @@ end
 
 function self:ctor (file)
 	self.File = file
+	
+	self.Size = 0
 end
 
 -- IBaseStream
@@ -25,7 +27,8 @@ function self:GetPosition ()
 end
 
 function self:GetSize ()
-	return self.File:Size ()
+	self.Size = math.max (self.Size, self:GetPosition ())
+	return self.Size
 end
 
 function self:SeekAbsolute (seekPos)
