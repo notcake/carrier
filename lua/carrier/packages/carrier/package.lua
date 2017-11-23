@@ -56,6 +56,20 @@ function self:RemoveRelease (packageRelease)
 	end
 end
 
+function self:GetLatestRelease ()
+	local latestPackageRelease = nil
+	for packageRelease in self:GetReleaseEnumerator () do
+		if not packageRelease:IsDeveloper () and
+		   not packageRelease:IsDeprecated () then
+			if not latestPackageRelease or
+			   latestPackageRelease:GetTimestamp () < packageRelease:GetTimestamp () then
+				latestPackageRelease = packageRelease
+			end
+		end
+	end
+	return latestPackageRelease
+end
+
 function self:GetLocalDeveloperRelease ()
 	return self.LocalDeveloperRelease
 end
