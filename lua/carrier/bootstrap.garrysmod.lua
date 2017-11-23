@@ -11,10 +11,11 @@ local orderedPackages = {} -- Package names ordered by load completion times
 function Carrier.Package (name)
 	local package =
 	{
-		Name = name,
+		Name         = name,
 		Dependencies = {},
-		Environment = {},
-		Exports = nil
+		Environment  = {},
+		Exports      = nil,
+		Destructor   = nil
 	}
 	
 	package.Environment._ENV = package.Environment
@@ -206,25 +207,18 @@ function Carrier.Initialize ()
 	hook.Add ("OnReloaded", "Carrier", Carrier.InvalidatePackageCache)
 	hook.Add ("ShutDown",   "Carrier", Carrier.Uninitialize)
 	
-	local t0 = SysTime ()
-	for autoload in pairs (Carrier.LuaFileFind ("carrier/autoload/*.lua")) do
-		local f = CompileFile ("carrier/autoload/" .. autoload)
-		if f then
-			setfenv (f, {})
-			
-			for _, packageName in ipairs ({ f () }) do
-				Carrier.LoadPackage (packageName)
-			end
-		end
+	local carrier = Carrier.LoadPackage ("Carrier")
+	for packageName, packageInfo in pairs (packages) do
+		local package = carrier.Packages:GetPackage (packageName)
+		local packageRelease = package and package:GetLocalDeveloperRelease ()
+		carrier.Packages:Assimilate (package, packageRelease, packageInfo.Environment, packageInfo.Exports, packageInfo.Destructor)
 	end
-	local dt = SysTime () - t0
-	print (string.format ("Carrier.Initialize took %.2f ms", dt * 1000))
+	
+	carrier.Packages:Initialize ()
 end
 
 function Carrier.Uninitialize ()
-	for i = #orderedPackages, 1, -1 do
-		Carrier.UnloadPackage (orderedPackages [i])
-	end
+	packages ["Carrier"].Exports.Packages:Uninitialize ()
 	
 	hook.Remove ("OnReloaded", "Carrier")
 	hook.Remove ("ShutDown",   "Carrier")

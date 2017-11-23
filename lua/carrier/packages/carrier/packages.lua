@@ -9,8 +9,10 @@ function self:ctor ()
 	self.CacheDirectory = "garrysmod.io/carrier/cache"
 	file.CreateDir (self.CacheDirectory)
 	
-	self.LoadRoots = {}
-	self.LoadedPackages = {}
+	self.ServerLoadRoots = {}
+	self.ClientLoadRoots = {}
+	self.LocalLoadRoots  = nil
+	self.LoadedPackages  = {}
 	
 	self:UpdateLocalDeveloperPackages ()
 end
@@ -18,26 +20,20 @@ end
 local sv_allowcslua = GetConVar ("sv_allowcslua")
 function self:Initialize ()
 	local t0 = SysTime ()
-	local autoloadSet = {}
-	autoloadSet = Array.ToSet (file.Find ("carrier/autoload/*.lua", "LUA"), autoloadSet)
-	if CLIENT and sv_allowcslua:GetBool () then
-		autoloadSet = Array.ToSet (file.Find ("carrier/autoload/*.lua", "LCL"), autoloadSet)
-	end
-	if SERVER then
-		autoloadSet = Array.ToSet (file.Find ("carrier/autoload/*.lua", "LSV"), autoloadSet)
+	self.ServerLoadRoots = self:GetLoadRoots ("carrier/autoload/server/", self.ServerLoadRoots)
+	self.ClientLoadRoots = self:GetLoadRoots ("carrier/autoload/client/", self.ClientLoadRoots)
+	
+	local sharedLoadRoots = self:GetLoadRoots ("carrier/autoload/")
+	for packageName, _ in pairs (sharedLoadRoots) do
+		self.ServerLoadRoots [packageName] = true
+		self.ClientLoadRoots [packageName] = true
 	end
 	
-	for autoload in pairs (autoloadSet) do
-		local f = CompileFile ("carrier/autoload/" .. autoload)
-		if f then
-			setfenv (f, {})
-			
-			for _, packageName in ipairs ({ f () }) do
-				self.LoadRoots [packageName] = true
-				self:Load (packageName)
-			end
-		end
+	self.LocalLoadRoots = CLIENT and self.ClientLoadRoots or self.ServerLoadRoots
+	for packageName, _ in pairs (self.LocalLoadRoots) do
+		self:Load (packageName)
 	end
+	
 	local dt = SysTime () - t0
 	Carrier.Log (string.format ("Initialize took %.2f ms", dt * 1000))
 end
@@ -46,6 +42,25 @@ function self:Uninitialize ()
 	for packageName, _ in pairs (self.LoadedPackages) do
 		self:Unload (packageName)
 	end
+end
+
+function self:GetPackage (name)
+	return self.Packages [name]
+end
+
+function self:GetPackageCount ()
+	return self.PackageCount
+end
+
+function self:GetPackageEnumerator ()
+	return ValueEnumerator (self.Packages)
+end
+
+function self:GetPackageRelease (name, version)
+	local package = self.Packages [name]
+	if not package then return end
+	
+	return package:GetRelease (version)
 end
 
 function self:Assimilate (package, packageRelease, environment, exports, destructor)
@@ -218,23 +233,30 @@ function self:AddPackage (package)
 	self.PackageCount = self.PackageCount + 1
 end
 
-function self:GetPackage (name)
-	return self.Packages [name]
-end
-
-function self:GetPackageCount ()
-	return self.PackageCount
-end
-
-function self:GetPackageEnumerator ()
-	return ValueEnumerator (self.Packages)
-end
-
-function self:GetPackageRelease (name, version)
-	local package = self.Packages [name]
-	if not package then return end
+function self:GetLoadRoots (path, loadRoots)
+	local loadRoots = loadRoots or {}
 	
-	return package:GetRelease (version)
+	local autoloadSet = {}
+	autoloadSet = Array.ToSet (file.Find (path .. "*.lua", "LUA"), autoloadSet)
+	if SERVER then
+		autoloadSet = Array.ToSet (file.Find (path .. "*.lua", "LSV"), autoloadSet)
+	end
+	if CLIENT and sv_allowcslua:GetBool () then
+		autoloadSet = Array.ToSet (file.Find (path .. "*.lua", "LCL"), autoloadSet)
+	end
+	
+	for autoload in pairs (autoloadSet) do
+		local f = CompileFile (path .. autoload)
+		if f then
+			setfenv (f, {})
+			
+			for _, packageName in ipairs ({ f () }) do
+				loadRoots [packageName] = true
+			end
+		end
+	end
+	
+	return loadRoots
 end
 
 function self:ParsePackageConstructor (constructorPath, pathId)

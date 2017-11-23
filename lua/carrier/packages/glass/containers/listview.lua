@@ -80,7 +80,7 @@ end
 -- IView
 -- Internal
 function self:OnLayout (w, h)
-	local Profiler = Carrier.LoadPackage ("dt.Profiler").Profiler
+	local Profiler = require ("dt.Profiler").Profiler
 	Profiler:BeginSection ("Glass.ListView.OnLayout")
 	
 	if not self.ZOrderValid then

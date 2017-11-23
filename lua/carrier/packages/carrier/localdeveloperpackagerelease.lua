@@ -88,12 +88,9 @@ function self:Load (environment)
 	setfenv (f, environment)
 	
 	-- dtor
-	local destructor = nil
-	if self.DestructorPath then
-		local destructor = CompileFile (self.DestructorPath)
-		if destructor then
-			setfenv (destructor, environment)
-		end
+	local destructor = self.DestructorPath and CompileFile (self.DestructorPath)
+	if destructor then
+		setfenv (destructor, environment)
 	end
 	
 	return f (), destructor
