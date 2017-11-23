@@ -1,5 +1,5 @@
 local self = {}
-Carrier.PackageRelease = Class (self)
+Carrier.PackageRelease = Class (self, Carrier.IPackageRelease)
 
 function Carrier.PackageRelease.FromJson (info, name)
 	local version = info.version
@@ -8,22 +8,23 @@ function Carrier.PackageRelease.FromJson (info, name)
 end
 
 function self:ctor (name, version)
-	self.Timestamp  = 0
-	self.Name       = name
-	self.Version    = version
-	self.Size       = 0
+	self.Name            = name
+	self.Version         = version
+	self.Timestamp       = 0
 	
-	self.FileName   = nil
-	self.Deprecated = false
+	self.Deprecated      = false
 	
 	self.Dependencies    = {}
 	self.DependencyCount = 0
+	
+	self.Dependents      = {}
+	self.DependentCount  = 0
+	
+	self.Size            = 0
+	self.FileName        = nil
 end
 
-function self:GetTimestamp ()
-	return self.Timestamp
-end
-
+-- IPackageRelease
 function self:GetName ()
 	return self.Name
 end
@@ -32,20 +33,43 @@ function self:GetVersion ()
 	return self.Version
 end
 
-function self:GetSize ()
-	return self.Size
-end
-
-function self:GetFileName ()
-	return self.FileName
+function self:GetTimestamp ()
+	return self.Timestamp
 end
 
 function self:IsDeprecated ()
 	return self.Deprecated
 end
 
-function self:IsTransient ()
+function self:IsDeveloper ()
 	return false
+end
+
+-- Dependencies
+function self:GetDependencyCount ()
+	return self.DependencyCount
+end
+
+function self:GetDependencyEnumerator ()
+	return KeyValueEnumerator (self.Dependencies)
+end
+
+-- Dependents
+function self:GetDependentCount ()
+	return self.DependentCount
+end
+
+function self:GetDependentEnumerator ()
+	return KeyValueEnumerator (self.Dependents)
+end
+
+-- PackageRelease
+function self:GetSize ()
+	return self.Size
+end
+
+function self:GetFileName ()
+	return self.FileName
 end
 
 function self:AddDependency (name, version)
@@ -55,12 +79,11 @@ function self:AddDependency (name, version)
 	self.Dependencies [name] = version
 end
 
-function self:GetDependencyCount ()
-	return self.DependencyCount
-end
-
-function self:GetDependencyEnumerator ()
-	return KeyValueEnumerator (self.Dependencies)
+function self:AddDependent (name, version)
+	if not self.Dependents [name] then
+		self.DependentCount = self.DependentCount + 1
+	end
+	self.Dependents [name] = version
 end
 
 function self:FromJson (info)
@@ -78,5 +101,5 @@ end
 
 -- Internal
 function self:UpdateFileName ()
-	self.FileName = string.gsub (string.lower (self.Name), "[^%w%.%-%+_]", "_") .. "-" .. string.format ("%08x", self.Timestamp) .. "-" .. string.gsub (string.lower (self.Version), "[^%w%.%-%+_]", "_")
+	self.FileName = "release-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp) .. "-" .. Carrier.ToFileName (self.Version)
 end
