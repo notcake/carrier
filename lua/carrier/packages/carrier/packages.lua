@@ -30,9 +30,34 @@ function self:Initialize ()
 	end
 	
 	self.LocalLoadRoots = CLIENT and self.ClientLoadRoots or self.ServerLoadRoots
-	for packageName, _ in pairs (self.LocalLoadRoots) do
-		self:Load (packageName)
+	
+	if true then -- developer
+		for packageName, _ in pairs (self.LocalLoadRoots) do
+			self:Load (packageName)
+		end
 	end
+	
+	Task.Run (
+		function ()
+			self:Update ():await ()
+			
+			local downloadSet = {}
+			downloadSet = self:ComputePackageDependencySet ("Carrier", downloadSet)
+			for packageName, _ in pairs (self.LocalLoadRoots) do
+				downloadSet = self:ComputePackageDependencySet (packageName, downloadSet)
+			end
+			if SERVER then
+				for packageName, _ in pairs (self.ClientLoadRoots) do
+					downloadSet = self:ComputePackageDependencySet (packageName, downloadSet)
+				end
+			end
+			
+			local success = true
+			for name, version in pairs (downloadSet) do
+				success = success and self:Download (name, version):Await ()
+			end
+		end
+	)
 	
 	local dt = SysTime () - t0
 	Carrier.Log (string.format ("Initialize took %.2f ms", dt * 1000))
@@ -44,6 +69,7 @@ function self:Uninitialize ()
 	end
 end
 
+-- Packages
 function self:GetPackage (name)
 	return self.Packages [name]
 end
@@ -63,6 +89,29 @@ function self:GetPackageRelease (name, version)
 	return package:GetRelease (version)
 end
 
+-- Dependencies
+function self:ComputePackageDependencySet (packageName, dependencySet)
+	local package = self:GetPackage (packageName)
+	local packageRelease = package and package:GetLatestRelease ()
+	return self:ComputePackageReleaseDependencySet (packageRelease, dependencySet)
+end
+
+function self:ComputePackageReleaseDependencySet (packageRelease, dependencySet)
+	local dependencySet = dependencySet or {}
+	if not packageRelease then return dependencySet end
+	
+	dependencySet [packageRelease:GetName ()] = packageRelease:GetVersion ()
+	
+	for dependencyName, dependencyVersion in packageRelease:GetDependencyEnumerator () do
+		if not dependencySet [dependencyName] then
+			dependencySet = self:ComputePackageReleaseDependencySet (self:GetPackageRelease (dependencyName,dependencyVersion), dependencySet)
+		end
+	end
+	
+	return dependencySet
+end
+
+-- Loading
 function self:Assimilate (package, packageRelease, environment, exports, destructor)
 	package:Assimilate (packageRelease, environment, exports, destructor)
 	self.LoadedPackages [package:GetName ()] = package
@@ -101,6 +150,43 @@ function self:Unload (packageName)
 	self.LoadedPackages [packageName] = nil
 end
 
+-- Manifest
+function self:Download (name, version)
+	return Task.Run (
+		function ()
+			local packageRelease = self:GetPackageRelease (name, version)
+			if not packageRelease then return false end
+			
+			if file.Exists (self.CacheDirectory .. "/" .. packageRelease:GetFileName (), "DATA") then return true end
+			
+			local response
+			local url = "https://garrysmod.io/api/packages/v1/download?name=" .. HTTP.EncodeUriComponent (name) .. "&version=" .. HTTP.EncodeUriComponent (version)
+			for i = 1, 5 do
+				response = HTTP.Get (url):await ()
+				if response:IsSuccess () then break end
+				
+				local delay = 1 * math.pow (2, i - 1)
+				Carrier.Warning ("Failed to fetch from " .. url .. ", retrying in " .. delay .. " second(s)...")
+				Async.Sleep (delay):await ()
+			end
+			
+			if not response:IsSuccess () then
+				Carrier.Log ("Failed to downloaded " .. name .. " " .. version)
+				return false
+			end
+			
+			if string.sub (response:GetContent (), 1, #PackageFile.Signature) == PackageFile.Signature then
+				Carrier.Log ("Downloaded " .. name .. " " .. version)
+				file.Write (self.CacheDirectory .. "/" .. packageRelease:GetFileName (), response:GetContent ())
+				return true
+			else
+				Carrier.Log ("Downloaded " .. name .. " " .. version .. ", but bad signature")
+				return false
+			end
+		end
+	)
+end
+
 function self:Update ()
 	return Task.Run (
 		function ()
@@ -109,7 +195,9 @@ function self:Update ()
 				response = HTTP.Get ("https://garrysmod.io/api/packages/v1/latest"):await ()
 				if response:IsSuccess () then break end
 				
-				Async.Sleep (1):await ()
+				local delay = 1 * math.pow (2, i - 1)
+				Carrier.Warning ("Failed to fetch from https://garrysmod.io/api/packages/v1/latest, retrying in " .. delay .. " second(s)...")
+				Async.Sleep (delay):await ()
 			end
 			
 			if not response:IsSuccess () then return false end

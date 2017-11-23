@@ -101,5 +101,5 @@ end
 
 -- Internal
 function self:UpdateFileName ()
-	self.FileName = "release-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp) .. "-" .. Carrier.ToFileName (self.Version)
+	self.FileName = "release-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp) .. "-" .. Carrier.ToFileName (self.Version) .. ".dat"
 end

@@ -18,6 +18,8 @@ Task  = require ("Pylon.Task")
 
 Clock = require_provider ("Pylon.MonotonicClock")
 
+PackageFile = require ("Carrier.PackageFile")
+
 include ("packages.lua")
 include ("package.lua")
 include ("ipackagerelease.lua")

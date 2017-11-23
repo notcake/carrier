@@ -12,7 +12,7 @@ function self:ctor (name, timestamp, basePath, constructorPath, destructorPath, 
 	self.Dependents      = {}
 	self.DependentCount  = 0
 	
-	self.FileName        = "dev-local-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp)
+	self.FileName        = "dev-local-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp) .. ".dat"
 	
 	self.PathId          = pathId
 	self.BasePath        = basePath

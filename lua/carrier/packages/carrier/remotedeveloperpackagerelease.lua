@@ -10,7 +10,7 @@ function self:ctor (name, timestamp)
 	self.DependencyCount = 0
 	
 	self.Size            = nil
-	self.FileName        = "dev-remote-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp)
+	self.FileName        = "dev-remote-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp) .. ".dat"
 end
 
 -- IPackageRelease
