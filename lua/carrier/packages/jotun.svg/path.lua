@@ -1,6 +1,15 @@
 local self = {}
 Svg.Path = Class (self, Svg.Element)
 
+local math_atan2 = math.atan2
+local math_cos   = math.cos
+local math_max   = math.max
+local math_pi    = math.pi
+local math_sin   = math.sin
+local math_sqrt  = math.sqrt
+
+local Cat_UnpackedMatrix2x2d_VectorMultiply = Cat.UnpackedMatrix2x2d.VectorMultiply
+
 function Svg.Path.FromXmlElement (element)
 	local path = Svg.Path ()
 	
@@ -211,6 +220,7 @@ end
 
 -- Element
 function self:Render (render2d, x, y)
+	local ds = 1
 	if self.FillColor ~= nil then
 		if not self.Polygons then
 			local polygonCount = 0
@@ -218,7 +228,7 @@ function self:Render (render2d, x, y)
 			local polygon = nil
 			local x0, y0 = 0, 0
 			local lastX, lastY = 0, 0
-			for command, x, y, cx1, cy1, cx2, cy2 in self:GetEnumerator () do
+			for command, x, y, cx1, cy1, cx2, cy2, clockwise in self:GetEnumerator () do
 				if command == Svg.PathCommand.MoveTo then
 					polygonCount = polygonCount + 1
 					polygon = self.Polygons [polygonCount] or Photon.Polygon ()
@@ -245,7 +255,7 @@ function self:Render (render2d, x, y)
 						polygon:AddPoint (x0, y0)
 					end
 					
-					Cat.UnpackedQuadraticBezier2d.Approximate (lastX, lastY, cx1, cy1, x, y, 1,
+					Cat.UnpackedQuadraticBezier2d.Approximate (lastX, lastY, cx1, cy1, x, y, ds,
 						function (x, y)
 							if Cat.UnpackedVector3d.Equals (x, y, lastX, lastY) then return end
 							
@@ -261,13 +271,72 @@ function self:Render (render2d, x, y)
 						polygon:AddPoint (x0, y0)
 					end
 					
-					Cat.UnpackedCubicBezier2d.Approximate (lastX, lastY, cx1, cy1, cx2, cy2, x, y, 1,
+					Cat.UnpackedCubicBezier2d.Approximate (lastX, lastY, cx1, cy1, cx2, cy2, x, y, ds,
 						function (x, y)
 							if Cat.UnpackedVector3d.Equals (x, y, lastX, lastY) then return end
 							
 							polygon:AddPoint (x, y)
 						end
 					)
+				elseif command == Svg.PathCommand.ArcTo then
+					if not polygon then
+						polygonCount = polygonCount + 1
+						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon:Clear ()
+						self.Polygons [polygonCount] = polygon
+						polygon:AddPoint (x0, y0)
+					end
+					
+					local rx, ry = cx1, cy1
+					local angle, largerArc = math.rad (cx2), cy2
+					
+					-- Forward matrix from normalized circle space to canvas
+					-- R S
+					local f00, f01, f10, f11 = rx * math.cos (angle), -ry * math.sin (angle),
+					                           rx * math.sin (angle),  ry * math.cos (angle)
+					-- Reverse matrix from canvas to normalized circle space
+					-- S^-1 R^-1
+					local r00, r01, r10, r11 =  1 / rx * math.cos (angle), 1 / rx * math.sin (angle),
+					                           -1 / ry * math.sin (angle), 1 / ry * math.cos (angle)
+					
+					-- Arc is from (0, 0) to (x1, y1) in normalized circle space
+					local x1, y1 = Cat_UnpackedMatrix2x2d_VectorMultiply (r00, r01, r10, r11, x - lastX, y - lastY)
+					local dSquared = x1 * x1 + y1 * y1
+					
+					-- Compute circle center, using (x1, y1) rotated clockwise
+					local k = math_sqrt (math_max (0, 1 / dSquared - 0.25))
+					local dx, dy = -k * y1, k * x1
+					local cx, cy
+					if largerArc ~= clockwise then
+						cx, cy = 0.5 * x1 + dx, 0.5 * y1 + dy
+					else
+						cx, cy = 0.5 * x1 - dx, 0.5 * y1 - dy
+					end
+					
+					-- Compute start and end angles
+					local θ0 = math_atan2 (-cy, -cx)
+					local θ1 = math_atan2 (y1 - cy, x1 - cx)
+					local dθ = ds / math_max (rx, ry)
+					if clockwise then
+						if θ1 < θ0 then
+							θ1 = θ1 + 2 * math_pi
+						end
+					else
+						dθ = -dθ
+						if θ1 > θ0 then
+							θ1 = θ1 - 2 * math_pi
+						end
+					end
+					
+					-- Sweep
+					for θ = θ0 + dθ, θ1, dθ do
+						local x, y = cx + math_cos (θ), cy + math_sin (θ)
+						x, y = Cat_UnpackedMatrix2x2d_VectorMultiply (f00, f01, f10, f11, x, y)
+						
+						polygon:AddPoint (lastX + x, lastY + y)
+					end
+					
+					polygon:AddPoint (x, y)
 				elseif command == Svg.PathCommand.ClosePath then
 					polygon = nil
 				else
@@ -284,7 +353,6 @@ function self:Render (render2d, x, y)
 				
 				lastX, lastY = x, y
 			end
-			
 			
 			for i = #self.Polygons, polygonCount + 1, -1 do
 				self.Polygons [i] = nil
