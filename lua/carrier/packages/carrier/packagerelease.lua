@@ -114,6 +114,10 @@ function self:AddDependent (name, version)
 	self.Dependents [name] = version
 end
 
+function self:SetDeprecated (deprecated)
+	self.Deprecated = deprecated
+end
+
 function self:FromJson (info)
 	self.Timestamp = info.timestamp
 	self.Size      = info.size
