@@ -1,5 +1,5 @@
 local self = {}
-Carrier.PackageRelease = Class (self, Carrier.IPackageRelease)
+Carrier.PackageRelease = Class (self, Carrier.IPackageRelease, ISerializable)
 
 function Carrier.PackageRelease.FromJson (info, name)
 	local version = info.version
@@ -22,6 +22,34 @@ function self:ctor (name, version)
 	
 	self.Size            = 0
 	self.FileName        = nil
+end
+
+-- ISerializable
+function self:Serialize (streamWriter)
+	streamWriter:UInt64  (self.Timestamp)
+	streamWriter:Boolean (self.Deprecated)
+	streamWriter:UInt64  (self.Size)
+	
+	streamWriter:UInt32 (self.DependencyCount)
+	for dependencyName, dependencyVersion in self:GetDependencyEnumerator () do
+		streamWriter:StringN8 (dependencyName)
+		streamWriter:StringN8 (dependencyVersion)
+	end
+end
+
+function self:Deserialize (streamReader)
+	self.Timestamp  = streamReader:UInt64  ()
+	self.Deprecated = streamReader:Boolean ()
+	self.Size       = streamReader:UInt64  ()
+	
+	local dependencyCount = streamReader:UInt32 ()
+	for i = 1, dependencyCount do
+		local dependencyName    = streamReader:StringN8 ()
+		local dependencyVersion = streamReader:StringN8 ()
+		self:AddDependency (dependencyName, dependencyVersion)
+	end
+	
+	self:UpdateFileName ()
 end
 
 -- IPackageRelease

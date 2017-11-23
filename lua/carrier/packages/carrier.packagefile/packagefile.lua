@@ -1,13 +1,14 @@
 local self = {}
 PackageFile = Class (self, ISerializable)
-PackageFile.Signature = "\xffPKG\r\n\x1a\n"
+PackageFile.Signature     = "\xffPKG\r\n\x1a\n"
+PackageFile.FormatVersion = 1
 
 function PackageFile.Deserialize (streamReader)
 	local signature = streamReader:Bytes (#PackageFile.Signature)
 	if signature ~= PackageFile.Signature then return nil end
 	
 	local formatVersion = streamReader:UInt32 ()
-	if formatVersion == 1 then
+	if formatVersion == PackageFile.FormatVersion then
 		local name    = streamReader:StringN8 ()
 		local version = streamReader:StringN8 ()
 		local packageFile = PackageFile (name, version)
@@ -35,7 +36,6 @@ function PackageFile.Deserialize (streamReader)
 end
 
 function self:ctor (name, version)
-	self.FormatVersion = 1
 	self.Name = name
 	self.Version = version
 	self.FileLength = 0
@@ -48,7 +48,7 @@ end
 -- ISerializable
 function self:Serialize (streamWriter)
 	streamWriter:Bytes    (PackageFile.Signature)
-	streamWriter:UInt32   (self.FormatVersion)
+	streamWriter:UInt32   (PackageFile.FormatVersion)
 	streamWriter:StringN8 (self.Name)
 	streamWriter:StringN8 (self.Version)
 	streamWriter:UInt64   (self.FileLength)

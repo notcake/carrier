@@ -6,7 +6,7 @@ Error = require ("Pylon.Error")
 OOP   = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
-IO = require ("Pylon.IO")
+IO = require_provider ("Pylon.IO")
 
 Enumeration = require ("Pylon.Enumeration")
 Enumeration.Initialize (_ENV)

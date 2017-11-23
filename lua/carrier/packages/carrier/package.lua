@@ -1,5 +1,5 @@
 local self = {}
-Carrier.Package = Class (self)
+Carrier.Package = Class (self, ISerializable)
 
 function Carrier.Package.FromJson (info)
 	local name = info.name
@@ -22,6 +22,28 @@ function self:ctor (name)
 	self.LoadDestructor        = nil
 end
 
+-- ISerializable
+function self:Serialize (streamWriter)
+	streamWriter:UInt32 (self.ReleaseCount - self.DeveloperReleaseCount)
+	for packageRelease in self:GetReleaseEnumerator () do
+		if not packageRelease:IsDeveloper () then
+			streamWriter:StringN8 (packageRelease:GetVersion ())
+			packageRelease:Serialize (streamWriter)
+		end
+	end
+end
+
+function self:Deserialize (streamReader)
+	local releaseCount = streamReader:UInt32 ()
+	for i = 1, releaseCount do
+		local packageReleaseVersion = streamReader:StringN8 ()
+		local packageRelease = self:GetRelease (packageReleaseVersion) or Carrier.PackageRelease (self.Name, packageReleaseVersion)
+		packageRelease:Deserialize (streamReader)
+		self:AddRelease (packageRelease)
+	end
+end
+
+-- Package
 function self:GetName ()
 	return self.Name
 end

@@ -1,11 +1,16 @@
 local self = {}
-Carrier.Packages = Class (self)
+Carrier.Packages = Class (self, ISerializable)
+self.Signature     = "\xffPKG\r\n\x1a\n"
+self.FormatVersion = 1
+
+local sv_allowcslua = GetConVar ("sv_allowcslua")
 
 function self:ctor ()
 	self.Packages     = {}
 	self.PackageCount = 0
 	
 	self.ManifestTimestamp = 0
+	self.Path           = "garrysmod.io/carrier/packages.dat"
 	self.CacheDirectory = "garrysmod.io/carrier/cache"
 	file.CreateDir (self.CacheDirectory)
 	
@@ -17,9 +22,53 @@ function self:ctor ()
 	self:UpdateLocalDeveloperPackages ()
 end
 
-local sv_allowcslua = GetConVar ("sv_allowcslua")
+-- ISerializable
+function self:Serialize (streamWriter)
+	streamWriter:Bytes  (self.Signature)
+	streamWriter:UInt32 (self.FormatVersion)
+	streamWriter:UInt32 (0)
+	streamWriter:UInt64 (self.ManifestTimestamp)
+	
+	streamWriter:UInt32 (self.PackageCount)
+	for package in self:GetPackageEnumerator () do
+		streamWriter:StringN8 (package:GetName ())
+		package:Serialize (streamWriter)
+	end
+	
+	streamWriter:SeekAbsolute (#self.Signature + 4)
+	streamWriter:UInt32 (streamWriter:GetSize ())
+	
+	return true
+end
+
+function self:Deserialize (streamReader)
+	local signature = streamReader:Bytes (#self.Signature)
+	if signature ~= self.Signature then return false end
+	
+	local formatVersion = streamReader:UInt32 ()
+	if formatVersion ~= self.FormatVersion then return false end
+	
+	local length = streamReader:UInt32 ()
+	if length ~= streamReader:GetSize () then return false end
+	
+	self.ManifestTimestamp = streamReader:UInt64 ()
+	local packageCount = streamReader:UInt32 ()
+	for i = 1, packageCount do
+		local packageName = streamReader:StringN8 ()
+		local package = self:GetPackage (packageName) or Carrier.Package (packageName)
+		self:AddPackage (package)
+		
+		package:Deserialize (streamReader)
+	end
+	
+	return true
+end
+
+-- Packages
 function self:Initialize ()
 	local t0 = SysTime ()
+	self:LoadMetadata ()
+	
 	self.ServerLoadRoots = self:GetLoadRoots ("carrier/autoload/server/", self.ServerLoadRoots)
 	self.ClientLoadRoots = self:GetLoadRoots ("carrier/autoload/client/", self.ClientLoadRoots)
 	
@@ -56,6 +105,10 @@ function self:Initialize ()
 			for name, version in pairs (downloadSet) do
 				success = success and self:Download (name, version):Await ()
 			end
+			
+			for packageName, _ in pairs (self.LocalLoadRoots) do
+				self:Load (packageName)
+			end
 		end
 	)
 	
@@ -66,6 +119,32 @@ end
 function self:Uninitialize ()
 	for packageName, _ in pairs (self.LoadedPackages) do
 		self:Unload (packageName)
+	end
+end
+
+-- Saving
+function self:SaveMetadata ()
+	local outputStream = IO.FileOutputStream.FromPath (self.Path, "DATA")
+	if not outputStream then
+		Carrier.Warning ("Could not open " .. self.Path .. " for saving!")
+		return
+	end
+	self:Serialize (outputStream)
+	outputStream:Close ()
+	
+	Carrier.Log ("Saved to " .. self.Path)
+end
+
+function self:LoadMetadata ()
+	local inputStream = IO.FileInputStream.FromPath (self.Path, "DATA")
+	if not inputStream then return end
+	local success = self:Deserialize (inputStream)
+	inputStream:Close ()
+	
+	if success then
+		Carrier.Log ("Loaded from " .. self.Path)
+	else
+		Carrier.Log ("Load from " .. self.Path .. " failed!")
 	end
 end
 
@@ -205,8 +284,12 @@ function self:Update ()
 			local response = util.JSONToTable (response:GetContent ())
 			
 			-- Check if already up to date
-			if response.timestamp == self.ManifestTimestamp then return true end
+			if response.timestamp == self.ManifestTimestamp then
+				Carrier.Log ("Package manifest is up to date (" .. self.ManifestTimestamp .. ").")
+				return true
+			end
 			
+			Carrier.Log ("Updating manifest " .. self.ManifestTimestamp .. " to " .. response.timestamp .. "...")
 			self.ManifestTimestamp = response.timestamp
 			
 			local packageReleaseSet = {}
@@ -246,6 +329,9 @@ function self:Update ()
 					end
 				end
 			end
+			
+			-- Save
+			self:SaveMetadata ()
 			
 			return true
 		end
