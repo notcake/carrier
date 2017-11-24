@@ -177,5 +177,5 @@ function self:Block (block)
 		a, b, c, d = d, b + bit_rol (F, s [i]), b, c
 	end
 	
-	self.A, self.B, self.C, self.D = self.A + a, self.B + b, self.C + c, self.D + d
+	self.A, self.B, self.C, self.D = bit_tobit (self.A + a), bit_tobit (self.B + b), bit_tobit (self.C + c), bit_tobit (self.D + d)
 end
