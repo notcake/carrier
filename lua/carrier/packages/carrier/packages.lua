@@ -300,7 +300,9 @@ function self:Update ()
 				
 				for packageReleaseVersion, packageReleaseInfo in pairs (packageInfo.releases) do
 					if package:GetRelease (packageReleaseVersion) then
-						package:GetRelease (packageReleaseVersion):SetDeprecated (false)
+						local packageRelease = package:GetRelease (packageReleaseVersion)
+						packageRelease:SetDeprecated (false)
+						packageReleaseSet [packageRelease] = true
 					else
 						local packageRelease = Carrier.PackageRelease (packageName, packageReleaseVersion)
 						packageReleaseSet [packageRelease] = true
