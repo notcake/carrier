@@ -5,14 +5,15 @@ local string_char = string.char
 local string_sub  = string.sub
 
 function self:ctor ()
-	self.Data     = {}
-	self.Position = 0
-	self.Size     = 0
+	self.FlattenedData = ""
+	self.Data          = {}
+	self.DataPosition  = 0
+	self.Position      = 0
 end
 
 -- IBaseStream
 function self:Close ()
-	self.Data = {}
+	self:Clear ()
 end
 
 function self:GetPosition ()
@@ -20,11 +21,16 @@ function self:GetPosition ()
 end
 
 function self:GetSize ()
-	return self.Size
+	return math.max (#self.FlattenedData, self.Position)
 end
 
 function self:SeekAbsolute (seekPos)
-	Error ("IO.StringOutputStream:SeekAbsolute : Not implemented.")
+	if self.Position == seekPos then return end
+	
+	self:Flatten ()
+	
+	self.DataPosition = seekPos
+	self.Position     = seekPos
 end
 
 -- IOutputStream
@@ -36,46 +42,51 @@ function self:Write (data, length)
 	end
 	
 	self.Data [#self.Data + 1] = data
-	self.Size     = self.Size     + length
 	self.Position = self.Position + length
 end
 
 -- StreamWriter
 function self:UInt81 (uint80)
 	self.Data [#self.Data + 1] = string_char (uint80)
-	self.Size     = self.Size     + 1
 	self.Position = self.Position + 1
 end
 
 function self:UInt82 (uint80, uint81)
 	self.Data [#self.Data + 1] = string_char (uint80, uint81)
-	self.Size     = self.Size     + 2
 	self.Position = self.Position + 2
 end
 
 function self:UInt84 (uint80, uint81, uint82, uint83)
 	self.Data [#self.Data + 1] = string_char (uint80, uint81, uint82, uint83)
-	self.Size     = self.Size     + 4
 	self.Position = self.Position + 4
 end
 
 function self:UInt88 (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87)
 	self.Data [#self.Data + 1] = string_char (uint80, uint81, uint82, uint83, uint84, uint85, uint86, uint87)
-	self.Size     = self.Size     + 8
 	self.Position = self.Position + 8
 end
 
 -- StringOutputStream
 function self:Clear ()
-	self.Data     = {}
-	self.Position = 0
-	self.Size     = 0
+	self.FlattenedData = ""
+	self.Data          = {}
+	self.DataPosition  = 0
+	self.Position      = 0
 end
 
 function self:ToString ()
-	if #self.Data > 1 then
-		self.Data = { table.concat (self.Data) }
-	end
+	self:Flatten ()
 	
-	return self.Data [1] or ""
+	return self.FlattenedData
+end
+
+-- Internal
+function self:Flatten ()
+	if #self.Data == 0 then return end
+	
+	local data = table.concat (self.Data)
+	self.FlattenedData = string.sub (self.FlattenedData, 1, self.DataPosition) .. data .. string.sub (self.FlattenedData, self.Position + 1)
+	
+	self.Data = {}
+	self.DataPosition = self.Position
 end
