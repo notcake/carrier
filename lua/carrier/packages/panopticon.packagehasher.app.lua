@@ -49,9 +49,6 @@ return function (command, inputFileName, outputFileName)
 		-- Add hashes section to package
 		packageFile:AddSection (luaHashesSection)
 		
-		-- Update size fields
-		packageFile:Update ()
-		
 		-- Write new package
 		local outputStream = IO.FileOutputStream.FromPath (outputFileName)
 		local streamWriter = outputStream:ToStreamWriter ()
