@@ -4,9 +4,7 @@ IO.BufferedStreamWriter = Class (self, IO.StreamWriter)
 function self:ctor (outputStream)
 	self.OutputStream   = outputStream
 	
-	self.Position       = self.OutputStream:GetPosition ()
-	
-	self.BufferPosition = self.Position
+	self.BufferPosition = self.OutputStream:GetPosition ()
 	self.Buffer         = IO.StringOutputStream ()
 end
 
@@ -19,16 +17,16 @@ function self:Close ()
 		self.OutputStream = nil
 		
 		self.BufferPosition = 0
-		self.Buffer         = ""
+		self.Buffer:Close ()
 	end
 end
 
 function self:GetPosition ()
-	return self.Position
+	return self.BufferPosition + self.Buffer:GetPosition ()
 end
 
 function self:GetSize ()
-	return self.OutputStream:GetSize ()
+	return math.max (self.OutputStream:GetSize (), self:GetPosition ())
 end
 
 function self:SeekAbsolute (seekPos)
@@ -36,8 +34,7 @@ function self:SeekAbsolute (seekPos)
 	
 	self:Flush ()
 	
-	self.Position       = seekPos
-	self.BufferPosition = self.Position
+	self.BufferPosition = seekPos
 end
 
 -- IOutputStream

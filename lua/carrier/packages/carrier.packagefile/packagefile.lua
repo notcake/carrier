@@ -12,10 +12,10 @@ function PackageFile.Deserialize (streamReader)
 		local name    = streamReader:StringN8 ()
 		local version = streamReader:StringN8 ()
 		local packageFile = PackageFile (name, version)
-		packageFile.FileLength   = streamReader:UInt64 ()
-		packageFile.SectionCount = streamReader:UInt32 ()
+		streamReader:UInt64 ()
 		
-		for i = 1, packageFile.SectionCount do
+		local sectionCount = streamReader:UInt32 ()
+		for i = 1, sectionCount do
 			local name   = streamReader:StringN8 ()
 			local length = streamReader:UInt32 ()
 			local section = nil
