@@ -1,5 +1,5 @@
 local self = {}
-PackageFile.LuaHashesSection = Class (self, PackageFile.ISection)
+PackageFile.LuaHashesSection = Class (self, PackageFile.Section)
 PackageFile.LuaHashesSection.Name = "luahashes"
 
 function self:ctor ()

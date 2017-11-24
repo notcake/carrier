@@ -1,5 +1,5 @@
 local self = {}
-PackageFile.FileSystemSection = Class (self, PackageFile.ISection)
+PackageFile.FileSystemSection = Class (self, PackageFile.Section)
 PackageFile.FileSystemSection.Name = "code"
 
 function self:ctor ()

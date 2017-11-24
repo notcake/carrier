@@ -1,5 +1,5 @@
 local self = {}
-PackageFile.UnknownSection = Class (self, PackageFile.ISection)
+PackageFile.UnknownSection = Class (self, PackageFile.Section)
 
 function self:ctor (name, data)
 	self.Name = name

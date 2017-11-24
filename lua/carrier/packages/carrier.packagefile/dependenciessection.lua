@@ -1,5 +1,5 @@
 local self = {}
-PackageFile.DependenciesSection = Class (self, PackageFile.ISection)
+PackageFile.DependenciesSection = Class (self, PackageFile.Section)
 PackageFile.DependenciesSection.Name = "dependencies"
 
 function self:ctor ()

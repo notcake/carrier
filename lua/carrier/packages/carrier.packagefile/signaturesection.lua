@@ -3,9 +3,10 @@ PackageFile.SignatureSection = Class (self, PackageFile.Section)
 PackageFile.SignatureSection.Name = "signature"
 
 function self:ctor ()
-	self.SectionNames   = {}
-	self.SectionMD5s    = {}
-	self.SectionSHA256s = {}
+	self.SectionHashBlob = nil
+	self.SectionNames    = {}
+	self.SectionMD5s     = {}
+	self.SectionSHA256s  = {}
 end
 
 -- ISerializable
@@ -23,6 +24,7 @@ end
 function self:Deserialize (streamReader)
 	self.Signature = streamReader:StringN32 ()
 	
+	local startPosition = streamReader:GetPosition ()
 	local sectionHashCount = streamReader:UInt32 ()
 	for i = 1, sectionHashCount do
 		local sectionName = streamReader:StringN8 ()
@@ -30,6 +32,10 @@ function self:Deserialize (streamReader)
 		local sha256      = streamReader:Bytes (32)
 		self:AddSectionHash (sectionName, md5, sha256)
 	end
+	local endPosition = streamReader:GetPosition ()
+	streamReader:SeekAbsolute (startPosition)
+	self.SectionHashBlob = streamReader:Bytes (endPosition - startPosition)
+	streamReader:SeekAbsolute (endPosition)
 end
 
 -- ISection
@@ -50,4 +56,19 @@ end
 
 function self:GetSectionHashCount ()
 	return #self.SectionNames
+end
+
+function self:VerifySelf (name, version, exponent, modulus)
+	if not self.SectionHashBlob then return nil end
+	
+	local outputStream = IO.StringOutputStream ()
+	outputStream:StringN8 (name)
+	outputStream:StringN8 (version)
+	outputStream:Bytes (self.SectionHashBlob)
+	local sha256a = Crypto.SHA256.Compute (outputStream:ToString ())
+	outputStream:Close ()
+	
+	local sha256b = String.ToHex (string.sub (BigInteger.FromBlob (self.Signature):ExponentiateMod (exponent, modulus):ToBlob (), -32, -1))
+	
+	return sha256a == sha256b
 end

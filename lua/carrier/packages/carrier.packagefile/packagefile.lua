@@ -3,7 +3,7 @@ PackageFile = Class (self, ISerializable)
 PackageFile.Signature     = "\xffPKG\r\n\x1a\n"
 PackageFile.FormatVersion = 1
 
-function PackageFile.Deserialize (streamReader)
+function PackageFile.Deserialize (streamReader, exponent, modulus)
 	local signature = streamReader:Bytes (#PackageFile.Signature)
 	if signature ~= PackageFile.Signature then return nil end
 	
@@ -14,10 +14,17 @@ function PackageFile.Deserialize (streamReader)
 		local packageFile = PackageFile (name, version)
 		streamReader:UInt64 ()
 		
+		local sectionPositions = {}
+		local sectionLengths   = {}
+		
 		local sectionCount = streamReader:UInt32 ()
 		for i = 1, sectionCount do
+			local startPosition = streamReader:GetPosition ()
 			local name   = streamReader:StringN8 ()
 			local length = streamReader:UInt32 ()
+			sectionLengths [name] = streamReader:GetPosition () - startPosition + length
+			sectionPositions [name] = startPosition
+			
 			local section = nil
 			if name == PackageFile.DependenciesSection.Name then
 				section = PackageFile.DependenciesSection ()
@@ -28,12 +35,32 @@ function PackageFile.Deserialize (streamReader)
 			elseif name == PackageFile.SignatureSection.Name then
 				section = PackageFile.SignatureSection ()
 			else
-				section = PackageFile.UnknownSection (name, streamReader:Bytes (length))
+				section = PackageFile.UnknownSection (name, streamReader:Bytes (sectionLengths [name]))
 			end
 			
 			section:Deserialize (streamReader)
 			packageFile.SectionsByName [name] = section
 			packageFile.Sections [#packageFile.Sections + 1] = section
+		end
+		
+		-- Verify
+		if exponent and modulus then
+			local signatureSection = packageFile:GetSection ("signature")
+			signatureSection:SetVerified (signatureSection:VerifySelf (name, version, exponent, modulus))
+			
+			if signatureSection:IsVerified () then
+				local endPosition = streamReader:GetPosition ()
+				for i = 1, signatureSection:GetSectionHashCount () do
+					local sectionName, md5a, sha256a = signatureSection:GetSectionHash (i)
+					if sectionPositions [sectionName] then
+						streamReader:SeekAbsolute (sectionPositions [sectionName])
+						local data = streamReader:Bytes (sectionLengths [sectionName])
+						local md5b = String.FromHex (Crypto.MD5.Compute (data))
+						packageFile:GetSection (sectionName):SetVerified (md5a == md5b)
+					end
+				end
+				streamReader:SeekAbsolute (endPosition)
+			end
 		end
 		
 		return packageFile

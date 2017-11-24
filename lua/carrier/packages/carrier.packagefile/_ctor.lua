@@ -9,10 +9,13 @@ IO = require ("Pylon.IO")
 Enumeration = require ("Pylon.Enumeration")
 Enumeration.Initialize (_ENV)
 
+Crypto = require ("Pylon.Crypto")
+String = require ("Pylon.String")
+
 Verification = require ("Panopticon.Verification")
 
 include ("packagefile.lua")
-include ("isection.lua")
+include ("section.lua")
 include ("unknownsection.lua")
 include ("dependenciessection.lua")
 include ("filesystemsection.lua")
