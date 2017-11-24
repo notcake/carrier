@@ -7,3 +7,11 @@ ifa9gci12J1eJd30uWAji1pTRl6vnYWKtsYoP5i0IYbGb6RKALjKmUxNjvHJA12S
 tyj4iB0=
 ---- END SSH2 PUBLIC KEY ----
 ]]
+
+local base64 = string.match (Carrier.PublicKey, "^%-%-[^\n]*\nComment:[^\n]+\n([A-Za-z0-9%+/%s]+=?=?)\n%-%-.*$")
+
+local inputStream = IO.StringInputStream (Base64.Decode (base64))
+inputStream:Bytes (inputStream:UInt32BE ())
+Carrier.PublicKeyExponent = BigInteger.FromBlob (inputStream:Bytes (inputStream:UInt32BE ()))
+Carrier.PublicKeyModulus  = BigInteger.FromBlob (inputStream:Bytes (inputStream:UInt32BE ()))
+inputStream:Close ()

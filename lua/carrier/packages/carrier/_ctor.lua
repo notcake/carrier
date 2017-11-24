@@ -11,10 +11,12 @@ IO = require_provider ("Pylon.IO")
 Enumeration = require ("Pylon.Enumeration")
 Enumeration.Initialize (_ENV)
 
-Array = require ("Pylon.Array")
-Async = require_provider ("Pylon.Async")
-HTTP  = require_provider ("Pylon.HTTP")
-Task  = require ("Pylon.Task")
+Array      = require ("Pylon.Array")
+Async      = require_provider ("Pylon.Async")
+Base64     = require ("Pylon.Base64")
+BigInteger = require ("Pylon.BigInteger")
+HTTP       = require_provider ("Pylon.HTTP")
+Task       = require ("Pylon.Task")
 
 Clock = require_provider ("Pylon.MonotonicClock")
 
