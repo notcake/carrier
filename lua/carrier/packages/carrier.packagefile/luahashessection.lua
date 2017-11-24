@@ -1,54 +1,37 @@
 local self = {}
-PackageFile.LuaHashesSection = Class (self, PackageFile.Section)
-
-function PackageFile.LuaHashesSection.Deserialize (streamReader)
-	local section = PackageFile.LuaHashesSection ()
-	section:SetDataLength (streamReader:UInt32 ())
-	
-	section.LuaFileCount = streamReader:UInt32 ()
-	for i = 1, section.FileCount do
-		local luaFile = Verification.LuaFile.Deserialize (streamReader, true)
-		section.LuaFilesByPath [file:GetPath ()] = luaFile
-		section.LuaFiles [#section.Files + 1] = luaFile
-	end
-	
-	return section
-end
+PackageFile.LuaHashesSection = Class (self, PackageFile.ISection)
+PackageFile.LuaHashesSection.Name = "luahashes"
 
 function self:ctor ()
-	self:SetName ("luahashes")
-	
-	self.LuaFileCount = 0
+	self.LuaFiles       = {}
 	self.LuaFilesByPath = {}
-	self.LuaFiles = {}
 end
 
 -- ISerializable
 function self:Serialize (streamWriter)
-	PackageFile.Section:GetMethodTable ().Serialize (self, streamWriter)
-	streamWriter:UInt32 (self.LuaFileCount)
-	
+	streamWriter:UInt32 (#self.LuaFiles)
 	for luaFile in self:GetLuaFileEnumerator () do
 		luaFile:Serialize (streamWriter)
 	end
 end
 
--- Section
-function self:Update ()
-	local dataLength = 4
-	
-	for luaFile in self:GetLuaFileEnumerator () do
-		dataLength = dataLength + luaFile:GetSerializationLength ()
+function self:Deserialize (streamReader)
+	local luaFileCount = streamReader:UInt32 ()
+	for i = 1, luaFileCount do
+		local luaFile = Verification.LuaFile.Deserialize (streamReader, true)
+		self:AddLuaFile (luaFile)
 	end
-	
-	self:SetDataLength (dataLength)
+end
+
+-- Section
+function self:GetName ()
+	return PackageFile.LuaHashesSection.Name
 end
 
 -- LuaHashesSection
 function self:AddLuaFile (luaFile)
-	self.LuaFilesByPath [luaFile:GetPath ()] = luaFile
 	self.LuaFiles [#self.LuaFiles + 1] = luaFile
-	self.LuaFileCount = self.LuaFileCount + 1
+	self.LuaFilesByPath [luaFile:GetPath ()] = luaFile
 end
 
 function self:GetLuaFile (indexOrPath)
@@ -56,7 +39,7 @@ function self:GetLuaFile (indexOrPath)
 end
 
 function self:GetLuaFileCount ()
-	return self.LuaFileCount
+	return #self.LuaFiles
 end
 
 function self:GetLuaFileEnumerator ()

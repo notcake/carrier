@@ -16,15 +16,22 @@ function PackageFile.Deserialize (streamReader)
 		packageFile.SectionCount = streamReader:UInt32 ()
 		
 		for i = 1, packageFile.SectionCount do
-			local name = streamReader:StringN8 ()
+			local name   = streamReader:StringN8 ()
+			local length = streamReader:UInt32 ()
 			local section = nil
-			if name == "dependencies" then
-				section = PackageFile.DependenciesSection.Deserialize (streamReader)
-			elseif name == "code" then
-				section = PackageFile.FileSystemSection.Deserialize (streamReader)
+			if name == PackageFile.DependenciesSection.Name then
+				section = PackageFile.DependenciesSection ()
+			elseif name == PackageFile.FileSystemSection.Name then
+				section = PackageFile.FileSystemSection ()
+			elseif name == PackageFile.LuaHashesSection.Name then
+				section = PackageFile.LuaHashesSection ()
+			elseif name == PackageFile.SignatureSection.Name then
+				section = PackageFile.SignatureSection ()
 			else
-				section = PackageFile.UnknownSection.Deserialize (streamReader, name)
+				section = PackageFile.UnknownSection (name, streamReader:Bytes (length))
 			end
+			
+			section:Deserialize (streamReader)
 			packageFile.SectionsByName [name] = section
 			packageFile.Sections [#packageFile.Sections + 1] = section
 		end
@@ -36,27 +43,43 @@ function PackageFile.Deserialize (streamReader)
 end
 
 function self:ctor (name, version)
-	self.Name = name
-	self.Version = version
-	self.FileLength = 0
+	self.Name           = name
+	self.Version        = version
 	
-	self.SectionCount = 0
+	self.Sections       = {}
 	self.SectionsByName = {}
-	self.Sections = {}
 end
 
 -- ISerializable
 function self:Serialize (streamWriter)
+	local startPosition = streamWriter:GetPosition ()
 	streamWriter:Bytes    (PackageFile.Signature)
 	streamWriter:UInt32   (PackageFile.FormatVersion)
 	streamWriter:StringN8 (self.Name)
 	streamWriter:StringN8 (self.Version)
-	streamWriter:UInt64   (self.FileLength)
-	streamWriter:UInt32   (self.SectionCount)
+	local fileLengthPosition = streamWriter:GetPosition ()
+	streamWriter:UInt64   (0)
+	streamWriter:UInt32   (#self.Sections)
 	
 	for section in self:GetSectionEnumerator () do
+		streamWriter:StringN8 (section:GetName ())
+		local startPosition = streamWriter:GetPosition ()
+		streamWriter:UInt32 (0)
+		
 		section:Serialize (streamWriter)
+		
+		-- Write section length
+		local endPosition = streamWriter:GetPosition ()
+		streamWriter:SeekAbsolute (startPosition)
+		streamWriter:UInt32 (endPosition - startPosition)
+		streamWriter:SeekAbsolute (endPosition)
 	end
+	
+	-- Write file length
+	local endPosition = streamWriter:GetPosition ()
+	streamWriter:SeekAbsolute (fileLengthPosition)
+	streamWriter:UInt64 (endPosition - startPosition)
+	streamWriter:SeekAbsolute (endPosition)
 end
 
 -- PackageFile
@@ -72,10 +95,8 @@ end
 function self:AddSection (section)
 	self:RemoveSection (section:GetName ())
 	
-	self.SectionsByName [section:GetName ()] = section
 	self.Sections [#self.Sections + 1] = section
-	
-	self.SectionCount = self.SectionCount + 1
+	self.SectionsByName [section:GetName ()] = section
 end
 
 function self:GetSection (indexOrName)
@@ -100,15 +121,5 @@ function self:RemoveSection (name)
 			table.remove (self.Sections, i)
 			break
 		end
-	end
-	
-	self.SectionCount = self.SectionCount - 1
-end
-
-function self:Update ()
-	self.FileLength = 8 + 4 + 1 + #self.Name + 1 + #self.Version + 8 + 4
-	for section in self:GetSectionEnumerator () do
-		section:Update ()
-		self.FileLength = self.FileLength + 1 + #section:GetName () + 4 + section:GetDataLength ()
 	end
 end

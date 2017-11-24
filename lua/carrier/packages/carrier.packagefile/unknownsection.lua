@@ -1,29 +1,22 @@
 local self = {}
-PackageFile.UnknownSection = Class (self, PackageFile.Section)
+PackageFile.UnknownSection = Class (self, PackageFile.ISection)
 
-function PackageFile.UnknownSection.Deserialize (streamReader, name)
-	local section = PackageFile.UnknownSection (name)
-	section:SetDataLength (streamReader:UInt32 ())
-	
-	section.Data = streamReader:Bytes (section:GetDataLength ())
-	
-	return section
-end
-
-function self:ctor (name)
+function self:ctor (name, data)
 	self.Name = name
-	self.Data = ""
+	self.Data = data or ""
 end
 
 -- ISerializable
 function self:Serialize (streamWriter)
-	PackageFile.Section:GetMethodTable ().Serialize (self, streamWriter)
 	streamWriter:Bytes (self.Data)
 end
 
+function self:Deserialize (streamReader)
+end
+
 -- Section
-function self:Update ()
-	self:SetDataLength (#self.Data)
+function self:GetName ()
+	return self.Name
 end
 
 -- UnknownSection
@@ -33,5 +26,4 @@ end
 
 function self:SetData (data)
 	self.Data = data
-	self:SetDataLength (#self.Data)
 end

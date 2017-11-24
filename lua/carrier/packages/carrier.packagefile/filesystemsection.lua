@@ -1,54 +1,37 @@
 local self = {}
-PackageFile.FileSystemSection = Class (self, PackageFile.Section)
-
-function PackageFile.FileSystemSection.Deserialize (streamReader)
-	local section = PackageFile.FileSystemSection ()
-	section:SetDataLength (streamReader:UInt32 ())
-	
-	section.FileCount = streamReader:UInt32 ()
-	for i = 1, section.FileCount do
-		local file = PackageFile.FileSystemFile.Deserialize (streamReader)
-		section.FilesByPath [file:GetPath ()] = file
-		section.Files [#section.Files + 1] = file
-	end
-	
-	return section
-end
+PackageFile.FileSystemSection = Class (self, PackageFile.ISection)
+PackageFile.FileSystemSection.Name = "code"
 
 function self:ctor ()
-	self:SetName ("code")
-	
-	self.FileCount = 0
+	self.Files       = {}
 	self.FilesByPath = {}
-	self.Files = {}
 end
 
 -- ISerializable
 function self:Serialize (streamWriter)
-	PackageFile.Section:GetMethodTable ().Serialize (self, streamWriter)
-	streamWriter:UInt32 (self.FileCount)
-	
+	streamWriter:UInt32 (#self.Files)
 	for file in self:GetFileEnumerator () do
 		file:Serialize (streamWriter)
 	end
 end
 
--- Section
-function self:Update ()
-	local dataLength = 4
-	
-	for file in self:GetFileEnumerator () do
-		dataLength = dataLength + file:GetSerializationLength ()
+function self:Deserialize (streamReader)
+	local fileCount = streamReader:UInt32 ()
+	for i = 1, fileCount do
+		local file = PackageFile.FileSystemFile.Deserialize (streamReader)
+		self:AddFile (file)
 	end
-	
-	self:SetDataLength (dataLength)
+end
+
+-- ISection
+function self:GetName ()
+	return PackageFile.FileSystemSection.Name
 end
 
 -- FileSystemSection
 function self:AddFile (file)
-	self.FilesByPath [file:GetPath ()] = file
 	self.Files [#self.Files + 1] = file
-	self.FileCount = self.FileCount + 1
+	self.FilesByPath [file:GetPath ()] = file
 end
 
 function self:GetFile (indexOrPath)
@@ -56,7 +39,7 @@ function self:GetFile (indexOrPath)
 end
 
 function self:GetFileCount ()
-	return self.FileCount
+	return #self.Files
 end
 
 function self:GetFileEnumerator ()
