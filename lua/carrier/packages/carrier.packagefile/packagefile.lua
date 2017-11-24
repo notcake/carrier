@@ -63,14 +63,15 @@ function self:Serialize (streamWriter)
 	
 	for section in self:GetSectionEnumerator () do
 		streamWriter:StringN8 (section:GetName ())
-		local startPosition = streamWriter:GetPosition ()
+		local lengthPosition = streamWriter:GetPosition ()
 		streamWriter:UInt32 (0)
+		local startPosition = streamWriter:GetPosition ()
 		
 		section:Serialize (streamWriter)
 		
 		-- Write section length
 		local endPosition = streamWriter:GetPosition ()
-		streamWriter:SeekAbsolute (startPosition)
+		streamWriter:SeekAbsolute (lengthPosition)
 		streamWriter:UInt32 (endPosition - startPosition)
 		streamWriter:SeekAbsolute (endPosition)
 	end
