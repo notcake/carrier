@@ -299,16 +299,11 @@ function self:Update ()
 				self:AddPackage (package)
 				
 				for packageReleaseVersion, packageReleaseInfo in pairs (packageInfo.releases) do
-					if package:GetRelease (packageReleaseVersion) then
-						local packageRelease = package:GetRelease (packageReleaseVersion)
-						packageRelease:SetDeprecated (false)
-						packageReleaseSet [packageRelease] = true
-					else
-						local packageRelease = Carrier.PackageRelease (packageName, packageReleaseVersion)
-						packageReleaseSet [packageRelease] = true
-						packageRelease = packageRelease:FromJson (packageReleaseInfo)
-						package:AddRelease (packageRelease)
-					end
+					local packageRelease = package:GetRelease (packageReleaseVersion) or Carrier.PackageRelease (packageName, packageReleaseVersion)
+					packageRelease:SetDeprecated (false)
+					packageReleaseSet [packageRelease] = true
+					packageRelease = packageRelease:FromJson (packageReleaseInfo)
+					package:AddRelease (packageRelease)
 				end
 			end
 			
