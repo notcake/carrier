@@ -91,6 +91,68 @@ function self:GetDependentEnumerator ()
 	return KeyValueEnumerator (self.Dependents)
 end
 
+-- Loading
+function self:Load (environment)
+	local inputStream = IO.FileInputStream.FromPath (Carrier.Packages.CacheDirectory .. "/" .. self.FileName, "DATA")
+	if not inputStream then
+		Carrier.Warning ("Package file for " .. self.Name .. " " .. self.Version .. " missing!")
+		return
+	end
+	
+	local packageFile = PackageFile.Deserialize (inputStream, Carrier.PublicKeyExponent, Carrier.PublicKeyModulus)
+	inputStream:Close ()
+	
+	local codeSection = packageFile:GetSection ("code")
+	if not codeSection then
+		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has no code section!")
+		return
+	elseif not codeSection:IsVerified () then
+		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for code section!")
+		return
+	elseif not packageFile:GetSection ("luahashes") then
+		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has no Lua hashes section!")
+		return
+	elseif not packageFile:GetSection ("luahashes"):IsVerified () then
+		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for Lua hashes section!")
+		return
+	end
+	
+	environment.loadfile = function (path)
+		local file = codeSection:GetFile (path)
+		if not file then
+			Carrier.Warning (self.Name .. " " .. self.Version .. ": " .. path .. " not found.")
+			return nil, nil
+		end
+		
+		local f = CompileString (file:GetData (), path, false)
+		
+		if type (f) == "string" then
+			Carrier.Warning (self.Name .. " " .. self.Version .. ": " .. f)
+			return nil, nil
+		end
+		
+		setfenv (f, environment)
+		return f
+	end
+	
+	-- ctor
+	local f = environment.loadfile ("_ctor.lua")
+	if not f then
+		environment.loadfile = nil
+		environment.include  = nil
+		return nil, nil
+	end
+	
+	-- dtor
+	local file = codeSection:GetFile ("_dtor.lua")
+	local destructor = file and environment.loadfile ("_dtor.lua")
+	
+	local exports = f ()
+	environment.loadfile = nil
+	environment.include  = nil
+	return exports, destructor
+end
+
 -- PackageRelease
 function self:GetSize ()
 	return self.Size

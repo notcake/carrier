@@ -61,13 +61,13 @@ end
 
 -- Loading
 function self:Load (environment)
-	environment.include = function (path)
+	environment.loadfile = function (path)
 		path = self.BasePath .. "/" .. path
 		
 		local t0 = Clock ()
 		local f = CompileFile (path)
 		local dt = SysTime () - t0
-		Carrier.Log (string.format ("Carrier.LoadPackage : CompileFile %s took %.2f ms", path, dt * 1000))
+		Carrier.Log (string.format ("Load: CompileFile %s took %.2f ms", path, dt * 1000))
 		
 		if not f then
 			Carrier.Warning (path .. " not found or has syntax error.")
@@ -75,13 +75,13 @@ function self:Load (environment)
 		end
 		
 		setfenv (f, environment)
-		return f ()
+		return f
 	end
 	
 	-- ctor
 	local f = CompileFile (self.ConstructorPath)
 	if not f then
-		Carrier.Warning (path .. " not found or has syntax error.")
+		Carrier.Warning (self.ConstructorPath .. " not found or has syntax error.")
 		return nil, nil
 	end
 	

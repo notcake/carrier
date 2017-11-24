@@ -127,11 +127,11 @@ function self:IsLoaded ()
 	return self.Loaded
 end
 
-function self:Load ()
+function self:Load (version)
 	if self.Loaded then return self.LoadExports end
 	
 	local t0 = Clock ()
-	local packageRelease = self:GetLocalDeveloperRelease ()
+	local packageRelease = version and self:GetRelease (version) or self:GetLocalDeveloperRelease ()
 	if not packageRelease then
 		Carrier.Warning ("Load: No package release found for " .. self.Name .. "!")
 		return nil
@@ -147,6 +147,11 @@ function self:Load ()
 	end
 	self.LoadEnvironment.require_provider = function (packageName)
 		return Carrier.Packages:LoadProvider (packageName)
+	end
+	self.LoadEnvironment.include = function (path)
+		local f = self.LoadEnvironment.loadfile (path)
+		if not f then return end
+		return f ()
 	end
 	
 	self.LoadExports, self.LoadDestructor = packageRelease:Load (self.LoadEnvironment)
