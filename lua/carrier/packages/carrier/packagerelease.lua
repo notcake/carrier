@@ -106,6 +106,13 @@ function self:Load (environment)
 	local packageFile = PackageFile.Deserialize (inputStream, Carrier.PublicKeyExponent, Carrier.PublicKeyModulus)
 	inputStream:Close ()
 	
+	if packageFile:GetName () ~= self.Name or
+	   packageFile:GetVersion () ~= self.Version then
+		Carrier.Warning ("Package file for " .. self.Name .. " " .. self.Version .. " has incorrect name or version (" .. packageFile:GetName () .. " " .. packageFile:GetVersion () .. ")!")
+		file.Delete (Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
+		return
+	end
+	
 	local codeSection = packageFile:GetSection ("code")
 	if not codeSection then
 		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has no code section!")
