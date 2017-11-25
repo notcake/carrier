@@ -16,6 +16,10 @@ function self:GetTimestamp ()
 	Error ("IPackageRelease:GetTimestamp : Not implemented.")
 end
 
+function self:IsAvailable ()
+	Error ("IPackageRelease:IsAvailable : Not implemented.")
+end
+
 function self:IsDeprecated ()
 	Error ("IPackageRelease:IsDeprecated : Not implemented.")
 end

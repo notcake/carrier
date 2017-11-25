@@ -34,12 +34,18 @@ function Carrier.ToFileName (s)
 	return string.gsub (string.lower (s), "[^%w%.%-%+_]", "_")
 end
 
+local debugColor = Color (192, 192, 192)
+function Carrier.Debug (message)
+	MsgC (debugColor, "Carrier: " .. message .. "\n")
+end
+
 function Carrier.Log (message)
 	print ("Carrier: " .. message)
 end
 
+local warningColor = Color (255, 192, 64)
 function Carrier.Warning (message)
-	print ("Carrier: Warning: " .. message)
+	MsgC (warningColor, "Carrier: Warning: " .. message .. "\n")
 end
 
 Carrier.Packages = Carrier.Packages ()

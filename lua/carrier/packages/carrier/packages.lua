@@ -4,6 +4,9 @@ self.Signature     = "\xffPKG\r\n\x1a\n"
 self.FormatVersion = 1
 
 local sv_allowcslua = GetConVar ("sv_allowcslua")
+local carrier_developer_sv = CreateConVar ("carrier_developer_sv", "0", FCVAR_ARCHIVE + FCVAR_REPLICATED)
+local carrier_developer_cl = CLIENT and CreateClientConVar ("carrier_developer_cl", "0", true, false) or nil
+local carrier_developer    = CLIENT and carrier_developer_cl or carrier_developer_sv
 
 function self:ctor ()
 	self.Packages     = {}
@@ -64,6 +67,23 @@ function self:Deserialize (streamReader)
 	return true
 end
 
+-- Developer
+function self:IsLocalDeveloperEnabled ()
+	if SERVER then
+		return carrier_developer_sv:GetBool ()
+	else
+		return sv_allowcslua:GetBool () and carrier_developer_cl:GetBool ()
+	end
+end
+
+function self:IsServerDeveloperEnabled ()
+	if SERVER then
+		return carrier_developer_sv:GetBool ()
+	else
+		return carrier_developer_sv:GetBool () and util.NetworkStringToID ("Carrier.RequestDeveloperPackageList") ~= 0
+	end
+end
+
 -- Packages
 function self:Initialize ()
 	local t0 = SysTime ()
@@ -80,7 +100,7 @@ function self:Initialize ()
 	
 	self.LocalLoadRoots = CLIENT and self.ClientLoadRoots or self.ServerLoadRoots
 	
-	if true then -- developer
+	if self:IsLocalDeveloperEnabled () then
 		for packageName, _ in pairs (self.LocalLoadRoots) do
 			self:Load (packageName)
 		end
@@ -102,8 +122,8 @@ function self:Initialize ()
 			end
 			
 			local success = true
-			for name, version in pairs (downloadSet) do
-				success = success and self:Download (name, version):Await ()
+			for packageName, packageReleaseVersion in pairs (downloadSet) do
+				success = success and self:Download (packageName, packageReleaseVersion):Await ()
 			end
 			
 			for packageName, _ in pairs (self.LocalLoadRoots) do
@@ -149,8 +169,8 @@ function self:LoadMetadata ()
 end
 
 -- Packages
-function self:GetPackage (name)
-	return self.Packages [name]
+function self:GetPackage (packageName)
+	return self.Packages [packageName]
 end
 
 function self:GetPackageCount ()
@@ -161,11 +181,11 @@ function self:GetPackageEnumerator ()
 	return ValueEnumerator (self.Packages)
 end
 
-function self:GetPackageRelease (name, version)
-	local package = self.Packages [name]
+function self:GetPackageRelease (packageName, packageReleaseVersion)
+	local package = self.Packages [packageName]
 	if not package then return end
 	
-	return package:GetRelease (version)
+	return package:GetRelease (packageReleaseVersion)
 end
 
 -- Dependencies
@@ -196,15 +216,40 @@ function self:Assimilate (package, packageRelease, environment, exports, destruc
 	self.LoadedPackages [package:GetName ()] = package
 end
 
-function self:Load (packageName)
+function self:Load (packageName, packageReleaseVersion)
 	local package = self:GetPackage (packageName)
 	if not package then
 		Carrier.Warning ("Load: Package " .. packageName .. " not found!")
 		return
 	end
 	
+	if not packageReleaseVersion then
+		local packageRelease = nil
+		
+		-- Prioritize developer packages if developer mode is on
+		if self:IsLocalDeveloperEnabled () then
+			packageRelease = packageRelease or package:GetLocalDeveloperRelease ()
+		end
+		
+		-- Pick the latest release
+		packageRelease = packageRelease or package:GetLatestRelease ()
+		
+		-- Fallback onto a developer package
+		if SERVER or sv_allowcslua:GetBool () then
+			if not packageRelease or not packageRelease:IsAvailable () then
+				packageRelease = package:GetLocalDeveloperRelease () or packageRelease
+			end
+		end
+		
+		packageReleaseVersion = packageRelease and packageRelease:GetVersion ()
+	end
+	if not packageReleaseVersion then
+		Carrier.Warning ("Load: No releases found for " .. packageName .. "!")
+		return
+	end
+	
 	self.LoadedPackages [packageName] = package
-	return package:Load ()
+	return package:Load (packageReleaseVersion)
 end
 
 function self:LoadProvider (packageName)
@@ -230,16 +275,16 @@ function self:Unload (packageName)
 end
 
 -- Manifest
-function self:Download (name, version)
+function self:Download (packageName, packageReleaseVersion)
 	return Task.Run (
 		function ()
-			local packageRelease = self:GetPackageRelease (name, version)
+			local packageRelease = self:GetPackageRelease (packageName, packageReleaseVersion)
 			if not packageRelease then return false end
 			
 			if file.Exists (self.CacheDirectory .. "/" .. packageRelease:GetFileName (), "DATA") then return true end
 			
 			local response
-			local url = "https://garrysmod.io/api/packages/v1/download?name=" .. HTTP.EncodeUriComponent (name) .. "&version=" .. HTTP.EncodeUriComponent (version)
+			local url = "https://garrysmod.io/api/packages/v1/download?name=" .. HTTP.EncodeUriComponent (packageName) .. "&version=" .. HTTP.EncodeUriComponent (packageReleaseVersion)
 			for i = 1, 5 do
 				response = HTTP.Get (url):await ()
 				if response:IsSuccess () then break end
@@ -250,16 +295,16 @@ function self:Download (name, version)
 			end
 			
 			if not response:IsSuccess () then
-				Carrier.Log ("Failed to downloaded " .. name .. " " .. version)
+				Carrier.Log ("Failed to downloaded " .. packageName .. " " .. packageReleaseVersion)
 				return false
 			end
 			
 			if string.sub (response:GetContent (), 1, #PackageFile.Signature) == PackageFile.Signature then
-				Carrier.Log ("Downloaded " .. name .. " " .. version)
+				Carrier.Log ("Downloaded " .. packageName .. " " .. packageReleaseVersion)
 				file.Write (self.CacheDirectory .. "/" .. packageRelease:GetFileName (), response:GetContent ())
 				return true
 			else
-				Carrier.Log ("Downloaded " .. name .. " " .. version .. ", but bad signature")
+				Carrier.Log ("Downloaded " .. packageName .. " " .. packageReleaseVersion .. ", but bad signature")
 				return false
 			end
 		end

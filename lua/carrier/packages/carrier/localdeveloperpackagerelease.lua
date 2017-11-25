@@ -33,6 +33,10 @@ function self:GetTimestamp ()
 	return self.Timestamp
 end
 
+function self:IsAvailable ()
+	return true
+end
+
 function self:IsDeprecated ()
 	return false
 end
@@ -64,10 +68,7 @@ function self:Load (environment)
 	environment.loadfile = function (path)
 		path = self.BasePath .. "/" .. path
 		
-		local t0 = Clock ()
 		local f = CompileFile (path)
-		local dt = SysTime () - t0
-		Carrier.Log (string.format ("Load: CompileFile %s took %.2f ms", path, dt * 1000))
 		
 		if not f then
 			Carrier.Warning (path .. " not found or has syntax error.")
@@ -93,7 +94,13 @@ function self:Load (environment)
 		setfenv (destructor, environment)
 	end
 	
-	return f (), destructor
+	local success, exports = xpcall (f, debug.traceback)
+	if not success then
+		Carrier.Warning (exports)
+		return nil, destructor
+	end
+	
+	return exports, destructor
 end
 
 -- LocalDeveloperPackageRelease

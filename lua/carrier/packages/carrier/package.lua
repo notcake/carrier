@@ -63,12 +63,12 @@ end
 
 function self:RemoveRelease (packageRelease)
 	if not packageRelease then return end
-	local version = type (packageRelease) == "string" and packageRelease or packageRelease:GetVersion ()
+	local packageReleaseVersion = type (packageRelease) == "string" and packageRelease or packageRelease:GetVersion ()
 	
-	local packageRelease = self.Releases [version]
+	local packageRelease = self.Releases [packageReleaseVersion]
 	if not packageRelease then return end
 	
-	self.Releases [version] = nil
+	self.Releases [packageReleaseVersion] = nil
 	self.ReleaseCount = self.ReleaseCount - 1
 	if packageRelease:IsDeveloper () then
 		self.DeveloperReleaseCount = self.DeveloperReleaseCount - 1
@@ -96,8 +96,8 @@ function self:GetLocalDeveloperRelease ()
 	return self.LocalDeveloperRelease
 end
 
-function self:GetRelease (version)
-	return self.Releases [version]
+function self:GetRelease (packageReleaseVersion)
+	return self.Releases [packageReleaseVersion]
 end
 
 function self:GetReleaseCount ()
@@ -116,7 +116,7 @@ function self:Assimilate (packageRelease, environment, exports, destructor)
 	self.LoadExports     = exports
 	self.LoadDestructor  = destructor
 	
-	Carrier.Log ("Assimilated package " .. self.Name .. ".")
+	Carrier.Debug ("Assimilated package " .. self.Name .. ".")
 end
 
 function self:GetLoadedRelease ()
@@ -127,13 +127,13 @@ function self:IsLoaded ()
 	return self.Loaded
 end
 
-function self:Load (version)
+function self:Load (packageReleaseVersion)
 	if self.Loaded then return self.LoadExports end
 	
 	local t0 = Clock ()
-	local packageRelease = version and self:GetRelease (version) or self:GetLocalDeveloperRelease ()
+	local packageRelease = self:GetRelease (packageReleaseVersion) or packageReleaseVersion
 	if not packageRelease then
-		Carrier.Warning ("Load: No package release found for " .. self.Name .. "!")
+		Carrier.Warning ("Load: " .. self.Name .. " " .. packageReleaseVersion .. " not found!")
 		return nil
 	end
 	
@@ -157,7 +157,7 @@ function self:Load (version)
 	self.LoadExports, self.LoadDestructor = packageRelease:Load (self.LoadEnvironment)
 	
 	local dt = Clock () - t0
-	Carrier.Log (string.format ("Load: %s took %.2f ms", self.Name, dt * 1000))
+	Carrier.Log (string.format ("Load: %s %s took %.2f ms", self.Name, packageReleaseVersion, dt * 1000))
 	
 	return self.LoadExports
 end
@@ -168,7 +168,8 @@ function self:Unload ()
 	Carrier.Log ("Unload: " .. self.Name)
 	
 	if self.LoadDestructor then
-		self.LoadDestructor ()
+		local success, err = xpcall (self.LoadDestructor, debug.traceback)
+		if not success then Carrier.Warning (err) end
 	end
 	
 	self.Loaded          = false

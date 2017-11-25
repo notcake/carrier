@@ -65,6 +65,10 @@ function self:GetTimestamp ()
 	return self.Timestamp
 end
 
+function self:IsAvailable ()
+	return file.Exists (Carrier.Packages.CacheDirectory .. "/" .. self.FileName, "DATA")
+end
+
 function self:IsDeprecated ()
 	return self.Deprecated
 end
@@ -147,9 +151,14 @@ function self:Load (environment)
 	local file = codeSection:GetFile ("_dtor.lua")
 	local destructor = file and environment.loadfile ("_dtor.lua")
 	
-	local exports = f ()
+	local success, exports = xpcall (f, debug.traceback)
 	environment.loadfile = nil
 	environment.include  = nil
+	if not success then
+		Carrier.Warning (exports)
+		return nil, destructor
+	end
+	
 	return exports, destructor
 end
 
