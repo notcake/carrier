@@ -74,7 +74,7 @@ function self:Load (environment)
 		return
 	end
 	
-	local packageFile = PackageFile.Deserialize (inputStream, Carrier.PublicKeyExponent, Carrier.PublicKeyModulus)
+	local packageFile = PackageFile.Deserialize (inputStream, Carrier.PublicKey.Exponent, Carrier.PublicKey.Modulus)
 	inputStream:Close ()
 	
 	if packageFile:GetName () ~= self.Name or

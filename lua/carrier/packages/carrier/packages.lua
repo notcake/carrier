@@ -69,19 +69,11 @@ end
 
 -- Developer
 function self:IsLocalDeveloperEnabled ()
-	if SERVER then
-		return carrier_developer_sv:GetBool ()
-	else
-		return sv_allowcslua:GetBool () and carrier_developer_cl:GetBool ()
-	end
+	return carrier_developer:GetBool () and (SERVER or sv_allowcslua:GetBool ())
 end
 
 function self:IsServerDeveloperEnabled ()
-	if SERVER then
-		return carrier_developer_sv:GetBool ()
-	else
-		return carrier_developer_sv:GetBool () and util.NetworkStringToID ("Carrier.RequestDeveloperPackageList") ~= 0
-	end
+	return carrier_developer_sv:GetBool () and util.NetworkStringToID ("Carrier.RequestDeveloperPackageList") ~= 0
 end
 
 -- Packages
@@ -289,13 +281,15 @@ function self:Download (packageName, packageReleaseVersion)
 				response = HTTP.Get (url):await ()
 				if response:IsSuccess () then break end
 				
-				local delay = 1 * math.pow (2, i - 1)
-				Carrier.Warning ("Failed to fetch from " .. url .. ", retrying in " .. delay .. " second(s)...")
-				Async.Sleep (delay):await ()
+				if i ~= 5 then
+					local delay = 1 * math.pow (2, i - 1)
+					Carrier.Warning ("Failed to fetch from " .. url .. ", retrying in " .. delay .. " second(s)...")
+					Async.Sleep (delay):await ()
+				end
 			end
 			
 			if not response:IsSuccess () then
-				Carrier.Log ("Failed to downloaded " .. packageName .. " " .. packageReleaseVersion)
+				Carrier.Log ("Failed to download " .. packageName .. " " .. packageReleaseVersion)
 				return false
 			end
 			
@@ -319,12 +313,17 @@ function self:Update ()
 				response = HTTP.Get ("https://garrysmod.io/api/packages/v1/latest"):await ()
 				if response:IsSuccess () then break end
 				
-				local delay = 1 * math.pow (2, i - 1)
-				Carrier.Warning ("Failed to fetch from https://garrysmod.io/api/packages/v1/latest, retrying in " .. delay .. " second(s)...")
-				Async.Sleep (delay):await ()
+				if i ~= 5 then
+					local delay = 1 * math.pow (2, i - 1)
+					Carrier.Warning ("Failed to fetch from https://garrysmod.io/api/packages/v1/latest, retrying in " .. delay .. " second(s)...")
+					Async.Sleep (delay):await ()
+				end
 			end
 			
-			if not response:IsSuccess () then return false end
+			if not response:IsSuccess () then
+				Carrier.Log ("Failed to download package list")
+				return false
+			end
 			
 			local response = util.JSONToTable (response:GetContent ())
 			
@@ -388,14 +387,14 @@ function self:UpdateLocalDeveloperPackages ()
 	local constructorPaths = {}
 	local destructorPaths  = {}
 	for _, v in ipairs (files) do
-		basePaths        [#basePaths        + 1] = "carrier/packages/" .. v
-		constructorPaths [#basePaths]            = "carrier/packages/" .. v
-		destructorPaths  [#basePaths]            = nil
+		basePaths        [#basePaths + 1] = "carrier/packages/" .. v
+		constructorPaths [#basePaths]     = "carrier/packages/" .. v
+		destructorPaths  [#basePaths]     = nil
 	end
 	for _, v in ipairs (folders) do
-		basePaths        [#basePaths        + 1] = "carrier/packages/" .. v
-		constructorPaths [#basePaths]            = "carrier/packages/" .. v .. "/_ctor.lua"
-		destructorPaths  [#basePaths]            = "carrier/packages/" .. v .. "/_dtor.lua"
+		basePaths        [#basePaths + 1] = "carrier/packages/" .. v
+		constructorPaths [#basePaths]     = "carrier/packages/" .. v .. "/_ctor.lua"
+		destructorPaths  [#basePaths]     = "carrier/packages/" .. v .. "/_dtor.lua"
 	end
 	
 	local dependencies = {}

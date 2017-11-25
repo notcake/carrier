@@ -37,8 +37,7 @@ function self:AcceptPattern (pattern)
 	local match, nextPosition = string_match (self.Input, self.PatternCache [pattern], self.Position)
 	if not match then return nil end
 	
-	nextPosition = nextPosition or self.Position + #match
-	self.Position = nextPosition
+	self.Position = nextPosition or self.Position + #match
 	return match
 end
 

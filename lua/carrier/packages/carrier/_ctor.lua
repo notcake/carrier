@@ -13,14 +13,13 @@ Enumeration.Initialize (_ENV)
 
 Array      = require ("Pylon.Array")
 Async      = require_provider ("Pylon.Async")
-Base64     = require ("Pylon.Base64")
-BigInteger = require ("Pylon.BigInteger")
 HTTP       = require_provider ("Pylon.HTTP")
 Task       = require ("Pylon.Task")
 
 Clock = require_provider ("Pylon.MonotonicClock")
 
 PackageFile = require ("Carrier.PackageFile")
+PublicKey = require ("Carrier.PublicKey")
 
 include ("packages.lua")
 include ("package.lua")
@@ -28,7 +27,6 @@ include ("ipackagerelease.lua")
 include ("packagerelease.lua")
 include ("localdeveloperpackagerelease.lua")
 include ("remotedeveloperpackagerelease.lua")
-include ("publickey.lua")
 
 function Carrier.ToFileName (s)
 	return string.gsub (string.lower (s), "[^%w%.%-%+_]", "_")
