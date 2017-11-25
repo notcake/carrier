@@ -504,9 +504,8 @@ function self:UpdateLocalDeveloperPackage (basePath, constructorPath, destructor
 		self:AddPackage (package)
 	end
 	
-	local timestamp = file.Time (basePath, pathId)
 	local destructorExists = destructorPath and file.Exists (destructorPath, pathId) or false
-	local packageRelease = Carrier.LocalDeveloperPackageRelease (packageName, timestamp, basePath, constructorPath, destructorExists and destructorPath or nil, pathId)
+	local packageRelease = Carrier.LocalDeveloperPackageRelease (packageName, basePath, constructorPath, destructorExists and destructorPath or nil, pathId)
 	local previousPackageRelease = package:GetLocalDeveloperRelease ()
 	package:RemoveRelease (previousPackageRelease)
 	package:AddRelease (packageRelease)

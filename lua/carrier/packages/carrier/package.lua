@@ -131,7 +131,7 @@ function self:Load (packageReleaseVersion)
 	if self.Loaded then return self.LoadExports end
 	
 	local t0 = Clock ()
-	local packageRelease = self:GetRelease (packageReleaseVersion) or packageReleaseVersion
+	local packageRelease = self:GetRelease (packageReleaseVersion)
 	if not packageRelease then
 		Carrier.Warning ("Load: " .. self.Name .. " " .. packageReleaseVersion .. " not found!")
 		return nil
