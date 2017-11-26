@@ -33,7 +33,7 @@ function Base64.Decode (s)
 	end
 	
 	if d == equals then
-		t [#t] = string_sub (t [#t], 1, c == equals and 2 or 3)
+		t [#t] = string_sub (t [#t], 1, c == equals and 1 or 2)
 	end
 	
 	return table_concat (t)
