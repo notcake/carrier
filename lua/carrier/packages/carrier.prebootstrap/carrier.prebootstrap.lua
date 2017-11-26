@@ -637,6 +637,7 @@ local function WithBootstrap (f)
 				Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
 				return
 			end
+			file.CreateDir ("garrysmod.io/carrier")
 			file.Write ("garrysmod.io/carrier/bootstrap.dat",           Base64.Decode (data.package))
 			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", Base64.Decode (data.signature))
 			
