@@ -5263,7 +5263,7 @@ return Task.Run (
 		local carrier = nil
 		local developerRelease = Carrier.Packages:GetLocalDeveloperRelease ("Carrier")
 		if Carrier.Packages:IsLocalDeveloperEnabled () and developerRelease then
-			carrier = Carrier.Packages:Load (package:GetName (), developerRelease:GetVersion ())
+			carrier = Carrier.Packages:Load ("Carrier", developerRelease:GetVersion ())
 		else
 			Carrier.Packages:LoadMetadata ()
 			local downloadRequired = Carrier.Packages:IsPackageReleaseAvailableRecursive ("Carrier")
