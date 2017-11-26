@@ -116,7 +116,7 @@ return Task.Run (
 			carrier = Carrier.Packages:Load ("Carrier", developerRelease:GetVersion ())
 		else
 			Carrier.Packages:LoadMetadata ()
-			local downloadRequired = Carrier.Packages:IsPackageReleaseAvailableRecursive ("Carrier")
+			local downloadRequired = not Carrier.Packages:IsPackageReleaseAvailableRecursive ("Carrier")
 			
 			if downloadRequired then
 				Carrier.Packages:Update ():Await ()
