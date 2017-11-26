@@ -361,7 +361,7 @@ function self:Update ()
 		function ()
 			local response
 			for i = 1, 5 do
-				response = HTTP.Get ("https://garrysmod.io/api/packages/v1/latest"):await ()
+				response = HTTP.Get ("https://garrysmod.io/api/packages/v1/latest"):Await ()
 				if response:IsSuccess () then break end
 				
 				if i ~= 5 then
@@ -372,7 +372,7 @@ function self:Update ()
 			end
 			
 			if not response:IsSuccess () then
-				Carrier.Log ("Failed to download package list")
+				Carrier.Warning ("Failed to download package list.")
 				return false
 			end
 			
@@ -387,6 +387,14 @@ function self:Update ()
 			Carrier.Log ("Updating manifest " .. self.ManifestTimestamp .. " to " .. response.timestamp .. "...")
 			self.ManifestTimestamp = response.timestamp
 			
+			-- Check bootstrap
+			local bootstrapSignature = file.Read ("garrysmod.io/carrier/bootstrap.signature.dat", "DATA")
+			if Base64.Decode (response.bootstrapSignature) ~= bootstrapSignature then
+				Carrier.Log ("Updating bootstrap...")
+				self:UpdateBootstrap ():Await ()
+			end
+			
+			-- Package releases
 			local packageReleaseSet = {}
 			for packageName, packageInfo in pairs (response.packages) do
 				local package = self:GetPackage (packageName) or Carrier.Package (packageName)
@@ -426,6 +434,38 @@ function self:Update ()
 			self:SaveMetadata ()
 			
 			return true
+		end
+	)
+end
+
+function self:UpdateBootstrap ()
+	return Task.Run (
+		function ()
+			local response
+			for i = 1, 5 do
+				response = HTTP.Get ("https://garrysmod.io/api/packages/v1/bootstrap"):Await ()
+				if response:IsSuccess () then break end
+				
+				if i ~= 5 then
+					local delay = 1 * math.pow (2, i - 1)
+					Carrier.Warning ("Failed to fetch from https://garrysmod.io/api/packages/v1/bootstrap, retrying in " .. delay .. " second(s)...")
+					Async.Sleep (delay):await ()
+				end
+			end
+			
+			if not response:IsSuccess () then
+				Carrier.Warning ("Failed to download bootstrap.")
+				return false
+			end
+			
+			local response = util.JSONToTable (response:GetContent ())
+			if not response then
+				Carrier.Warning ("Invalid bootstrap response.")
+				return false
+			end
+			
+			file.Write ("garrysmod.io/carrier/bootstrap.dat", Base64.Decode (response.bootstrap))
+			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", Base64.Decode (response.bootstrapSignature))
 		end
 	)
 end
