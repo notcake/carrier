@@ -5278,7 +5278,7 @@ return Task.Run (
 			
 			if downloadRequired then
 				Carrier.Packages:Update ():Await ()
-				Carrier.Packages:DownloadRecursive ("Carrier")
+				Carrier.Packages:DownloadRecursive ("Carrier"):Await ()
 			end
 			
 			carrier = WithJIT (Carrier.Packages.Load, Carrier.Packages, "Carrier")
