@@ -106,7 +106,7 @@ function self:Load (environment)
 			return nil, nil
 		end
 		
-		local f = CompileString (file:GetData (), path, false)
+		local f = CompileString (file:GetData (), string.lower (self.Name) .. "/" .. path, false)
 		
 		if type (f) == "string" then
 			Carrier.Warning (self.Name .. " " .. self.Version .. ": " .. f)

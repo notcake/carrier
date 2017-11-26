@@ -104,8 +104,11 @@ local function GetValidatedCode ()
 	local signature = file.Read ("garrysmod.io/carrier/bootstrap.signature.dat", "DATA")
 	if not package or not signature then return nil, nil end
 	
+	local hook = { debug.gethook () }
+	debug.sethook ()
 	local sha256a = string.sub (BigInteger.FromBlob(signature):ExponentiateMod (publicKeyExponent, publicKeyModulus):ToBlob (), -32, -1)
 	local sha256b = String.FromHex (Crypto.SHA256.Compute (package))
+	debug.sethook (unpack (hook))
 	if sha256a == sha256b then
 		return string.match (package, "%-%- BEGIN CARRIER BOOTSTRAP.-%-%- END CARRIER BOOTSTRAP\r?\n"), package
 	else
@@ -159,7 +162,7 @@ end
 
 WithBootstrap (
 	function (code, package)
-		local f = CompileString (code, "carrier.bootstrap.lua", false)
+		local f = CompileString (code, "carrier.bootstrap/carrier.bootstrap.lua", false)
 		if type (f) == "string" then
 			Warning (f)
 		else
@@ -172,8 +175,10 @@ WithBootstrap (
 				Reset ()
 			else
 				future:Wait (
-					function ()
-						if not Carrier then
+					function (success)
+						if not success or
+						   not Carrier then
+							Warning ("Bootstrap failed!")
 							Reset ()
 						end
 					end

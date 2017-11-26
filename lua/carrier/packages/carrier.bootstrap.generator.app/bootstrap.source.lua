@@ -135,12 +135,14 @@ return Task.Run (
 		
 		if not carrier then return false end
 		
+		-- Load package listing and initialize
+		carrier.Packages:Initialize ()
+		
+		-- Assimilate existing packages
 		for packageName, bootstrapPackage in pairs (Carrier.Packages.LoadedPackages) do
 			local package = carrier.Packages:GetPackage (packageName)
 			bootstrapPackage:AssimilateInto (package)
 		end
-		
-		carrier.Packages:Initialize ()
 		
 		_G.Carrier = _G.Carrier or {}
 		_G.Carrier.Uninitialize = function () carrier.Packages:Uninitialize () end
