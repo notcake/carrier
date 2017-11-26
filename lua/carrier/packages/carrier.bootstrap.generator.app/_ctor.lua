@@ -80,7 +80,7 @@ end
 return function ()
 	PreprocessFile (
 		"carrier/packages/carrier.bootstrap.generator.app/prebootstrap.source.lua",
-		"carrier/packages/carrier.bootstrap/carrier.prebootstrap.lua"
+		"carrier/packages/carrier.prebootstrap/carrier.prebootstrap.lua"
 	)
 	PreprocessFile (
 		"carrier/packages/carrier.bootstrap.generator.app/bootstrap.source.lua",
