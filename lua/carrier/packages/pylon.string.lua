@@ -1,5 +1,5 @@
 -- PACKAGE Pylon.String
-String = {}
+local String = {}
 
 local string_char   = string.char
 local string_format = string.format
