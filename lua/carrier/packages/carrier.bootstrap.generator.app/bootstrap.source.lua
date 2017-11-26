@@ -105,6 +105,11 @@ end
 
 return Task.Run (
 	function ()
+		if _G.Carrier and
+		   type (_G.Carrier.Uninitialize) == "function" then
+			_G.Carrier.Uninitialize ()
+		end
+		
 		local carrier = nil
 		local developerRelease = Carrier.Packages:GetLocalDeveloperRelease ("Carrier")
 		if Carrier.Packages:IsLocalDeveloperEnabled () and developerRelease then
@@ -136,6 +141,11 @@ return Task.Run (
 		end
 		
 		carrier.Packages:Initialize ()
+		
+		_G.Carrier = _G.Carrier or {}
+		_G.Carrier.Uninitialize = function () carrier.Packages:Uninitialize () end
+		_G.Carrier.Require = function (packageName) return carrier.Packages:Load (packageName) end
+		_G.Carrier.require = Carrier.Require
 		
 		return true
 	end

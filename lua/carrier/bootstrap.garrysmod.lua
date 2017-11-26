@@ -215,6 +215,9 @@ function Carrier.Initialize ()
 	end
 	
 	carrier.Packages:Initialize ()
+	
+	Carrier.Require = function (packageName) return carrier.Packages:Load (packageName) end
+	Carrier.require = Carrier.Require
 end
 
 function Carrier.Uninitialize ()
