@@ -352,11 +352,11 @@ function self:DownloadRecursive (packageName, packageReleaseVersion)
 		function ()
 			local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
 			if not packageRelease then return false end
-			local downloadSet = Carrier.Packages:ComputePackageReleaseDependencySet (packageRelease)
+			local downloadSet = self:ComputePackageReleaseDependencySet (packageRelease)
 			
+			local success = true
 			for packageName, packageReleaseVersion in pairs (downloadSet) do
-				local success = self:Download (packageName, packageReleaseVersion):Await ()
-				if not success then return false end
+				success = success and self:Download (packageName, packageReleaseVersion):Await ()
 			end
 			
 			return true
@@ -472,7 +472,7 @@ function self:UpdateBootstrap ()
 				return false
 			end
 			
-			file.Write ("garrysmod.io/carrier/bootstrap.dat", Base64.Decode (response.package))
+			file.Write ("garrysmod.io/carrier/bootstrap.dat",           Base64.Decode (response.package))
 			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", Base64.Decode (response.signature))
 		end
 	)
