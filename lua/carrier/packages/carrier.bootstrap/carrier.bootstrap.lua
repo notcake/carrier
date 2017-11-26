@@ -4151,6 +4151,7 @@ function self:ctor ()
 	self.Packages     = {}
 	self.PackageCount = 0
 	
+	self.ManifestLoaded = false
 	self.ManifestTimestamp = 0
 	self.Path           = "garrysmod.io/carrier/packages.dat"
 	self.CacheDirectory = "garrysmod.io/carrier/cache"
@@ -4212,7 +4213,9 @@ function self:IsServerDeveloperEnabled ()
 end
 function self:Initialize ()
 	local t0 = SysTime ()
-	self:LoadMetadata ()
+	if not self:IsMetadataLoaded () then
+		self:LoadMetadata ()
+	end
 	
 	self.ServerLoadRoots = self:GetLoadRoots ("carrier/autoload/server/", self.ServerLoadRoots)
 	self.ClientLoadRoots = self:GetLoadRoots ("carrier/autoload/client/", self.ClientLoadRoots)
@@ -4285,10 +4288,15 @@ function self:LoadMetadata ()
 	inputStream:Close ()
 	
 	if success then
+		self.ManifestLoaded = true
 		Carrier.Log ("Loaded from " .. self.Path)
 	else
 		Carrier.Log ("Load from " .. self.Path .. " failed!")
 	end
+end
+
+function self:IsMetadataLoaded ()
+	return self.ManifestLoaded
 end
 function self:GetPackage (packageName)
 	return self.Packages [packageName]
@@ -5285,14 +5293,17 @@ return Task.Run (
 		
 		if not carrier then return false end
 		
-		-- Load package listing and initialize
-		carrier.Packages:Initialize ()
+		-- Load package listing
+		carrier.Packages:LoadMetadata ()
 		
 		-- Assimilate existing packages
 		for packageName, bootstrapPackage in pairs (Carrier.Packages.LoadedPackages) do
 			local package = carrier.Packages:GetPackage (packageName)
 			bootstrapPackage:AssimilateInto (package)
 		end
+		
+		-- Initialize
+		carrier.Packages:Initialize ()
 		
 		_G.Carrier = _G.Carrier or {}
 		_G.Carrier.Uninitialize = function () carrier.Packages:Uninitialize () end
