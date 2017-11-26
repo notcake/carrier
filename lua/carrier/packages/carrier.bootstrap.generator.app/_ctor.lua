@@ -32,7 +32,7 @@ local function Preprocess (inputStream, outputStream)
 			sourceInputStream:Close ()
 			
 			local pattern = String_Unescape (escapedPattern)
-			local limit = g == "g" and 1 or math.huge
+			local limit = g == "g" and math.huge or 1
 			local count = 0
 			for code in string.gmatch (code, pattern) do
 				-- Remove comments

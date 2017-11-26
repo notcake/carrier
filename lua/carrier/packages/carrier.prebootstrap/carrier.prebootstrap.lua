@@ -183,6 +183,44 @@ function self:Block (block)
 end
 
 
+local Base64 = {}
+local math_floor    = math.floor
+local string_byte   = string.byte
+local string_char   = string.char
+local string_gmatch = string.gmatch
+local string_sub    = string.sub
+local table_concat  = table.concat
+
+local characterSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+local equals = string_byte ("=")
+local characterValues = {}
+local valueCharacters = {}
+for i = 1, #characterSet do
+	characterValues [string_byte (characterSet, i)] = i - 1
+	valueCharacters [i - 1] = string_byte (characterSet, i)
+end
+characterValues [string_byte ("=")] = 0
+
+function Base64.Decode (s)
+	local t = {}
+	local a, b, c, d
+	for abcd in string_gmatch (s, "[A-Za-z0-9%+/][A-Za-z0-9%+/][A-Za-z0-9%+/=][A-Za-z0-9%+/=]") do
+		a, b, c, d = string_byte (abcd, 1, 4)
+		local v0, v1, v2, v3 = characterValues [a], characterValues [b], characterValues [c], characterValues [d]
+		local c0 =  v0 *  4 + math_floor (v1 * (1 / 16))
+		local c1 = (v1 * 16 + math_floor (v2 * (1 /  4))) % 256
+		local c2 = (v2 * 64 + v3) % 256
+		t [#t + 1] = string_char (c0, c1, c2)
+	end
+	
+	if d == equals then
+		t [#t] = string_sub (t [#t], 1, c == equals and 1 or 2)
+	end
+	
+	return table_concat (t)
+end
+
 local String = {}
 local string_char   = string.char
 local string_gmatch = string.gmatch
@@ -191,11 +229,6 @@ local hexMap = {}
 for i = 0, 255 do
 	hexMap [string_format ("%02x", i)] = string_char (i)
 	hexMap [string_format ("%02X", i)] = string_char (i)
-end
-local hexMap = {}
-for i = 0, 255 do hexMap [string_char (i)] = string_format ("%02x", i) end
-function String.ToHex (str)
-	return string_gsub (str, ".", hexMap)
 end
 function String.FromHex (data)
 	local chars = {}
@@ -209,12 +242,13 @@ end
 local UInt24 = {}
 local bit_band   = bit.band
 local math_floor = math.floor
+local math_log   = math.log
+local math_max   = math.max
+UInt24.Zero               = 0x00000000
+UInt24.Maximum            = 0x00FFFFFF
+UInt24.BitCount           = 24
 function UInt24.Add (a, b)
 	local c = a + b
-	return bit_band (c, 0x00FFFFFF), math_floor (c / 0x01000000)
-end
-function UInt24.AddWithCarry (a, b, cf)
-	local c = a + b + cf
 	return bit_band (c, 0x00FFFFFF), math_floor (c / 0x01000000)
 end
 function UInt24.AddWithCarry (a, b, cf)
@@ -233,9 +267,9 @@ function UInt24.SubtractWithBorrow (a, b, cf)
 	local c = a - b - cf
 	return bit_band (c, 0x00FFFFFF), -math_floor (c / 0x01000000)
 end
-function UInt24.SubtractWithBorrow (a, b, cf)
-	local c = a - b - cf
-	return bit_band (c, 0x00FFFFFF), -math_floor (c / 0x01000000)
+local k = math_log (2)
+function UInt24.CountLeadingZeros (x)
+	return 24 - math_max (0, math_floor (1 + math_log(x) / k))
 end
 
 local self = {}
@@ -244,6 +278,7 @@ local tonumber      = tonumber
 local bit_band      = bit.band
 local bit_rshift    = bit.rshift
 local math_floor    = math.floor
+local math_max      = math.max
 local string_byte   = string.byte
 local string_sub    = string.sub
 local table_concat  = table.concat
@@ -252,11 +287,10 @@ local UInt24_Maximum            = UInt24.Maximum
 local UInt24_BitCount           = UInt24.BitCount
 local UInt24_Add                = UInt24.Add
 local UInt24_AddWithCarry       = UInt24.AddWithCarry
-local UInt24_AddWithCarry       = UInt24.AddWithCarry
 local UInt24_MultiplyAdd2       = UInt24.MultiplyAdd2
 local UInt24_Subtract           = UInt24.Subtract
 local UInt24_SubtractWithBorrow = UInt24.SubtractWithBorrow
-local UInt24_SubtractWithBorrow = UInt24.SubtractWithBorrow
+local UInt24_CountLeadingZeros  = UInt24.CountLeadingZeros
 local Sign_Negative = UInt24_Maximum
 local Sign_Positive = UInt24_Zero
 function BigInteger.FromBlob (data)
@@ -458,48 +492,9 @@ function self:Divide (b, quotient, remainder)
 	
 	return quotient, remainder
 end
-function self:DivideInt24 (b, out)
-	local out = out or BigInteger ()
-	local a = self
-	
-	local negative = a:IsNegative () ~= (b < 0)
-	local b = math_abs (b)
-	
-	if a:IsNegative () then
-		a = a:Negate ()
-	end
-	out:Truncate (#a)
-	local remainder = 0
-	for i = #a, 1, -1 do
-		out [i], remainder = UInt24_Divide (a [i], remainder, b)
-	end
-	out:Normalize ()
-	
-	if negative then
-		out = out:Negate (out)
-	end
-	
-	return out, remainder
-end
 function self:Mod (b, remainder, quotient)
 	local quotient, remainder = self:Divide (b, quotient, remainder)
 	return remainder, quotient
-end
-function self:ModularInverse (m)
-	local a, b = m, self
-	local previousR, r = a:Clone (), b:Clone ()
-	local previousT, t = BigInteger (), BigInteger.FromDouble (1)
-	local temp = BigInteger ()
-	local q = BigInteger ()
-	while not r:IsZero () do
-		q, temp = previousR:Divide (r, q, temp)
-		previousR, r, temp = r, temp, previousR
-		temp = t:Multiply (q, temp)
-		temp, q = previousT:Subtract (temp, q), temp
-		previousT, t, temp = t, temp, previousT
-	end
-	if previousR:IsPositive () and (#previousR > 2 or previousR [1] > 1) then return nil end
-	return previousT:IsNegative () and previousT:Add (m, temp) or previousT
 end
 function self:ExponentiateMod (exponent, m)
 	if m:IsOdd () and #exponent >= 4 then return self:MontgomeryExponentiateMod (exponent, m) end
@@ -537,13 +532,6 @@ function self:Truncate (elementCount)
 	for i = #self, elementCount + 1, -1 do
 		self [i] = nil
 	end
-end
-function self:TruncateAndZero (elementCount)
-	for i = 1, elementCount do
-		self [i] = 0
-	end
-	
-	BigInteger_Truncate (self, elementCount)
 end
 local BigInteger_Truncate = self.Truncate
 function self:TruncateAndZero (elementCount)
@@ -588,13 +576,13 @@ end
 
 local warningColor = Color (255, 192, 64)
 local function Warning (message)
-	MsgC (warningColor, "Carrier: " .. message)
+	MsgC (warningColor, "Carrier: " .. message .. "\n")
 end
 
 local function Reset ()
 	file.Delete ("garrysmod.io/carrier/bootstrap.dat")
 	file.Delete ("garrysmod.io/carrier/bootstrap.signature.dat")
-	Warning ("Cleared bootstrap code from cache.")
+	Warning ("Flushed cached bootstrap code.")
 end
 
 local function GetValidatedCode ()
@@ -642,8 +630,12 @@ local function WithBootstrap (f)
 			end
 			
 			local data = util.JSONToTable (data)
-			file.Write ("garrysmod.io/carrier/bootstrap.dat", data.package)
-			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", data.signature)
+			if not data then
+				Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
+				return
+			end
+			file.Write ("garrysmod.io/carrier/bootstrap.dat",           Base64.Decode (data.package))
+			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", Base64.Decode (data.signature))
 			
 			local code, package = GetValidatedCode ()
 			if code then f (code, package) end
@@ -657,7 +649,7 @@ WithBootstrap (
 		if type (f) == "string" then
 			Warning (f)
 		else
-			local success, err = xpcall (f, debug.traceback ())
+			local success, err = xpcall (f, debug.traceback)
 			if not success then
 				Warning (err)
 			end

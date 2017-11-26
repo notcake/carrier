@@ -14,6 +14,9 @@ end
 local Crypto = {}
 -- INCLUDE carrier/packages/pylon.crypto/sha256.lua
 
+local Base64 = {}
+-- SED Pylon.Base64 /local math_floor.-\nend.-\nend*/
+
 local String = {}
 -- SED Pylon.String /local string_char[^\r\n]*/
 -- SED Pylon.String /local string_gmatch[^\r\n]*/
@@ -24,11 +27,18 @@ local String = {}
 local UInt24 = {}
 -- SED Pylon.UInt24 /local bit_band[^\r\n]*/
 -- SED Pylon.UInt24 /local math_floor[^\r\n]*/
+-- SED Pylon.UInt24 /local math_log[^\r\n]*/
+-- SED Pylon.UInt24 /local math_max[^\r\n]*/
+-- SED Pylon.UInt24 /UInt24.Zero[^\r\n]*/
+-- SED Pylon.UInt24 /UInt24.Maximum[^\r\n]*/
+-- SED Pylon.UInt24 /UInt24.BitCount[^\r\n]*/
 -- SED Pylon.UInt24 /function UInt24%.Add.-\nend/
 -- SED Pylon.UInt24 /function UInt24%.AddWithCarry.-\nend/
 -- SED Pylon.UInt24 /function UInt24%.MultiplyAdd2.-\nend/
 -- SED Pylon.UInt24 /function UInt24%.Subtract.-\nend/
 -- SED Pylon.UInt24 /function UInt24%.SubtractWithBorrow.-\nend/
+-- SED Pylon.UInt24 /local k[^\r\n]*/
+-- SED Pylon.UInt24 /function UInt24%.CountLeadingZeros.-\nend/
 
 local self = {}
 local BigInteger = Class (self)
@@ -36,6 +46,7 @@ local BigInteger = Class (self)
 -- SED Pylon.BigInteger /local bit_band[^\r\n]*/
 -- SED Pylon.BigInteger /local bit_rshift[^\r\n]*/
 -- SED Pylon.BigInteger /local math_floor[^\r\n]*/
+-- SED Pylon.BigInteger /local math_max[^\r\n]*/
 -- SED Pylon.BigInteger /local string_byte[^\r\n]*/
 -- SED Pylon.BigInteger /local string_sub[^\r\n]*/
 -- SED Pylon.BigInteger /local table_concat[^\r\n]*/
@@ -47,6 +58,7 @@ local BigInteger = Class (self)
 -- SED Pylon.BigInteger /local UInt24_MultiplyAdd2[^\r\n]*/
 -- SED Pylon.BigInteger /local UInt24_Subtract[^\r\n]*/
 -- SED Pylon.BigInteger /local UInt24_SubtractWithBorrow[^\r\n]*/
+-- SED Pylon.BigInteger /local UInt24_CountLeadingZeros[^\r\n]*/
 -- SED Pylon.BigInteger /local Sign_Negative[^\r\n]*/
 -- SED Pylon.BigInteger /local Sign_Positive[^\r\n]*/
 -- SED Pylon.BigInteger /function BigInteger.FromBlob.-\nend/
@@ -78,12 +90,13 @@ end
 
 local warningColor = Color (255, 192, 64)
 local function Warning (message)
-	MsgC (warningColor, "Carrier: " .. message)
+	MsgC (warningColor, "Carrier: " .. message .. "\n")
 end
 
 local function Reset ()
 	file.Delete ("garrysmod.io/carrier/bootstrap.dat")
 	file.Delete ("garrysmod.io/carrier/bootstrap.signature.dat")
+	Warning ("Flushed cached bootstrap code.")
 end
 
 local function GetValidatedCode ()
@@ -131,8 +144,12 @@ local function WithBootstrap (f)
 			end
 			
 			local data = util.JSONToTable (data)
-			file.Write ("garrysmod.io/carrier/bootstrap.dat", data.package)
-			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", data.signature)
+			if not data then
+				Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
+				return
+			end
+			file.Write ("garrysmod.io/carrier/bootstrap.dat",           Base64.Decode (data.package))
+			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", Base64.Decode (data.signature))
 			
 			local code, package = GetValidatedCode ()
 			if code then f (code, package) end
@@ -146,7 +163,7 @@ WithBootstrap (
 		if type (f) == "string" then
 			Warning (f)
 		else
-			local success, err = xpcall (f, debug.traceback ())
+			local success, err = xpcall (f, debug.traceback)
 			if not success then
 				Warning (err)
 			end
