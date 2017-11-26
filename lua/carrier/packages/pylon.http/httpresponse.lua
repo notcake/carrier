@@ -1,47 +1,55 @@
 local self = {}
 HTTP.HTTPResponse = Class (self)
 
-self.Url     = Property (nil,   "StringN32")
-
-self.Success = Property (false, "Boolean")
-self.Message = Property ("",    "StringN32")
-
-self.Code    = Property (0,     "UInt16")
-self.Content = Property (nil,   "StringN32")
-
 function HTTP.HTTPResponse.FromHTTPResponse (url, code, content, headers)
-	local httpResponse = HTTP.HTTPResponse ()
+	local httpResponse = HTTP.HTTPResponse (url, code)
 	
-	httpResponse:SetUrl (url)
-	httpResponse:SetSuccess (code == 200)
-	httpResponse:SetCode (code)
-	httpResponse:SetMessage (HTTP.HTTPCodes.ToMessage (code) or "")
-	httpResponse:SetContent (content)
-	httpResponse:SetHeaders (headers or {})
+	httpResponse.Message = HTTP.HTTPCodes.ToMessage (code) or ""
+	httpResponse.Content = content
+	httpResponse.Headers = headers or {}
 	
 	return httpResponse
 end
 
 function HTTP.HTTPResponse.FromFailure (url, message)
-	local httpResponse = HTTP.HTTPResponse ()
+	local httpResponse = HTTP.HTTPResponse (url, nil)
 	
-	httpResponse:SetUrl (url)
-	httpResponse:SetSuccess (false)
-	httpResponse:SetMessage (message)
+	httpResponse.Message = message
 	
 	return httpResponse
 end
 
-function self:ctor ()
+function self:ctor (url, code)
+	self.Url     = url
+	self.Code    = code
+	self.Message = nil
+	self.Content = nil
+	
 	self.Headers = {}
 end
 
-function self:GetContentLength ()
-	if self:GetContent () == nil then return 0 end
-	
-	return #self:GetContent ()
+function self:GetUrl ()
+	return self.Url
 end
 
-function self:SetHeaders (headers)
-	self.Headers = headers
+function self:GetCode ()
+	return self.Code
+end
+
+function self:GetContent ()
+	return self.Content
+end
+
+function self:GetContentLength ()
+	if self.Content == nil then return 0 end
+	
+	return #self.Content
+end
+
+function self:GetMessage ()
+	return self.Message
+end
+
+function self:IsSuccess ()
+	return self.Code == 200
 end

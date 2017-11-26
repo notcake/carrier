@@ -204,7 +204,7 @@
 	}
 )
 
-HTTPCodeMessages = {}
+local HTTPCodeMessages = {}
 
 -- Informational
 HTTPCodeMessages [100] = "Continue"
