@@ -4578,7 +4578,7 @@ function self:UpdateBootstrap ()
 			end
 			
 			file.Write ("garrysmod.io/carrier/bootstrap.dat", Base64.Decode (response.package))
-			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", Base64.Decode (response.bootstrapSignature))
+			file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", Base64.Decode (response.signature))
 		end
 	)
 end
