@@ -1,5 +1,3 @@
-local CompactList = require ("Pylon.Containers.CompactList")
-
 local pairs = pairs
 
 local coroutine_create = coroutine.create

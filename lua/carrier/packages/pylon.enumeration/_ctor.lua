@@ -7,6 +7,8 @@ Error = require ("Pylon.Error")
 OOP = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
+CompactList = require ("Pylon.Containers.CompactList")
+
 include ("ienumerator.lua")
 include ("ienumerable.lua")
 
