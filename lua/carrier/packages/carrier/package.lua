@@ -119,6 +119,13 @@ function self:Assimilate (packageRelease, environment, exports, destructor)
 	Carrier.Debug ("Assimilated package " .. self.Name .. ".")
 end
 
+function self:AssimilateInto (package)
+	if not self:IsLoaded () then return end
+	
+	local packageRelease = package:GetRelease (self:GetLoadedRelease ():GetVersion ())
+	package:Assimilate (packageRelease, self.LoadEnvironment, self.LoadExports, self.LoadDestructor)
+end
+
 function self:GetLoadedRelease ()
 	return self.LoadedRelease
 end

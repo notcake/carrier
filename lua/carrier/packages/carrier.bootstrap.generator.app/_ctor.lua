@@ -36,8 +36,8 @@ local function Preprocess (inputStream, outputStream)
 			local count = 0
 			for code in string.gmatch (code, pattern) do
 				-- Remove comments
-				code = string.gsub (code, "\n%s*%-%-[^\n]*", "")
-				code = string.gsub (code, "%-%-[^\n]*", "")
+				code = string.gsub (code, "\n%s*%-%-%s[^\n]*", "")
+				code = string.gsub (code, "%-%-%s[^\n]*", "")
 				
 				outputStream:Write (code .. "\r\n")
 				print (code)
@@ -53,12 +53,27 @@ local function Preprocess (inputStream, outputStream)
 		elseif string.match (line, "^%-%- INCLUDE ([^%s]+)") then
 			local path = string.match (line, "^%-%- INCLUDE ([^%s]+)")
 			local sourceInputStream = IO.FileInputStream.FromPath (path)
+			sourceInputStream = sourceInputStream or IO.FileInputStream.FromPath ("carrier/packages/" .. string.lower (path) .. ".lua")
+			sourceInputStream = sourceInputStream or IO.FileInputStream.FromPath ("carrier/packages/" .. string.lower (path) .. "/_ctor.lua")
 			local code = sourceInputStream:Read (sourceInputStream:GetSize ())
 			sourceInputStream:Close ()
 			
+			local packageName = string.match (code, "%-%- PACKAGE ([^%s]+)")
+			
 			-- Remove comments
-			code = string.gsub (code, "\n%s*%-%-[^\n]*", "")
-			code = string.gsub (code, "%-%-[^\n]*", "")
+			code = string.gsub (code, "\n%s*%-%-%s[^\n]*", "")
+			code = string.gsub (code, "%-%-%s[^\n]*", "")
+			
+			-- Remove requires
+			code = string.gsub (code, "\nlocal [^%s]+%s*=%s*require_?p?r?o?v?i?d?e?r?%s*%(?%s*[\"'][^\n]*", "")
+			
+			-- Remove final return
+			code = string.gsub (code, "return%s*([^\n]-)%s*$",
+				function (expr)
+					if expr == "" then return "" end
+					return "local " .. string.match (packageName, "[^%.]+$") .. " = " .. expr
+				end
+			)
 			
 			outputStream:Write (code .. "\r\n")
 			print (code)

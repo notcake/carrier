@@ -100,7 +100,7 @@ function self:Initialize ()
 	
 	Task.Run (
 		function ()
-			self:Update ():await ()
+			self:Update ():Await ()
 			
 			local downloadSet = {}
 			downloadSet = self:ComputePackageDependencySet ("Carrier", downloadSet)
@@ -173,11 +173,41 @@ function self:GetPackageEnumerator ()
 	return ValueEnumerator (self.Packages)
 end
 
+function self:GetLocalDeveloperRelease (packageName)
+	local package = self.Packages [packageName]
+	
+	return package and package:GetLocalDeveloperRelease ()
+end
+
+function self:GetLatestRelease (packageName)
+	local package = self.Packages [packageName]
+	
+	return package and package:GetLatestRelease ()
+end
+
 function self:GetPackageRelease (packageName, packageReleaseVersion)
 	local package = self.Packages [packageName]
-	if not package then return end
 	
-	return package:GetRelease (packageReleaseVersion)
+	return package and package:GetRelease (packageReleaseVersion)
+end
+
+function self:IsPackageReleaseAvailable (packageName, packageReleaseVersion)
+	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
+	return packageRelease and packageRelease:IsAvailable () or false
+end
+
+function self:IsPackageReleaseAvailableRecursive (packageName, packageReleaseVersion)
+	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
+	if not packageRelease then return false end
+	
+	local dependencySet = self:ComputePackageReleaseDependencySet (packageRelease)
+	for packageName, packageReleaseVersion in pairs (dependencySet) do
+		if not self:IsPackageReleaseAvailable (packageName, packageReleaseVersion) then
+			return false
+		end
+	end
+	
+	return true
 end
 
 -- Dependencies
@@ -301,6 +331,23 @@ function self:Download (packageName, packageReleaseVersion)
 				Carrier.Log ("Downloaded " .. packageName .. " " .. packageReleaseVersion .. ", but bad signature")
 				return false
 			end
+		end
+	)
+end
+
+function self:DownloadRecursive (packageName, packageReleaseVersion)
+	return Task.Run (
+		function ()
+			local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
+			if not packageRelease then return false end
+			local downloadSet = Carrier.Packages:ComputePackageReleaseDependencySet (packageRelease)
+			
+			for packageName, packageReleaseVersion in pairs (downloadSet) do
+				local success = self:Download (packageName, packageReleaseVersion):Await ()
+				if not success then return false end
+			end
+			
+			return true
 		end
 	)
 end

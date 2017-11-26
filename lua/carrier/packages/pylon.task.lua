@@ -41,6 +41,7 @@ function Task.Run (f, ...)
 			)
 			if not success then
 				print (err)
+				future:Resolve (nil)
 			end
 		end
 	) (...)

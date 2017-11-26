@@ -163,13 +163,18 @@ WithBootstrap (
 		if type (f) == "string" then
 			Warning (f)
 		else
-			local success, err = xpcall (f, debug.traceback)
+			local success, future = xpcall (f, debug.traceback)
 			if not success then
-				Warning (err)
-			end
-			
-			if not Carrier then
+				Warning (future)
 				Reset ()
+			else
+				future:Wait (
+					function ()
+						if not Carrier then
+							Reset ()
+						end
+					end
+				)
 			end
 		end
 	end
