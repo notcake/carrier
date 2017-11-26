@@ -167,6 +167,9 @@ WithBootstrap (
 			if not success then
 				Warning (future)
 				Reset ()
+			elseif not future then
+				Warning ("Bootstrap didn't return a future!")
+				Reset ()
 			else
 				future:Wait (
 					function ()

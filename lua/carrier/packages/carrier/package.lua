@@ -123,6 +123,9 @@ function self:AssimilateInto (package)
 	if not self:IsLoaded () then return end
 	
 	local packageRelease = package:GetRelease (self:GetLoadedRelease ():GetVersion ())
+	if not packageRelease then
+		Carrier.Warning ("Cannot transfer package " .. self.Name .. ", since release " .. self:GetLoadedRelease ():GetVersion () .. " is missing from new package system.")
+	end
 	package:Assimilate (packageRelease, self.LoadEnvironment, self.LoadExports, self.LoadDestructor)
 end
 

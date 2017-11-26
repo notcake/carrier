@@ -288,8 +288,12 @@ function self:Unload (packageName)
 	end
 	
 	self.LoadedPackages [packageName] = true
-	for dependentName, dependentVersion in package:GetLoadedRelease ():GetDependentEnumerator () do
-		self:Unload (dependentName)
+	if package:GetLoadedRelease () then
+		for dependentName, dependentVersion in package:GetLoadedRelease ():GetDependentEnumerator () do
+			self:Unload (dependentName)
+		end
+	else
+		Carrier.Warning ("Loaded release missing for " .. packageName .. ", dependencies cannot be unloaded in the right order!")
 	end
 	
 	package:Unload ()

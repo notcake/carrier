@@ -4407,8 +4407,12 @@ function self:Unload (packageName)
 	end
 	
 	self.LoadedPackages [packageName] = true
-	for dependentName, dependentVersion in package:GetLoadedRelease ():GetDependentEnumerator () do
-		self:Unload (dependentName)
+	if package:GetLoadedRelease () then
+		for dependentName, dependentVersion in package:GetLoadedRelease ():GetDependentEnumerator () do
+			self:Unload (dependentName)
+		end
+	else
+		Carrier.Warning ("Loaded release missing for " .. packageName .. ", dependencies cannot be unloaded in the right order!")
 	end
 	
 	package:Unload ()
@@ -4776,6 +4780,9 @@ function self:AssimilateInto (package)
 	if not self:IsLoaded () then return end
 	
 	local packageRelease = package:GetRelease (self:GetLoadedRelease ():GetVersion ())
+	if not packageRelease then
+		Carrier.Warning ("Cannot transfer package " .. self.Name .. ", since release " .. self:GetLoadedRelease ():GetVersion () .. " is missing from new package system.")
+	end
 	package:Assimilate (packageRelease, self.LoadEnvironment, self.LoadExports, self.LoadDestructor)
 end
 
@@ -5252,7 +5259,7 @@ return Task.Run (
 		_G.Carrier = _G.Carrier or {}
 		_G.Carrier.Uninitialize = function () carrier.Packages:Uninitialize () end
 		_G.Carrier.Require = function (packageName) return carrier.Packages:Load (packageName) end
-		_G.Carrier.require = Carrier.Require
+		_G.Carrier.require = _G.Carrier.Require
 		
 		return true
 	end

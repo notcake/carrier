@@ -145,7 +145,7 @@ return Task.Run (
 		_G.Carrier = _G.Carrier or {}
 		_G.Carrier.Uninitialize = function () carrier.Packages:Uninitialize () end
 		_G.Carrier.Require = function (packageName) return carrier.Packages:Load (packageName) end
-		_G.Carrier.require = Carrier.Require
+		_G.Carrier.require = _G.Carrier.Require
 		
 		return true
 	end
