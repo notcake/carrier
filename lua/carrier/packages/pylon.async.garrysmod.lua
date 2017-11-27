@@ -22,7 +22,7 @@ function Async.WaitTick ()
 	return future
 end
 
-hook.Add (MENU_DLL and "Think" or "Tick", "async",
+hook.Add (MENU_DLL and "Think" or "Tick", "Pylon.Async.GarrysMod",
 	function ()
 		local previousTickWaiterCount, previousTickWaiters = tickWaiterCount, tickWaiters
 		tickWaiterCount, tickWaiters = CompactList.Clear ()
