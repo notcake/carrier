@@ -65,11 +65,6 @@ function Svg.Path.FromXmlElement (element)
 				dx, dy = parser:AcceptOptionalCoordinatePair ()
 			end
 		elseif c == "L" then
-			x, y = parser:AcceptCoordinatePair ()
-			parser:AcceptCommaWhitespace ()
-			
-			path:LineTo (x, y)
-			
 			local x1, y1 = parser:AcceptOptionalCoordinatePair ()
 			while x1 do
 				parser:AcceptCommaWhitespace ()
@@ -80,13 +75,7 @@ function Svg.Path.FromXmlElement (element)
 				x1, y1 = parser:AcceptOptionalCoordinatePair ()
 			end
 		elseif c == "l" then
-			local dx, dy = parser:AcceptCoordinatePair ()
-			parser:AcceptCommaWhitespace ()
-			
-			x, y = x + dx, y + dy
-			path:LineTo (x, y)
-			
-			dx, dy = parser:AcceptOptionalCoordinatePair ()
+			local dx, dy = parser:AcceptOptionalCoordinatePair ()
 			while dx do
 				parser:AcceptCommaWhitespace ()
 				
@@ -96,56 +85,100 @@ function Svg.Path.FromXmlElement (element)
 				dx, dy = parser:AcceptOptionalCoordinatePair ()
 			end
 		elseif c == "H" then
-			x = parser:AcceptNumber () or 0
-			
-			path:LineTo (x, y)
+			local x1 = parser:AcceptNumber ()
+			while x1 do
+				parser:AcceptCommaWhitespace ()
+				
+				x = x1
+				path:LineTo (x, y)
+				
+				x1 = parser:AcceptNumber ()
+			end
 		elseif c == "h" then
-			local dx = parser:AcceptNumber () or 0
-			
-			x = x + dx
-			path:LineTo (x, y)
+			local dx = parser:AcceptNumber ()
+			while dx do
+				parser:AcceptCommaWhitespace ()
+				
+				x = x + dx
+				path:LineTo (x, y)
+				
+				dx = parser:AcceptNumber ()
+			end
 		elseif c == "V" then
-			y = parser:AcceptNumber () or 0
-			
-			path:LineTo (x, y)
+			local y1 = parser:AcceptNumber ()
+			while y1 do
+				parser:AcceptCommaWhitespace ()
+				
+				y = y1
+				path:LineTo (x, y)
+				
+				y1 = parser:AcceptNumber ()
+			end
 		elseif c == "v" then
-			local dy = parser:AcceptNumber () or 0
-			
-			y = y + dy
-			path:LineTo (x, y)
+			local dy = parser:AcceptNumber ()
+			while dy do
+				parser:AcceptCommaWhitespace ()
+				
+				y = y + dy
+				path:LineTo (x, y)
+				
+				dy = parser:AcceptNumber ()
+			end
 		elseif c == "Q" then
-			local controlX, controlY = parser:AcceptCoordinatePair ()
-			parser:AcceptPattern ("[%s,]*")
-			x, y = parser:AcceptCoordinatePair ()
-			
-			path:QuadraticBezierCurveTo (x, y, controlX, controlY)
+			local controlX, controlY = parser:AcceptOptionalCoordinatePair ()
+			while controlX do
+				parser:AcceptCommaWhitespace ()
+				x, y = parser:AcceptCoordinatePair ()
+				parser:AcceptCommaWhitespace ()
+				
+				path:QuadraticBezierCurveTo (x, y, controlX, controlY)
+				
+				controlX, controlY = parser:AcceptOptionalCoordinatePair ()
+			end
 		elseif c == "q" then
-			local dControlX, dControlY = parser:AcceptCoordinatePair ()
-			parser:AcceptPattern ("[%s,]*")
-			local dx, dy = parser:AcceptCoordinatePair ()
-			
-			local controlX, controlY = x + dControlX, y + dControlY
-			x, y = x + dx, y + dy
-			path:QuadraticBezierCurveTo (x, y, controlX, controlY)
+			local dControlX, dControlY = parser:AcceptOptionalCoordinatePair ()
+			while dControlX do
+				parser:AcceptCommaWhitespace ()
+				local dx, dy = parser:AcceptCoordinatePair ()
+				parser:AcceptCommaWhitespace ()
+				
+				local controlX, controlY = x + dControlX, y + dControlY
+				x, y = x + dx, y + dy
+				
+				path:QuadraticBezierCurveTo (x, y, controlX, controlY)
+				
+				dControlX, dControlY = parser:AcceptOptionalCoordinatePair ()
+			end
 		elseif c == "C" then
-			local controlX1, controlY1 = parser:AcceptCoordinatePair ()
-			parser:AcceptCommaWhitespace ()
-			local controlX2, controlY2 = parser:AcceptCoordinatePair ()
-			parser:AcceptCommaWhitespace ()
-			x, y = parser:AcceptCoordinatePair ()
-			
-			path:CubicBezierCurveTo (x, y, controlX1, controlY1, controlX2, controlY2)
+			local controlX1, controlY1 = parser:AcceptOptionalCoordinatePair ()
+			while controlX1 do
+				parser:AcceptCommaWhitespace ()
+				local controlX2, controlY2 = parser:AcceptCoordinatePair ()
+				parser:AcceptCommaWhitespace ()
+				x, y = parser:AcceptCoordinatePair ()
+				parser:AcceptCommaWhitespace ()
+				
+				path:CubicBezierCurveTo (x, y, controlX1, controlY1, controlX2, controlY2)
+				
+				controlX1, controlY1 = parser:AcceptOptionalCoordinatePair ()
+			end
 		elseif c == "c" then
-			local dControlX1, dControlY1 = parser:AcceptCoordinatePair ()
-			parser:AcceptCommaWhitespace ()
-			local dControlX2, dControlY2 = parser:AcceptCoordinatePair ()
-			parser:AcceptCommaWhitespace ()
-			local dx, dy = parser:AcceptCoordinatePair ()
-			
-			local controlX1, controlY1 = x + dControlX1, y + dControlY1
-			local controlX2, controlY2 = x + dControlX2, y + dControlY2
-			x, y = x + dx, y + dy
-			path:CubicBezierCurveTo (x, y, controlX1, controlY1, controlX2, controlY2)
+			local dControlX1, dControlY1 = parser:AcceptOptionalCoordinatePair ()
+			while dControlX1 do
+				parser:AcceptCommaWhitespace ()
+				local dControlX2, dControlY2 = parser:AcceptCoordinatePair ()
+				parser:AcceptCommaWhitespace ()
+				local dx, dy = parser:AcceptCoordinatePair ()
+				parser:AcceptCommaWhitespace ()
+				
+				local controlX1, controlY1 = x + dControlX1, y + dControlY1
+				local controlX2, controlY2 = x + dControlX2, y + dControlY2
+				x, y = x + dx, y + dy
+				
+				path:CubicBezierCurveTo (x, y, controlX1, controlY1, controlX2, controlY2)
+				
+				dControlX1, dControlY1 = parser:AcceptOptionalCoordinatePair ()
+			end
 		elseif c == "T" then
 			x, y = parser:AcceptCoordinatePair ()
 			
@@ -170,34 +203,44 @@ function Svg.Path.FromXmlElement (element)
 			x, y = x + dx, y + dy
 			path:CubicBezierCurveTo (x, y, controlX2, controlY2)
 		elseif c == "A" then
-			local rx = parser:AcceptNumber () or 0
-			parser:AcceptCommaWhitespace ()
-			local ry = parser:AcceptNumber () or 0
-			parser:AcceptCommaWhitespace ()
-			local angle = parser:AcceptNumber () or 0
-			parser:AcceptCommaWhitespace ()
-			local largerArc = tonumber (parser:AcceptPattern ("[01]")) ~= 0
-			parser:AcceptCommaWhitespace ()
-			local clockwise = tonumber (parser:AcceptPattern ("[01]")) ~= 0
-			parser:AcceptCommaWhitespace ()
-			x, y = parser:AcceptCoordinatePair ()
-			
-			path:ArcTo (x, y, rx, ry, angle, largerArc, clockwise)
+			local rx = parser:AcceptNumber ()
+			while rx do
+				parser:AcceptCommaWhitespace ()
+				local ry = parser:AcceptNumber () or 0
+				parser:AcceptCommaWhitespace ()
+				local angle = parser:AcceptNumber () or 0
+				parser:AcceptCommaWhitespace ()
+				local largerArc = tonumber (parser:AcceptPattern ("[01]")) ~= 0
+				parser:AcceptCommaWhitespace ()
+				local clockwise = tonumber (parser:AcceptPattern ("[01]")) ~= 0
+				parser:AcceptCommaWhitespace ()
+				x, y = parser:AcceptCoordinatePair ()
+				parser:AcceptCommaWhitespace ()
+				
+				path:ArcTo (x, y, rx, ry, angle, largerArc, clockwise)
+				
+				rx = parser:AcceptNumber ()
+			end
 		elseif c == "a" then
-			local rx = parser:AcceptNumber () or 0
-			parser:AcceptCommaWhitespace ()
-			local ry = parser:AcceptNumber () or 0
-			parser:AcceptCommaWhitespace ()
-			local angle = parser:AcceptNumber () or 0
-			parser:AcceptCommaWhitespace ()
-			local largerArc = tonumber (parser:AcceptPattern ("[01]")) ~= 0
-			parser:AcceptCommaWhitespace ()
-			local clockwise = tonumber (parser:AcceptPattern ("[01]")) ~= 0
-			parser:AcceptCommaWhitespace ()
-			local dx, dy = parser:AcceptCoordinatePair ()
-			
-			x, y = x + dx, y + dy
-			path:ArcTo (x, y, rx, ry, angle, largerArc, clockwise)
+			local rx = parser:AcceptNumber ()
+			while rx do
+				parser:AcceptCommaWhitespace ()
+				local ry = parser:AcceptNumber () or 0
+				parser:AcceptCommaWhitespace ()
+				local angle = parser:AcceptNumber () or 0
+				parser:AcceptCommaWhitespace ()
+				local largerArc = tonumber (parser:AcceptPattern ("[01]")) ~= 0
+				parser:AcceptCommaWhitespace ()
+				local clockwise = tonumber (parser:AcceptPattern ("[01]")) ~= 0
+				parser:AcceptCommaWhitespace ()
+				local dx, dy = parser:AcceptCoordinatePair ()
+				parser:AcceptCommaWhitespace ()
+				
+				x, y = x + dx, y + dy
+				path:ArcTo (x, y, rx, ry, angle, largerArc, clockwise)
+				
+				rx = parser:AcceptNumber ()
+			end
 		elseif c == "Z" or
 		       c == "z" then
 			path:ClosePath ()

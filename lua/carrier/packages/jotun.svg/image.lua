@@ -21,6 +21,8 @@ function Svg.Image.FromXmlDocument (document)
 			local type = string.lower (node:GetName ())
 			if type == "path" then
 				image:AddChild (Svg.Path.FromXmlElement (node))
+			elseif type == "polygon" then
+				image:AddChild (Svg.Polygon.FromXmlElement (node))
 			elseif type == "text" then
 				image:AddChild (Svg.Text.FromXmlElement (node))
 			else

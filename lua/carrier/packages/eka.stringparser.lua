@@ -6,6 +6,7 @@ local self = {}
 local StringParser = OOP.Class (self)
 
 local string_find  = string.find
+local string_gsub  = string.gsub
 local string_match = string.match
 
 function self:ctor (input)
@@ -21,7 +22,7 @@ function self:IsEndOfInput ()
 end
 
 function self:AcceptLiteral (str)
-	self.LiteralCache [str] = self.LiteralCache [str] or "^" .. string.gsub (str, "[%[%]%(%)%.%-%+%?%%]", "%%%1")
+	self.LiteralCache [str] = self.LiteralCache [str] or "^" .. string_gsub (str, "[%[%]%(%)%.%-%+%?%%]", "%%%1")
 	
 	if string_find (self.Input, self.LiteralCache [str], self.Position) then
 		self.Position = self.Position + #str

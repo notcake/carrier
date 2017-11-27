@@ -1,6 +1,8 @@
 local self = {}
 PathParser = Class (self, StringParser)
 
+local tonumber = tonumber
+
 function self:ctor (input)
 end
 

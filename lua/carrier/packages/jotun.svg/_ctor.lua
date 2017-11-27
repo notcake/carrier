@@ -26,6 +26,7 @@ include ("element.lua")
 include ("path.lua")
 include ("pathcommand.lua")
 include ("pathparser.lua")
+include ("polygon.lua")
 include ("text.lua")
 
 return Svg
