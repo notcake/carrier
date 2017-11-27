@@ -1131,7 +1131,7 @@ local GarrysMod = {}
 
 HTTP.Initialize (GarrysMod)
 
-local ready = CurTime () > 1.5
+local ready = CLIENT or CurTime () > 1.5
 local requestQueue = nil
 
 local function DispatchRequest (f, ...)
@@ -1140,9 +1140,13 @@ local function DispatchRequest (f, ...)
 	if requestQueue == nil then
 		requestQueue = {}
 		
+		local sv_hibernate_think = GetConVarNumber ("sv_hibernate_think")
+		if sv_hibernate_think <= 0 then RunConsoleCommand ("sv_hibernate_think", "1") end
 		hook.Add ("Tick", "Pylon.HTTP.GarrysMod",
 			function ()
 				hook.Remove ("Tick", "Pylon.HTTP.GarrysMod")
+				if sv_hibernate_think <= 0 then RunConsoleCommand ("sv_hibernate_think", tostring (sv_hibernate_think)) end
+				
 				ready = true
 				
 				for i = 1, #requestQueue do
