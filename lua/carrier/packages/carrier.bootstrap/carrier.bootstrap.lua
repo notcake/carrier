@@ -4137,6 +4137,19 @@ local warningColor = Color (255, 192, 64)
 function Carrier.Warning (message)
 	MsgC (warningColor, "Carrier: Warning: " .. message .. "\n")
 end
+local sv_allowcslua = GetConVar ("sv_allowcslua")
+local carrier_developer_sv = CreateConVar ("carrier_developer_sv", "0", FCVAR_ARCHIVE + FCVAR_REPLICATED)
+local carrier_developer_cl = CLIENT and CreateClientConVar ("carrier_developer_cl", "0", true, false) or nil
+local carrier_developer    = CLIENT and carrier_developer_cl or carrier_developer_sv
+
+function Carrier.IsLocalDeveloperEnabled ()
+	return carrier_developer:GetBool () and (SERVER or sv_allowcslua:GetBool ())
+end
+
+function Carrier.IsServerDeveloperEnabled ()
+	return carrier_developer_sv:GetBool () and util.NetworkStringToID ("Carrier.RequestDeveloperPackageList") ~= 0
+end
+
 local self = {}
 Carrier.Packages = Class (self, ISerializable)
 self.Signature     = "\xffPKG\r\n\x1a\n"
@@ -4204,13 +4217,6 @@ function self:Deserialize (streamReader)
 	
 	return true
 end
-function self:IsLocalDeveloperEnabled ()
-	return carrier_developer:GetBool () and (SERVER or sv_allowcslua:GetBool ())
-end
-
-function self:IsServerDeveloperEnabled ()
-	return carrier_developer_sv:GetBool () and util.NetworkStringToID ("Carrier.RequestDeveloperPackageList") ~= 0
-end
 function self:Initialize ()
 	local t0 = SysTime ()
 	if not self:IsMetadataLoaded () then
@@ -4228,7 +4234,7 @@ function self:Initialize ()
 	
 	self.LocalLoadRoots = CLIENT and self.ClientLoadRoots or self.ServerLoadRoots
 	
-	if self:IsLocalDeveloperEnabled () then
+	if Carrier.IsLocalDeveloperEnabled () then
 		for packageName, _ in pairs (self.LocalLoadRoots) do
 			self:Load (packageName)
 		end
@@ -4380,7 +4386,7 @@ function self:Load (packageName, packageReleaseVersion)
 	
 	if not packageReleaseVersion then
 		local packageRelease = nil
-		if self:IsLocalDeveloperEnabled () then
+		if Carrier.IsLocalDeveloperEnabled () then
 			packageRelease = packageRelease or package:GetLocalDeveloperRelease ()
 		end
 		packageRelease = packageRelease or package:GetLatestRelease ()
@@ -5270,7 +5276,7 @@ return Task.Run (
 		
 		local carrier = nil
 		local developerRelease = Carrier.Packages:GetLocalDeveloperRelease ("Carrier")
-		if Carrier.Packages:IsLocalDeveloperEnabled () and developerRelease then
+		if Carrier.IsLocalDeveloperEnabled () and developerRelease then
 			carrier = Carrier.Packages:Load ("Carrier", developerRelease:GetVersion ())
 		else
 			Carrier.Packages:LoadMetadata ()

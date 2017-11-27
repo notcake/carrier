@@ -22,6 +22,7 @@ Clock = require_provider ("Pylon.MonotonicClock")
 PackageFile = require ("Carrier.PackageFile")
 PublicKey = require ("Carrier.PublicKey")
 
+include ("developer.lua")
 include ("packages.lua")
 include ("package.lua")
 include ("ipackagerelease.lua")

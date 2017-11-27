@@ -68,15 +68,6 @@ function self:Deserialize (streamReader)
 	return true
 end
 
--- Developer
-function self:IsLocalDeveloperEnabled ()
-	return carrier_developer:GetBool () and (SERVER or sv_allowcslua:GetBool ())
-end
-
-function self:IsServerDeveloperEnabled ()
-	return carrier_developer_sv:GetBool () and util.NetworkStringToID ("Carrier.RequestDeveloperPackageList") ~= 0
-end
-
 -- Packages
 function self:Initialize ()
 	local t0 = SysTime ()
@@ -95,7 +86,7 @@ function self:Initialize ()
 	
 	self.LocalLoadRoots = CLIENT and self.ClientLoadRoots or self.ServerLoadRoots
 	
-	if self:IsLocalDeveloperEnabled () then
+	if Carrier.IsLocalDeveloperEnabled () then
 		for packageName, _ in pairs (self.LocalLoadRoots) do
 			self:Load (packageName)
 		end
@@ -257,7 +248,7 @@ function self:Load (packageName, packageReleaseVersion)
 		local packageRelease = nil
 		
 		-- Prioritize developer packages if developer mode is on
-		if self:IsLocalDeveloperEnabled () then
+		if Carrier.IsLocalDeveloperEnabled () then
 			packageRelease = packageRelease or package:GetLocalDeveloperRelease ()
 		end
 		

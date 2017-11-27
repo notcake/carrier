@@ -83,6 +83,7 @@ local PackageFile = {}
 
 local Carrier = {}
 -- SED carrier/packages/carrier/_ctor.lua /function.+end/
+-- INCLUDE carrier/packages/carrier/developer.lua
 -- INCLUDE carrier/packages/carrier/packages.lua
 -- INCLUDE carrier/packages/carrier/package.lua
 -- INCLUDE carrier/packages/carrier/ipackagerelease.lua
@@ -112,7 +113,7 @@ return Task.Run (
 		
 		local carrier = nil
 		local developerRelease = Carrier.Packages:GetLocalDeveloperRelease ("Carrier")
-		if Carrier.Packages:IsLocalDeveloperEnabled () and developerRelease then
+		if Carrier.IsLocalDeveloperEnabled () and developerRelease then
 			carrier = Carrier.Packages:Load ("Carrier", developerRelease:GetVersion ())
 		else
 			Carrier.Packages:LoadMetadata ()

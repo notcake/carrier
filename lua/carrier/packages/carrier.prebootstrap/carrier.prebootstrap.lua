@@ -567,6 +567,21 @@ function self:ToBlob ()
 	return table_concat (t)
 end
 
+local Carrier = {}
+local sv_allowcslua = GetConVar ("sv_allowcslua")
+local carrier_developer_sv = CreateConVar ("carrier_developer_sv", "0", FCVAR_ARCHIVE + FCVAR_REPLICATED)
+local carrier_developer_cl = CLIENT and CreateClientConVar ("carrier_developer_cl", "0", true, false) or nil
+local carrier_developer    = CLIENT and carrier_developer_cl or carrier_developer_sv
+
+function Carrier.IsLocalDeveloperEnabled ()
+	return carrier_developer:GetBool () and (SERVER or sv_allowcslua:GetBool ())
+end
+
+function Carrier.IsServerDeveloperEnabled ()
+	return carrier_developer_sv:GetBool () and util.NetworkStringToID ("Carrier.RequestDeveloperPackageList") ~= 0
+end
+
+
 local publicKeyExponent = BigInteger.FromDecimal (publicKeyExponent)
 local publicKeyModulus  = BigInteger.FromDecimal (publicKeyModulus)
 
@@ -594,6 +609,31 @@ local function ValidateSignature (data, signature)
 	return sha256a == sha256b
 end
 
+local function RunBootstrap (package, signature)
+	if not ValidateSignature (package, signature) then return false, "Invalid bootstrap code signature!" end
+	
+	local code = string.match (package, "%-%- BEGIN CARRIER BOOTSTRAP.-%-%- END CARRIER BOOTSTRAP\r?\n")
+	if not code then return false, "Bootstrap code not found!" end
+	
+	local f = CompileString (code, "carrier.bootstrap/carrier.bootstrap.lua", false)
+	if type (f) == "string" then return false, f end
+	
+	local success, future = xpcall (f, debug.traceback)
+	if not success then return false, future end
+	if not future  then return false, "Bootstrap didn't return a future!" end
+	
+	future:Wait (
+		function (success)
+			if success then return end
+			
+			Warning ("Bootstrap failed!")
+			Reset ()
+		end
+	)
+	
+	return true
+end
+
 local function Fetch (url, f, n)
 	local n = n or 1
 	http.Fetch (url,
@@ -611,72 +651,52 @@ local function Fetch (url, f, n)
 	)
 end
 
-(
-	function (f)
-		local package   = file.Read ("garrysmod.io/carrier/bootstrap.dat", "DATA")
-		local signature = file.Read ("garrysmod.io/carrier/bootstrap.signature.dat", "DATA")
-		if package and signature then
-			if ValidateSignature (package, signature) then
-				local code = string.match (package, "%-%- BEGIN CARRIER BOOTSTRAP.-%-%- END CARRIER BOOTSTRAP\r?\n")
-				if code then f (code, package) return end
-			else
-				Warning ("Invalid bootstrap code signature!")
-				Reset ()
-			end
+if Carrier.IsLocalDeveloperEnabled () then
+	if file.Exists ("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua", CLIENT and "LCL" or "LSV") then
+		include ("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua")
+		return
+	end
+end
+
+if Carrier.IsServerDeveloperEnabled () then
+	if file.Exists ("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua", "LUA") then
+		include ("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua")
+		return
+	end
+end
+
+local package   = file.Read ("garrysmod.io/carrier/bootstrap.dat", "DATA")
+local signature = file.Read ("garrysmod.io/carrier/bootstrap.signature.dat", "DATA")
+if package and signature then
+	local success, err = RunBootstrap (package, signature)
+	if success then return end
+	
+	Warning (err)
+	Reset ()
+end
+
+Fetch ("https://garrysmod.io/api/packages/v1/bootstrap",
+	function (success, data)
+		if not success then
+			Warning ("Failed to fetch bootstrap code, aborting!")
+			return
 		end
 		
-		Fetch ("https://garrysmod.io/api/packages/v1/bootstrap",
-			function (success, data)
-				if not success then
-					Warning ("Failed to fetch bootstrap code, aborting!")
-					return
-				end
-				
-				local data = util.JSONToTable (data)
-				if not data then
-					Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
-					return
-				end
-				
-				local package, signature = Base64.Decode (data.package), Base64.Decode (data.signature)
-				file.CreateDir ("garrysmod.io/carrier")
-				file.Write ("garrysmod.io/carrier/bootstrap.dat",           package)
-				file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", signature)
-				
-				if ValidateSignature (package, signature) then
-					local code = string.match (package, "%-%- BEGIN CARRIER BOOTSTRAP.-%-%- END CARRIER BOOTSTRAP\r?\n")
-					if code then f (code, package) return end
-				else
-					Warning ("Invalid bootstrap code signature!")
-					Reset ()
-				end
-			end
-		)
-	end
-) (
-	function (code, package)
-		(
-			function (code, package, callback)
-				local f = CompileString (code, "carrier.bootstrap/carrier.bootstrap.lua", false)
-				if type (f) == "string" then return callback (false, f) end
-				
-				local success, future = xpcall (f, debug.traceback)
-				if not success then return callback (false, future) end
-				if not future  then return callback (false, "Bootstrap didn't return a future!") end
-				
-				future:Wait (
-					function (success)
-						callback (success, not success and "Bootstrap failed!")
-					end
-				)
-			end
-		) (code, package,
-			function (success, err)
-				if success then return end
-				
-				Warning (err)
-				Reset ()
-			end
-		)
+		local data = util.JSONToTable (data)
+		if not data then
+			Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
+			return
+		end
+		
+		local package, signature = Base64.Decode (data.package), Base64.Decode (data.signature)
+		file.CreateDir ("garrysmod.io/carrier")
+		file.Write ("garrysmod.io/carrier/bootstrap.dat",           package)
+		file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", signature)
+		
+		local success, err = RunBootstrap (package, signature)
+		if not success then
+			Warning (err)
+			Reset ()
+		end
 	end
 )
