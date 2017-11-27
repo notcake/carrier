@@ -1131,7 +1131,7 @@ local GarrysMod = {}
 
 HTTP.Initialize (GarrysMod)
 
-local ready = CurTime () > 0
+local ready = CurTime () > 1.5
 local requestQueue = nil
 
 local function DispatchRequest (f, ...)

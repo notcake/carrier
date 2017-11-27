@@ -675,28 +675,35 @@ if package and signature then
 	Reset ()
 end
 
-Fetch ("https://garrysmod.io/api/packages/v1/bootstrap",
-	function (success, data)
-		if not success then
-			Warning ("Failed to fetch bootstrap code, aborting!")
-			return
-		end
+-- Workaround for HTTP failed - ISteamHTTP isn't available!
+hook.Add ("Tick", "Carrier.Preboostrap",
+	function ()
+		hook.Remove ("Tick", "Carrier.Preboostrap")
 		
-		local data = util.JSONToTable (data)
-		if not data then
-			Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
-			return
-		end
-		
-		local package, signature = Base64.Decode (data.package), Base64.Decode (data.signature)
-		file.CreateDir ("garrysmod.io/carrier")
-		file.Write ("garrysmod.io/carrier/bootstrap.dat",           package)
-		file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", signature)
-		
-		local success, err = RunBootstrap (package, signature)
-		if not success then
-			Warning (err)
-			Reset ()
-		end
+		Fetch ("https://garrysmod.io/api/packages/v1/bootstrap",
+			function (success, data)
+				if not success then
+					Warning ("Failed to fetch bootstrap code, aborting!")
+					return
+				end
+				
+				local data = util.JSONToTable (data)
+				if not data then
+					Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
+					return
+				end
+				
+				local package, signature = Base64.Decode (data.package), Base64.Decode (data.signature)
+				file.CreateDir ("garrysmod.io/carrier")
+				file.Write ("garrysmod.io/carrier/bootstrap.dat",           package)
+				file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", signature)
+				
+				local success, err = RunBootstrap (package, signature)
+				if not success then
+					Warning (err)
+					Reset ()
+				end
+			end
+		)
 	end
 )

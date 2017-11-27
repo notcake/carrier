@@ -8,7 +8,8 @@ HTTP.Initialize (GarrysMod)
 local Future = require ("Pylon.Future")
 
 -- Workaround for HTTP failed - ISteamHTTP isn't available!
-local ready = CurTime () > 0
+-- Note that CurTime starts at 1.0049999952316!
+local ready = CurTime () > 1.5
 local requestQueue = nil
 
 local function DispatchRequest (f, ...)
