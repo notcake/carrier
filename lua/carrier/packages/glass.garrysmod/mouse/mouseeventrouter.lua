@@ -18,6 +18,10 @@ function self:dtor ()
 	hook.Remove ("PreRender", "Glass.GarrysMod.MouseEventRouter")
 end
 
+function self:GetHoveredView ()
+	return self.HoveredView
+end
+
 function self:OnCaptureMouse (view)
 	self.MouseCaptureView = view
 	self:SetHoveredView (self.MouseCaptureView)

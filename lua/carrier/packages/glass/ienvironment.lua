@@ -110,6 +110,10 @@ function self:GetMousePosition (view, handle)
 	Error ("IEnvironment:GetMousePosition : Not implemented.")
 end
 
+function self:IsMouseOver (view, handle)
+	Error ("IEnvironment:IsMouseOver : Not implemented.")
+end
+
 function self:CaptureMouse (view, handle)
 	Error ("IEnvironment:CaptureMouse : Not implemented.")
 end

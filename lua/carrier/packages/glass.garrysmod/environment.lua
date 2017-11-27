@@ -215,6 +215,16 @@ function self:GetMousePosition (view, handle)
 	return x, y
 end
 
+function self:IsMouseOver (view, handle)
+	local hoveredView = MouseEventRouter:GetHoveredView ()
+	while hoveredView do
+		if hoveredView == view then return true end
+		hoveredView = hoveredView:GetParent ()
+	end
+	
+	return false
+end
+
 function self:CaptureMouse (view, handle)
 	MouseEventRouter:OnCaptureMouse (view)
 	Panel_MouseCapture (handle, true)

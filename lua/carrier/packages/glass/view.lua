@@ -333,6 +333,11 @@ function self:GetMousePosition ()
 	return self.Environment:GetMousePosition (self, self:GetHandle ())
 end
 
+function self:IsMouseOver ()
+	if not self.Handle then return false end
+	return self.Environment:IsMouseOver (self, self:GetHandle ())
+end
+
 function self:CaptureMouse ()
 	if not self.Handle then return end
 	self.Environment:CaptureMouse (self, self.Handle)

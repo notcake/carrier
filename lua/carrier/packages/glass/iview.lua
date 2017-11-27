@@ -193,6 +193,10 @@ function self:GetMousePosition ()
 	Error ("IView:GetMousePosition : Not implemented.")
 end
 
+function self:IsMouseOver ()
+	Error ("IView:IsMouseOver : Not implemented.")
+end
+
 function self:CaptureMouse ()
 	Error ("IView:CaptureMouse : Not implemented.")
 end
