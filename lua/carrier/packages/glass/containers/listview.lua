@@ -321,7 +321,8 @@ function self:LayoutView ()
 	end
 	
 	-- Update item width
-	if self.ResolvedItemWidth ~= itemWidth then
+	if self.ResolvedItemWidth ~= itemWidth or
+	   self.ViewWidth ~= viewWidth then
 		self.ResolvedItemWidth = itemWidth
 		self.ItemLayoutValid = false
 		self.HeaderFooterLayoutValid = false

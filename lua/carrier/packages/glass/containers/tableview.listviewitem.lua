@@ -38,7 +38,7 @@ function self:Bind (tableView, tableViewItem)
 	self.TableView = tableView
 	self.TableViewItem = tableViewItem
 	
-	self.TableView:GetColumns ().LayoutChanged:AddListener ("Glass.TableView.ListViewItem." .. self:GetHashCode (), self, self.InvalidateColumnContent)
+	self.TableView:GetColumns ().LayoutChanged:AddListener ("Glass.TableView.ListViewItem." .. self:GetHashCode (), self, self.InvalidateColumnLayout)
 	self.TableViewItem.Changed:AddListener ("Glass.TableView.ListViewItem." .. self:GetHashCode (), self, self.InvalidateColumnContent)
 	self:UpdateColumns ()
 	self:InvalidateColumnLayout ()
