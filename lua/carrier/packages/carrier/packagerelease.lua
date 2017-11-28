@@ -89,12 +89,14 @@ function self:Load (environment)
 		return
 	elseif not packageFile:GetSection ("code"):IsVerified () then
 		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for code section!")
+		file.Delete (Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
 		return
 	elseif not packageFile:GetSection ("luahashes") then
 		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has no Lua hashes section!")
 		return
 	elseif not packageFile:GetSection ("luahashes"):IsVerified () then
 		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for Lua hashes section!")
+		file.Delete (Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
 		return
 	end
 	
