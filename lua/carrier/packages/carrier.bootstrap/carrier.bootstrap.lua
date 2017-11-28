@@ -3769,20 +3769,22 @@ function PackageFile.Deserialize (streamReader, exponent, modulus)
 		end
 		if exponent and modulus then
 			local signatureSection = packageFile:GetSection ("signature")
-			signatureSection:SetVerified (signatureSection:VerifySelf (name, version, exponent, modulus))
-			
-			if signatureSection:IsVerified () then
-				local endPosition = streamReader:GetPosition ()
-				for i = 1, signatureSection:GetSectionHashCount () do
-					local sectionName, md5a, sha256a = signatureSection:GetSectionHash (i)
-					if sectionPositions [sectionName] then
-						streamReader:SeekAbsolute (sectionPositions [sectionName])
-						local data = streamReader:Bytes (sectionLengths [sectionName])
-						local md5b = String.FromHex (Crypto.MD5.Compute (data))
-						packageFile:GetSection (sectionName):SetVerified (md5a == md5b)
+			if signatureSection then
+				signatureSection:SetVerified (signatureSection:VerifySelf (name, version, exponent, modulus))
+				
+				if signatureSection:IsVerified () then
+					local endPosition = streamReader:GetPosition ()
+					for i = 1, signatureSection:GetSectionHashCount () do
+						local sectionName, md5a, sha256a = signatureSection:GetSectionHash (i)
+						if sectionPositions [sectionName] then
+							streamReader:SeekAbsolute (sectionPositions [sectionName])
+							local data = streamReader:Bytes (sectionLengths [sectionName])
+							local md5b = String.FromHex (Crypto.MD5.Compute (data))
+							packageFile:GetSection (sectionName):SetVerified (md5a == md5b)
+						end
 					end
+					streamReader:SeekAbsolute (endPosition)
 				end
-				streamReader:SeekAbsolute (endPosition)
 			end
 		end
 		
@@ -5104,12 +5106,14 @@ function self:Load (environment)
 		return
 	elseif not packageFile:GetSection ("code"):IsVerified () then
 		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for code section!")
+		file.Delete (Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
 		return
 	elseif not packageFile:GetSection ("luahashes") then
 		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has no Lua hashes section!")
 		return
 	elseif not packageFile:GetSection ("luahashes"):IsVerified () then
 		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for Lua hashes section!")
+		file.Delete (Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
 		return
 	end
 	
