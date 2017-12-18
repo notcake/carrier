@@ -212,7 +212,7 @@ end
 -- Dependencies
 function self:ComputePackageDependencySet (packageName, dependencySet)
 	local package = self:GetPackage (packageName)
-	local packageRelease = package and package:GetLatestPackageRelease ()
+	local packageRelease = package and package:GetLatestRelease ()
 	return self:ComputePackageReleaseDependencySet (packageRelease, dependencySet)
 end
 
