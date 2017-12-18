@@ -9,8 +9,9 @@ IO = require ("Pylon.IO")
 Enumeration = require ("Pylon.Enumeration")
 Enumeration.Initialize (_ENV)
 
-Crypto = require ("Pylon.Crypto")
-String = require ("Pylon.String")
+BigInteger = require ("Pylon.BigInteger")
+Crypto     = require ("Pylon.Crypto")
+String     = require ("Pylon.String")
 
 Verification = require ("Panopticon.Verification")
 
