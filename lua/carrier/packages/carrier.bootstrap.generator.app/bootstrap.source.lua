@@ -142,7 +142,7 @@ return Task.Run (
 		-- Assimilate existing packages
 		for packageName, bootstrapPackage in pairs (Carrier.Packages.LoadedPackages) do
 			local package = carrier.Packages:GetPackage (packageName)
-			bootstrapPackage:AssimilateInto (packages, package)
+			bootstrapPackage:AssimilateInto (carrier.Packages, package)
 		end
 		
 		-- Initialize
