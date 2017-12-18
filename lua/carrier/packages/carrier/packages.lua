@@ -109,7 +109,7 @@ function self:Initialize ()
 			
 			local success = true
 			for packageName, packageReleaseVersion in pairs (downloadSet) do
-				success = success and self:Download (packageName, packageReleaseVersion):Await ()
+				success = success and self:DownloadPackageRelease (packageName, packageReleaseVersion):Await ()
 			end
 			
 			for packageName, _ in pairs (self.LocalLoadRoots) do
@@ -178,7 +178,7 @@ function self:GetLocalDeveloperRelease (packageName)
 	return package and package:GetLocalDeveloperRelease ()
 end
 
-function self:GetLatestRelease (packageName)
+function self:GetLatestPackageRelease (packageName)
 	local package = self.Packages [packageName]
 	
 	return package and package:GetLatestRelease ()
@@ -191,12 +191,12 @@ function self:GetPackageRelease (packageName, packageReleaseVersion)
 end
 
 function self:IsPackageReleaseAvailable (packageName, packageReleaseVersion)
-	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
+	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestPackageRelease (packageName)
 	return packageRelease and packageRelease:IsAvailable () or false
 end
 
 function self:IsPackageReleaseAvailableRecursive (packageName, packageReleaseVersion)
-	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
+	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestPackageRelease (packageName)
 	if not packageRelease then return false end
 	
 	local dependencySet = self:ComputePackageReleaseDependencySet (packageRelease)
@@ -212,7 +212,7 @@ end
 -- Dependencies
 function self:ComputePackageDependencySet (packageName, dependencySet)
 	local package = self:GetPackage (packageName)
-	local packageRelease = package and package:GetLatestRelease ()
+	local packageRelease = package and package:GetLatestPackageRelease ()
 	return self:ComputePackageReleaseDependencySet (packageRelease, dependencySet)
 end
 
@@ -253,7 +253,7 @@ function self:Load (packageName, packageReleaseVersion)
 		end
 		
 		-- Pick the latest release
-		packageRelease = packageRelease or package:GetLatestRelease ()
+		packageRelease = packageRelease or package:GetLatestPackageRelease ()
 		
 		-- Fallback onto a developer package
 		if SERVER or sv_allowcslua:GetBool () then
@@ -303,6 +303,23 @@ end
 function self:Download (packageName, packageReleaseVersion)
 	return Task.Run (
 		function ()
+			local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestPackageRelease (packageName)
+			if not packageRelease then return false end
+			local downloadSet = self:ComputePackageReleaseDependencySet (packageRelease)
+			
+			local success = true
+			for packageName, packageReleaseVersion in pairs (downloadSet) do
+				success = success and self:DownloadPackageRelease (packageName, packageReleaseVersion):Await ()
+			end
+			
+			return true
+		end
+	)
+end
+
+function self:DownloadPackageRelease (packageName, packageReleaseVersion)
+	return Task.Run (
+		function ()
 			local packageRelease = self:GetPackageRelease (packageName, packageReleaseVersion)
 			if not packageRelease then return false end
 			
@@ -334,23 +351,6 @@ function self:Download (packageName, packageReleaseVersion)
 				Carrier.Log ("Downloaded " .. packageName .. " " .. packageReleaseVersion .. ", but bad signature")
 				return false
 			end
-		end
-	)
-end
-
-function self:DownloadRecursive (packageName, packageReleaseVersion)
-	return Task.Run (
-		function ()
-			local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
-			if not packageRelease then return false end
-			local downloadSet = self:ComputePackageReleaseDependencySet (packageRelease)
-			
-			local success = true
-			for packageName, packageReleaseVersion in pairs (downloadSet) do
-				success = success and self:Download (packageName, packageReleaseVersion):Await ()
-			end
-			
-			return true
 		end
 	)
 end
