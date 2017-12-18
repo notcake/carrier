@@ -4296,7 +4296,7 @@ function self:Initialize ()
 			
 			local success = true
 			for packageName, packageReleaseVersion in pairs (downloadSet) do
-				success = success and self:Download (packageName, packageReleaseVersion):Await ()
+				success = success and self:DownloadPackageRelease (packageName, packageReleaseVersion):Await ()
 			end
 			
 			for packageName, _ in pairs (self.LocalLoadRoots) do
@@ -4361,7 +4361,7 @@ function self:GetLocalDeveloperRelease (packageName)
 	return package and package:GetLocalDeveloperRelease ()
 end
 
-function self:GetLatestRelease (packageName)
+function self:GetLatestPackageRelease (packageName)
 	local package = self.Packages [packageName]
 	
 	return package and package:GetLatestRelease ()
@@ -4374,12 +4374,12 @@ function self:GetPackageRelease (packageName, packageReleaseVersion)
 end
 
 function self:IsPackageReleaseAvailable (packageName, packageReleaseVersion)
-	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
+	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestPackageRelease (packageName)
 	return packageRelease and packageRelease:IsAvailable () or false
 end
 
 function self:IsPackageReleaseAvailableRecursive (packageName, packageReleaseVersion)
-	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
+	local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestPackageRelease (packageName)
 	if not packageRelease then return false end
 	
 	local dependencySet = self:ComputePackageReleaseDependencySet (packageRelease)
@@ -4474,6 +4474,23 @@ end
 function self:Download (packageName, packageReleaseVersion)
 	return Task.Run (
 		function ()
+			local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestPackageRelease (packageName)
+			if not packageRelease then return false end
+			local downloadSet = self:ComputePackageReleaseDependencySet (packageRelease)
+			
+			local success = true
+			for packageName, packageReleaseVersion in pairs (downloadSet) do
+				success = success and self:DownloadPackageRelease (packageName, packageReleaseVersion):Await ()
+			end
+			
+			return true
+		end
+	)
+end
+
+function self:DownloadPackageRelease (packageName, packageReleaseVersion)
+	return Task.Run (
+		function ()
 			local packageRelease = self:GetPackageRelease (packageName, packageReleaseVersion)
 			if not packageRelease then return false end
 			
@@ -4505,23 +4522,6 @@ function self:Download (packageName, packageReleaseVersion)
 				Carrier.Log ("Downloaded " .. packageName .. " " .. packageReleaseVersion .. ", but bad signature")
 				return false
 			end
-		end
-	)
-end
-
-function self:DownloadRecursive (packageName, packageReleaseVersion)
-	return Task.Run (
-		function ()
-			local packageRelease = packageReleaseVersion and self:GetPackageRelease (packageName, packageReleaseVersion) or self:GetLatestRelease (packageName)
-			if not packageRelease then return false end
-			local downloadSet = self:ComputePackageReleaseDependencySet (packageRelease)
-			
-			local success = true
-			for packageName, packageReleaseVersion in pairs (downloadSet) do
-				success = success and self:Download (packageName, packageReleaseVersion):Await ()
-			end
-			
-			return true
 		end
 	)
 end
@@ -4865,14 +4865,15 @@ function self:Assimilate (packageRelease, environment, exports, destructor)
 	Carrier.Debug ("Assimilated package " .. self.Name .. ".")
 end
 
-function self:AssimilateInto (package)
+function self:AssimilateInto (packages, package)
 	if not self:IsLoaded () then return end
 	
 	local packageRelease = package:GetRelease (self:GetLoadedRelease ():GetVersion ())
 	if not packageRelease then
 		Carrier.Warning ("Cannot transfer package " .. self.Name .. ", since release " .. self:GetLoadedRelease ():GetVersion () .. " is missing from new package system.")
 	end
-	package:Assimilate (packageRelease, self.LoadEnvironment, self.LoadExports, self.LoadDestructor)
+	
+	packages:Assimilate (package, packageRelease, self.LoadEnvironment, self.LoadExports, self.LoadDestructor)
 end
 
 function self:GetLoadedRelease ()
@@ -5346,7 +5347,7 @@ return Task.Run (
 		-- Assimilate existing packages
 		for packageName, bootstrapPackage in pairs (Carrier.Packages.LoadedPackages) do
 			local package = carrier.Packages:GetPackage (packageName)
-			bootstrapPackage:AssimilateInto (package)
+			bootstrapPackage:AssimilateInto (packages, package)
 		end
 		
 		-- Initialize

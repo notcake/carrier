@@ -119,14 +119,15 @@ function self:Assimilate (packageRelease, environment, exports, destructor)
 	Carrier.Debug ("Assimilated package " .. self.Name .. ".")
 end
 
-function self:AssimilateInto (package)
+function self:AssimilateInto (packages, package)
 	if not self:IsLoaded () then return end
 	
 	local packageRelease = package:GetRelease (self:GetLoadedRelease ():GetVersion ())
 	if not packageRelease then
 		Carrier.Warning ("Cannot transfer package " .. self.Name .. ", since release " .. self:GetLoadedRelease ():GetVersion () .. " is missing from new package system.")
 	end
-	package:Assimilate (packageRelease, self.LoadEnvironment, self.LoadExports, self.LoadDestructor)
+	
+	packages:Assimilate (package, packageRelease, self.LoadEnvironment, self.LoadExports, self.LoadDestructor)
 end
 
 function self:GetLoadedRelease ()
