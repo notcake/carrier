@@ -253,7 +253,7 @@ function self:Load (packageName, packageReleaseVersion)
 		end
 		
 		-- Pick the latest release
-		packageRelease = packageRelease or package:GetLatestPackageRelease ()
+		packageRelease = packageRelease or package:GetLatestRelease ()
 		
 		-- Fallback onto a developer package
 		if SERVER or sv_allowcslua:GetBool () then
