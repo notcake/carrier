@@ -1,6 +1,10 @@
 local self = {}
 Cat.GF2Matrix = Class (self)
 
+local string_byte  = string.byte
+local string_char  = string.char
+local table_concat = table.concat
+
 function Cat.GF2Matrix.Identity (size)
 	local m = Cat.GF2Matrix (size, size)
 	for i = 0, size - 1 do
@@ -12,25 +16,40 @@ function Cat.GF2Matrix.Zero (h, w)
 	return Cat.GF2Matrix (h, w)
 end
 
+function Cat.GF2Matrix.ColumnFromBlob (blob, out)
+	local out = out or Cat.GF2Matrix (0, 0)
+	out.w, out.h = 1, #blob * 8
+	for i = 1, #blob do
+		local c = string_byte (blob, i)
+		for j = 0, 7 do
+			local b = c % 2
+			out [(i - 1) * 8 + j] = b
+			c = (c - b) * 0.5
+		end
+	end
+	return out
+end
+
 function Cat.GF2Matrix.ColumnFromUInt32 (x, out)
 	local out = out or Cat.GF2Matrix (0, 0)
 	out.w, out.h = 1, 32
-	for i = 1, 32 do
+	for i = 0, 31 do
 		local b = x % 2
-		out [i - 1] = b
+		out [i] = b
 		x = (x - b) * 0.5
 	end
 	return out
 end
 
+function Cat.GF2Matrix.RowFromBlob (x, out)
+	local out = Cat.GF2Matrix.ColumnFromBlob (x, out)
+	out.w, out.h = out.h, out.w
+	return out
+end
+
 function Cat.GF2Matrix.RowFromUInt32 (x, out)
-	local out = out or Cat.GF2Matrix (0, 0)
-	out.w, out.h = 32, 1
-	for i = 1, 32 do
-		local b = x % 2
-		out [i - 1] = b
-		x = (x - b) * 0.5
-	end
+	local out = Cat.GF2Matrix.ColumnFromUInt32 (x, out)
+	out.w, out.h = out.h, out.w
 	return out
 end
 
@@ -341,9 +360,26 @@ function self:SetRow (y, row)
 end
 
 -- Conversions
+function self:ColumnToBlob ()
+	assert (self.w == 1 or self.h == 1)
+	assert (self.w * self.h % 8 == 0)
+	
+	local t = {}
+	local length = self.w * self.h * 0.125
+	for i = 1, length do
+		local c = 0
+		for j = 7, 0, -1 do
+			c = c * 2 + self [(i - 1) * 8 + j]
+		end
+		t [#t + 1] = string_char (c)
+	end
+	
+	return table_concat (t)
+end
+
 function self:ColumnToUInt32 ()
-	assert (self.w ==  1)
-	assert (self.h == 32)
+	assert (self.w == 1 or self.h == 1)
+	assert (self.w * self.h == 32)
 	
 	local x = 0
 	for i = 31, 0, -1 do
@@ -353,16 +389,12 @@ function self:ColumnToUInt32 ()
 	return x
 end
 
+function self:RowToBlob ()
+	return self:ColumnToBlob ()
+end
+
 function self:RowToUInt32 ()
-	assert (self.w == 32)
-	assert (self.h ==  1)
-	
-	local x = 0
-	for i = 31, 0, -1 do
-		x = x * 2 + self [i]
-	end
-	
-	return x
+	return self:ColumnToUInt32 ()
 end
 
 function self:ToString ()
