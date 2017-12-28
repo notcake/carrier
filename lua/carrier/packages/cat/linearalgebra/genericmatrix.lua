@@ -198,17 +198,22 @@ function self:ReducedRowEchelonForm ()
 	local x = 0
 	for y = 0, out.h - 1 do
 		while x < out.w do
-			-- Ensure row y starts with a non-zero element
-			if self.ring:IsZero (out [y * out.w + x]) then
-				-- Find a row with non-zero element x to borrow
-				for y1 = y + 1, out.h - 1 do
-					if not self.ring:IsZero (out [y1 * out.w + x]) then
-						-- Found one
-						-- Add row y1 to row y
-						for x = x, out.w - 1 do
-							out [y * out.w + x] = self.ring:Add (out [y * out.w + x], out [y1 * out.w + x])
+			-- Ensure row y starts with an invertible, non-zero element
+			local scale = nil
+			if not self.ring:IsOne (out [y * out.w + x]) then
+				scale = self.ring:MultiplicativeInverse (out [y * out.w + x])
+				if not scale then
+					-- Find a row which when added to row y makes it invertible
+					for y1 = y + 1, out.h - 1 do
+						scale = self.ring:MultiplicativeInverse (self.ring:Add (out [y * out.w + x], out [y1 * out.w + x]))
+						if scale then
+							-- Found one
+							-- Add row y1 to row y
+							for x = x, out.w - 1 do
+								out [y * out.w + x] = self.ring:Add (out [y * out.w + x], out [y1 * out.w + x])
+							end
+							break
 						end
-						break
 					end
 				end
 			end
@@ -216,7 +221,7 @@ function self:ReducedRowEchelonForm ()
 			if not self.ring:IsZero (out [y * out.w + x]) then
 				-- Scale row so that element x is 1
 				if not self.ring:IsOne (out [y * out.w + x]) then
-					local scale = self.ring:MultiplicativeInverse (out [y * out.w + x])
+					if not scale then MsgN (out:ToString ()) end
 					for x = x, out.w - 1 do
 						out [y * out.w + x] = self.ring:Multiply (scale, out [y * out.w + x])
 					end
@@ -245,6 +250,7 @@ function self:ReducedRowEchelonForm ()
 		end
 	end
 	
+	MsgN (out:ToString ())
 	return out
 end
 
@@ -298,6 +304,7 @@ function self:Solve (b, out)
 		end
 	end
 	
+	MsgN (x0:Transpose():ToString () .. "\n")
 	for y = y, rref.h - 1 do
 		if rref [y * rref.w + self.w] ~= 0 then return nil, nullSpace end
 	end
@@ -372,7 +379,7 @@ function self:ToString ()
 	for y = 0, self.h - 1 do
 		local column = {}
 		for x = 0, self.w - 1 do
-			column [#column + 1] = self [y * self.w + x]
+			column [#column + 1] = self.ring:ToString (self [y * self.w + x])
 		end
 		
 		rows [#rows + 1] = "[ " .. table.concat (column, ", ") .. " ]"
