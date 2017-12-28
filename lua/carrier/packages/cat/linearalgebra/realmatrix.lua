@@ -287,6 +287,12 @@ function self:Solve (b, out)
 	return x0, nullSpace
 end
 
+function self:SolveLeastSquares (b)
+	local A = self
+	local At = A:Transpose ()
+	return (At * A):Invert () * At * b
+end
+
 function self:Transpose (out)
 	local out = out or Cat.RealMatrix (0, 0)
 	out.w, out.h = self.h, self.w
