@@ -15,6 +15,7 @@ end
 function self:ctor (h, w, ...)
 	self.h = h
 	self.w = w
+	
 	for i = 0, w * h - 1 do
 		self [i] = 0
 	end
@@ -95,6 +96,7 @@ function self:Multiply (b, out)
 	
 	local out = out or Cat.RealMatrix (0, 0)
 	out.w, out.h = b.w, a.h
+	
 	for y = 0, a.h - 1 do
 		for x = 0, b.w - 1 do
 			local sum = 0
@@ -182,7 +184,7 @@ function self:ReducedRowEchelonForm ()
 	local x = 0
 	for y = 0, out.h - 1 do
 		while x < out.w do
-			-- Ensure row y starts with a 1
+			-- Ensure row y starts with a non-zero element
 			if out [y * out.w + x] == 0 then
 				-- Find a row with non-zero element x to borrow
 				for y1 = y + 1, out.h - 1 do
