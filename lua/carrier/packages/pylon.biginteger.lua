@@ -532,6 +532,9 @@ function self:Divide (b, quotient, remainder)
 	
 	if negative then
 		quotient = quotient:Negate (quotient)
+		if not remainder:IsZero () then
+			remainder = b:Subtract (remainder)
+		end
 	end
 	
 	return quotient, remainder
@@ -562,6 +565,9 @@ function self:DivideInt24 (b, out)
 	
 	if negative then
 		out = out:Negate (out)
+		if remainder ~= 0 then
+			remainder = b - remainder
+		end
 	end
 	
 	return out, remainder
