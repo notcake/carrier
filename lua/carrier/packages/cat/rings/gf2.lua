@@ -21,5 +21,10 @@ function self:IsAdditiveIdentity       (x) return x == 0 end
 function self:IsMultiplicativeIdentity (x) return x == 1 end
 
 -- Inverses
-function self:AdditiveInverse       (x, out) return x end
-function self:MultiplicativeInverse (x, out) return x end
+function self:AdditiveInverse (x, out)
+	return x
+end
+
+function self:MultiplicativeInverse (x, out)
+	return x ~= 0 and 1 or nil
+end

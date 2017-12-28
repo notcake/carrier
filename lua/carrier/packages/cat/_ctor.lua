@@ -18,6 +18,10 @@ include ("rings/iring.lua")
 include ("rings/reals.lua")
 include ("rings/complex.lua")
 include ("rings/gf2.lua")
+include ("rings/modularring.lua")
+Cat.Rings.UInt8  = Cat.Rings.ModularRing (256)
+Cat.Rings.UInt16 = Cat.Rings.ModularRing (65536)
+Cat.Rings.UInt32 = Cat.Rings.ModularRing (4294967296)
 
 Cat.LinearAlgebra = {}
 include ("linearalgebra/realmatrix.lua")

@@ -68,3 +68,7 @@ end
 function self:MultiplicativeInverse (x, out)
 	Error ("IRIng:MultiplicativeInverse : Not implemented.")
 end
+
+function self:__call ()
+	return self
+end
