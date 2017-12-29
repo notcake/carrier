@@ -26,5 +26,11 @@ function self:AdditiveInverse (x, out)
 end
 
 function self:MultiplicativeInverse (x, out)
-	return 1 / x
+	return x ~= 0 and 1 / x or nil
 end
+
+function self:ToString (x)
+	return tostring (x)
+end
+
+Cat.Rings.Reals = Cat.Rings.Reals ()

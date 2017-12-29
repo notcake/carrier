@@ -192,7 +192,7 @@ function self:NullSpace ()
 	return nullSpace
 end
 
-function self:ReducedRowEchelonForm ()
+function self:ReducedRowEchelonForm (out)
 	local out = self:Clone (out)
 	
 	local x = 0
@@ -220,22 +220,39 @@ function self:ReducedRowEchelonForm ()
 			
 			if not self.ring:IsZero (out [y * out.w + x]) then
 				-- Scale row so that element x is 1
-				if not self.ring:IsOne (out [y * out.w + x]) then
-					if not scale then MsgN (out:ToString ()) end
+				if not self.ring:IsOne (out [y * out.w + x]) and scale then
 					for x = x, out.w - 1 do
 						out [y * out.w + x] = self.ring:Multiply (scale, out [y * out.w + x])
 					end
 				end
 				
 				-- Now use row y to clear element x of all the other rows
-				for y1 = 0, out.h - 1 do
-					if y1 ~= y then
-						if not self.ring:IsZero (out [y1 * out.w + x]) then
-							local k = out [y1 * out.w + x]
-							
-							-- Subtract k * row y from row y1
-							for x = x, out.w - 1 do
-								out [y1 * out.w + x] = self.ring:Subtract (out [y1 * out.w + x], self.ring:Multiply (k, out [y * out.w + x]))
+				if self.ring:IsOne (out [y * out.w + x]) then
+					for y1 = 0, out.h - 1 do
+						if y1 ~= y then
+							if not self.ring:IsZero (out [y1 * out.w + x]) then
+								local k = out [y1 * out.w + x]
+								
+								-- Subtract k * row y from row y1
+								for x = x, out.w - 1 do
+									out [y1 * out.w + x] = self.ring:Subtract (out [y1 * out.w + x], self.ring:Multiply (k, out [y * out.w + x]))
+								end
+							end
+						end
+					end
+				else
+					-- No inverse, but division might work
+					for y1 = 0, out.h - 1 do
+						if y1 ~= y then
+							if not self.ring:IsZero (out [y1 * out.w + x]) then
+								local k = self.ring:Divide (out [y1 * out.w + x], out [y * out.w + x])
+								
+								-- Subtract k * row y from row y1
+								if k then
+									for x = x, out.w - 1 do
+										out [y1 * out.w + x] = self.ring:Subtract (out [y1 * out.w + x], self.ring:Multiply (k, out [y * out.w + x]))
+									end
+								end
 							end
 						end
 					end
@@ -304,12 +321,17 @@ function self:Solve (b, out)
 		end
 	end
 	
-	MsgN (x0:Transpose():ToString () .. "\n")
 	for y = y, rref.h - 1 do
 		if rref [y * rref.w + self.w] ~= 0 then return nil, nullSpace end
 	end
 	
 	return x0, nullSpace
+end
+
+function self:SolveLeastSquares (b)
+	local A = self
+	local At = A:Transpose ()
+	return (At * A):Invert () * At * b
 end
 
 function self:Transpose (out)

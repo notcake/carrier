@@ -28,3 +28,9 @@ end
 function self:MultiplicativeInverse (x, out)
 	return x ~= 0 and 1 or nil
 end
+
+function self:ToString (x)
+	return tostring (x)
+end
+
+Cat.Rings.GF2 = Cat.Rings.GF2

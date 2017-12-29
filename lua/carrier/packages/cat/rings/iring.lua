@@ -45,11 +45,11 @@ end
 
 -- Identities
 function self:AdditiveIdentity (out)
-	Error ("IRIng:AdditiveIdentity : Not implemented.")
+	Error ("IRing:AdditiveIdentity : Not implemented.")
 end
 
 function self:MultiplicativeIdentity (out)
-	Error ("IRIng:MultiplicativeIdentity : Not implemented.")
+	Error ("IRing:MultiplicativeIdentity : Not implemented.")
 end
 
 function self:IsAdditiveIdentity (x)
@@ -61,12 +61,25 @@ function self:IsMultiplicativeIdentity (x)
 end
 
 -- Inverses
+function self:Negate (x, out)
+	return self:AdditiveInverse (x, out)
+end
+
+function self:Inverse (x, out)
+	return self:MultiplicativeInverse (x, out)
+end
+
+-- Inverses
 function self:AdditiveInverse (x, out)
-	Error ("IRIng:AdditiveInverse : Not implemented.")
+	Error ("IRing:AdditiveInverse : Not implemented.")
 end
 
 function self:MultiplicativeInverse (x, out)
-	Error ("IRIng:MultiplicativeInverse : Not implemented.")
+	Error ("IRing:MultiplicativeInverse : Not implemented.")
+end
+
+function self:ToString (x)
+	Error ("IRing:ToString : Not implemented.")
 end
 
 function self:__call ()

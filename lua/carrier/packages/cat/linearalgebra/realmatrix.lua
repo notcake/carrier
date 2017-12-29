@@ -178,7 +178,7 @@ function self:NullSpace ()
 	return nullSpace
 end
 
-function self:ReducedRowEchelonForm ()
+function self:ReducedRowEchelonForm (out)
 	local out = self:Clone (out)
 	
 	local x = 0
