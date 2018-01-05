@@ -243,6 +243,10 @@ function self:IsZero ()
 	return #self == 1 and self [1] == Sign_Positive
 end
 
+function self:IsOne ()
+	return #self == 2 and self [1] == 1 and self [2] == Sign_Positive
+end
+
 -- Comparisons
 function self:Compare (b)
 	local a = self
@@ -723,6 +727,16 @@ function self:Not (out)
 end
 
 -- Miscellaneous
+function self:GCD (b)
+	local a = self
+	
+	while not b:IsZero () do
+		a, b = b, a:Mod (b)
+	end
+	
+	return a
+end
+
 function self:ModularInverse (m)
 	local a, b = m, self
 	local previousR, r = a:Clone (), b:Clone ()
