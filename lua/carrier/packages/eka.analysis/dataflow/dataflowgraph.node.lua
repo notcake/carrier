@@ -17,6 +17,10 @@ function self:GetDependencies (out)
 	return out or {}
 end
 
+function self:GetOperator ()
+	return nil
+end
+
 function self:ToString ()
 	return "{ DataFlowGraph.Node }"
 end

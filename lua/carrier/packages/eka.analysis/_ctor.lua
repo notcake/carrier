@@ -9,6 +9,7 @@ require ("Pylon.Enumeration").Initialize (_ENV)
 
 Array = require ("Pylon.Array")
 
+AST      = require ("Eka.AST")
 Bytecode = require ("Eka.Bytecode")
 
 include ("controlflowgraph/controlflowgraph.lua")
@@ -23,7 +24,5 @@ include ("dataflow/dataflowgraph.outputnode.lua")
 
 include ("dataflow/dataflowgraph.binaryoperatornode.lua")
 include ("dataflow/dataflowgraph.unaryoperatornode.lua")
-include ("dataflow/dataflowgraph.leftunaryoperatornode.lua")
-include ("dataflow/dataflowgraph.rightunaryoperatornode.lua")
 
 return Analysis

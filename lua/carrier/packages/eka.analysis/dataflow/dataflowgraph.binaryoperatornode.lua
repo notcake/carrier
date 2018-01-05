@@ -1,10 +1,11 @@
 local self = {}
 Analysis.DataFlowGraph.BinaryOperatorNode = Class (self, Analysis.DataFlowGraph.Node)
 
-function self:ctor (address, leftDataFlowNode, rightDataFlowNode, operator)
+function self:ctor (address, operator, leftDataFlowNode, rightDataFlowNode)
+	self.Operator = operator
+	
 	self.LeftDataFlowNode  = leftDataFlowNode
 	self.RightDataFlowNode = rightDataFlowNode
-	self.Operator = operator
 end
 
 -- Node
@@ -17,8 +18,27 @@ function self:EvaluateConstant (arguments, cachingEvaluator)
 	return nil
 end
 
+function self:GetOperator ()
+	return self.Operator
+end
+
 function self:ToString ()
-	return self.LeftDataFlowNode:ToString () .. " " .. self.Operator:GetSymbol () .. " " .. self.RightDataFlowNode:ToString ()
+	local leftExpression  = self.LeftDataFlowNode:ToString ()
+	local rightExpression = self.RightDataFlowNode:ToString ()
+	if self.LeftDataFlowNode:GetOperator () and
+	   self.LeftDataFlowNode:GetOperator () ~= self.Operator and
+	   self.LeftDataFlowNode:GetOperator ():GetPrecedence () >= self.Operator:GetPrecedence () and
+	   self.LeftDataFlowNode:GetOperator ():GetAssociativity () ~= AST.Associativity.Left then
+		leftExpression = "(" .. leftExpression .. ")"
+	end
+	if self.RightDataFlowNode:GetOperator () and
+	   self.RightDataFlowNode:GetOperator () ~= self.Operator and
+	   self.RightDataFlowNode:GetOperator ():GetPrecedence () >= self.Operator:GetPrecedence () and
+	   self.RightDataFlowNode:GetOperator ():GetAssociativity () ~= AST.Associativity.Right then
+		rightExpression = "(" .. rightExpression .. ")"
+	end
+	
+	return leftExpression .. " " .. self.Operator:GetSymbol () .. " " .. rightExpression
 end
 
 -- BinaryOperatorNode
