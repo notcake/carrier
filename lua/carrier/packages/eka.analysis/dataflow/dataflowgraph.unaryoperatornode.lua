@@ -1,7 +1,7 @@
 local self = {}
 Analysis.DataFlowGraph.UnaryOperatorNode = Class (self, Analysis.DataFlowGraph.Node)
 
-function self:ctor (innerDataFlowNode, operator)
+function self:ctor (address, innerDataFlowNode, operator)
 	self.InnerDataFlowNode = innerDataFlowNode
 	self.Operator = operator
 end

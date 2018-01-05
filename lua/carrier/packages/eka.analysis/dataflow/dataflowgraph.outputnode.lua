@@ -1,7 +1,7 @@
 local self = {}
 Analysis.DataFlowGraph.OutputNode = Class (self, Analysis.DataFlowGraph.ExternalNode)
 
-function self:ctor ()
+function self:ctor (address)
 	self.DataFlowNode = nil
 end
 

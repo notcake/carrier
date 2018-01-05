@@ -1,7 +1,7 @@
 local self = {}
 Analysis.DataFlowGraph.BinaryOperatorNode = Class (self, Analysis.DataFlowGraph.Node)
 
-function self:ctor (leftDataFlowNode, rightDataFlowNode, operator)
+function self:ctor (address, leftDataFlowNode, rightDataFlowNode, operator)
 	self.LeftDataFlowNode  = leftDataFlowNode
 	self.RightDataFlowNode = rightDataFlowNode
 	self.Operator = operator
