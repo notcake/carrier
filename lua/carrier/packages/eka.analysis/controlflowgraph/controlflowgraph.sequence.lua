@@ -6,7 +6,7 @@ function self:ctor (startAddress)
 	self.Size          = 0
 	
 	self.BranchAddress                 = 0
-	self.BranchType                    = Bytecode.BranchType.None
+	self.BranchType                    = nil
 	self.BranchConditionDataFlowNode   = nil
 	self.BranchDestinationDataFlowNode = nil
 	

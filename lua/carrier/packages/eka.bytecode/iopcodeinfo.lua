@@ -37,7 +37,7 @@ function self:GetBranchType (opcode)
 end
 
 function self:IsBranch (opcode)
-	return self:GetBranchType (opcode) ~= Bytecode.BranchType.None
+	return self:GetBranchType (opcode) ~= Bytecode.BranchType.Fallthrough
 end
 
 -- :(uint8[], uint64) -> uint64 length, uint64 opcode, ...
