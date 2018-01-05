@@ -8,6 +8,10 @@ function self:Evaluate (left, right)
 	Error ("IBinaryOperator:Evaluate : Not implemented.")
 end
 
+function self:IsAssociative ()
+	Error ("IBinaryOperator:IsAssociative : Not implemented.")
+end
+
 function self:IsCommutative ()
 	Error ("IBinaryOperator:IsCommutative : Not implemented.")
 end
