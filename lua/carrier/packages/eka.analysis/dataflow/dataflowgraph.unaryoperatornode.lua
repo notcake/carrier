@@ -23,7 +23,6 @@ end
 function self:ToString ()
 	local innerExpression = self.InnerDataFlowNode:ToString ()
 	if self.InnerDataFlowNode:GetOperator () and
-	   self.InnerDataFlowNode:GetOperator () ~= self.Operator and
 	   self.InnerDataFlowNode:GetOperator ():GetPrecedence () >= self.Operator:GetPrecedence () and
 	   self.InnerDataFlowNode:GetOperator ():GetAssociativity () ~= self.Operator:GetAssociativity () then
 		innerExpression = "(" .. innerExpression .. ")"

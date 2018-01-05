@@ -7,3 +7,7 @@ end
 function self:Evaluate (left, right)
 	Error ("IBinaryOperator:Evaluate : Not implemented.")
 end
+
+function self:IsCommutative ()
+	Error ("IBinaryOperator:IsCommutative : Not implemented.")
+end

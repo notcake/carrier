@@ -218,8 +218,8 @@ function self:Render (w, h, render2d)
 	
 	render.SetStencilEnable (false)
 	
-	-- render2d:FillRectangle (Color.WithAlpha (self:GetEnvironment ():GetSkin ():GetBackgroundColor (), 0xC0), 0, 0, w, h)
-	render2d:FillRectangle (self:GetEnvironment ():GetSkin ():GetBackgroundColor (), 0, 0, w, h)
+	render2d:FillRectangle (Color.WithAlpha (self:GetEnvironment ():GetSkin ():GetBackgroundColor (), 0xE0), 0, 0, w, h)
+	-- render2d:FillRectangle (self:GetEnvironment ():GetSkin ():GetBackgroundColor (), 0, 0, w, h)
 	
 	if self:GetHandle ():HasHierarchicalFocus () then
 		render2d:DrawRectangle (Color.CornflowerBlue, 0, 0, w, h)

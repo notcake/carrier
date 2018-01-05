@@ -1,10 +1,11 @@
 local self = {}
 AST.BinaryOperator = Class (self, AST.IBinaryOperator)
 
-function self:ctor (symbol, precedence, f)
-	self.Function   = f
-	self.Symbol     = symbol
-	self.Precedence = precedence
+function self:ctor (symbol, precedence, f, commutative)
+	self.Function    = f
+	self.Symbol      = symbol
+	self.Precedence  = precedence
+	self.Commutative = commutative or false
 end
 
 -- IOperator
@@ -23,4 +24,8 @@ end
 -- IBinaryOperator
 function self:Evaluate (left, right)
 	return self.Function (left, right)
+end
+
+function self:IsCommutative ()
+	return self.Commutative
 end
