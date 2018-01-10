@@ -488,6 +488,9 @@ function self:Divide (b, quotient, remainder)
 	
 	if negative then
 		quotient = quotient:Negate (quotient)
+		if not remainder:IsZero () then
+			remainder = b:Subtract (remainder)
+		end
 	end
 	
 	return quotient, remainder

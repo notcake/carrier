@@ -1910,6 +1910,10 @@ end
 function self:IsZero ()
 	return #self == 1 and self [1] == Sign_Positive
 end
+
+function self:IsOne ()
+	return #self == 2 and self [1] == 1 and self [2] == Sign_Positive
+end
 function self:Compare (b)
 	local a = self
 	if a [#a] ~= b [#b] then return a [#a] == Sign_Negative and -1 or 1 end
@@ -2118,6 +2122,9 @@ function self:Divide (b, quotient, remainder)
 	
 	if negative then
 		quotient = quotient:Negate (quotient)
+		if not remainder:IsZero () then
+			remainder = b:Subtract (remainder)
+		end
 	end
 	
 	return quotient, remainder
@@ -2142,6 +2149,9 @@ function self:DivideInt24 (b, out)
 	
 	if negative then
 		out = out:Negate (out)
+		if remainder ~= 0 then
+			remainder = b - remainder
+		end
 	end
 	
 	return out, remainder
@@ -2273,6 +2283,16 @@ function self:Not (out)
 	
 	return out
 end
+function self:GCD (b)
+	local a = self
+	
+	while not b:IsZero () do
+		a, b = b, a:Mod (b)
+	end
+	
+	return a
+end
+
 function self:ModularInverse (m)
 	local a, b = m, self
 	local previousR, r = a:Clone (), b:Clone ()
@@ -5326,7 +5346,7 @@ return Task.Run (
 			
 			if downloadRequired then
 				Carrier.Packages:Update ():Await ()
-				Carrier.Packages:DownloadRecursive ("Carrier"):Await ()
+				Carrier.Packages:Download ("Carrier"):Await ()
 			end
 			
 			carrier = WithJIT (Carrier.Packages.Load, Carrier.Packages, "Carrier")
@@ -5334,7 +5354,7 @@ return Task.Run (
 			-- Update and retry on failure
 			if not carrier and not downloadRequired then
 				Carrier.Packages:Update ():Await ()
-				Carrier.Packages:DownloadRecursive ("Carrier"):Await ()
+				Carrier.Packages:Download ("Carrier"):Await ()
 				carrier = WithJIT (Carrier.Packages.Load, Carrier.Packages, "Carrier")
 			end
 		end
