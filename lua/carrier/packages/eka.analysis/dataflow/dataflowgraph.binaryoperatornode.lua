@@ -9,9 +9,9 @@ function self:ctor (address, operator, leftDataFlowNode, rightDataFlowNode)
 end
 
 -- Node
-function self:EvaluateConstant (arguments, cachingEvaluator)
-	local left  = cachingEvaluator (self.LeftDataFlowNode,  arguments)
-	local right = cachingEvaluator (self.RightDataFlowNode, arguments)
+function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
+	local left  = cachingEvaluator (self.LeftDataFlowNode,  inputSubstitutionMap)
+	local right = cachingEvaluator (self.RightDataFlowNode, inputSubstitutionMap)
 	if left and right then
 		return self.Operator:Evaluate (left, right)
 	end

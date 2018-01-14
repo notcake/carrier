@@ -2,6 +2,17 @@
 
 Set = {}
 
+function Set.Copy (set)
+	local out = {}
+	for k, _ in pairs (set) do
+		out [k] = set [k]
+	end
+	return out
+end
+Set.copy  = Set.Copy
+Set.clone = Set.copy
+Set.Clone = Set.Copy
+
 function Set.Filter (set, f)
 	local out = {}
 	for item, _ in pairs (set) do

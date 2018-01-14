@@ -5,7 +5,7 @@ function self:ctor (address)
 	self.Address = address
 end
 
-function self:EvaluateConstant (arguments, cachingEvaluator)
+function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
 	return nil
 end
 

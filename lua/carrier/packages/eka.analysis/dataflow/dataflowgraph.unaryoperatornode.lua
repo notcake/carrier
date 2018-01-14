@@ -8,8 +8,8 @@ function self:ctor (address, operator, innerDataFlowNode)
 end
 
 -- Node
-function self:EvaluateConstant (arguments, cachingEvaluator)
-	local inner = cachingEvaluator (self.InnerDataFlowNode, arguments)
+function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
+	local inner = cachingEvaluator (self.InnerDataFlowNode, inputSubstitutionMap)
 	if inner then
 		return self.Operator:Evaluate (inner)
 	end

@@ -6,8 +6,8 @@ function self:ctor (address)
 end
 
 -- Node
-function self:EvaluateConstant (arguments, cachingEvaluator)
-	return cachingEvaluator (self.DataFlowNode, arguments)
+function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
+	return cachingEvaluator (self.DataFlowNode, inputSubstitutionMap)
 end
 
 function self:GetDependencies (out)

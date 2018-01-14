@@ -14,7 +14,9 @@ function Array.Copy (array)
 	end
 	return out
 end
-Array.copy = Array.Copy
+Array.copy  = Array.Copy
+Array.clone = Array.copy
+Array.Clone = Array.Copy
 
 function Array.Filter (array, f)
 	local out = {}
@@ -57,8 +59,8 @@ Array.map = Array.Map
 
 function Array.Reverse (array, out)
 	local out = out or {}
-	for i = 1, #array * 0.5 + 0.5 do
-		out [i], out [#array - i + 1] = out [#array - i + 1], out [i]
+	for i = 1, math.ceil (#array * 0.5) do
+		out [i], out [#array - i + 1] = array [#array - i + 1], array [i]
 	end
 	
 	return out

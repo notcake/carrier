@@ -5,8 +5,8 @@ function self:ctor (address)
 end
 
 -- Node
-function self:EvaluateConstant (arguments, cachingEvaluator)
-	return arguments [self] and cachingEvaluator (arguments [self], arguments) or nil
+function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
+	return inputSubstitutionMap [self] and cachingEvaluator (inputSubstitutionMap [self], inputSubstitutionMap) or nil
 end
 
 function self:GetDependencies (out)
