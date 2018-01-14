@@ -55,6 +55,15 @@ function Array.Map (array, f)
 end
 Array.map = Array.Map
 
+function Array.Reverse (array, out)
+	local out = out or {}
+	for i = 1, #array * 0.5 + 0.5 do
+		out [i], out [#array - i + 1] = out [#array - i + 1], out [i]
+	end
+	
+	return out
+end
+
 function Array.ToSet (array, set)
 	local set = set or {}
 	for i = 1, #array do
