@@ -11,8 +11,7 @@ nativeToCursor ["sizenesw"]  = Glass.Cursor.SizeNorthEastSouthWest
 nativeToCursor ["sizewe"]    = Glass.Cursor.SizeEastWest
 nativeToCursor ["sizens"]    = Glass.Cursor.SizeNorthSouth
 
-local Table = require ("Pylon.Table")
-local cursorToNative = Table.Invert (nativeToCursor)
+local cursorToNative = Map.Invert (nativeToCursor)
 cursorToNative [Glass.Cursor.Default] = "arrow"
 
 function Cursor.FromNative (cursor)

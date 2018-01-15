@@ -49,10 +49,10 @@ function self:AddLink (link)
 	self.SequenceSuccessors   [sourceSequence]      = self.SequenceSuccessors   [sourceSequence]      or {}
 	
 	if self.SequenceLocks [destinationSequence] then
-		self.SequencePredecessors [destinationSequence] = Table.ShallowCopy (self.SequencePredecessors [destinationSequence])
+		self.SequencePredecessors [destinationSequence] = Map.Copy (self.SequencePredecessors [destinationSequence])
 	end
 	if self.SequenceLocks [sourceSequence] then
-		self.SequenceSuccessors [sourceSequence] = Table.ShallowCopy (self.SequenceSuccessors [sourceSequence])
+		self.SequenceSuccessors [sourceSequence] = Map.Copy (self.SequenceSuccessors [sourceSequence])
 	end
 	
 	self.SequencePredecessors [destinationSequence] [sourceSequence]      = link

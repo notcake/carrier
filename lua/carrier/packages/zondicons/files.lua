@@ -45,8 +45,6 @@ Zondicons.Files =
 	["bluetooth"] = [[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.41 0l6 6-4 4 4 4-6 6H9v-7.59l-3.3 3.3-1.4-1.42L8.58 10l-4.3-4.3L5.7 4.3 9 7.58V0h.41zM11 4.41V7.6L12.59 6 11 4.41zM12.59 14L11 12.41v3.18L12.59 14z"/></svg>]],
 	["bolt"] = [[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 8V0L8.11 5.87 3 12h4v8L17 8h-4z"/></svg>]],
 	["book-reference"] = [[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M6 4H5a1 1 0 1 1 0-2h11V1a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V5a1 1 0 0 0-1-1h-7v8l-2-2-2 2V4z"/></svg>]],
-	["bookmark copy 2"] = [[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="18 12 18 13 8 13 8 18 2 12 8 6 8 11 16 11 16 2 18 2"/></svg>]],
-	["bookmark copy 3"] = [[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="3.5 13 12 13 12 18 18 12 12 6 12 11 4 11 4 2 2 2 2 13"/></svg>]],
 	["bookmark-outline-add"] = [[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2 2c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v18l-8-4-8 4V2zm2 0v15l6-3 6 3V2H4zm5 5V5h2v2h2v2h-2v2H9V9H7V7h2z"/></svg>]],
 	["bookmark-outline"] = [[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2 2c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v18l-8-4-8 4V2zm2 0v15l6-3 6 3V2H4z"/></svg>]],
 	["bookmark"] = [[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2 2c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v18l-8-4-8 4V2z"/></svg>]],

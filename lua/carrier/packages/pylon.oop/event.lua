@@ -27,7 +27,7 @@ function self:AddListener (nameOrCallback, callback1, callback2)
 	
 	-- Copy on contention
 	if self.Locked > 0 then
-		self.Listeners = Table.ShallowCopy (self.Listeners)
+		self.Listeners = Map.Copy (self.Listeners)
 	end
 	
 	-- Member function autoclosures

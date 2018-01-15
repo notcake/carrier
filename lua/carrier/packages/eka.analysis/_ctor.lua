@@ -8,7 +8,7 @@ require ("Pylon.OOP").Initialize (_ENV)
 require ("Pylon.Enumeration").Initialize (_ENV)
 
 Array = require ("Pylon.Array")
-Table = require ("Pylon.Table")
+Map   = require ("Pylon.Map")
 
 AST      = require ("Eka.AST")
 Bytecode = require ("Eka.Bytecode")

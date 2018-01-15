@@ -3,12 +3,11 @@
 GarrysMod = {}
 
 require ("Pylon.OOP").Initialize (_ENV)
-
-Clock = require ("Pylon.MonotonicClock")
-
 require ("Pylon.Enumeration").Initialize (_ENV)
 
+Clock = require ("Pylon.MonotonicClock")
 Color = require ("Pylon.Color")
+Map   = require ("Pylon.Map")
 
 Glass = require ("Glass")
 Glass.Initialize (GarrysMod)
