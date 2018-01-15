@@ -8,30 +8,14 @@ function self:ctor (graphicsContext, render2d)
 	self.Rows = {}
 	self.GlyphAllocations = setmetatable ({}, { __mode = "k" })
 	
-	self.Atlas  = self.GraphicsContext:CreateRenderTarget (1024, 1024, false)
-	self.Buffer = self.GraphicsContext:CreateRenderTarget (1024, 1024, false)
-	self.AtlasMaterial = CreateMaterial ("Photon.GarrysMod.GlyphRenderer.Atlas", "UnlitGeneric",
-		{
-			["$translucent"] = 1,
-			["$vertexcolor"] = 1,
-			["$vertexalpha"] = 1
-		}
-	)
-	self.BufferMaterial = CreateMaterial ("Photon.GarrysMod.GlyphRenderer.Buffer", "UnlitGeneric",
-		{
-			["$additive"] = 1,
-			["$translucent"] = 1,
-			["$vertexcolor"] = 1,
-			["$vertexalpha"] = 1
-		}
-	)
-	self.AtlasMaterial :SetTexture ("$basetexture", self.Atlas :GetHandle ())
-	self.BufferMaterial:SetTexture ("$basetexture", self.Buffer:GetHandle ())
+	-- Atlas is created on-demand, since rendering
+	-- might not work at this time
+	self.Atlas  = nil
+	self.Buffer = nil
 end
 
 function self:dtor ()
-	self.Atlas :dtor ()
-	self.Buffer:dtor ()
+	self:DestroyAtlas ()
 end
 
 -- GlyphRenderer
@@ -99,6 +83,8 @@ end
 function self:CacheGlyph (glyph)
 	if self.GlyphAllocations [glyph] then return self.GlyphAllocations [glyph] end
 	
+	if not self.Atlas then self:CreateAtlas () end
+	
 	local allocation = self:AllocateGlyphRectangle (glyph)
 	if not allocation then return nil end
 	
@@ -155,7 +141,42 @@ end
 
 function self:Clear ()
 	self.Rows = {}
-	self.GlyphAllocations = {}
+	self.GlyphAllocations = setmetatable ({}, { __mode = "k" })
+end
+
+function self:CreateAtlas ()
+	self.Atlas  = self.GraphicsContext:CreateRenderTarget (1024, 1024, false)
+	self.Buffer = self.GraphicsContext:CreateRenderTarget (1024, 1024, false)
+	self.AtlasMaterial = CreateMaterial ("Photon.GarrysMod.GlyphRenderer.Atlas", "UnlitGeneric",
+		{
+			["$translucent"] = 1,
+			["$vertexcolor"] = 1,
+			["$vertexalpha"] = 1
+		}
+	)
+	self.BufferMaterial = CreateMaterial ("Photon.GarrysMod.GlyphRenderer.Buffer", "UnlitGeneric",
+		{
+			["$additive"] = 1,
+			["$translucent"] = 1,
+			["$vertexcolor"] = 1,
+			["$vertexalpha"] = 1
+		}
+	)
+	self.AtlasMaterial :SetTexture ("$basetexture", self.Atlas :GetHandle ())
+	self.BufferMaterial:SetTexture ("$basetexture", self.Buffer:GetHandle ())
+end
+
+function self:DestroyAtlas ()
+	self:Clear ()
+	
+	if self.Atlas then
+		self.Atlas:dtor ()
+		self.Atlas = nil
+	end
+	if self.Buffer then
+		self.Buffer:dtor ()
+		self.Buffer = nil
+	end
 end
 
 function self:FindRow (width, height)
