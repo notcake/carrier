@@ -129,14 +129,16 @@ function Carrier.UnloadPackage (packageName)
 	end
 end
 
-if #arg == 0 then
-	print ("Usage: luajit " .. arg [0] .. " <package name>")
-else
-	local packageName = arg [1]
-	arg [0] = "luajit " .. arg [0] .. " " .. arg [1]
-	table.remove (arg, 1)
-	local f = Carrier.Require (packageName)
-	if type (f) == "function" then
-		f (unpack (arg, 0, #arg))
+if arg then
+	if #arg == 0 then
+		print ("Usage: luajit " .. arg [0] .. " <package name>")
+	else
+		local packageName = arg [1]
+		arg [0] = "luajit " .. arg [0] .. " " .. arg [1]
+		table.remove (arg, 1)
+		local f = Carrier.Require (packageName)
+		if type (f) == "function" then
+			f (unpack (arg, 0, #arg))
+		end
 	end
 end
