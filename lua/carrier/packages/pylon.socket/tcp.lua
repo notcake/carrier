@@ -50,7 +50,10 @@ function self:ReceiveLine (terminator)
 		local data = self:Receive (1)
 		if not data then break end
 		line = line .. data
-		if string.sub (line, -#terminator) == terminator then break end
+		if string.sub (line, -#terminator) == terminator then
+			line = string.sub (line, 1, -#terminator - 1)
+			break
+		end
 	end
 	
 	return line
