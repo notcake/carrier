@@ -7,11 +7,11 @@ function Socket.Tcp.Connect (host, port)
 	local socket = Socket.Tcp ()
 	
 	local addr = ffi.new ("sockaddr_in")
-	addr.sin_family      = WinSock.AF_INET
-	addr.sin_addr.s_addr = WinSock.getaddrinfo (host)
-	addr.sin_port        = WinSock.htons (port)
+	addr.sin_family      = Socket.AF_INET
+	addr.sin_addr.s_addr = Socket.getaddrinfo (host)
+	addr.sin_port        = Socket.htons (port)
 	
-	local ret = WinSock.connect (socket.Socket, ffi.cast ("const struct sockaddr *", addr), ffi.sizeof (addr))
+	local ret = Socket.connect (socket.Socket, ffi.cast ("const struct sockaddr *", addr), ffi.sizeof (addr))
 	if ret == 0 then
 		return socket
 	else
@@ -21,26 +21,23 @@ function Socket.Tcp.Connect (host, port)
 end
 
 function self:ctor ()
-	self.Socket = WinSock.socket (WinSock.AF_INET, WinSock.SOCK_STREAM, WinSock.IPPROTO_TCP)
+	self.Socket = Socket.socket (Socket.AF_INET, Socket.SOCK_STREAM, Socket.IPPROTO_TCP)
 	assert (self.Socket >= 0)
 end
 
 function self:Close ()
 	if not self.Socket then return end
 	
-	assert (WinSock.closesocket (self.Socket) == 0)
+	assert (Socket.close (self.Socket) == 0)
 	self.Socket = nil
 end
 
 function self:Send (data)
-	assert (WinSock.send (self.Socket, data, #data, 0) == #data)
+	assert (Socket.write (self.Socket, data) == #data)
 end
 
 function self:Receive (length)
-	local length = length or 4096
-	local buffer = ffi.new ("char[?]", length)
-	local length = WinSock.recv (self.Socket, buffer, length, 0)
-	return ffi.string (buffer, length)
+	return Socket.read (self.Socket, length)
 end
 
 function self:ReceiveLine (terminator)
