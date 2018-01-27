@@ -24,6 +24,7 @@ include ("rings/modularring.lua")
 Cat.Rings.UInt8  = Cat.Rings.ModularRing (256)
 Cat.Rings.UInt16 = Cat.Rings.ModularRing (65536)
 Cat.Rings.UInt32 = Cat.Rings.ModularRing (4294967296)
+include ("rings/bigmodularring.lua")
 include ("rings/uint64.lua")
 
 Cat.LinearAlgebra = {}

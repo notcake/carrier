@@ -7,6 +7,7 @@ function Cat.GenericMatrix.Identity (ring, size)
 	for i = 0, size - 1 do
 		m [i * size + i] = one
 	end
+	return m
 end
 
 function Cat.GenericMatrix.Zero (ring, h, w)
