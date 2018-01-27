@@ -8,6 +8,9 @@ Carrier = {}
 local packages        = {}
 local orderedPackages = {} -- Package names ordered by load completion times
 
+local packagesPath = string.match (debug.getinfo (1).source, "^@(.*)/bootstrap.luajit.lua$") or "carrier"
+packagesPath = packagesPath .. "/packages/"
+
 function Carrier.Package (name)
 	local package =
 	{
@@ -42,10 +45,10 @@ function Carrier.LoadPackage (packageName)
 	
 	-- Resolve ctor
 	local fileName = string.lower (packageName)
-	local ctorPath1 = "carrier/packages/" .. fileName .. ".lua"
-	local ctorPath2 = "carrier/packages/" .. fileName .. "/_ctor.lua"
+	local ctorPath1 = packagesPath .. fileName .. ".lua"
+	local ctorPath2 = packagesPath .. fileName .. "/_ctor.lua"
 	local dtorPath1 = nil
-	local dtorPath2 = "carrier/packages/" .. fileName .. "/_dtor.lua"
+	local dtorPath2 = packagesPath .. fileName .. "/_dtor.lua"
 	local ctorPath1Exists = loadfile (ctorPath1) ~= nil
 	local ctorPath2Exists = loadfile (ctorPath2) ~= nil
 	
@@ -60,11 +63,11 @@ function Carrier.LoadPackage (packageName)
 	end
 	
 	if ctorPath1Exists then
-		includePath = "carrier/packages/"
+		includePath = packagesPath
 		ctorPath    = ctorPath1
 		dtorPath    = dtorPath1
 	elseif ctorPath2Exists then
-		includePath = "carrier/packages/" .. fileName .. "/"
+		includePath = packagesPath .. fileName .. "/"
 		ctorPath    = ctorPath2
 		dtorPath    = dtorPath2
 	end
