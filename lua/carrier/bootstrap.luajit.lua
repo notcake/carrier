@@ -88,6 +88,8 @@ function Carrier.LoadPackage (packageName)
 		return f ()
 	end
 	package.Environment.require = function (packageName)
+		if packageName == "ffi" then return require ("ffi") end
+		
 		package.Dependencies [packageName] = true
 		return Carrier.LoadPackage (packageName)
 	end
