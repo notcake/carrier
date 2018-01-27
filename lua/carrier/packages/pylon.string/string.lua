@@ -5,14 +5,18 @@ local string_gsub   = string.gsub
 local table_concat  = table.concat
 
 function String.Split (str, separator)
-	local parts = {}
+	local separator = separator or ""
 	
 	if separator == "" then
+		local parts = {}
 		for i = 1, #str do
 			parts [#parts + 1] = string.sub (str, i, i)
 		end
+		
+		return parts
 	end
 	
+	local parts = {}
 	local startPosition = 1
 	while startPosition <= #str do
 		local endPosition = string.find (str, separator, startPosition, true)
@@ -46,5 +50,6 @@ end
 local hexMap = {}
 for i = 0, 255 do hexMap [string_char (i)] = string_format ("%02x", i) end
 function String.ToHex (str)
-	return string_gsub (str, ".", hexMap)
+	local hex = string_gsub (str, ".", hexMap)
+	return hex
 end
