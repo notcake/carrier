@@ -690,13 +690,13 @@ hook.Add ("Tick", "Carrier.Preboostrap",
 					return
 				end
 				
-				local data = util.JSONToTable (data)
-				if not data then
+				local json = util.JSONToTable (data)
+				if not json then
 					Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
 					return
 				end
 				
-				local package, signature = Base64.Decode (data.package), Base64.Decode (data.signature)
+				local package, signature = Base64.Decode (json.package), Base64.Decode (json.signature)
 				file.CreateDir ("garrysmod.io/carrier")
 				file.Write ("garrysmod.io/carrier/bootstrap.dat",           package)
 				file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", signature)

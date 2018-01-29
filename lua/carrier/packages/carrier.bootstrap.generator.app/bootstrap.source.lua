@@ -44,7 +44,8 @@ local Crypto = {}
 -- INCLUDE Pylon.MonotonicClock.GarrysMod
 local Clock = GarrysMod
 -- INCLUDE Pylon.Base64
--- INCLUDE Pylon.String
+local String = {}
+-- INCLUDE carrier/packages/pylon.string/string.lua
 -- INCLUDE Pylon.UInt24
 -- INCLUDE Pylon.BigInteger
 

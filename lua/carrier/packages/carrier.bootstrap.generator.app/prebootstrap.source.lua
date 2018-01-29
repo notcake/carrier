@@ -18,11 +18,11 @@ local Base64 = {}
 -- SED Pylon.Base64 /local math_floor.-\nend.-\nend*/
 
 local String = {}
--- SED Pylon.String /local string_char[^\r\n]*/
--- SED Pylon.String /local string_gmatch[^\r\n]*/
--- SED Pylon.String /local table_concat[^\r\n]*/
--- SED Pylon.String /local hexMap.-\nend/
--- SED Pylon.String /function String%.FromHex.-\nend/
+-- SED carrier/packages/pylon.string/string.lua /local string_char[^\r\n]*/
+-- SED carrier/packages/pylon.string/string.lua /local string_gmatch[^\r\n]*/
+-- SED carrier/packages/pylon.string/string.lua /local table_concat[^\r\n]*/
+-- SED carrier/packages/pylon.string/string.lua /local hexMap.-\nend/
+-- SED carrier/packages/pylon.string/string.lua /function String%.FromHex.-\nend/
 
 local UInt24 = {}
 -- SED Pylon.UInt24 /local bit_band[^\r\n]*/
@@ -189,13 +189,13 @@ hook.Add ("Tick", "Carrier.Preboostrap",
 					return
 				end
 				
-				local data = util.JSONToTable (data)
-				if not data then
+				local json = util.JSONToTable (data)
+				if not json then
 					Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
 					return
 				end
 				
-				local package, signature = Base64.Decode (data.package), Base64.Decode (data.signature)
+				local package, signature = Base64.Decode (json.package), Base64.Decode (json.signature)
 				file.CreateDir ("garrysmod.io/carrier")
 				file.Write ("garrysmod.io/carrier/bootstrap.dat",           package)
 				file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", signature)

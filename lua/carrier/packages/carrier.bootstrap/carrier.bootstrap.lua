@@ -1605,14 +1605,40 @@ function Base64.Encode (s)
 end
 
 local Base64 = Base64
-
 local String = {}
-
 local string_char   = string.char
 local string_format = string.format
 local string_gmatch = string.gmatch
 local string_gsub   = string.gsub
 local table_concat  = table.concat
+
+function String.Split (str, separator)
+	local separator = separator or ""
+	
+	if separator == "" then
+		local parts = {}
+		for i = 1, #str do
+			parts [#parts + 1] = string.sub (str, i, i)
+		end
+		
+		return parts
+	end
+	
+	local parts = {}
+	local startPosition = 1
+	while startPosition <= #str do
+		local endPosition = string.find (str, separator, startPosition, true)
+		if not endPosition then break end
+		
+		parts [#parts + 1] = string.sub (str, startPosition, endPosition - 1)
+		
+		startPosition = endPosition + #separator
+	end
+	
+	parts [#parts + 1] = string.sub (str, startPosition)
+	
+	return parts
+end
 
 local hexMap = {}
 for i = 0, 255 do
@@ -1632,10 +1658,10 @@ end
 local hexMap = {}
 for i = 0, 255 do hexMap [string_char (i)] = string_format ("%02x", i) end
 function String.ToHex (str)
-	return string_gsub (str, ".", hexMap)
+	local hex = string_gsub (str, ".", hexMap)
+	return hex
 end
 
-local String = String
 
 
 local UInt24 = {}
