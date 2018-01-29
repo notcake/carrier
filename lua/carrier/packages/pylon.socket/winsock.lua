@@ -20,18 +20,18 @@ local ffi = require ("ffi")
 	THE SOFTWARE.
 ]]
 
-WinSock = {}
-WinSock.AF_INET  =  2
-WinSock.AF_INET6 = 23
+Socket = {}
+Socket.AF_INET  =  2
+Socket.AF_INET6 = 23
 
-WinSock.SOCK_STREAM    = 1
-WinSock.SOCK_DGRAM     = 2
-WinSock.SOCK_RAW       = 3
-WinSock.SOCK_RDM       = 4
-WinSock.SOCK_SEQPACKET = 5
+Socket.SOCK_STREAM    = 1
+Socket.SOCK_DGRAM     = 2
+Socket.SOCK_RAW       = 3
+Socket.SOCK_RDM       = 4
+Socket.SOCK_SEQPACKET = 5
 
-WinSock.IPPROTO_TCP =  6
-WinSock.IPPROTO_UDP = 17
+Socket.IPPROTO_TCP =  6
+Socket.IPPROTO_UDP = 17
 
 ffi.cdef ("typedef unsigned short ushort;")
 ffi.cdef ("typedef unsigned long ulong;")
@@ -53,14 +53,14 @@ ffi.cdef ([[
 ]])
 
 ffi.cdef ([[
-	typedef struct {
+	typedef struct sockaddr {
 		ushort sa_family;
 		char sa_data[14];
 	} sockaddr;
 ]])
 
 ffi.cdef ([[
-	typedef struct {
+	typedef struct in_addr {
 		union {
 			struct {
 				uchar s_b1, s_b2, s_b3, s_b4;
@@ -74,7 +74,7 @@ ffi.cdef ([[
 ]])
 
 ffi.cdef ([[
-	typedef struct {
+	typedef struct sockaddr_in {
 		short sin_family;
 		ushort sin_port;
 		in_addr sin_addr;
@@ -111,20 +111,20 @@ ffi.cdef ("int recv(SOCKET s, char *buf, int len, int flags);")
 ffi.cdef ("int closesocket(SOCKET s);")
 
 local winsock = ffi.load ("ws2_32.dll")
-WinSock.WSAStartup      = winsock.WSAStartup
-WinSock.WSACleanup      = winsock.WSACleanup
-WinSock.WSAGetLastError = winsock.WSAGetLastError
+Socket.WSAStartup      = winsock.WSAStartup
+Socket.WSACleanup      = winsock.WSACleanup
+Socket.WSAGetLastError = winsock.WSAGetLastError
 
-WinSock.htons           = winsock.htons
+Socket.htons           = winsock.htons
 
-function WinSock.getaddrinfo (host)
-	local pResult = ffi.new ("ADDRINFOA *[1]")
-	local ret = winsock.getaddrinfo (host, nil, nil, pResult)
+function Socket.getaddrinfo (host)
+	local result = ffi.new ("const ADDRINFOA *[1]")
+	local ret = winsock.getaddrinfo (host, nil, nil, result)
 	if ret < 0 then return nil end
 	
-	local result = pResult[0]
+	local result = result[0]
 	while result ~= ffi.NULL do
-		if result.ai_family == WinSock.AF_INET then
+		if result.ai_family == Socket.AF_INET then
 			return ffi.cast ("sockaddr_in *", result.ai_addr).sin_addr.s_addr;
 		end
 		result = result.ai_next
@@ -133,13 +133,27 @@ function WinSock.getaddrinfo (host)
 	return nil
 end
 
-WinSock.inet_addr       = winsock.inet_addr
+Socket.inet_addr       = winsock.inet_addr
 
-WinSock.socket          = winsock.socket
-WinSock.connect         = winsock.connect
-WinSock.send            = winsock.send
-WinSock.recv            = winsock.recv
-WinSock.closesocket     = winsock.closesocket
+Socket.socket          = winsock.socket
+Socket.connect         = winsock.connect
+Socket.close           = winsock.closesocket
+
+function Socket.read (socket, buffer, length)
+	if type (buffer) == "number" or buffer == nil then
+		local length = length or 4096
+		local buffer = ffi.new ("char[?]", length)
+		local length = winsock.recv (socket, buffer, length, 0)
+		return ffi.string (buffer, length)
+	else
+		return winsock.recv (socket, buffer, length, 0)
+	end
+end
+
+function Socket.write (socket, buffer, length)
+	local length = length or #buffer
+	return Socket.send (socket, buffer, length, 0)
+end
 
 local wsaData = ffi.new ("WSADATA")
-assert (WinSock.WSAStartup (0x202, wsaData) == 0)
+assert (Socket.WSAStartup (0x202, wsaData) == 0)
