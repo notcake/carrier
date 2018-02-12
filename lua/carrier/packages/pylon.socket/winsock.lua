@@ -118,7 +118,7 @@ Socket.WSAGetLastError = winsock.WSAGetLastError
 Socket.htons           = winsock.htons
 
 function Socket.getaddrinfo (host)
-	local result = ffi.new ("const ADDRINFOA *[1]")
+	local result = ffi.new ("ADDRINFOA *[1]")
 	local ret = winsock.getaddrinfo (host, nil, nil, result)
 	if ret < 0 then return nil end
 	
@@ -141,7 +141,7 @@ Socket.close           = winsock.closesocket
 
 function Socket.read (socket, buffer, length)
 	if type (buffer) == "number" or buffer == nil then
-		local length = length or 4096
+		local length = buffer or 4096
 		local buffer = ffi.new ("char[?]", length)
 		local length = winsock.recv (socket, buffer, length, 0)
 		return ffi.string (buffer, length)

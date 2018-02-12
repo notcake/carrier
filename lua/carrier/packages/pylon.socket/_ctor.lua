@@ -6,7 +6,7 @@ Error = require ("Pylon.Error")
 OOP   = require ("Pylon.OOP")
 OOP.Initialize (_ENV)
 
-if jit.os == "Windows" then
+if jit.os == "Windows" or jit.os == "POSIX" then
 	include ("winsock.lua")
 elseif jit.os == "Linux" then
 	include ("socket.lua")
