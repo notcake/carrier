@@ -152,7 +152,7 @@ end
 
 function Socket.write (socket, buffer, length)
 	local length = length or #buffer
-	return Socket.send (socket, buffer, length, 0)
+	return winsock.send (socket, buffer, length, 0)
 end
 
 local wsaData = ffi.new ("WSADATA")
