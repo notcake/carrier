@@ -5401,8 +5401,11 @@ return Task.Run (
 		
 		_G.Carrier = _G.Carrier or {}
 		_G.Carrier.Uninitialize = function () carrier.Packages:Uninitialize () end
-		_G.Carrier.Require = function (packageName) return carrier.Packages:Load (packageName) end
-		_G.Carrier.require = _G.Carrier.Require
+		_G.Carrier.Require   = function (packageName) return carrier.Packages:Load     (packageName) end
+		_G.Carrier.Unrequire = function (packageName) return carrier.Packages:Unload   (packageName) end
+		_G.Carrier.Download  = function (packageName) return carrier.Packages:Download (packageName) end
+		_G.Carrier.require   = _G.Carrier.Require
+		_G.Carrier.unrequire = _G.Carrier.Unrequire
 		
 		return true
 	end

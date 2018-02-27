@@ -186,8 +186,6 @@ function Carrier.LoadPackage (packageName)
 	
 	return package.Exports
 end
-Carrier.Require = Carrier.LoadPackage
-Carrier.require = Carrier.LoadPackage
 
 function Carrier.UnloadPackage (packageName)
 	if not packages [packageName] then return end
@@ -216,8 +214,11 @@ function Carrier.Initialize ()
 	
 	carrier.Packages:Initialize ()
 	
-	Carrier.Require = function (packageName) return carrier.Packages:Load (packageName) end
-	Carrier.require = Carrier.Require
+	Carrier.Require   = function (packageName) return carrier.Packages:Load     (packageName) end
+	Carrier.Unrequire = function (packageName) return carrier.Packages:Unload   (packageName) end
+	Carrier.Download  = function (packageName) return carrier.Packages:Download (packageName) end
+	Carrier.require   = Carrier.Require
+	Carrier.unrequire = Carrier.Unrequire
 end
 
 function Carrier.Uninitialize ()
@@ -247,5 +248,11 @@ elseif CLIENT then
 	concommand.Add ("carrier_reload",    Carrier.Reload)
 	concommand.Add ("carrier_reload_cl", Carrier.Reload)
 end
+
+Carrier.Require   = Carrier.LoadPackage
+Carrier.Unrequire = Carrier.UnloadPackage
+Carrier.Download  = function (packageName) end
+Carrier.require   = Carrier.LoadPackage
+Carrier.unrequire = Carrier.UnloadPackage
 
 Carrier.Initialize ()

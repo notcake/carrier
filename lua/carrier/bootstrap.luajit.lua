@@ -123,9 +123,6 @@ function Carrier.LoadPackage (packageName)
 	return package.Exports
 end
 
-Carrier.Require = Carrier.LoadPackage
-Carrier.require = Carrier.LoadPackage
-
 function Carrier.UnloadPackage (packageName)
 	if not packages [packageName] then return end
 	
@@ -133,6 +130,12 @@ function Carrier.UnloadPackage (packageName)
 		packages [packageName].Destructor ()
 	end
 end
+
+Carrier.Require   = Carrier.LoadPackage
+Carrier.Unrequire = Carrier.UnloadPackage
+Carrier.Download  = function (packageName) end
+Carrier.require   = Carrier.LoadPackage
+Carrier.unrequire = Carrier.UnloadPackage
 
 if arg then
 	if #arg == 0 then
