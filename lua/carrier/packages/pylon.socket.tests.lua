@@ -1,3 +1,5 @@
+-- PACKAGE Pylon.Socket.Tests
+
 local Socket = require ("Pylon.Socket")
 
 return function ()
