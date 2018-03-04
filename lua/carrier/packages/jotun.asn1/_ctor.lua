@@ -1,6 +1,6 @@
--- PACKAGE Jotun.Der
+-- PACKAGE Jotun.Asn1
 
-Der = {}
+Asn1 = {}
 
 Error = require ("Pylon.Error")
 
@@ -88,6 +88,10 @@ typeDeserializers ["\x03"] = function (streamReader, length)
 	return streamReader:Bytes (length - 1)
 end
 
+typeDeserializers ["\x04"] = function (streamReader, length)
+	return streamReader:Bytes (length)
+end
+
 typeDeserializers ["\x05"] = function (streamReader, length)
 	streamReader:SeekRelative (length)
 	return nil
@@ -127,10 +131,10 @@ typeDeserializers ["\x30"] = function (streamReader, length)
 	return sequence
 end
 
-function Der.Deserialize (input)
+function Asn1.Deserialize (input)
 	local inputStream = StringInputStream (input)
 	
 	return DeserializeObject (inputStream)
 end
 
-return Der
+return Asn1
