@@ -225,9 +225,9 @@ function self:ctor ()
 end
 
 function self:GetBitCount ()
-	local leadingBitCount = 1 + math_floor (math_log (self [#self - 1]) / math_log (2))
+	local leadingBitCount = 1 + math_floor (math_log (self [#self - 1] or 0) / math_log (2))
 	leadingBitCount = math_max (0, leadingBitCount)
-	local bitCount = (#self - 2) * UInt24_BitCount
+	local bitCount = math_max (0, #self - 2) * UInt24_BitCount
 	return bitCount + leadingBitCount
 end
 
@@ -332,8 +332,10 @@ function self:Add (b, out)
 	end
 	
 	-- Process sign extended part
-	for i = #a + 1, #b do out [i], cf = UInt24_AddWithCarry (a [#a], b [i], cf) end
-	for i = #b + 1, #a do out [i], cf = UInt24_AddWithCarry (a [i], b [#b], cf) end
+	local sign = a [#a]
+	for i = #a + 1, #b do out [i], cf = UInt24_AddWithCarry (sign, b [i], cf) end
+	local sign = b [#b]
+	for i = #b + 1, #a do out [i], cf = UInt24_AddWithCarry (a [i], sign, cf) end
 	
 	-- Clear
 	out:Truncate (math_max (#a, #b))
@@ -360,8 +362,10 @@ function self:Subtract (b, out)
 	end
 	
 	-- Process sign extended part
-	for i = #a + 1, #b do out [i], cf = UInt24_SubtractWithBorrow (a [#a], b [i], cf) end
-	for i = #b + 1, #a do out [i], cf = UInt24_SubtractWithBorrow (a [i], b [#b], cf) end
+	local sign = a [#a]
+	for i = #a + 1, #b do out [i], cf = UInt24_SubtractWithBorrow (sign, b [i], cf) end
+	local sign = b [#b]
+	for i = #b + 1, #a do out [i], cf = UInt24_SubtractWithBorrow (a [i], sign, cf) end
 	
 	-- Clear
 	out:Truncate (math_max (#a, #b))
@@ -726,6 +730,50 @@ function self:Not (out)
 	return out
 end
 
+function self:ShiftLeft (n, out)
+	local out = out or BigInteger ()
+	
+	local elementCount = math_floor (n / UInt24_BitCount)
+	local k1 = bit_lshift (1, n % UInt24_BitCount)
+	local k2 = 1 / bit_lshift (1, UInt24_BitCount - n % UInt24_BitCount)
+	local mod = UInt24_Maximum + 1
+	
+	local n = #self
+	local sign = self [n]
+	out:Truncate (n + elementCount + 1)
+	out [n + elementCount + 1] = (sign * k1 + math_floor (self [n] * k2)) % mod
+	for i = n + elementCount, elementCount + 2, -1 do
+		out [i] = (self [i - elementCount] * k1 + math_floor (self [i - elementCount - 1] * k2)) % mod
+	end
+	out [elementCount + 1] = self [1] * k1 % mod
+	for i = elementCount, 1, -1 do
+		out [i] = 0
+	end
+	
+	out:Normalize ()
+	
+	return out
+end
+
+function self:ShiftRight (n, out)
+	local out = out or BigInteger ()
+	
+	local elementCount = math_floor (n / UInt24_BitCount)
+	local k1 = bit_lshift (1, UInt24_BitCount - n % UInt24_BitCount)
+	local k2 = 1 / bit_lshift (1, n % UInt24_BitCount)
+	local mod = UInt24_Maximum + 1
+	
+	for i = 1, #self - elementCount - 1 do
+		out [i] = (self [i + elementCount + 1] * k1 + math_floor (self [i + elementCount] * k2)) % mod
+	end
+	out [math_max (0, #self - elementCount)] = self [#self]
+	
+	out:Truncate (math_max (1, #self - elementCount))
+	out:Normalize ()
+	
+	return out
+end
+
 -- Miscellaneous
 function self:GCD (b)
 	local a = self
@@ -786,7 +834,7 @@ function self:Root (n)
 	local temp1 = BigInteger ()
 	local temp2 = BigInteger ()
 	local lowerBound = one:Clone ()
-	local upperBound = two:Exponentiate (BigInteger.FromDouble (self:GetBitCount ()) / n + 1)
+	local upperBound = one:ShiftLeft (BigInteger.FromDouble (self:GetBitCount ()) / n + 1)
 	local mid = BigInteger ()
 	while not lowerBound:Equals (upperBound) do
 		temp1 = lowerBound:Add (upperBound, temp1)
@@ -864,24 +912,31 @@ function self:ToDecimal ()
 end
 
 function self:ToHex (digitCount)
-	if #self == 1 then return string_rep (self [#self] == UInt24_Zero and "0" or "f", digitCount or 2) end
+	if #self == 1 then
+		return string_rep (self [#self] == UInt24_Zero and "0" or "f", digitCount or 2)
+	end
 	
 	local t = {}
 	
-	-- Format
-	if digitCount then
-		digitCount = math_max (0, digitCount - 6 * (#self - 2))
+	-- Format start
+	local leadingDigitCount = digitCount and math_max (0, digitCount - 6 * (#self - 2)) or nil
+	if leadingDigitCount then
+		if leadingDigitCount > 6 then
+			t [#t + 1] = string_rep (self:IsNegative () and "f" or "0", leadingDigitCount - 6)
+			leadingDigitCount = 6
+		end
+		t [#t + 1] = string_format ("%0" .. leadingDigitCount .. "x", self [#self - 1])
 	else
-		digitCount = 2
+		-- Ensure an even number of digits
+		local s = string_format ("%x", self [#self - 1])
+		if #s % 2 == 1 then
+			t [#t + 1] = self:IsNegative () and "f" or "0"
+		end
+		
+		t [#t + 1] = s
 	end
 	
-	-- Infinite Fs for negative numbers
-	if self:IsNegative () and digitCount > 6 then
-		t [#t + 1] = string_rep ("f", digitCount - 6)
-		digitCount = 6
-	end
-	
-	t [#t + 1] = string_format ("%0" .. digitCount .. "x", self [#self - 1])
+	-- Format rest
 	for i = #self - 2, 1, -1 do
 		t [#t + 1] = string_format ("%06x", self [i])
 	end
