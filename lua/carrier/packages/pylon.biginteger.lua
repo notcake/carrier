@@ -861,7 +861,7 @@ function self:ToBlob ()
 	local t = {}
 	
 	-- Format start
-	local x = self [#self - 1]
+	local x = self [#self - 1] or self [#self]
 	local c0 = bit_rshift (x, 16)
 	local c1 = bit_band (bit_rshift (x, 8), 0xFF)
 	local c2 = bit_band (x, 0xFF)
