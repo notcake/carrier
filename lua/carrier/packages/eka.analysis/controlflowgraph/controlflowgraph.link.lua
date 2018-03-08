@@ -6,8 +6,6 @@ function self:ctor (sourceSequence, destinationSequence)
 	self.DestinationSequence = destinationSequence
 	
 	self.ConditionResult = nil
-	
-	self.ResolutionTrace = {}
 end
 
 function self:GetSourceSequence ()
@@ -24,12 +22,4 @@ end
 
 function self:SetConditionResult (conditionResult)
 	self.ConditionResult = conditionResult
-end
-
-function self:GetResolutionTrace ()
-	return self.ResolutionTrace
-end
-
-function self:SetResolutionTrace (resolutionTrace)
-	self.ResolutionTrace = Array.Copy (resolutionTrace)
 end
