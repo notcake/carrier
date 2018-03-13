@@ -9,6 +9,14 @@ function self:ctor (address, operator, leftDataFlowNode, rightDataFlowNode)
 end
 
 -- Node
+function self:GetDependencies (out)
+	local out = out or {}
+	out [#out + 1] = self.LeftDataFlowNode
+	out [#out + 1] = self.RightDataFlowNode
+	return out
+end
+
+-- Expression
 function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
 	local left  = cachingEvaluator (self.LeftDataFlowNode,  inputSubstitutionMap)
 	local right = cachingEvaluator (self.RightDataFlowNode, inputSubstitutionMap)

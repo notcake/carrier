@@ -6,14 +6,20 @@ function self:ctor (address)
 end
 
 -- Node
-function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
-	return cachingEvaluator (self.DataFlowNode, inputSubstitutionMap)
-end
-
 function self:GetDependencies (out)
 	local out = out or {}
 	out [#out + 1] = self.DataFlowNode
 	return out
+end
+
+-- Expression
+function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
+	return cachingEvaluator (self.DataFlowNode, inputSubstitutionMap)
+end
+
+-- IO
+function self:IsOutputNode ()
+	return true
 end
 
 -- OutputNode

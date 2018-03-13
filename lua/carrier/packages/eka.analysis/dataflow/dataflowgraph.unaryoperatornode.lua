@@ -8,6 +8,13 @@ function self:ctor (address, operator, innerDataFlowNode)
 end
 
 -- Node
+function self:GetDependencies (out)
+	local out = out or {}
+	out [#out + 1] = self.InnerDataFlowNode
+	return out
+end
+
+-- Expression
 function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
 	local inner = cachingEvaluator (self.InnerDataFlowNode, inputSubstitutionMap)
 	if inner then

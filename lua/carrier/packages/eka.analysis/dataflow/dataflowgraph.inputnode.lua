@@ -5,10 +5,12 @@ function self:ctor (address)
 end
 
 -- Node
+-- Expression
 function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
 	return inputSubstitutionMap [self] and cachingEvaluator (inputSubstitutionMap [self], inputSubstitutionMap) or nil
 end
 
-function self:GetDependencies (out)
-	return out or {}
+-- IO
+function self:IsInputNode ()
+	return true
 end
