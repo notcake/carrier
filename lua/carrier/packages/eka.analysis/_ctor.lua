@@ -26,4 +26,6 @@ include ("dataflow/dataflowgraph.outputnode.lua")
 include ("dataflow/dataflowgraph.binaryoperatornode.lua")
 include ("dataflow/dataflowgraph.unaryoperatornode.lua")
 
+include ("dataflow/dataflowgraph.phinode.lua")
+
 return Analysis
