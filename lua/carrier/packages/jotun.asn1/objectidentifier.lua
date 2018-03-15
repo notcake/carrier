@@ -1,6 +1,15 @@
 local self = {}
 Asn1.ObjectIdentifier = Class (self, IEnumerable)
 
+function Asn1.ObjectIdentifier.FromString (s)
+	local t = {}
+	for n in string.gmatch (s, "[0-9]+") do
+		t [#t + 1] = tonumber (n)
+	end
+	
+	return Asn1.ObjectIdentifier (t)
+end
+
 function self:ctor (a, ...)
 	if type (a) == "table" then
 		for i = 1, #a do
@@ -33,3 +42,6 @@ end
 function self:__tostring ()
 	return self:ToString ()
 end
+
+Asn1.ObjectIdentifier.rsaEncryption = Asn1.ObjectIdentifier.FromString ("1.2.840.113549.1.1.1")
+Asn1.ObjectIdentifier.sha256        = Asn1.ObjectIdentifier.FromString ("2.16.840.1.101.3.4.2.1")
