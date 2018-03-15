@@ -15,8 +15,8 @@ function self:GetDependencies (out)
 end
 
 -- Expression
-function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
-	local inner = cachingEvaluator (self.InnerDataFlowNode, inputSubstitutionMap)
+function self:EvaluateConstant (cachingEvaluator)
+	local inner = cachingEvaluator (self.InnerDataFlowNode)
 	if inner then
 		return self.Operator:Evaluate (inner)
 	end

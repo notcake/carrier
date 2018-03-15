@@ -14,7 +14,7 @@ function self:GetDependencies (out)
 end
 
 -- Expression
-function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
+function self:EvaluateConstant (cachingEvaluator)
 	return nil
 end
 

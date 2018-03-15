@@ -13,8 +13,8 @@ function self:GetDependencies (out)
 end
 
 -- Expression
-function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
-	return cachingEvaluator (self.DataFlowNode, inputSubstitutionMap)
+function self:EvaluateConstant (cachingEvaluator)
+	return cachingEvaluator (self.DataFlowNode)
 end
 
 -- IO

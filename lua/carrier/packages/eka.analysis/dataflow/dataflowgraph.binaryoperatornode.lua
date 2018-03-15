@@ -17,9 +17,9 @@ function self:GetDependencies (out)
 end
 
 -- Expression
-function self:EvaluateConstant (inputSubstitutionMap, cachingEvaluator)
-	local left  = cachingEvaluator (self.LeftDataFlowNode,  inputSubstitutionMap)
-	local right = cachingEvaluator (self.RightDataFlowNode, inputSubstitutionMap)
+function self:EvaluateConstant (cachingEvaluator)
+	local left  = cachingEvaluator (self.LeftDataFlowNode)
+	local right = cachingEvaluator (self.RightDataFlowNode)
 	if left and right then
 		return self.Operator:Evaluate (left, right)
 	end
