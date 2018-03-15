@@ -13,6 +13,19 @@ function self:GetDependencies (out)
 	return out or {}
 end
 
+function self:Clone (cachingCloner)
+	local clone = self:GetType () ()
+	for k, v in pairs (self) do
+		if Analysis.DataFlowGraph.Node:IsInstance (v) then
+			clone [k] = cachingCloner (v)
+		else
+			clone [k] = v
+		end
+	end
+	
+	return clone
+end
+
 -- Expression
 function self:EvaluateConstant (cachingEvaluator)
 	return nil
