@@ -58,3 +58,13 @@ function self:AddLink (link)
 	self.SequencePredecessors [destinationSequence] [sourceSequence]      = link
 	self.SequenceSuccessors   [sourceSequence]      [destinationSequence] = link
 end
+
+function self:RemoveLink (link)
+	local sourceSequence, destinationSequence = link:GetSourceSequence (), link:GetDestinationSequence ()
+	
+	if not self.SequencePredecessors [destinationSequence] then return end
+	if not self.SequenceSuccessors   [sourceSequence]      then return end
+	
+	self.SequencePredecessors [destinationSequence] [sourceSequence]      = nil
+	self.SequenceSuccessors   [sourceSequence]      [destinationSequence] = nil
+end
