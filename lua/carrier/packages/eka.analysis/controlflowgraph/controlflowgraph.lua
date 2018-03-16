@@ -1,7 +1,9 @@
 local self = {}
 Analysis.ControlFlowGraph = Class (self)
 
-function self:ctor ()
+function self:ctor (link)
+	self.Link = link or Analysis.ControlFlowGraph.Link
+	
 	self.SequencesByStartAddress = {}
 	
 	self.SequenceLocks        = {}
@@ -43,27 +45,41 @@ function self:UnlockSequenceLinks (sequence)
 	end
 end
 
-function self:AddLink (link)
-	local sourceSequence, destinationSequence = link:GetSourceSequence (), link:GetDestinationSequence ()
+function self:AddLink (sourceSequence, destinationSequence)
 	self.SequencePredecessors [destinationSequence] = self.SequencePredecessors [destinationSequence] or {}
 	self.SequenceSuccessors   [sourceSequence]      = self.SequenceSuccessors   [sourceSequence]      or {}
 	
-	if self.SequenceLocks [destinationSequence] then
-		self.SequencePredecessors [destinationSequence] = Map.Copy (self.SequencePredecessors [destinationSequence])
+	if self.SequenceSuccessors [sourceSequence] [destinationSequence] then
+		return self.SequenceSuccessors [sourceSequence] [destinationSequence]
+	else
+		local link = self.Link (sourceSequence, destinationSequence)
+		
+		if self.SequenceLocks [destinationSequence] then
+			self.SequencePredecessors [destinationSequence] = Map.Copy (self.SequencePredecessors [destinationSequence])
+		end
+		if self.SequenceLocks [sourceSequence] then
+			self.SequenceSuccessors [sourceSequence] = Map.Copy (self.SequenceSuccessors [sourceSequence])
+		end
+
+		self.SequencePredecessors [destinationSequence] [sourceSequence]      = link
+		self.SequenceSuccessors   [sourceSequence]      [destinationSequence] = link
+		
+		return link
 	end
-	if self.SequenceLocks [sourceSequence] then
-		self.SequenceSuccessors [sourceSequence] = Map.Copy (self.SequenceSuccessors [sourceSequence])
-	end
-	
-	self.SequencePredecessors [destinationSequence] [sourceSequence]      = link
-	self.SequenceSuccessors   [sourceSequence]      [destinationSequence] = link
 end
 
-function self:RemoveLink (link)
-	local sourceSequence, destinationSequence = link:GetSourceSequence (), link:GetDestinationSequence ()
+function self:GetLink (sourceSequence, destinationSequence)
+	if not self.SequenceSuccessors [sourceSequence] then return nil end
+	return self.SequenceSuccessors [sourceSequence] [destinationSequence]
+end
+
+function self:RemoveLink (sourceSequence, destinationSequence)
+	if not destinationSequence then
+		local link = sourceSequence
+		sourceSequence, destinationSequence = link:GetSourceSequence (), link:GetDestinationSequence ()
+	end
 	
-	if not self.SequencePredecessors [destinationSequence] then return end
-	if not self.SequenceSuccessors   [sourceSequence]      then return end
+	if not self.SequenceSuccessors [sourceSequence] then return end
 	
 	self.SequencePredecessors [destinationSequence] [sourceSequence]      = nil
 	self.SequenceSuccessors   [sourceSequence]      [destinationSequence] = nil
