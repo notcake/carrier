@@ -1,5 +1,5 @@
 local self = {}
-Analysis.ControlFlowGraph.Link = Class (self)
+Analysis.ControlFlowGraph.Link = Class (self, Analysis.ControlFlowGraph.ILink)
 
 function self:ctor (sourceSequence, destinationSequence)
 	self.SourceSequence      = sourceSequence
@@ -9,15 +9,7 @@ function self:ctor (sourceSequence, destinationSequence)
 	self.Jump        = false
 end
 
--- Identity
-function self:GetSourceSequence ()
-	return self.SourceSequence
-end
-
-function self:GetDestinationSequence ()
-	return self.DestinationSequence
-end
-
+-- Link
 function self:IncludesFallthrough ()
 	return self.Fallthrough
 end
