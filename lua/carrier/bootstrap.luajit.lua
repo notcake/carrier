@@ -9,7 +9,11 @@ local packages        = {}
 local orderedPackages = {} -- Package names ordered by load completion times
 
 local packagesPath = string.match (debug.getinfo (1).source, "^@(.*)/bootstrap.luajit.lua$") or "carrier"
-packagesPath = packagesPath .. "/packages/"
+local packagesPaths =
+{
+	packagesPath .. "/packages/",
+	packagesPath .. "/../../../eka/lua/carrier/packages/"
+}
 
 function Carrier.Package (name)
 	local package =
@@ -44,32 +48,39 @@ function Carrier.LoadPackage (packageName)
 	local t0 = os.clock ()
 	
 	-- Resolve ctor
-	local fileName = string.lower (packageName)
-	local ctorPath1 = packagesPath .. fileName .. ".lua"
-	local ctorPath2 = packagesPath .. fileName .. "/_ctor.lua"
-	local dtorPath1 = nil
-	local dtorPath2 = packagesPath .. fileName .. "/_dtor.lua"
-	local ctorPath1Exists = loadfile (ctorPath1) ~= nil
-	local ctorPath2Exists = loadfile (ctorPath2) ~= nil
-	
 	local includePath = nil
 	local ctorPath    = nil
 	local dtorPath    = nil
-	if ctorPath1Exists and ctorPath2Exists then
-		Carrier.Warning ("Package " .. packageName .. " has both a loadable file and a directory.")
-	elseif not ctorPath1Exists and not ctorPath2Exists then
-		Carrier.Warning ("Package " .. packageName .. " has no loadable file or directory.")
-		return nil
+	
+	local fileName = string.lower (packageName)
+	for i = 1, #packagesPaths do
+		local packagesPath = packagesPaths [i]
+		
+		local ctorPath1 = packagesPath .. fileName .. ".lua"
+		local ctorPath2 = packagesPath .. fileName .. "/_ctor.lua"
+		local dtorPath1 = nil
+		local dtorPath2 = packagesPath .. fileName .. "/_dtor.lua"
+		local ctorPath1Exists = loadfile (ctorPath1) ~= nil
+		local ctorPath2Exists = loadfile (ctorPath2) ~= nil
+		
+		if ctorPath1Exists and ctorPath2Exists then
+			Carrier.Warning ("Package " .. packageName .. " has both a loadable file and a directory.")
+		end
+		
+		if ctorPath1Exists then
+			includePath = packagesPath
+			ctorPath    = ctorPath1
+			dtorPath    = dtorPath1
+		elseif ctorPath2Exists then
+			includePath = packagesPath .. fileName .. "/"
+			ctorPath    = ctorPath2
+			dtorPath    = dtorPath2
+		end
 	end
 	
-	if ctorPath1Exists then
-		includePath = packagesPath
-		ctorPath    = ctorPath1
-		dtorPath    = dtorPath1
-	elseif ctorPath2Exists then
-		includePath = packagesPath .. fileName .. "/"
-		ctorPath    = ctorPath2
-		dtorPath    = dtorPath2
+	if not ctorPath then
+		Carrier.Warning ("Package " .. packageName .. " has no loadable file or directory.")
+		return nil
 	end
 	
 	-- Register package
