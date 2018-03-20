@@ -25,9 +25,7 @@ function self:AddInputNode (node)
 	self.InputNodeSet [node] = true
 	self.InputNodeCount = self.InputNodeCount + 1
 	
-	if self.NodeSet [node] then return end
-	self.NodeSet [node] = true
-	self.NodeCount = self.NodeCount + 1
+	self:AddNode (node)
 end
 
 function self:AddOutputNode (node)
@@ -41,9 +39,7 @@ function self:AddOutputNode (node)
 		self.OutputNodesSorted = false
 	end
 	
-	if self.NodeSet [node] then return end
-	self.NodeSet [node] = true
-	self.NodeCount = self.NodeCount + 1
+	self:AddNode (node)
 end
 
 function self:GetNodeCount ()
