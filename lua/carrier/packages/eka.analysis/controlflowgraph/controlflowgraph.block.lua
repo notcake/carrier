@@ -1,5 +1,5 @@
 local self = {}
-Analysis.ControlFlowGraph.Sequence = Class (self)
+Analysis.ControlFlowGraph.Block = Class (self)
 
 function self:ctor (startAddress)
 	self.StartAddress  = startAddress

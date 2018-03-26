@@ -4,83 +4,83 @@ Analysis.ControlFlowGraph = Class (self)
 function self:ctor (link)
 	self.Link = link or Analysis.ControlFlowGraph.Link
 	
-	self.SequencesByStartAddress = {}
+	self.BlocksByStartAddress = {}
 	
-	self.SequenceLocks        = {}
-	self.SequencePredecessors = {}
-	self.SequenceSuccessors   = {}
+	self.BlockLocks        = {}
+	self.BlockPredecessors = {}
+	self.BlockSuccessors   = {}
 end
 
-function self:AddSequence (sequence)
-	self.SequencesByStartAddress [sequence:GetStartAddress ()] = sequence
+function self:AddBlock (block)
+	self.BlocksByStartAddress [block:GetStartAddress ()] = block
 end
 
-function self:GetSequence (startAddress)
-	return self.SequencesByStartAddress [startAddress]
+function self:GetBlock (startAddress)
+	return self.BlocksByStartAddress [startAddress]
 end
 
-function self:GetSequencePredecessorEnumerator (sequence)
-	if not self.SequencePredecessors [sequence] then return NullEnumerator () end
-	return KeyValueEnumerator (self.SequencePredecessors [sequence])
+function self:GetBlockPredecessorEnumerator (block)
+	if not self.BlockPredecessors [block] then return NullEnumerator () end
+	return KeyValueEnumerator (self.BlockPredecessors [block])
 end
 
-function self:GetSequenceSuccessorEnumerator (sequence)
-	if not self.SequenceSuccessors [sequence] then return NullEnumerator () end
-	return KeyValueEnumerator (self.SequenceSuccessors [sequence])
+function self:GetBlockSuccessorEnumerator (block)
+	if not self.BlockSuccessors [block] then return NullEnumerator () end
+	return KeyValueEnumerator (self.BlockSuccessors [block])
 end
 
-function self:IsSequenceStart (startAddress)
-	return self:GetSequence (startAddress) ~= nil
+function self:IsBlockStart (startAddress)
+	return self:GetBlock (startAddress) ~= nil
 end
 
-function self:LockSequenceLinks (sequence)
-	self.SequenceLocks [sequence] = self.SequenceLocks [sequence] or 0
-	self.SequenceLocks [sequence] = self.SequenceLocks [sequence] + 1
+function self:LockBlockLinks (block)
+	self.BlockLocks [block] = self.BlockLocks [block] or 0
+	self.BlockLocks [block] = self.BlockLocks [block] + 1
 end
 
-function self:UnlockSequenceLinks (sequence)
-	self.SequenceLocks [sequence] = self.SequenceLocks [sequence] - 1
-	if not self.SequenceLocks [sequence] then
-		self.SequenceLocks [sequence] = nil
+function self:UnlockBlockLinks (block)
+	self.BlockLocks [block] = self.BlockLocks [block] - 1
+	if not self.BlockLocks [block] then
+		self.BlockLocks [block] = nil
 	end
 end
 
-function self:AddLink (sourceSequence, destinationSequence)
-	self.SequencePredecessors [destinationSequence] = self.SequencePredecessors [destinationSequence] or {}
-	self.SequenceSuccessors   [sourceSequence]      = self.SequenceSuccessors   [sourceSequence]      or {}
+function self:AddLink (sourceBlock, destinationBlock)
+	self.BlockPredecessors [destinationBlock] = self.BlockPredecessors [destinationBlock] or {}
+	self.BlockSuccessors   [sourceBlock]      = self.BlockSuccessors   [sourceBlock]      or {}
 	
-	if self.SequenceSuccessors [sourceSequence] [destinationSequence] then
-		return self.SequenceSuccessors [sourceSequence] [destinationSequence]
+	if self.BlockSuccessors [sourceBlock] [destinationBlock] then
+		return self.BlockSuccessors [sourceBlock] [destinationBlock]
 	else
-		local link = self.Link (sourceSequence, destinationSequence)
+		local link = self.Link (sourceBlock, destinationBlock)
 		
-		if self.SequenceLocks [destinationSequence] then
-			self.SequencePredecessors [destinationSequence] = Map.Copy (self.SequencePredecessors [destinationSequence])
+		if self.BlockLocks [destinationBlock] then
+			self.BlockPredecessors [destinationBlock] = Map.Copy (self.BlockPredecessors [destinationBlock])
 		end
-		if self.SequenceLocks [sourceSequence] then
-			self.SequenceSuccessors [sourceSequence] = Map.Copy (self.SequenceSuccessors [sourceSequence])
+		if self.BlockLocks [sourceBlock] then
+			self.BlockSuccessors [sourceBlock] = Map.Copy (self.BlockSuccessors [sourceBlock])
 		end
 
-		self.SequencePredecessors [destinationSequence] [sourceSequence]      = link
-		self.SequenceSuccessors   [sourceSequence]      [destinationSequence] = link
+		self.BlockPredecessors [destinationBlock] [sourceBlock]      = link
+		self.BlockSuccessors   [sourceBlock]      [destinationBlock] = link
 		
 		return link
 	end
 end
 
-function self:GetLink (sourceSequence, destinationSequence)
-	if not self.SequenceSuccessors [sourceSequence] then return nil end
-	return self.SequenceSuccessors [sourceSequence] [destinationSequence]
+function self:GetLink (sourceBlock, destinationBlock)
+	if not self.BlockSuccessors [sourceBlock] then return nil end
+	return self.BlockSuccessors [sourceBlock] [destinationBlock]
 end
 
-function self:RemoveLink (sourceSequence, destinationSequence)
-	if not destinationSequence then
-		local link = sourceSequence
-		sourceSequence, destinationSequence = link:GetSourceSequence (), link:GetDestinationSequence ()
+function self:RemoveLink (sourceBlock, destinationBlock)
+	if not destinationBlock then
+		local link = sourceBlock
+		sourceBlock, destinationBlock = link:GetSourceBlock (), link:GetDestinationBlock ()
 	end
 	
-	if not self.SequenceSuccessors [sourceSequence] then return end
+	if not self.BlockSuccessors [sourceBlock] then return end
 	
-	self.SequencePredecessors [destinationSequence] [sourceSequence]      = nil
-	self.SequenceSuccessors   [sourceSequence]      [destinationSequence] = nil
+	self.BlockPredecessors [destinationBlock] [sourceBlock]      = nil
+	self.BlockSuccessors   [sourceBlock]      [destinationBlock] = nil
 end

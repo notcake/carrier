@@ -1,15 +1,15 @@
 local self = {}
 Analysis.ControlFlowGraph.ILink = Interface (self)
 
-function self:ctor (sourceSequence, destinationSequence)
-	self.SourceSequence      = sourceSequence
-	self.DestinationSequence = destinationSequence
+function self:ctor (sourceBlock, destinationBlock)
+	self.SourceBlock      = sourceBlock
+	self.DestinationBlock = destinationBlock
 end
 
-function self:GetSourceSequence ()
-	return self.SourceSequence
+function self:GetSourceBlock ()
+	return self.SourceBlock
 end
 
-function self:GetDestinationSequence ()
-	return self.DestinationSequence
+function self:GetDestinationBlock ()
+	return self.DestinationBlock
 end

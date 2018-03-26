@@ -14,7 +14,7 @@ AST      = require ("Eka.AST")
 Bytecode = require ("Eka.Bytecode")
 
 include ("controlflowgraph/controlflowgraph.lua")
-include ("controlflowgraph/controlflowgraph.sequence.lua")
+include ("controlflowgraph/controlflowgraph.block.lua")
 include ("controlflowgraph/controlflowgraph.ilink.lua")
 include ("controlflowgraph/controlflowgraph.link.lua")
 

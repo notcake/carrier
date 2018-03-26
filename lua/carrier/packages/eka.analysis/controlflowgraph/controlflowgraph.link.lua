@@ -1,10 +1,7 @@
 local self = {}
 Analysis.ControlFlowGraph.Link = Class (self, Analysis.ControlFlowGraph.ILink)
 
-function self:ctor (sourceSequence, destinationSequence)
-	self.SourceSequence      = sourceSequence
-	self.DestinationSequence = destinationSequence
-	
+function self:ctor (sourceBlock, destinationBlock)
 	self.Fallthrough = false
 	self.Jump        = false
 end
