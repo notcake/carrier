@@ -3,6 +3,7 @@ Analysis.DataFlowGraph = Class (self)
 
 function self:ctor ()
 	self.NodeSet           = {}
+	self.NodeAddresses     = {}
 	
 	self.InputNodeSet      = {}
 	self.OutputNodeSet     = {}
@@ -13,33 +14,40 @@ function self:ctor ()
 	self.NodeCount         = 0
 end
 
-function self:AddNode (node)
-	if self.NodeSet [node] then return end
-	self.NodeSet [node] = true
-	self.NodeCount = self.NodeCount + 1
-end
-
-function self:AddInputNode (node)
-	if self.InputNodeSet [node] then return end
-	
-	self.InputNodeSet [node] = true
-	self.InputNodeCount = self.InputNodeCount + 1
-	
-	self:AddNode (node)
-end
-
-function self:AddOutputNode (node)
-	if self.OutputNodeSet [node] then return end
-	
-	self.OutputNodeSet [node] = true
-	self.OutputNodes [#self.OutputNodes + 1] = node
-	if self.OutputNodesSorted and
-	   #self.OutputNodes > 1 and
-	   self.OutputNodes [#self.OutputNodes]:GetAddress () < self.OutputNodes [#self.OutputNodes - 1]:GetAddress () then
-		self.OutputNodesSorted = false
+function self:AddNode (node, address)
+	if not self.NodeSet [node] then
+		self.NodeSet [node] = true
+		self.NodeCount = self.NodeCount + 1
 	end
 	
-	self:AddNode (node)
+	self.NodeAddresses [node] = address
+end
+
+function self:AddInputNode (node, address)
+	if not self.InputNodeSet [node] then
+		self.InputNodeSet [node] = true
+		self.InputNodeCount = self.InputNodeCount + 1
+	end
+	
+	self:AddNode (node, address)
+end
+
+function self:AddOutputNode (node, address)
+	if not self.OutputNodeSet [node] then
+		self.OutputNodeSet [node] = true
+		self.OutputNodes [#self.OutputNodes + 1] = node
+		if self.OutputNodesSorted and
+		   #self.OutputNodes > 1 and
+		   address < self.NodeAddresses [self.OutputNodes [#self.OutputNodes - 1]] then
+			self.OutputNodesSorted = false
+		end
+	end
+	
+	self:AddNode (node, address)
+end
+
+function self:GetNodeAddress (node)
+	return self.NodeAddresses [node]
 end
 
 function self:GetNodeCount ()
@@ -70,7 +78,7 @@ function self:GetOutputNodeEnumerator ()
 	if not self.OutputNodesSorted then
 		table.sort (self.OutputNodes,
 			function (a, b)
-				return a:GetAddress () < b:GetAddress ()
+				return self.NodeAddresses [a] < self.NodeAddresses [b]
 			end
 		)
 	end

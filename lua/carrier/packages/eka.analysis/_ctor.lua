@@ -19,14 +19,5 @@ include ("controlflowgraph/controlflowgraph.ilink.lua")
 include ("controlflowgraph/controlflowgraph.link.lua")
 
 include ("dataflow/dataflowgraph.lua")
-include ("dataflow/dataflowgraph.node.lua")
-include ("dataflow/dataflowgraph.externalnode.lua")
-include ("dataflow/dataflowgraph.inputnode.lua")
-include ("dataflow/dataflowgraph.outputnode.lua")
-
-include ("dataflow/dataflowgraph.binaryoperatornode.lua")
-include ("dataflow/dataflowgraph.unaryoperatornode.lua")
-
-include ("dataflow/dataflowgraph.phinode.lua")
 
 return Analysis
