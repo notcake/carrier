@@ -2,7 +2,7 @@ local self = {}
 AST.PhiExpression = Class (self)
 
 function AST.PhiExpression.Union (expression1, value1, expression2, value2)
-	local phi = Analysis.DataFlowGraph.PhiNode ()
+	local phi = AST.PhiExpression ()
 	phi:Add (node1, value1)
 	phi:Add (node2, value2)
 	return phi
