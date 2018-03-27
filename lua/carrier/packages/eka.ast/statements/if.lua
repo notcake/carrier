@@ -7,6 +7,14 @@ function self:ctor (condition, body, elseStatement)
 	self.Else      = elseStatement
 end
 
+-- Node
+function self:GetChildEnumerator ()
+	coroutine.yield (self.Condition)
+	coroutine.yield (self.Body)
+	coroutine.yield (self.Else)
+end
+self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
+
 -- Statement
 function self:IsControlFlowStructure ()
 	return true

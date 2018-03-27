@@ -9,6 +9,7 @@ require ("Pylon.Enumeration").Initialize (_ENV)
 
 include ("node.lua")
 include ("comment.lua")
+include ("identifier.lua")
 include ("label.lua")
 
 include ("statements/statement.lua")
@@ -21,6 +22,7 @@ include ("statements/goto.lua")
 include ("statements/variabledeclaration.lua")
 
 include ("expressions/expression.lua")
+include ("expressions/phiexpression.lua")
 include ("expressions/binaryexpression.lua")
 include ("expressions/unaryexpression.lua")
 include ("expressions/literal.lua")

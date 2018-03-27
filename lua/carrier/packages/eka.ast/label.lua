@@ -1,15 +1,20 @@
 local self = {}
 AST.Label = Class (self, AST.Node)
 
-function self:ctor (name)
-	self.Name = name
+function self:ctor (identifier)
+	self.Identifier = identifier
+end
+
+-- Node
+function self:GetChildEnumerator ()
+	return SingleValueEnumerator (self.Identifier)
 end
 
 -- Label
-function self:GetName ()
-	return self.Name
+function self:GetIdentifier ()
+	return self.Identifier
 end
 
-function self:SetName (name)
-	self.Name = name
+function self:SetIdentifier (identifier)
+	self.Identifier = identifier
 end
