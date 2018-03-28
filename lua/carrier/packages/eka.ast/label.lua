@@ -1,5 +1,5 @@
 local self = {}
-AST.Label = Class (self, AST.Node)
+AST.Label = Class (self, AST.Statement)
 
 function self:ctor (identifier)
 	self.Identifier = identifier
@@ -8,6 +8,10 @@ end
 -- Node
 function self:GetChildEnumerator ()
 	return SingleValueEnumerator (self.Identifier)
+end
+
+function self:ToString ()
+	return self.Identifier:ToString () .. ":"
 end
 
 -- Label

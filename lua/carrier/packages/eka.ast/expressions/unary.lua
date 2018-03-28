@@ -1,5 +1,5 @@
 local self = {}
-AST.UnaryExpression = Class (self, AST.Expression)
+AST.Expressions.Unary = Class (self, AST.Expression)
 
 function self:ctor (operator, innerExpression)
 	self.Operator        = operator
@@ -37,7 +37,7 @@ function self:IsOperatorExpression ()
 	return true
 end
 
--- UnaryExpression
+-- Unary
 function self:GetOperator ()
 	return self.Operator
 end

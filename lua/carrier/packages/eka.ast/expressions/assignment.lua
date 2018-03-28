@@ -1,7 +1,7 @@
 local self = {}
-AST.AssignmentExpression = Class (self, AST.Expression)
+AST.Expressions.Assignment = Class (self, AST.Expression)
 
-function self:ctor (operator, accessExpression, expression)
+function self:ctor (accessExpression, expression)
 	self.AccessExpression = accessExpression
 	self.Expression       = expression
 end
@@ -13,7 +13,11 @@ function self:GetChildEnumerator ()
 end
 self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
 
--- AssignmentExpression
+function self:ToString ()
+	return self.AccessExpression:ToString () .. " = " .. self.Expression:ToString ()
+end
+
+-- Assignment
 function self:GetAccessExpression ()
 	return self.AccessExpression
 end

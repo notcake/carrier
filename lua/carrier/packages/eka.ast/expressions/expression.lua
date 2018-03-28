@@ -1,5 +1,5 @@
 local self = {}
-AST.Expression = Class (self, AST.Statement)
+AST.Expression = Class (self, AST.Node)
 
 function self:ctor ()
 end
@@ -13,6 +13,6 @@ function self:IsOperatorExpression ()
 	return false
 end
 
-function self:IsPhiExpression ()
+function self:IsPhi ()
 	return false
 end

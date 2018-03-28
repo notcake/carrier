@@ -8,10 +8,9 @@ require ("Pylon.OOP").Initialize (_ENV)
 require ("Pylon.Enumeration").Initialize (_ENV)
 
 include ("node.lua")
-include ("comment.lua")
 include ("identifier.lua")
-include ("label.lua")
 
+AST.Statements = {}
 include ("statements/statement.lua")
 include ("statements/block.lua")
 include ("statements/if.lua")
@@ -20,12 +19,19 @@ include ("statements/continue.lua")
 include ("statements/goto.lua")
 
 include ("statements/variabledeclaration.lua")
+include ("statements/expression.lua")
 
+include ("comment.lua")
+include ("label.lua")
+
+AST.Expressions = {}
 include ("expressions/expression.lua")
-include ("expressions/phiexpression.lua")
-include ("expressions/binaryexpression.lua")
-include ("expressions/unaryexpression.lua")
 include ("expressions/literal.lua")
+include ("expressions/binary.lua")
+include ("expressions/unary.lua")
+include ("expressions/assignment.lua")
+include ("expressions/variableaccess.lua")
+include ("expressions/phi.lua")
 
 include ("operators/associativity.lua")
 include ("operators/precedence.lua")

@@ -1,5 +1,5 @@
 local self = {}
-AST.BinaryExpression = Class (self, AST.Expression)
+AST.Expressions.Binary = Class (self, AST.Expression)
 
 function self:ctor (operator, leftExpression, rightExpression)
 	self.Operator        = operator
@@ -45,7 +45,7 @@ function self:IsOperatorExpression ()
 	return true
 end
 
--- BinaryExpression
+-- Binary
 function self:GetOperator ()
 	return self.Operator
 end

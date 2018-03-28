@@ -1,5 +1,5 @@
 local self = {}
-AST.VariableDeclaration = Class (self, AST.Statement)
+AST.Statements.VariableDeclaration = Class (self, AST.Statement)
 
 function self:ctor (identifier, expression)
 	self.Identifier = identifier
@@ -12,6 +12,10 @@ function self:GetChildEnumerator ()
 	coroutine.yield (self.Expression)
 end
 self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
+
+function self:ToString ()
+	return "var " .. self.Identifier:ToString () .. " = " .. self.Expression:ToString () .. ";"
+end
 
 -- VariableDeclaration
 function self:GetIdentifier ()

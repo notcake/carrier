@@ -5,10 +5,10 @@ function self:ctor (startAddress)
 	self.StartAddress  = startAddress
 	self.Size          = 0
 	
-	self.BranchAddress                 = 0
-	self.BranchType                    = nil
-	self.BranchConditionDataFlowNode   = nil
-	self.BranchDestinationDataFlowNode = nil
+	self.BranchAddress               = 0
+	self.BranchType                  = nil
+	self.BranchConditionExpression   = nil
+	self.BranchDestinationExpression = nil
 	
 	self.DataFlowGraph = Analysis.DataFlowGraph ()
 end
@@ -44,12 +44,12 @@ function self:GetBranchType ()
 	return self.BranchType
 end
 
-function self:GetBranchConditionDataFlowNode ()
-	return self.BranchConditionDataFlowNode
+function self:GetBranchConditionExpression ()
+	return self.BranchConditionExpression
 end
 
-function self:GetBranchDestinationDataFlowNode ()
-	return self.BranchDestinationDataFlowNode
+function self:GetBranchDestinationExpression ()
+	return self.BranchDestinationExpression
 end
 
 function self:SetBranchAddress (branchAddress)
@@ -60,10 +60,10 @@ function self:SetBranchType (branchType)
 	self.BranchType = branchType
 end
 
-function self:SetBranchConditionDataFlowNode (branchConditionDataFlowNode)
-	self.BranchConditionDataFlowNode = branchConditionDataFlowNode
+function self:SetBranchConditionExpression (branchConditionExpression)
+	self.BranchConditionExpression = branchConditionExpression
 end
 
-function self:SetBranchDestinationDataFlowNode (branchDestinationDataFlowNode)
-	self.BranchDestinationDataFlowNode = branchDestinationDataFlowNode
+function self:SetBranchDestinationExpression (branchDestinationExpression)
+	self.BranchDestinationExpression = branchDestinationExpression
 end

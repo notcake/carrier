@@ -1,8 +1,13 @@
 local self = {}
-AST.Comment = Class (self, AST.Node)
+AST.Comment = Class (self, AST.Statement)
 
 function self:ctor (text)
 	self.Text = text
+end
+
+-- Node
+function self:ToString ()
+	return "// " .. self.Text
 end
 
 -- Comment

@@ -15,6 +15,8 @@ function self:ctor ()
 end
 
 function self:AddNode (node, address)
+	assert (address)
+	
 	if not self.NodeSet [node] then
 		self.NodeSet [node] = true
 		self.NodeCount = self.NodeCount + 1

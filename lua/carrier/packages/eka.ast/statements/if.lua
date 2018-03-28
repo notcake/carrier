@@ -1,5 +1,5 @@
 local self = {}
-AST.If = Class (self, AST.Statement)
+AST.Statements.If = Class (self, AST.Statement)
 
 function self:ctor (condition, body, elseStatement)
 	self.Condition = condition
@@ -14,6 +14,23 @@ function self:GetChildEnumerator ()
 	coroutine.yield (self.Else)
 end
 self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
+
+function self:ToString ()
+	local s = "if (" .. self.Condition:ToString () .. ") "
+	local body = self.Body:ToString ()
+	s = s .. body
+	
+	if self.Else then
+		local elseBody = self.Else:ToString ()
+		if string.find (body, "\n") then
+			s = s .. " else " .. elseBody
+		else
+			s = s .. "\nelse " .. elseBody
+		end
+	end
+	
+	return s
+end
 
 -- Statement
 function self:IsControlFlowStructure ()

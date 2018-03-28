@@ -17,3 +17,12 @@ end
 function self:GetChildEnumerator ()
 	return NullEnumerator ()
 end
+
+function self:PreVisit (visitor)
+	visitor (self)
+	
+	for childNode in self:GetChildEnumerator () do
+		childNode:Visit (visitor)
+	end
+end
+self.Visit = self.PreVisit

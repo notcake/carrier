@@ -1,5 +1,5 @@
 local self = {}
-AST.Literal = Class (self, AST.Expression)
+AST.Expressions.Literal = Class (self, AST.Expression)
 
 function self:ctor ()
 end

@@ -1,7 +1,12 @@
 local self = {}
-AST.Break = Class (self, AST.Statement)
+AST.Statements.Break = Class (self, AST.Statement)
 
 function self:ctor ()
+end
+
+-- Node
+function self:ToString ()
+	return "break;"
 end
 
 -- Statement

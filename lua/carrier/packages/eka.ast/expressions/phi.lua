@@ -1,15 +1,15 @@
 local self = {}
-AST.PhiExpression = Class (self)
+AST.Expressions.Phi = Class (self)
 
-function AST.PhiExpression.Union (expression1, value1, expression2, value2)
-	local phi = AST.PhiExpression ()
+function AST.Expressions.Phi.Union (expression1, value1, expression2, value2)
+	local phi = AST.Expressions.Phi ()
 	phi:Add (node1, value1)
 	phi:Add (node2, value2)
 	return phi
 end
 
-function AST.PhiExpression.Optional (expression, value)
-	local phi = AST.PhiExpression ()
+function AST.Expressions.Phi.Optional (expression, value)
+	local phi = AST.Expressions.Phi ()
 	phi:Add (nil, nil)
 	phi:Add (expression, value)
 	return phi
@@ -37,11 +37,11 @@ function self:ToString ()
 end
 
 -- Expression
-function self:IsPhiExpression ()
+function self:IsPhi ()
 	return true
 end
 
--- PhiExpression
+-- Phi
 function self:IsOptional ()
 	return self.Optional
 end
@@ -49,7 +49,7 @@ end
 -- Internal
 function self:Add (expression, value)
 	if expression then
-		if expression:IsPhiExpression () then
+		if expression:IsPhi () then
 			self.Optional = self.Optional or expression:IsOptional ()
 			for expression, value in expression:GetChildEnumerator () do
 				self.Expressions [expression] = value
