@@ -14,7 +14,11 @@ end
 self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
 
 function self:ToString ()
-	return "var " .. self.Identifier:ToString () .. " = " .. self.Expression:ToString () .. ";"
+	if self.Expression then
+		return "var " .. self.Identifier:ToString () .. " = " .. self.Expression:ToString () .. ";"
+	else
+		return "var " .. self.Identifier:ToString () .. ";"
+	end
 end
 
 -- VariableDeclaration
