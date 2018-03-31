@@ -18,6 +18,10 @@ function self:GetChildEnumerator ()
 	return NullEnumerator ()
 end
 
+function self:IsPhi ()
+	return false
+end
+
 function self:PreVisit (visitor)
 	visitor (self)
 	

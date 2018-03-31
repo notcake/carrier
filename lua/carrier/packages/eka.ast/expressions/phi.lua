@@ -25,6 +25,10 @@ function self:GetChildEnumerator ()
 	return KeyEnumerator (self.Expressions)
 end
 
+function self:IsPhi ()
+	return true
+end
+
 function self:ToString ()
 	local values = {}
 	if self:IsOptional () then
@@ -34,11 +38,6 @@ function self:ToString ()
 		values [#values + 1] = node:ToString ()
 	end
 	return "Φ(" .. table.concat (values) .. ")"
-end
-
--- Expression
-function self:IsPhi ()
-	return true
 end
 
 -- Phi

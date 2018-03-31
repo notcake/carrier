@@ -12,7 +12,3 @@ end
 function self:IsOperatorExpression ()
 	return false
 end
-
-function self:IsPhi ()
-	return false
-end
