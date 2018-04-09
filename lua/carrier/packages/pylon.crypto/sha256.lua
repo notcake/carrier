@@ -23,6 +23,28 @@ function self:ctor ()
 	self.Buffer = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 end
 
+function self:Clone (out)
+	local out = out or Crypto.MD5 ()
+	
+	for i = 1, 8 do
+		out.State [i] = self.State [i]
+	end
+	
+	out.Length = self.Length
+	for i = 1, 16 do
+		out.Buffer [i] = self.Buffer [i]
+	end
+	
+	return out
+end
+
+function self:Reset ()
+	self.State [1], self.State [2], self.State [3], self.State [4], self.State [5], self.State [6], self.State [7], self.State [8] = 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+	
+	self.Length = 0
+	for i = 1, 16 do self.Buffer [i] = 0 end
+end
+
 local blockSize = 16
 function self:Update (data)
 	if #data == 0 then return self end
