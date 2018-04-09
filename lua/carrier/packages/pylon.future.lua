@@ -39,6 +39,10 @@ function self:FlatMap (f)
 end
 self.MapAsync = self.FlatMap
 
+function self:IsResolved ()
+	return self.Resolved
+end
+
 function self:Resolve (...)
 	assert (not self.Resolved, "Future resolved twice!")
 	
@@ -75,12 +79,13 @@ function self:Await ()
 	return coroutine.yield ()
 end
 
-self.map      = self.Map
-self.flatMap  = self.FlatMap
-self.mapAsync = self.MapAsync
-self.resolve  = self.Resolve
-self.await    = self.Await
-self.wait     = self.Wait
+self.map        = self.Map
+self.flatMap    = self.FlatMap
+self.mapAsync   = self.MapAsync
+self.isResolved = self.IsResolved
+self.resolve    = self.Resolve
+self.await      = self.Await
+self.wait       = self.Wait
 
 function Future.Resolved (...)
 	local future = Future ()
