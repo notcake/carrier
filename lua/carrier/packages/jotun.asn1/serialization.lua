@@ -12,7 +12,7 @@ local function SerializeUInt (streamWriter, uint32)
 		streamWriter:UInt8 (0x80 + math.floor ((uint32 / k) % 0x80))
 		k = k / 0x80
 	end
-	streamWriter:UInt8 (0x80 + math.floor ((uint32 / k) % 0x80))
+	streamWriter:UInt8 (math.floor ((uint32 / k) % 0x80))
 end
 
 local function SerializeUIntN8 (streamWriter, uint32)
@@ -65,9 +65,9 @@ local function SerializeObject (streamWriter, object)
 		elseif Asn1.ObjectIdentifier:IsInstance (object) then
 			SerializeIdentifier (streamWriter, "\x06")
 			local subStreamWriter = StringOutputStream ()
-			subStreamWriter:SerializeUInt (object [1] * 40 + object [2])
+			SerializeUInt (subStreamWriter, object [1] * 40 + object [2])
 			for i = 3, #object do
-				subStreamWriter:SerializeUInt (object [i])
+				SerializeUInt (subStreamWriter, object [i])
 			end
 			SerializeLength (streamWriter, subStreamWriter:GetSize ())
 			streamWriter:Bytes (subStreamWriter:ToString ())
