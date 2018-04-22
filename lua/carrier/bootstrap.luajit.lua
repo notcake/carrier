@@ -15,6 +15,13 @@ local packagesPaths =
 	packagesPath .. "/../../../eka/lua/carrier/packages/"
 }
 
+local setfenv = setfenv or function (f, env)
+	if debug.getupvalue (f, 1) ~= "_ENV" then return end
+	
+	debug.setupvalue (f, 1, env)
+end
+local unpack = unpack or table.unpack
+
 function Carrier.Package (name)
 	local package =
 	{
@@ -25,11 +32,12 @@ function Carrier.Package (name)
 	}
 	
 	package.Environment._ENV = package.Environment
+	package.Environment.unpack = unpack
 	
 	setmetatable (
 		package.Environment,
 		{
-			__index = getfenv ()
+			__index = _ENV or getfenv ()
 		}
 	)
 	
@@ -105,7 +113,7 @@ function Carrier.LoadPackage (packageName)
 		return Carrier.LoadPackage (packageName)
 	end
 	package.Environment.require_provider = function (packageName)
-		local packageName = packageName .. ".LuaJIT"
+		local packageName = packageName .. (jit and ".LuaJIT" or ".Lua")
 		package.Dependencies [packageName] = true
 		return Carrier.LoadPackage (packageName)
 	end

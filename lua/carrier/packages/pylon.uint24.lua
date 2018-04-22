@@ -2,6 +2,8 @@
 
 local UInt24 = {}
 
+local bit = require_provider ("bit")
+
 local bit_band   = bit.band
 local math_floor = math.floor
 local math_log   = math.log

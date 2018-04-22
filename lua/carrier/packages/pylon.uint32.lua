@@ -2,6 +2,8 @@
 
 local UInt32 = {}
 
+local bit = require_provider ("bit")
+
 local bit_band   = bit.band
 local bit_lshift = bit.lshift
 local bit_rshift = bit.rshift

@@ -2,6 +2,8 @@
 
 local UInt16 = {}
 
+local bit = require_provider ("bit")
+
 local bit_band   = bit.band
 local bit_rshift = bit.rshift
 local math_floor = math.floor

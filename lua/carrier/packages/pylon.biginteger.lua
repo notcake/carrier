@@ -11,6 +11,8 @@ local BigInteger = OOP.Class (self)
 -- The last element is the sign element and always 0x0000 or 0xFFFF.
 -- There are always 1 or more elements
 
+local bit = require_provider ("bit")
+
 local tonumber      = tonumber
 
 local bit_band      = bit.band
@@ -973,7 +975,7 @@ function self:TruncateAndZero (elementCount)
 	BigInteger_Truncate (self, elementCount)
 end
 
-function self:MontgomeryReduce (m′, m, out, temp)
+function self:MontgomeryReduce (m2, m, out, temp)
 	out = out or BigInteger ()
 	
 	-- Prepare for multiplication
@@ -982,7 +984,7 @@ function self:MontgomeryReduce (m′, m, out, temp)
 	
 	-- Multiply add
 	for i = 1, #m - 1 do
-		local u = UInt24_Multiply (out [i], m′ [1])
+		local u = UInt24_Multiply (out [i], m2 [1])
 		
 		local high = 0
 		for j = 1, #m - 1 do
@@ -1028,8 +1030,8 @@ function self:MontgomeryExponentiateMod (exponent, m)
 	temp2 [#m + 1] = Sign_Positive
 	
 	-- m′ = -m^-1 mod base
-	local m′ = m:ModularInverse (temp1)
-	m′ [1] = -m′ [1] + 0x01000000
+	local m2 = m:ModularInverse (temp1)
+	m2 [1] = -m2 [1] + 0x01000000
 	
 	-- out    = R mod m
 	-- factor = aR mod m
@@ -1040,16 +1042,16 @@ function self:MontgomeryExponentiateMod (exponent, m)
 		for j = 1, UInt24_BitCount do
 			if bit_band (exponent [i], mask) ~= 0 then
 				temp1 = out:Multiply (factor, temp1)
-				out, temp2 = temp1:MontgomeryReduce (m′, m, out, temp2)
+				out, temp2 = temp1:MontgomeryReduce (m2, m, out, temp2)
 			end
 			
 			mask = mask * 2
 			temp1 = factor:Square (temp1)
-			factor, temp2 = temp1:MontgomeryReduce (m′, m, factor, temp2)
+			factor, temp2 = temp1:MontgomeryReduce (m2, m, factor, temp2)
 		end
 	end
 	
-	return out:MontgomeryReduce (m′, m, temp1, temp2)
+	return out:MontgomeryReduce (m2, m, temp1, temp2)
 end
 
 function self:__unm ()
