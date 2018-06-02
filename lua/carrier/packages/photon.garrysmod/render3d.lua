@@ -13,6 +13,10 @@ function self:GetGraphicsContext ()
 	return self.GraphicsContext
 end
 
+function self:GetRender2d ()
+	return self.GraphicsContext:GetRender2d ()
+end
+
 function self:PushRenderTarget (renderTarget)
 	self.RenderTarget = renderTarget
 	self.RenderTargetStack [#self.RenderTargetStack + 1] = renderTarget
