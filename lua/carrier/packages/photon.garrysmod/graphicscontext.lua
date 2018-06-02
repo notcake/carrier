@@ -27,7 +27,7 @@ function self:CreateFrameRenderTarget (dxOrDepthEnabled, dy, depthEnabled)
 	local dx = depthEnabled ~= nil and dxOrDepthEnabled or 0
 	local depthEnabled = depthEnabled == nil and dxOrDepthEnabled or depthEnabled
 	
-	local frameRenderTarget = FrameRenderTarget (self, self.FrameWidth, self.FrameHeight, name, dx, dy)
+	local frameRenderTarget = FrameRenderTarget (self, self.FrameWidth, self.FrameHeight, depthEnabled, dx, dy)
 	self.FrameRenderTargets [frameRenderTarget] = true
 	
 	return frameRenderTarget
@@ -75,11 +75,24 @@ function self:FreeRenderTargetHandle (name, handle)
 end
 
 function self:UpdateFrameRenderTargets ()
-	local width, height = self.FrameWidth, self.FrameHeight
+	local frameWidth, frameHeight = self.FrameWidth, self.FrameHeight
 	for frameRenderTarget, _ in pairs (self.FrameRenderTargets) do
-		self:FreeRenderTargetHandle (frameRenderTarget:GetName (), frameRenderTarget:GetHandle ())
-		local dx, dy = frameRenderTarget:GetSizeAdjustment ()
-		local name, handle = self:AllocRenderTargetHandle (width + dx, height + dy)
-		frameRenderTarget:Update (name, handle, width + dx, height + dy)
+		frameRenderTarget:Update (frameWidth, frameHeight)
 	end
+end
+
+function self:UpdateFrameSize ()
+	local frameTexture = render.GetScreenEffectTexture ()
+	local frameWidth  = frameTexture:Width ()
+	local frameHeight = frameTexture:Height ()
+	
+	if self.FrameWidth  == frameWidth and
+	   self.FrameHeight == frameHeight then
+		return
+	end
+	
+	self.FrameWidth  = frameWidth
+	self.FrameHeight = frameHeight
+	
+	self:UpdateFrameRenderTargets ()
 end

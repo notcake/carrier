@@ -48,7 +48,7 @@ function self:WithRenderTarget (renderTarget, f)
 	end
 end
 
-function self:ClearRenderTarget (renderTarget)
+function self:ClearRenderTarget ()
 	if self.RenderTarget:HasDepthStencilBuffer () then
 		render.ClearDepth ()
 	end

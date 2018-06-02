@@ -57,7 +57,7 @@ end
 
 function self:Update (frameWidth, frameHeight)
 	if self.Handle then
-		self:FreeRenderTargetHandle (self.Name, self.Handle)
+		self.GraphicsContext:FreeRenderTargetHandle (self.Name, self.Handle)
 	end
 	
 	self.Width  = frameWidth  + self.WidthAdjustment
