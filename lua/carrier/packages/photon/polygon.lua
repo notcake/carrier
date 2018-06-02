@@ -63,6 +63,11 @@ function self:GetBoundingRectangle ()
 			y0 = math.min (y0, self.Ys [i])
 			y1 = math.max (y1, self.Ys [i])
 		end
+		
+		self.MinimumX = x0
+		self.MinimumY = y0
+		self.MaximumX = x1
+		self.MaximumY = y1
 	end
 	
 	return self.MinimumX, self.MinimumY, self.MaximumX - self.MinimumX, self.MaximumY - self.MinimumY
