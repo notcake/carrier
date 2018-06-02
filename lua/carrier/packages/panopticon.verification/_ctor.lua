@@ -2,6 +2,9 @@
 
 Verification = {}
 
+bit        = require_provider ("bit")
+jit_util   = require_provider ("jit.util")
+
 loadstring = require_provider ("loadstring")
 
 Error = require ("Pylon.Error")

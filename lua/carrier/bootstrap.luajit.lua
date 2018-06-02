@@ -107,7 +107,9 @@ function Carrier.LoadPackage (packageName)
 		return f ()
 	end
 	package.Environment.require = function (packageName)
-		if packageName == "ffi" then return require ("ffi") end
+		if packageName == "ffi"      then return require ("ffi") end
+		if packageName == "jit"      then return require ("jit") end
+		if packageName == "jit.util" then return require ("jit.util") end
 		
 		package.Dependencies [packageName] = true
 		return Carrier.LoadPackage (packageName)

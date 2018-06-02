@@ -4,12 +4,13 @@
 -- loaded by another software program or used to create derivative works
 -- without the explicit permission of its author.
 
-local bit_band        = bit.band
-local jit_util_funcbc = jit.util.funcbc
-local math_floor      = math.floor
-local string_char     = string.char
-local string_gsub     = string.gsub
-local table_concat    = table.concat
+local bit_band          = bit.band
+local jit_util_funcbc   = jit_util.funcbc
+local jit_util_funcinfo = jit_util.funcinfo
+local math_floor        = math.floor
+local string_char       = string.char
+local string_gsub       = string.gsub
+local table_concat      = table.concat
 
 local normalizeStripOpcodeMap =
 {
@@ -62,7 +63,7 @@ function Verification.NormalizedBytecodeFromFunction (f, instructionCount)
 	local t = {}
 	
 	-- Skip the function header pseudo-instruction
-	instructionCount = instructionCount or jit.util.funcinfo (f).bytecodes
+	instructionCount = instructionCount or jit_util_funcinfo (f).bytecodes
 	instructionCount = instructionCount - 1
 	
 	for i = 1, instructionCount do
