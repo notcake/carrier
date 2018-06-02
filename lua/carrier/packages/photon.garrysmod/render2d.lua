@@ -56,6 +56,8 @@ function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundin
 	local boundingW = boundingW or ScrW ()
 	local boundingH = boundingH or ScrH ()
 	
+	draw.NoTexture ()
+	
 	-- Resize
 	for i = #self.EvenOddPolygonBuffers + 1, #polygons do
 		self.EvenOddPolygonBuffers [i] = PolygonBuffer ()
@@ -74,6 +76,9 @@ function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundin
 	
 	-- Note: Backface culling doesn't happen with stencils!
 	for i = 1, #polygons do
+		render.CullMode(MATERIAL_CULLMODE_CW)
+		surface.DrawPoly (self.EvenOddPolygonBuffers [i]:GetBuffer ())
+		render.CullMode(MATERIAL_CULLMODE_CCW)
 		surface.DrawPoly (self.EvenOddPolygonBuffers [i]:GetBuffer ())
 	end
 	
