@@ -193,7 +193,7 @@ function Svg.Path.FromXmlElement (element)
 			parser:AcceptCommaWhitespace ()
 			x, y = parser:AcceptCoordinatePair ()
 			
-			path:CubicBezierCurveTo (x, y, controlX2, controlY2)
+			path:ContinueCubicBezierCurveTo (x, y, controlX2, controlY2)
 		elseif c == "s" then
 			local dControlX2, dControlY2 = parser:AcceptCoordinatePair ()
 			parser:AcceptCommaWhitespace ()
@@ -201,7 +201,7 @@ function Svg.Path.FromXmlElement (element)
 			
 			local controlX2, controlY2 = x + dControlX2, y + dControlY2
 			x, y = x + dx, y + dy
-			path:CubicBezierCurveTo (x, y, controlX2, controlY2)
+			path:ContinueCubicBezierCurveTo (x, y, controlX2, controlY2)
 		elseif c == "A" then
 			local rx = parser:AcceptNumber ()
 			while rx do
@@ -265,6 +265,7 @@ end
 
 -- Element
 function self:Render (render2d, x, y)
+	local dx, dy = x, y
 	local ds = 1
 	if self.FillColor ~= nil then
 		if not self.Polygons then
@@ -401,6 +402,12 @@ function self:Render (render2d, x, y)
 			
 			for i = #self.Polygons, polygonCount + 1, -1 do
 				self.Polygons [i] = nil
+			end
+			
+			if dx ~= 0 or dy ~= 0 then
+				for i = 1, #self.Polygons do
+					self.Polygons [i]:Translate (dx, dy)
+				end
 			end
 		end
 		

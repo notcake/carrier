@@ -26,7 +26,7 @@ function Svg.Image.FromXmlDocument (document)
 			elseif type == "text" then
 				image:AddChild (Svg.Text.FromXmlElement (node))
 			else
-				assert (false)
+				assert (false, type)
 			end
 		end
 	end
