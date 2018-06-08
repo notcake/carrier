@@ -33,7 +33,7 @@ Cat.LinearAlgebra.UnpackedVector3d.Length        = Cat.LinearAlgebra.UnpackedVec
 Cat.LinearAlgebra.UnpackedVector3d.LengthSquared = Cat.LinearAlgebra.UnpackedVector3d.L2NormSquared
 
 function Cat.LinearAlgebra.UnpackedVector3d.Distance (x1, y1, z1, x2, y2, z2)
-	local dx, dy, dz = x2 - x1, y2 - y1, z2 - z2
+	local dx, dy, dz = x2 - x1, y2 - y1, z2 - z1
 	return math.sqrt (dx * dx + dy * dy + dz * dz)
 end
 

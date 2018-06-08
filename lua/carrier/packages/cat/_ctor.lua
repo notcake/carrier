@@ -35,6 +35,7 @@ include ("linearalgebra/gf2matrix.lua")
 
 include ("linearalgebra/unpackedvector2d.lua")
 include ("linearalgebra/unpackedvector3d.lua")
+include ("linearalgebra/unpackedvector4d.lua")
 include ("linearalgebra/unpackedmatrix2x2d.lua")
 include ("linearalgebra/vector2d.lua")
 include ("linearalgebra/vector3d.lua")
