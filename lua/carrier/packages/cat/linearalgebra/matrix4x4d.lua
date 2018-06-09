@@ -19,7 +19,7 @@ function Cat.LinearAlgebra.Matrix4x4d.Identity (out)
 	return out
 end
 
-function Cat.LinearAlgebra.Matrix4x4d.FromMatrix2x2d (m, out)
+function Cat.LinearAlgebra.Matrix4x4d.FromMatrix3x3d (m, out)
 	local out = out or Cat.LinearAlgebra.Matrix4x4d ()
 	out [ 0], out [ 1], out [ 2], out [ 3] = m [0], m [1], m [2], 0
 	out [ 4], out [ 5], out [ 6], out [ 7] = m [3], m [4], m [5], 0
@@ -28,11 +28,28 @@ function Cat.LinearAlgebra.Matrix4x4d.FromMatrix2x2d (m, out)
 	return out
 end
 
+function Cat.LinearAlgebra.Matrix4x4d.FromAffineMatrix3x3d (m, out)
+	local out = out or Cat.LinearAlgebra.Matrix4x4d ()
+	out [ 0], out [ 1], out [ 2], out [ 3] = m [0], m [1], 0, m [2]
+	out [ 4], out [ 5], out [ 6], out [ 7] = m [3], m [4], 0, m [5]
+	out [ 8], out [ 9], out [10], out [11] =     0,     0, 1,     0
+	out [12], out [13], out [14], out [15] = m [6], m [7], 0, m [8]
+	return out
+end
+
 function Cat.LinearAlgebra.Matrix4x4d.ToMatrix3x3d (self, out)
 	local out = out or Cat.LinearAlgebra.Matrix3x3d ()
 	out [0], out [1], out [2] = m [0], m [1], m [ 2]
 	out [3], out [4], out [5] = m [4], m [5], m [ 6]
 	out [6], out [7], out [8] = m [8], m [9], m [10]
+	return out
+end
+
+function Cat.LinearAlgebra.Matrix4x4d.ToAffineMatrix3x3d (self, out)
+	local out = out or Cat.LinearAlgebra.Matrix3x3d ()
+	out [0], out [1], out [2] = m [ 0], m [ 1], m [ 3]
+	out [3], out [4], out [5] = m [ 4], m [ 5], m [ 7]
+	out [6], out [7], out [8] = m [12], m [13], m [15]
 	return out
 end
 
