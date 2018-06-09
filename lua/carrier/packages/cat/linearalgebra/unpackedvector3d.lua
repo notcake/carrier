@@ -1,3 +1,8 @@
+local math_abs  = math.abs
+local math_max  = math.max
+local math_min  = math.min
+local math_sqrt = math.sqrt
+
 Cat.LinearAlgebra.UnpackedVector3d = Table.Callable (
 	function (x, y, z)
 		return x, y, z
@@ -17,16 +22,16 @@ function Cat.LinearAlgebra.UnpackedVector3d.ToVector2d (x, y, z)
 end
 
 -- Norms
-function Cat.LinearAlgebra.UnpackedVector3d.L0Norm (x, y, z)
-	return math.min (math.abs (x), math.abs (y), math.abs (z))
+function Cat.LinearAlgebra.UnpackedVector3d.LNegativeInfinityNorm (x, y, z)
+	return math_min (math_abs (x), math_abs (y), math_abs (z))
 end
 
 function Cat.LinearAlgebra.UnpackedVector3d.L1Norm (x, y, z)
-	return math.abs (x) + math.abs (y) + math.abs (z)
+	return math_abs (x) + math_abs (y) + math_abs (z)
 end
 
 function Cat.LinearAlgebra.UnpackedVector3d.L2Norm (x, y, z)
-	return math.sqrt (x * x + y * y + z * z)
+	return math_sqrt (x * x + y * y + z * z)
 end
 
 function Cat.LinearAlgebra.UnpackedVector3d.L2NormSquared (x, y, z)
@@ -34,7 +39,7 @@ function Cat.LinearAlgebra.UnpackedVector3d.L2NormSquared (x, y, z)
 end
 
 function Cat.LinearAlgebra.UnpackedVector3d.LInfinityNorm (x, y, z)
-	return math.max (math.abs (x), math.abs (y), math.abs (z))
+	return math_max (math_abs (x), math_abs (y), math_abs (z))
 end
 
 Cat.LinearAlgebra.UnpackedVector3d.Length        = Cat.LinearAlgebra.UnpackedVector3d.L2Norm
@@ -42,7 +47,7 @@ Cat.LinearAlgebra.UnpackedVector3d.LengthSquared = Cat.LinearAlgebra.UnpackedVec
 
 function Cat.LinearAlgebra.UnpackedVector3d.Distance (x1, y1, z1, x2, y2, z2)
 	local dx, dy, dz = x2 - x1, y2 - y1, z2 - z1
-	return math.sqrt (dx * dx + dy * dy + dz * dz)
+	return math_sqrt (dx * dx + dy * dy + dz * dz)
 end
 
 function Cat.LinearAlgebra.UnpackedVector3d.DistanceSquared (x1, y1, z1, x2, y2, z2)

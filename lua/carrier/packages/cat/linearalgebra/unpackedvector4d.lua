@@ -1,3 +1,8 @@
+local math_abs  = math.abs
+local math_max  = math.max
+local math_min  = math.min
+local math_sqrt = math.sqrt
+
 Cat.LinearAlgebra.UnpackedVector4d = Table.Callable (
 	function (x, y, z, w)
 		return x, y, z, w
@@ -17,16 +22,16 @@ function Cat.LinearAlgebra.UnpackedVector3d.ToVector3d (x, y, z, w)
 end
 
 -- Norms
-function Cat.LinearAlgebra.UnpackedVector4d.L0Norm (x, y, z, w)
-	return math.min (math.abs (x), math.abs (y), math.abs (z), math.abs (w))
+function Cat.LinearAlgebra.UnpackedVector4d.LNegativeInfinityNorm (x, y, z, w)
+	return math_min (math_abs (x), math_abs (y), math_abs (z), math_abs (w))
 end
 
 function Cat.LinearAlgebra.UnpackedVector4d.L1Norm (x, y, z, w)
-	return math.abs (x) + math.abs (y) + math.abs (z) + math.abs (w)
+	return math_abs (x) + math_abs (y) + math_abs (z) + math_abs (w)
 end
 
 function Cat.LinearAlgebra.UnpackedVector4d.L2Norm (x, y, z, w)
-	return math.sqrt (x * x + y * y + z * z + w * w)
+	return math_sqrt (x * x + y * y + z * z + w * w)
 end
 
 function Cat.LinearAlgebra.UnpackedVector4d.L2NormSquared (x, y, z, w)
@@ -34,7 +39,7 @@ function Cat.LinearAlgebra.UnpackedVector4d.L2NormSquared (x, y, z, w)
 end
 
 function Cat.LinearAlgebra.UnpackedVector4d.LInfinityNorm (x, y, z, w)
-	return math.max (math.abs (x), math.abs (y), math.abs (z), math.abs (w))
+	return math_max (math_abs (x), math_abs (y), math_abs (z), math_abs (w))
 end
 
 Cat.LinearAlgebra.UnpackedVector4d.Length        = Cat.LinearAlgebra.UnpackedVector4d.L2Norm
@@ -42,7 +47,7 @@ Cat.LinearAlgebra.UnpackedVector4d.LengthSquared = Cat.LinearAlgebra.UnpackedVec
 
 function Cat.LinearAlgebra.UnpackedVector4d.Distance (x1, y1, z1, w1, x2, y2, z2, w2)
 	local dx, dy, dz, dw = x2 - x1, y2 - y1, z2 - z1, w2 - w1
-	return math.sqrt (dx * dx + dy * dy + dz * dz + dw * dw)
+	return math_sqrt (dx * dx + dy * dy + dz * dz + dw * dw)
 end
 
 function Cat.LinearAlgebra.UnpackedVector4d.DistanceSquared (x1, y1, z1, w1, x2, y2, z2, w2)

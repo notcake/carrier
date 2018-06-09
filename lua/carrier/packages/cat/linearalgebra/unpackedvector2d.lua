@@ -1,3 +1,8 @@
+local math_abs  = math.abs
+local math_max  = math.max
+local math_min  = math.min
+local math_sqrt = math.sqrt
+
 Cat.LinearAlgebra.UnpackedVector2d = Table.Callable (
 	function (x, y)
 		return x, y
@@ -9,16 +14,16 @@ function Cat.LinearAlgebra.UnpackedVector2d.Zero ()
 end
 
 -- Norms
-function Cat.LinearAlgebra.UnpackedVector2d.L0Norm (x, y)
-	return math.min (math.abs (x), math.abs (y))
+function Cat.LinearAlgebra.UnpackedVector2d.LNegativeInfinityNorm (x, y)
+	return math_min (math_abs (x), math_abs (y))
 end
 
 function Cat.LinearAlgebra.UnpackedVector2d.L1Norm (x, y)
-	return math.abs (x) + math.abs (y)
+	return math_abs (x) + math_abs (y)
 end
 
 function Cat.LinearAlgebra.UnpackedVector2d.L2Norm (x, y)
-	return math.sqrt (x * x + y * y)
+	return math_sqrt (x * x + y * y)
 end
 
 function Cat.LinearAlgebra.UnpackedVector2d.L2NormSquared (x, y)
@@ -26,7 +31,7 @@ function Cat.LinearAlgebra.UnpackedVector2d.L2NormSquared (x, y)
 end
 
 function Cat.LinearAlgebra.UnpackedVector2d.LInfinityNorm (x, y)
-	return math.max (math.abs (x), math.abs (y))
+	return math_max (math_abs (x), math_abs (y))
 end
 
 Cat.LinearAlgebra.UnpackedVector2d.Length        = Cat.LinearAlgebra.UnpackedVector2d.L2Norm
@@ -34,7 +39,7 @@ Cat.LinearAlgebra.UnpackedVector2d.LengthSquared = Cat.LinearAlgebra.UnpackedVec
 
 function Cat.LinearAlgebra.UnpackedVector2d.Distance (x1, y1, x2, y2)
 	local dx, dy = x2 - x1, y2 - y1
-	return math.sqrt (dx * dx + dy * dy)
+	return math_sqrt (dx * dx + dy * dy)
 end
 
 function Cat.LinearAlgebra.UnpackedVector2d.DistanceSquared (x1, y1, x2, y2)
