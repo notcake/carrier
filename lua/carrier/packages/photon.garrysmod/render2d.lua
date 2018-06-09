@@ -105,17 +105,17 @@ end
 -- Transforms
 local matrix4x4d = Cat.Matrix4x4d ()
 function self:PushMatrix (matrix3x3d)
-	Cat.Matrix4x4d.FromMatrix3x3d (matrix3x3d, matrix4x4d)
+	Cat.Matrix4x4d.FromAffineMatrix3x3d (matrix3x3d, matrix4x4d)
 	self.GraphicsContext:GetRender3d ():PushModelMatrix (matrix4x4d)
 end
 
 function self:PushMatrixMultiplyLeft (matrix3x3d)
-	Cat.Matrix4x4d.FromMatrix3x3d (matrix3x3d, matrix4x4d)
+	Cat.Matrix4x4d.FromAffineMatrix3x3d (matrix3x3d, matrix4x4d)
 	self.GraphicsContext:GetRender3d ():PushModelMatrixMultiplyLeft (matrix4x4d)
 end
 
 function self:PushMatrixMultiplyRight (matrix3x3d)
-	Cat.Matrix4x4d.FromMatrix3x3d (matrix3x3d, matrix4x4d)
+	Cat.Matrix4x4d.FromAffineMatrix3x3d (matrix3x3d, matrix4x4d)
 	self.GraphicsContext:GetRender3d ():PushModelMatrixMultiplyRight (matrix4x4d)
 end
 
