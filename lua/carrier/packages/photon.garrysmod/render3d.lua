@@ -1,8 +1,8 @@
 local self = {}
 Render3d = Class (self, Photon.IRender3d)
 
-local render_PushModelMatrix = render.PushModelMatrix
-local render_PopModelMatrix  = render.PopModelMatrix
+local cam_PushModelMatrix = cam.PushModelMatrix
+local cam_PopModelMatrix  = cam.PopModelMatrix
 
 local VMatrix_SetField = debug.getregistry ().VMatrix.SetField
 
@@ -83,7 +83,7 @@ function self:PushModelMatrix (matrix4x4d)
 	Cat_Matrix4x4d_Clone (matrix4x4d, self.ModelMatrixStack [self.ModelMatrixStackCount])
 	
 	self:Matrix4x4dToVMatrixAffine (self.ModelMatrixStack [self.ModelMatrixStackCount], affineVMatrix)
-	render.PushModelMatrix (affineVMatrix)
+	cam_PushModelMatrix (affineVMatrix)
 end
 
 function self:PushModelMatrixMultiplyLeft (matrix4x4d)
@@ -95,7 +95,7 @@ function self:PushModelMatrixMultiplyLeft (matrix4x4d)
 	Cat_Matrix4x4d_MatrixMultiply (matrix4x4d, self.ModelMatrixStack [self.ModelMatrixStackCount - 1], self.ModelMatrixStack [self.ModelMatrixStackCount])
 	
 	self:Matrix4x4dToVMatrixAffine (self.ModelMatrixStack [self.ModelMatrixStackCount], affineVMatrix)
-	render.PushModelMatrix (affineVMatrix)
+	cam_PushModelMatrix (affineVMatrix)
 end
 
 function self:PushModelMatrixMultiplyRight (matrix4x4d)
@@ -107,12 +107,12 @@ function self:PushModelMatrixMultiplyRight (matrix4x4d)
 	Cat_Matrix4x4d_MatrixMultiply (self.ModelMatrixStack [self.ModelMatrixStackCount - 1], matrix4x4d, self.ModelMatrixStack [self.ModelMatrixStackCount])
 	
 	self:Matrix4x4dToVMatrixAffine (self.ModelMatrixStack [self.ModelMatrixStackCount], affineVMatrix)
-	render_PushModelMatrix (affineVMatrix)
+	cam_PushModelMatrix (affineVMatrix)
 end
 
 function self:PopModelMatrix ()
 	self.ModelMatrixStackCount = self.ModelMatrixStackCount - 1
-	render_PopModelMatrix ()
+	cam_PopModelMatrix ()
 end
 
 function self:WithModelMatrix (matrix4x4d, f)
@@ -148,18 +148,18 @@ end
 -- Render3d
 function self:Matrix4x4dToVMatrixAffine (matrix4x4d, out)
 	local out = out or Matrix ()
-	VMatrix_SetField (1, 1, matrix4x4d [0]) VMatrix_SetField (1, 2, matrix4x4d [1]) VMatrix_SetField (1, 3, matrix4x4d [ 2]) VMatrix_SetField (1, 4, matrix4x4d [ 3])
-	VMatrix_SetField (2, 1, matrix4x4d [4]) VMatrix_SetField (2, 2, matrix4x4d [5]) VMatrix_SetField (2, 3, matrix4x4d [ 6]) VMatrix_SetField (2, 4, matrix4x4d [ 7])
-	VMatrix_SetField (3, 1, matrix4x4d [8]) VMatrix_SetField (3, 2, matrix4x4d [9]) VMatrix_SetField (3, 3, matrix4x4d [10]) VMatrix_SetField (3, 4, matrix4x4d [11])
+	VMatrix_SetField (out, 1, 1, matrix4x4d [0]) VMatrix_SetField (out, 1, 2, matrix4x4d [1]) VMatrix_SetField (out, 1, 3, matrix4x4d [ 2]) VMatrix_SetField (out, 1, 4, matrix4x4d [ 3])
+	VMatrix_SetField (out, 2, 1, matrix4x4d [4]) VMatrix_SetField (out, 2, 2, matrix4x4d [5]) VMatrix_SetField (out, 2, 3, matrix4x4d [ 6]) VMatrix_SetField (out, 2, 4, matrix4x4d [ 7])
+	VMatrix_SetField (out, 3, 1, matrix4x4d [8]) VMatrix_SetField (out, 3, 2, matrix4x4d [9]) VMatrix_SetField (out, 3, 3, matrix4x4d [10]) VMatrix_SetField (out, 3, 4, matrix4x4d [11])
 	return out
 end
 
 function self:Matrix4x4dToVMatrix (matrix4x4d, out)
 	local out = out or Matrix ()
-	VMatrix_SetField (1, 1, matrix4x4d [ 0]) VMatrix_SetField (1, 2, matrix4x4d [ 1]) VMatrix_SetField (1, 3, matrix4x4d [ 2]) VMatrix_SetField (1, 4, matrix4x4d [ 3])
-	VMatrix_SetField (2, 1, matrix4x4d [ 4]) VMatrix_SetField (2, 2, matrix4x4d [ 5]) VMatrix_SetField (2, 3, matrix4x4d [ 6]) VMatrix_SetField (2, 4, matrix4x4d [ 7])
-	VMatrix_SetField (3, 1, matrix4x4d [ 8]) VMatrix_SetField (3, 2, matrix4x4d [ 9]) VMatrix_SetField (3, 3, matrix4x4d [10]) VMatrix_SetField (3, 4, matrix4x4d [11])
-	VMatrix_SetField (4, 1, matrix4x4d [12]) VMatrix_SetField (4, 2, matrix4x4d [13]) VMatrix_SetField (4, 3, matrix4x4d [14]) VMatrix_SetField (4, 4, matrix4x4d [15])
+	VMatrix_SetField (out, 1, 1, matrix4x4d [ 0]) VMatrix_SetField (out, 1, 2, matrix4x4d [ 1]) VMatrix_SetField (out, 1, 3, matrix4x4d [ 2]) VMatrix_SetField (out, 1, 4, matrix4x4d [ 3])
+	VMatrix_SetField (out, 2, 1, matrix4x4d [ 4]) VMatrix_SetField (out, 2, 2, matrix4x4d [ 5]) VMatrix_SetField (out, 2, 3, matrix4x4d [ 6]) VMatrix_SetField (out, 2, 4, matrix4x4d [ 7])
+	VMatrix_SetField (out, 3, 1, matrix4x4d [ 8]) VMatrix_SetField (out, 3, 2, matrix4x4d [ 9]) VMatrix_SetField (out, 3, 3, matrix4x4d [10]) VMatrix_SetField (out, 3, 4, matrix4x4d [11])
+	VMatrix_SetField (out, 4, 1, matrix4x4d [12]) VMatrix_SetField (out, 4, 2, matrix4x4d [13]) VMatrix_SetField (out, 4, 3, matrix4x4d [14]) VMatrix_SetField (out, 4, 4, matrix4x4d [15])
 	return out
 end
 
