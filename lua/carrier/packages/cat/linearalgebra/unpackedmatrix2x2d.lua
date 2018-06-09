@@ -67,12 +67,12 @@ function Cat.LinearAlgebra.UnpackedMatrix2x2d.ScalarDivide (m00, m01, m10, m11, 
 end
 
 -- Products
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Multiply (a00, a01, a10, a11, b00, b01, b10, b11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.MatrixMultiply (a00, a01, a10, a11, b00, b01, b10, b11)
 	return a00 * b00 + a01 * b10, a00 * b01 + a01 * b11,
 	       a10 * b00 + a11 * b10, a10 * b01 + a11 * b11
 end
 
-Cat.LinearAlgebra.UnpackedMatrix2x2d.MatrixMultiply = Cat.LinearAlgebra.UnpackedMatrix2x2d.Multiply
+Cat.LinearAlgebra.UnpackedMatrix2x2d.Multiply = Cat.LinearAlgebra.UnpackedMatrix2x2d.MatrixMultiply
 
 function Cat.LinearAlgebra.UnpackedMatrix2x2d.VectorMultiply (m00, m01, m10, m11, v0, v1)
 	return m00 * v0 + m01 * v1,

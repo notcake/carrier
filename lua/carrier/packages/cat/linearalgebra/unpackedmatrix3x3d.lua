@@ -87,13 +87,13 @@ function Cat.LinearAlgebra.UnpackedMatrix3x3d.ScalarDivide (m00, m01, m02, m10, 
 end
 
 -- Products
-function Cat.LinearAlgebra.UnpackedMatrix3x3d.Multiply (a00, a01, a02, a10, a11, a12, a20, a21, a22, b00, b01, b02, b10, b11, b12, b20, b21, b22)
+function Cat.LinearAlgebra.UnpackedMatrix3x3d.MatrixMultiply (a00, a01, a02, a10, a11, a12, a20, a21, a22, b00, b01, b02, b10, b11, b12, b20, b21, b22)
 	return a00 * b00 + a01 * b10 + a02 * b20, a00 * b01 + a01 * b11 + a02 * b21, a00 * b02 + a01 * b12 + a02 * b22,
 	       a10 * b00 + a11 * b10 + a12 * b20, a10 * b01 + a11 * b11 + a12 * b21, a10 * b02 + a11 * b12 + a12 * b22,
 	       a20 * b00 + a21 * b10 + a22 * b20, a20 * b01 + a21 * b11 + a22 * b21, a20 * b02 + a21 * b12 + a22 * b22
 end
 
-Cat.LinearAlgebra.UnpackedMatrix3x3d.MatrixMultiply = Cat.LinearAlgebra.UnpackedMatrix3x3d.Multiply
+Cat.LinearAlgebra.UnpackedMatrix3x3d.Multiply = Cat.LinearAlgebra.UnpackedMatrix3x3d.MatrixMultiply
 
 function Cat.LinearAlgebra.UnpackedMatrix3x3d.VectorMultiply (m00, m01, m02, m10, m11, m12, m20, m21, m22, v0, v1, v2)
 	return m00 * v0 + m01 * v1 + m02 * v2,
