@@ -79,6 +79,10 @@ Cat.UnpackedVector4d.DotProduct = Cat.UnpackedVector4d.InnerProduct
 Cat.UnpackedVector4d.Dot        = Cat.UnpackedVector4d.InnerProduct
 
 -- Utility
+function Cat.UnpackedVector2d.Clone (x, y, z, w)
+	return x, y, z, w
+end
+
 function Cat.UnpackedVector4d.Equals (x1, y1, z1, w1, x2, y2, z2, w2)
 	return x1 == x2 and y1 == y2 and z1 == z2 and w1 == w2
 end

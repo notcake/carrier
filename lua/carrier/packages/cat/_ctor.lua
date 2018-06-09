@@ -50,9 +50,12 @@ Cat.Matrix = Cat.LinearAlgebra.Matrix
 
 Cat.UnpackedVector2d   = Cat.LinearAlgebra.UnpackedVector2d
 Cat.UnpackedVector3d   = Cat.LinearAlgebra.UnpackedVector3d
+Cat.UnpackedVector4d   = Cat.LinearAlgebra.UnpackedVector4d
 Cat.UnpackedMatrix2x2d = Cat.LinearAlgebra.UnpackedMatrix2x2d
+Cat.UnpackedMatrix3x3d = Cat.LinearAlgebra.UnpackedMatrix3x3d
 Cat.Vector2d           = Cat.LinearAlgebra.Vector2d
 Cat.Vector3d           = Cat.LinearAlgebra.Vector3d
+Cat.Vector4d           = Cat.LinearAlgebra.Vector4d
 Cat.Matrix2x2d         = Cat.LinearAlgebra.Matrix2x2d
 Cat.Matrix3x3d         = Cat.LinearAlgebra.Matrix3x3d
 Cat.Matrix4x4d         = Cat.LinearAlgebra.Matrix4x4d

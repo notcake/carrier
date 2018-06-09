@@ -82,6 +82,10 @@ Cat.UnpackedVector2d.Dot        = Cat.UnpackedVector2d.InnerProduct
 Cat.UnpackedVector2d.Cross      = Cat.UnpackedVector2d.Cross
 
 -- Utility
+function Cat.UnpackedVector2d.Clone (x, y)
+	return x, y
+end
+
 function Cat.UnpackedVector2d.Equals (x1, y1, x2, y2)
 	return x1 == x2 and y1 == y2
 end
