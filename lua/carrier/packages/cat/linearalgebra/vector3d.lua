@@ -7,9 +7,23 @@ function Cat.LinearAlgebra.Vector3d.Zero (out)
 	return out
 end
 
+function Cat.LinearAlgebra.Vector3d.FromVector2d (v, out)
+	local out = out or Cat.LinearAlgebra.Vector3d ()
+	out [0], out [1], out [2] = v [0], v [1], 0
+	return out
+end
+
+function Cat.LinearAlgebra.Vector3d.ToVector2d (v, out)
+	local out = out or Cat.LinearAlgebra.Vector2d ()
+	out [0], out [1] = self [0], self [1]
+	return out
+end
+
 function self:ctor (x, y, z)
 	self [0], self [1], self [2] = x, y, z
 end
+
+self.ToVector2d = Cat.LinearAlgebra.Vector3d.ToVector2d
 
 -- Norms
 function Cat.LinearAlgebra.Vector3d.L0Norm (self)

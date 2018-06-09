@@ -18,6 +18,17 @@ function Cat.LinearAlgebra.UnpackedMatrix3x3d.Zero ()
 	       0, 0, 0
 end
 
+function Cat.LinearAlgebra.UnpackedMatrix3x3d.FromMatrix2x2d (m00, m01, m10, m11)
+	return m00, m01, 0,
+	       m10, m11, 0,
+	         0,   0, 1
+end
+
+function Cat.LinearAlgebra.UnpackedMatrix3x3d.ToMatrix2x2d (m00, m01, m02, m10, m11, m12, m20, m21, m22)
+	return m00, m01,
+	       m10, m11
+end
+
 function Cat.LinearAlgebra.UnpackedMatrix3x3d.Equals (a00, a01, a02, a10, a11, a12, a20, a21, a22, b00, b01, b02, b10, b11, b12, b20, b21, b22)
 	return a00 == b00 and a01 == b01 and a02 == b02 and
 	       a10 == b10 and a11 == b11 and a12 == b12 and

@@ -8,6 +8,14 @@ function Cat.LinearAlgebra.UnpackedVector3d.Zero ()
 	return 0, 0, 0
 end
 
+function Cat.LinearAlgebra.UnpackedVector3d.FromVector2d (x, y)
+	return x, y, 0
+end
+
+function Cat.LinearAlgebra.UnpackedVector3d.ToVector2d (x, y, z)
+	return x, y
+end
+
 -- Norms
 function Cat.LinearAlgebra.UnpackedVector3d.L0Norm (x, y, z)
 	return math.min (math.abs (x), math.abs (y), math.abs (z))

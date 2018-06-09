@@ -19,6 +19,23 @@ function Cat.LinearAlgebra.Matrix4x4d.Identity (out)
 	return out
 end
 
+function Cat.LinearAlgebra.Matrix4x4d.FromMatrix2x2d (m, out)
+	local out = out or Cat.LinearAlgebra.Matrix4x4d ()
+	out [ 0], out [ 1], out [ 2], out [ 3] = m [0], m [1], m [2], 0
+	out [ 4], out [ 5], out [ 6], out [ 7] = m [3], m [4], m [5], 0
+	out [ 8], out [ 9], out [10], out [11] = m [6], m [7], m [8], 0
+	out [12], out [13], out [14], out [15] =     0,     0,     0, 1
+	return out
+end
+
+function Cat.LinearAlgebra.Matrix4x4d.ToMatrix3x3d (self, out)
+	local out = out or Cat.LinearAlgebra.Matrix3x3d ()
+	out [0], out [1], out [2] = m [0], m [1], m [ 2]
+	out [3], out [4], out [5] = m [4], m [5], m [ 6]
+	out [6], out [7], out [8] = m [8], m [9], m [10]
+	return out
+end
+
 function self:ctor (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33)
 	self [ 0], self [ 1], self [ 2], self [ 3] = m00, m01, m02, m03
 	self [ 4], self [ 5], self [ 6], self [ 7] = m10, m11, m12, m13
@@ -33,7 +50,8 @@ function Cat.LinearAlgebra.Matrix4x4d.Equals (a, b)
 	       a [12] == b [12] and a [13] == b [13] and a [14] == b [14] and a [15] == b [15]
 end
 
-self.Equals = Cat.LinearAlgebra.Matrix4x4d.Equals
+self.ToMatrix3x3d = Cat.LinearAlgebra.Matrix3x3d.ToMatrix3x3d
+self.Equals       = Cat.LinearAlgebra.Matrix4x4d.Equals
 
 -- Elements
 function Cat.LinearAlgebra.Matrix4x4d.Get (self, y, x)

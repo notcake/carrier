@@ -17,6 +17,21 @@ function Cat.LinearAlgebra.Matrix3x3d.Identity (out)
 	return out
 end
 
+function Cat.LinearAlgebra.Matrix3x3d.FromMatrix2x2d (m, out)
+	local out = out or Cat.LinearAlgebra.Matrix3x3d ()
+	out [0], out [1], out [2] = m [0], m [1], 0
+	out [3], out [4], out [5] = m [2], m [3], 0
+	out [6], out [7], out [8] =     0,     0, 1
+	return out
+end
+
+function Cat.LinearAlgebra.Matrix3x3d.ToMatrix2x2d (self, out)
+	local out = out or Cat.LinearAlgebra.Matrix2x2d ()
+	out [0], out [1] = self [0], self [1]
+	out [2], out [3] = self [3], self [4]
+	return out
+end
+
 function self:ctor (m00, m01, m02, m10, m11, m12, m20, m21, m22)
 	self [0], self [1], self [2] = m00, m01, m02
 	self [3], self [4], self [5] = m10, m11, m12
@@ -29,7 +44,8 @@ function Cat.LinearAlgebra.Matrix3x3d.Equals (a, b)
 	       a [6] == b [6] and a [7] == b [7] and a [8] == b [8]
 end
 
-self.Equals = Cat.LinearAlgebra.Matrix3x3d.Equals
+self.ToMatrix2x2d = Cat.LinearAlgebra.Matrix3x3d.ToMatrix2x2d
+self.Equals       = Cat.LinearAlgebra.Matrix3x3d.Equals
 
 -- Elements
 function Cat.LinearAlgebra.Matrix3x3d.Get (self, y, x)
