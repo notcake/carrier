@@ -1,3 +1,7 @@
+local math_abs  = math.abs
+local math_max  = math.max
+local math_sqrt = math.sqrt
+
 Cat.LinearAlgebra.UnpackedMatrix2x2d = Table.Callable (
 	function (m00, m01, m10, m11)
 		return m00, m01,
@@ -38,6 +42,37 @@ function Cat.LinearAlgebra.UnpackedMatrix2x2d.Set (m00, m01, m10, m11, y, x, val
 	
 	return m00, m01,
 	       m10, m11
+end
+
+-- Norms
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.L1Norm (m00, m01, m10, m11)
+	return math_max (
+		math_abs (m00) + math_abs (m10),
+		math_abs (m01) + math_abs (m11)
+	)
+end
+
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.L2Norm (m00, m01, m10, m11)
+	-- A A'
+	local a00, a01 = m00 * m00 + m01 * m01, m00 * m10 + m01 * m11
+	local a10, a11 = m10 * m00 + m11 * m01, m10 * m10 + m11 * m11
+	
+	-- Eigenvalues are non-negative
+	-- (a00 - l)(a11 - l) - a10 a01 = 0
+	-- l^2 - (a00 + a11) + a00 a11 - a10 a01 = 0
+	local b = a00 + a11
+	local c = a00 * a11 - a10 * a01
+	
+	-- Take largest eigenvalue to get largest singular value
+	local l1 = 0.5 * (b + math_sqrt (b * b - 4 * c))
+	return math_sqrt (l1)
+end
+
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.LInfinityNorm (m00, m01, m10, m11)
+	return math_max (
+		math_abs (m00) + math_abs (m01),
+		math_abs (m10) + math_abs (m11)
+	)
 end
 
 -- Arithmetic

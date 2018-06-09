@@ -1,6 +1,10 @@
 local self = {}
 Cat.LinearAlgebra.Matrix2x2d = Class (self)
 
+local math_abs  = math.abs
+local math_max  = math.max
+local math_sqrt = math.sqrt
+
 function Cat.LinearAlgebra.Matrix2x2d.Zero (out)
 	local out = out or Cat.LinearAlgebra.Matrix2x2d ()
 	out [0], out [1] = 0, 0
@@ -41,6 +45,41 @@ end
 
 self.Get = Cat.LinearAlgebra.Matrix2x2d.Get
 self.Set = Cat.LinearAlgebra.Matrix2x2d.Set
+
+-- Norms
+function Cat.LinearAlgebra.Matrix2x2d.L1Norm (self)
+	return math_max (
+		math_abs (self [0]) + math_abs (self [2]),
+		math_abs (self [1]) + math_abs (self [3])
+	)
+end
+
+function Cat.LinearAlgebra.Matrix2x2d.L2Norm (self)
+	-- A A'
+	local a00, a01 = self [0] * self [0] + self [1] * self [1], self [0] * self [2] + self [1] * self [3]
+	local a10, a11 = self [2] * self [0] + self [3] * self [1], self [2] * self [2] + self [3] * self [3]
+	
+	-- Eigenvalues are non-negative
+	-- (a00 - l)(a11 - l) - a10 a01 = 0
+	-- l^2 - (a00 + a11) + a00 a11 - a10 a01 = 0
+	local b = a00 + a11
+	local c = a00 * a11 - a10 * a01
+	
+	-- Take largest eigenvalue to get largest singular value
+	local l1 = 0.5 * (b + math_sqrt (b * b - 4 * c))
+	return math_sqrt (l1)
+end
+
+function Cat.LinearAlgebra.Matrix2x2d.LInfinityNorm (self)
+	return math_max (
+		math_abs (self [0]) + math_abs (self [1]),
+		math_abs (self [2]) + math_abs (self [3])
+	)
+end
+
+self.L1Norm        = Cat.LinearAlgebra.Matrix2x2d.L1Norm
+self.L2Norm        = Cat.LinearAlgebra.Matrix2x2d.L2Norm
+self.LInfinityNorm = Cat.LinearAlgebra.Matrix2x2d.LInfinityNorm
 
 -- Arithmetic
 function Cat.LinearAlgebra.Matrix2x2d.Add (a, b, out)
