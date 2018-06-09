@@ -9,23 +9,23 @@ function Cat.LinearAlgebra.UnpackedVector4d.Zero ()
 end
 
 -- Norms
-function Cat.LinearAlgebra.UnpackedVector3d.L0Norm (x, y, z, w)
+function Cat.LinearAlgebra.UnpackedVector4d.L0Norm (x, y, z, w)
 	return math.min (math.abs (x), math.abs (y), math.abs (z), math.abs (w))
 end
 
-function Cat.LinearAlgebra.UnpackedVector3d.L1Norm (x, y, z, w)
+function Cat.LinearAlgebra.UnpackedVector4d.L1Norm (x, y, z, w)
 	return math.abs (x) + math.abs (y) + math.abs (z) + math.abs (w)
 end
 
-function Cat.LinearAlgebra.UnpackedVector3d.L2Norm (x, y, z, w)
+function Cat.LinearAlgebra.UnpackedVector4d.L2Norm (x, y, z, w)
 	return math.sqrt (x * x + y * y + z * z + w * w)
 end
 
-function Cat.LinearAlgebra.UnpackedVector3d.L2NormSquared (x, y, z, w)
+function Cat.LinearAlgebra.UnpackedVector4d.L2NormSquared (x, y, z, w)
 	return x * x + y * y + z * z + w * w
 end
 
-function Cat.LinearAlgebra.UnpackedVector3d.LInfinityNorm (x, y, z, w)
+function Cat.LinearAlgebra.UnpackedVector4d.LInfinityNorm (x, y, z, w)
 	return math.max (math.abs (x), math.abs (y), math.abs (z), math.abs (w))
 end
 
@@ -79,17 +79,17 @@ Cat.LinearAlgebra.UnpackedVector4d.DotProduct = Cat.LinearAlgebra.UnpackedVector
 Cat.LinearAlgebra.UnpackedVector4d.Dot        = Cat.LinearAlgebra.UnpackedVector4d.InnerProduct
 
 -- Utility
-function Cat.LinearAlgebra.UnpackedVector3d.Equals (x1, y1, z1, w1, x2, y2, z2, w2)
+function Cat.LinearAlgebra.UnpackedVector4d.Equals (x1, y1, z1, w1, x2, y2, z2, w2)
 	return x1 == x2 and y1 == y2 and z1 == z2 and w1 == w2
 end
 
-function Cat.LinearAlgebra.UnpackedVector3d.Lerp (t, x1, y1, z1, w1, x2, y2, z2, w2)
+function Cat.LinearAlgebra.UnpackedVector4d.Lerp (t, x1, y1, z1, w1, x2, y2, z2, w2)
 	return t * x2 + (1 - t) * x1,
 	       t * y2 + (1 - t) * y1,
 	       t * z2 + (1 - t) * z1,
 	       t * w2 + (1 - t) * w1
 end
 
-function Cat.LinearAlgebra.UnpackedVector3d.ToString (x, y, z, w)
+function Cat.LinearAlgebra.UnpackedVector4d.ToString (x, y, z, w)
 	return "(" .. x .. ", " .. y .. ", " .. z .. ", " .. w .. ")"
 end
