@@ -101,3 +101,54 @@ end
 function self:DrawGlyph (color, glyph, x, y)
 	self.GlyphRenderer:DrawGlyph (color, glyph, x, y)
 end
+
+-- Transforms
+local matrix4x4d = Cat.Matrix4x4d ()
+function self:PushMatrix (matrix3x3d)
+	Cat.Matrix4x4d.FromMatrix3x3d (matrix3x3d, matrix4x4d)
+	self.GraphicsContext:GetRender3d ():PushModelMatrix (matrix4x4d)
+end
+
+function self:PushMatrixMultiplyLeft (matrix3x3d)
+	Cat.Matrix4x4d.FromMatrix3x3d (matrix3x3d, matrix4x4d)
+	self.GraphicsContext:GetRender3d ():PushModelMatrixMultiplyLeft (matrix4x4d)
+end
+
+function self:PushMatrixMultiplyRight (matrix3x3d)
+	Cat.Matrix4x4d.FromMatrix3x3d (matrix3x3d, matrix4x4d)
+	self.GraphicsContext:GetRender3d ():PushModelMatrixMultiplyRight (matrix4x4d)
+end
+
+function self:PopMatrix ()
+	self.GraphicsContext:GetRender3d ():PopModelMatrix ()
+end
+
+function self:WithMatrix (matrix3x3d, f)
+	self:PushMatrix (matrix3x3d)
+	local success, err = xpcall (f, debug.traceback)
+	self:PopMatrix ()
+	
+	if not success then
+		ErrorNoHalt (err)
+	end
+end
+
+function self:WithMatrixMultiplyLeft (matrix3x3d, f)
+	self:PushMatrixMultiplyLeft (matrix3x3d)
+	local success, err = xpcall (f, debug.traceback)
+	self:PopMatrix ()
+	
+	if not success then
+		ErrorNoHalt (err)
+	end
+end
+
+function self:WithMatrixMultiplyRight (matrix3x3d, f)
+	self:PushMatrixMultiplyRight (matrix3x3d)
+	local success, err = xpcall (f, debug.traceback)
+	self:PopMatrix ()
+	
+	if not success then
+		ErrorNoHalt (err)
+	end
+end

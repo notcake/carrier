@@ -35,3 +35,32 @@ end
 function self:DrawGlyph (color, glyph, x, y)
 	Error ("IRender2d:DrawGlyph : Not implemented.")
 end
+
+-- Transforms
+function self:PushMatrix (matrix3x3d)
+	Error ("IRender2d:PushMatrix : Not implemented.")
+end
+
+function self:PushMatrixMultiplyLeft (matrix3x3d)
+	Error ("IRender2d:PushMatrixMultiplyLeft : Not implemented.")
+end
+
+function self:PushMatrixMultiplyRight (matrix3x3d)
+	Error ("IRender2d:PushMatrixMultiplyRight : Not implemented.")
+end
+
+function self:PopMatrix ()
+	Error ("IRender2d:PopMatrix : Not implemented.")
+end
+
+function self:WithMatrix (matrix3x3d, f)
+	Error ("IRender2d:WithMatrix : Not implemented.")
+end
+
+function self:WithMatrixMultiplyLeft (matrix3x3d, f)
+	Error ("IRender2d:WithMatrixMultiplyLeft : Not implemented.")
+end
+
+function self:WithMatrixMultiplyRight (matrix3x3d, f)
+	Error ("IRender2d:WithMatrixMultiplyRight : Not implemented.")
+end

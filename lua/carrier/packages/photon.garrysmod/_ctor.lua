@@ -9,6 +9,8 @@ Color = require ("Pylon.Color")
 Photon = require ("Photon")
 Photon.Initialize (GarrysMod)
 
+Cat = require ("Cat")
+
 Glass = require ("Glass")
 
 FontCache = require ("GarrysMod.FontCache")
