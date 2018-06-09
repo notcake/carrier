@@ -103,17 +103,17 @@ end
 
 -- Matrix operations
 function Cat.LinearAlgebra.UnpackedMatrix3x3d.Determinant (m00, m01, m02, m10, m11, m12, m20, m21, m22)
-	return   m00 * (m11 * m22 - m12 * m21)
-	       - m10 * (m01 * m22 - m02 * m21)
-	       + m20 * (m01 * m12 - m02 * m11)
+	return   m00 * (m11 * m22 - m21 * m12)
+	       - m10 * (m01 * m22 - m21 * m02)
+	       + m20 * (m01 * m12 - m11 * m02)
 end
 
 local Cat_LinearAlgebra_UnpackedMatrix3x3d_Determinant = Cat.LinearAlgebra.UnpackedMatrix3x3d.Determinant
 function Cat.LinearAlgebra.UnpackedMatrix3x3d.Invert (m00, m01, m02, m10, m11, m12, m20, m21, m22)
 	local k = 1 / Cat_LinearAlgebra_UnpackedMatrix3x3d_Determinant (m00, m01, m02, m10, m11, m12, m20, m21, m22)
-	return  k * (m11 * m22 - m12 * m21), -k * (m01 * m22 - m02 * m21),  k * (m01 * m12 - m02 * m11),
-	       -k * (m10 * m22 - m12 * m20),  k * (m00 * m22 - m02 * m20), -k * (m00 * m12 - m02 * m10),
-	        k * (m10 * m21 - m11 * m20), -k * (m00 * m21 - m01 * m20),  k * (m00 * m11 - m01 * m10)
+	return  k * (m11 * m22 - m21 * m12), -k * (m10 * m22 - m20 * m12),  k * (m10 * m21 - m20 * m11),
+	       -k * (m01 * m22 - m21 * m02),  k * (m00 * m22 - m20 * m02), -k * (m00 * m21 - m20 * m01),
+	        k * (m01 * m12 - m11 * m02), -k * (m00 * m12 - m10 * m02),  k * (m00 * m11 - m10 * m01)
 end
 
 function Cat.LinearAlgebra.UnpackedMatrix3x3d.Transpose (m00, m01, m02, m10, m11, m12, m20, m21, m22)
