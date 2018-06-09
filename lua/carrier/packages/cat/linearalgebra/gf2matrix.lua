@@ -10,6 +10,7 @@ function Cat.GF2Matrix.Identity (size)
 	for i = 0, size - 1 do
 		m [i * size + i] = 1
 	end
+	return m
 end
 
 function Cat.GF2Matrix.Zero (h, w)

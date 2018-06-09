@@ -6,6 +6,7 @@ function Cat.RealMatrix.Identity (size)
 	for i = 0, size - 1 do
 		m [i * size + i] = 1
 	end
+	return m
 end
 
 function Cat.RealMatrix.Zero (h, w)
