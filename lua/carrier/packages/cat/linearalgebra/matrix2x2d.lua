@@ -198,9 +198,17 @@ self.SetColumn = Cat.LinearAlgebra.Matrix2x2d.SetColumn
 self.SetRow    = Cat.LinearAlgebra.Matrix2x2d.SetRow
 
 -- Utility
+function Cat.LinearAlgebra.Matrix2x2d.Clone (self, out)
+	local out = out or Cat.LinearAlgebra.Matrix2x2d ()
+	out [0], out [1] = self [0], self [1]
+	out [2], out [3] = self [2], self [3]
+	return out
+end
+
 function Cat.LinearAlgebra.Matrix2x2d.ToString (self)
 	return "[" .. self [0] .. ", " .. self [1] .. "]\n" ..
 	       "[" .. self [2] .. ", " .. self [3] .. "]"
 end
 
+self.Clone    = Cat.LinearAlgebra.Matrix2x2d.Clone
 self.ToString = Cat.LinearAlgebra.Matrix2x2d.ToString

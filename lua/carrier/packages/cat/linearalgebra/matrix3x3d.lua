@@ -191,10 +191,19 @@ self.SetColumn = Cat.LinearAlgebra.Matrix3x3d.SetColumn
 self.SetRow    = Cat.LinearAlgebra.Matrix3x3d.SetRow
 
 -- Utility
+function Cat.LinearAlgebra.Matrix3x3d.Clone (self, out)
+	local out = out or Cat.LinearAlgebra.Matrix3x3d ()
+	out [0], out [1], out [2] = self [0], self [1], self [2]
+	out [3], out [4], out [5] = self [3], self [4], self [5]
+	out [6], out [7], out [8] = self [6], self [7], self [8]
+	return out
+end
+
 function Cat.LinearAlgebra.Matrix3x3d.ToString (self)
 	return "[" .. self [0] .. ", " .. self [1] .. ", " .. self [2] .. "]\n" ..
 	       "[" .. self [3] .. ", " .. self [4] .. ", " .. self [5] .. "]\n" ..
 	       "[" .. self [6] .. ", " .. self [7] .. ", " .. self [8] .. "]"
 end
 
+self.Clone    = Cat.LinearAlgebra.Matrix3x3d.Clone
 self.ToString = Cat.LinearAlgebra.Matrix3x3d.ToString

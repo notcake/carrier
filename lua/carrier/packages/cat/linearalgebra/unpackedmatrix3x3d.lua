@@ -167,6 +167,12 @@ function Cat.LinearAlgebra.UnpackedMatrix3x3d.SetRow (m00, m01, m02, m10, m11, m
 end
 
 -- Utility
+function Cat.LinearAlgebra.UnpackedMatrix3x3d.Clone (m00, m01, m02, m10, m11, m12, m20, m21, m22)
+	return m00, m01, m02,
+	       m10, m11, m12,
+	       m20, m21, m22
+end
+
 function Cat.LinearAlgebra.UnpackedMatrix3x3d.ToString (m00, m01, m02, m10, m11, m12, m20, m21, m22)
 	return "[" .. m00 .. ", " .. m01 .. ", " .. m02 .. "]\n" ..
 	       "[" .. m10 .. ", " .. m11 .. ", " .. m12 .. "]\n" ..

@@ -159,6 +159,11 @@ function Cat.LinearAlgebra.UnpackedMatrix2x2d.SetRow (m00, m01, m10, m11, row, v
 end
 
 -- Utility
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Clone (m00, m01, m10, m11)
+	return m00, m01,
+	       m10, m11
+end
+
 function Cat.LinearAlgebra.UnpackedMatrix2x2d.ToString (m00, m01, m10, m11)
 	return "[" .. m00 .. ", " .. m01 .. "]\n" ..
 	       "[" .. m10 .. ", " .. m11 .. "]"

@@ -270,6 +270,15 @@ self.SetColumn = Cat.LinearAlgebra.Matrix4x4d.SetColumn
 self.SetRow    = Cat.LinearAlgebra.Matrix4x4d.SetRow
 
 -- Utility
+function Cat.LinearAlgebra.Matrix4x4d.Clone (self, out)
+	local out = out or Cat.LinearAlgebra.Matrix4x4d ()
+	out [ 0], out [ 1], out [ 2], out [ 3] = self [ 0], self [ 1], self [ 2], self [ 3]
+	out [ 4], out [ 5], out [ 6], out [ 7] = self [ 4], self [ 5], self [ 6], self [ 7]
+	out [ 8], out [ 9], out [10], out [11] = self [ 8], self [ 9], self [10], self [11]
+	out [12], out [13], out [14], out [15] = self [12], self [13], self [14], self [15]
+	return out
+end
+
 function Cat.LinearAlgebra.Matrix4x4d.ToString (self)
 	return "[" .. self [ 0] .. ", " .. self [ 1] .. ", " .. self [ 2] .. ", " .. self [ 3] .. "]\n" ..
 	       "[" .. self [ 4] .. ", " .. self [ 5] .. ", " .. self [ 6] .. ", " .. self [ 7] .. "]\n" ..
@@ -277,4 +286,5 @@ function Cat.LinearAlgebra.Matrix4x4d.ToString (self)
 	       "[" .. self [12] .. ", " .. self [13] .. ", " .. self [14] .. ", " .. self [15] .. "]"
 end
 
+self.Clone    = Cat.LinearAlgebra.Matrix4x4d.Clone
 self.ToString = Cat.LinearAlgebra.Matrix4x4d.ToString
