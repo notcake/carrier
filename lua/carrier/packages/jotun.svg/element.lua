@@ -32,16 +32,34 @@ function Svg.Element.FromXmlElement (xmlElement)
 				parser:AcceptCommaWhitespace ()
 			end
 			
-			if name == "scale" then
-				local x, y = arguments [1], arguments [2] or arguments [1]
-				transforms [#transforms + 1] = Cat.Matrix3x3d (
-					x, 0, 0,
-					0, y, 0,
-					0, 0, 1
-				)
+			local m00, m01, m02, m10, m11, m12 = 1, 0, 0, 0, 1, 0
+			if name == "matrix" then
+				m00, m01, m02, m10, m11, m12 = arguments [1], arguments [2], arguments [3], arguments [4], arguments [5], arguments [6]
+				m00, m01, m02, m10, m11, m12 = m00, m01 or 0, m02 or 0, m10 or 0, m11 or 1, m12 or 0
+			elseif name == "translate" then
+				m02, m12 = arguments [1], arguments [2] or 0
+			elseif name == "scale" then
+				m00, m11 = arguments [1], arguments [2] or arguments [1]
+			elseif name == "rotate" then
+				local a = math.rad (arguments [1])
+				local x, y = arguments [2] or 0, arguments [3] or 0
+				m00, m01 = math.cos (a), -math.sin (a)
+				m10, m11 = math.sin (a),  math.cos (a)
+				m02 = -x * m00 - y * m01 + x
+				m12 = -x * m10 - y * m11 + y
+			elseif name == "skewX" then
+				m01 = math.tan (math.rad (arguments [1]))
+			elseif name == "skewY" then
+				m10 = math.tan (math.rad (arguments [1]))
 			else
 				assert (false, name)
 			end
+			
+			transforms [#transforms + 1] = Cat.Matrix3x3d (
+				m00, m01, m02,
+				m10, m11, m12,
+				  0,   0,   1
+			)
 		end
 		
 		if #transforms > 0 then
