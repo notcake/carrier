@@ -81,6 +81,7 @@ function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundin
 	render.SetStencilFailOperation (STENCILOPERATION_INVERT)
 	
 	surface.SetMaterial (noCull)
+	surface.SetDrawColor (0, 0, 0, 255)
 	for i = 1, #polygons do
 		surface.DrawPoly (self.EvenOddPolygonBuffers [i]:GetBuffer ())
 	end
