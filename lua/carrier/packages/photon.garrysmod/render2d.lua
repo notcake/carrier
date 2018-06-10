@@ -50,13 +50,19 @@ function self:FillConvexPolygon (color, polygon)
 	self.ConvexPolygonBuffer:Unbind ()
 end
 
+local noCull = CreateMaterial ("Photon.GarrysMod.Render2d.NoCull", "UnlitGeneric",
+	{
+		["$vertexcolor"] = 1,
+		["$vertexalpha"] = 1,
+		["$nocull"]      = 1
+	}
+)
+
 function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundingW, boundingH)
 	local boundingX = boundingX or 0
 	local boundingY = boundingY or 0
 	local boundingW = boundingW or ScrW ()
 	local boundingH = boundingH or ScrH ()
-	
-	draw.NoTexture ()
 	
 	-- Resize
 	for i = #self.EvenOddPolygonBuffers + 1, #polygons do
@@ -74,11 +80,8 @@ function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundin
 	render.SetStencilCompareFunction (STENCILCOMPARISONFUNCTION_NEVER)
 	render.SetStencilFailOperation (STENCILOPERATION_INVERT)
 	
-	-- Note: Backface culling doesn't happen with stencils!
+	surface.SetMaterial (noCull)
 	for i = 1, #polygons do
-		render.CullMode(MATERIAL_CULLMODE_CW)
-		surface.DrawPoly (self.EvenOddPolygonBuffers [i]:GetBuffer ())
-		render.CullMode(MATERIAL_CULLMODE_CCW)
 		surface.DrawPoly (self.EvenOddPolygonBuffers [i]:GetBuffer ())
 	end
 	
@@ -92,6 +95,7 @@ function self:FillPolygonEvenOdd (color, polygons, boundingX, boundingY, boundin
 	render.SetStencilWriteMask (0x00)
 	render.SetStencilCompareFunction (STENCILCOMPARISONFUNCTION_EQUAL)
 	
+	draw.NoTexture ()
 	surface.SetDrawColor (Color.ToRGBA8888 (color))
 	surface.DrawRect (boundingX, boundingY, boundingW, boundingH)
 	
