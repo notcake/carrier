@@ -3,6 +3,8 @@ Svg.Path = Class (self, Svg.Element)
 
 local math_atan2 = math.atan2
 local math_cos   = math.cos
+local math_floor = math.floor
+local math_log   = math.log
 local math_max   = math.max
 local math_pi    = math.pi
 local math_rad   = math.rad
@@ -12,16 +14,16 @@ local math_sqrt  = math.sqrt
 local Cat_UnpackedMatrix2x2d_VectorMultiply = Cat.UnpackedMatrix2x2d.VectorMultiply
 local Cat_UnpackedVector2d_Equals           = Cat.UnpackedVector2d.Equals
 
-function Svg.Path.FromXmlElement (element)
+function Svg.Path.FromXmlElement (xmlElement)
 	local path = Svg.Path ()
 	
-	local fill = element:GetAttribute ("fill") or "#000"
+	local fill = xmlElement:GetAttribute ("fill") or "#000"
 	path:SetFillColor (string.lower (fill) ~= "none" and Color.FromHTMLColor (fill) or nil)
 	
-	local stroke = element:GetAttribute ("stroke") or "none"
+	local stroke = xmlElement:GetAttribute ("stroke") or "none"
 	path:SetStrokeColor (string.lower (stroke) ~= "none" and Color.FromHTMLColor (stroke) or nil)
 	
-	local d = element:GetAttribute ("d") or ""
+	local d = xmlElement:GetAttribute ("d") or ""
 	local parser = PathParser (d)
 	
 	local x0, y0 = 0, 0
@@ -261,33 +263,34 @@ function self:ctor ()
 	
 	self.PathCommands  = {}
 	self.PathArguments = {}
+	
+	self.GeometryCache = {}
 end
 
 -- Element
-function self:Render (render2d, x, y)
-	local dx, dy = x, y
-	local ds = 1
+function self:RenderContents (render2d, resolution)
+	local ds = 2 ^ math_floor (math_log (resolution, 2))
 	if self.FillColor ~= nil then
-		if not self.Polygons then
+		if not self.GeometryCache [ds] then
 			local polygonCount = 0
-			self.Polygons = self.Polygons or {}
+			self.GeometryCache [ds] = self.GeometryCache [ds] or {}
 			local polygon = nil
 			local x0, y0 = 0, 0
 			local lastX, lastY = 0, 0
 			for command, x, y, cx1, cy1, cx2, cy2, clockwise in self:GetEnumerator () do
 				if command == Svg.PathCommand.MoveTo then
 					polygonCount = polygonCount + 1
-					polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+					polygon = self.GeometryCache [ds] [polygonCount] or Photon.Polygon ()
 					polygon:Clear ()
-					self.Polygons [polygonCount] = polygon
+					self.GeometryCache [ds] [polygonCount] = polygon
 					polygon:AddPoint (x, y)
 					x0, y0 = x, y
 				elseif command == Svg.PathCommand.LineTo then
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon = self.GeometryCache [ds] [polygonCount] or Photon.Polygon ()
 						polygon:Clear ()
-						self.Polygons [polygonCount] = polygon
+						self.GeometryCache [ds] [polygonCount] = polygon
 						polygon:AddPoint (x0, y0)
 					end
 					
@@ -295,9 +298,9 @@ function self:Render (render2d, x, y)
 				elseif command == Svg.PathCommand.QuadraticBezierCurveTo then
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon = self.GeometryCache [ds] [polygonCount] or Photon.Polygon ()
 						polygon:Clear ()
-						self.Polygons [polygonCount] = polygon
+						self.GeometryCache [ds] [polygonCount] = polygon
 						polygon:AddPoint (x0, y0)
 					end
 					
@@ -311,9 +314,9 @@ function self:Render (render2d, x, y)
 				elseif command == Svg.PathCommand.CubicBezierCurveTo then
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon = self.GeometryCache [ds] [polygonCount] or Photon.Polygon ()
 						polygon:Clear ()
-						self.Polygons [polygonCount] = polygon
+						self.GeometryCache [ds] [polygonCount] = polygon
 						polygon:AddPoint (x0, y0)
 					end
 					
@@ -327,9 +330,9 @@ function self:Render (render2d, x, y)
 				elseif command == Svg.PathCommand.ArcTo then
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon = self.GeometryCache [ds] [polygonCount] or Photon.Polygon ()
 						polygon:Clear ()
-						self.Polygons [polygonCount] = polygon
+						self.GeometryCache [ds] [polygonCount] = polygon
 						polygon:AddPoint (x0, y0)
 					end
 					
@@ -388,9 +391,9 @@ function self:Render (render2d, x, y)
 				else
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.Polygons [polygonCount] or Photon.Polygon ()
+						polygon = self.GeometryCache [ds] [polygonCount] or Photon.Polygon ()
 						polygon:Clear ()
-						self.Polygons [polygonCount] = polygon
+						self.GeometryCache [ds] [polygonCount] = polygon
 						polygon:AddPoint (x0, y0)
 					end
 					
@@ -399,19 +402,9 @@ function self:Render (render2d, x, y)
 				
 				lastX, lastY = x, y
 			end
-			
-			for i = #self.Polygons, polygonCount + 1, -1 do
-				self.Polygons [i] = nil
-			end
-			
-			if dx ~= 0 or dy ~= 0 then
-				for i = 1, #self.Polygons do
-					self.Polygons [i]:Translate (dx, dy)
-				end
-			end
 		end
 		
-		render2d:FillPolygonEvenOdd (self.FillColor, self.Polygons)
+		render2d:FillPolygonEvenOdd (self.FillColor, self.GeometryCache [ds])
 	end
 	
 	if self.StrokeColor ~= nil then

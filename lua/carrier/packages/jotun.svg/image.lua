@@ -5,29 +5,24 @@ function Svg.Image.FromXml (xml)
 	return Svg.Image.FromXmlDocument (Xml.Parse (xml))
 end
 
-function Svg.Image.FromXmlDocument (document)
+function Svg.Image.FromXmlDocument (xmlDocument)
 	local image = Svg.Image ()
 	
-	local viewBox = document:GetAttribute ("viewBox") or "0 0 128 128"
-	local x, y, w, h = string.match (document:GetAttribute ("viewBox"), "(%d*)%s*(%d*)%s*(%d*)%s*(%d*)")
-	x = tonumber (x) or 0
-	y = tonumber (y) or 0
-	w = tonumber (w) or 128
-	h = tonumber (h) or 128
+	local viewBox = xmlDocument:GetAttribute ("viewBox") or "0 0 128 128"
+	local parser = PathParser (viewBox)
+	x = parser:AcceptNumber () or 0
+	parser:AcceptCommaWhitespace ()
+	y = parser:AcceptNumber () or 0
+	parser:AcceptCommaWhitespace ()
+	w = parser:AcceptNumber () or 128
+	parser:AcceptCommaWhitespace ()
+	h = parser:AcceptNumber () or 128
+	parser:AcceptCommaWhitespace ()
 	image:SetViewRectangle (x, y, w, h)
 	
-	for node in document:GetChildEnumerator () do
+	for node in xmlDocument:GetChildEnumerator () do
 		if node:GetNodeType () == Xml.NodeType.Element then
-			local type = string.lower (node:GetName ())
-			if type == "path" then
-				image:AddChild (Svg.Path.FromXmlElement (node))
-			elseif type == "polygon" then
-				image:AddChild (Svg.Polygon.FromXmlElement (node))
-			elseif type == "text" then
-				image:AddChild (Svg.Text.FromXmlElement (node))
-			else
-				assert (false, type)
-			end
+			image:AddChild (Svg.Element.FromXmlElement (node))
 		end
 	end
 	
@@ -122,9 +117,25 @@ function self:GetChildEnumerator ()
 	return ArrayEnumerator (self.Children)
 end
 
+local matrix3x3d = Cat.Matrix3x3d.Identity ()
 function self:Render (render2d, x, y)
 	local x, y = x - self.ViewX, y - self.ViewY
+	
+	if x == 0 and y == 0 then
+		self:RenderContents (render2d, 1)
+	else
+		matrix3x3d [2], matrix3x3d [5] = x, y
+		render2d:WithMatrixMultiplyRight (matrix3x3d,
+			function ()
+				self:RenderContents (render2d, 1)
+			end
+		)
+	end
+end
+
+-- Internal
+function self:RenderContents (render2d, resolution)
 	for element in self:GetChildEnumerator () do
-		element:Render (render2d, x, y)
+		element:Render (render2d, resolution)
 	end
 end

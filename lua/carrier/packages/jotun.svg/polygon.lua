@@ -1,16 +1,16 @@
 local self = {}
 Svg.Polygon = Class (self, Svg.Element)
 
-function Svg.Polygon.FromXmlElement (element)
+function Svg.Polygon.FromXmlElement (xmlElement)
 	local polygon = Svg.Polygon ()
 	
-	local fill = element:GetAttribute ("fill") or "#000"
+	local fill = xmlElement:GetAttribute ("fill") or "#000"
 	polygon:SetFillColor (string.lower (fill) ~= "none" and Color.FromHTMLColor (fill) or nil)
 	
-	local stroke = element:GetAttribute ("stroke") or "none"
+	local stroke = xmlElement:GetAttribute ("stroke") or "none"
 	polygon:SetStrokeColor (string.lower (stroke) ~= "none" and Color.FromHTMLColor (stroke) or nil)
 	
-	local points = element:GetAttribute ("points") or ""
+	local points = xmlElement:GetAttribute ("points") or ""
 	local parser = PathParser (points)
 	
 	parser:AcceptWhitespace ()
@@ -32,7 +32,9 @@ function self:ctor ()
 	self.Polygon     = Photon.Polygon ()
 end
 
-function self:Render (render2d, x, y)
+-- Element
+-- Internal
+function self:RenderContents (render2d, resolution)
 	render2d:FillPolygonEvenOdd (self.FillColor, self.Polygon)
 end
 

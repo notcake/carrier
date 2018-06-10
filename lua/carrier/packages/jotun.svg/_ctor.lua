@@ -23,6 +23,7 @@ StringParser = require ("Eka.StringParser")
 
 include ("image.lua")
 include ("element.lua")
+include ("group.lua")
 include ("path.lua")
 include ("pathcommand.lua")
 include ("pathparser.lua")

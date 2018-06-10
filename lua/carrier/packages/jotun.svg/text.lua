@@ -3,22 +3,22 @@ Svg.Text = Class (self, Svg.Element)
 
 local defaultFont = Glass.Font ("Times New Roman", 12)
 
-function Svg.Text.FromXmlElement (element)
+function Svg.Text.FromXmlElement (xmlElement)
 	local text = Svg.Text ()
 	
-	text:SetText (element:GetInnerText ())
+	text:SetText (xmlElement:GetInnerText ())
 	
-	local x = tonumber (element:GetAttribute ("x")) or 0
-	local y = tonumber (element:GetAttribute ("y")) or 0
+	local x = tonumber (xmlElement:GetAttribute ("x")) or 0
+	local y = tonumber (xmlElement:GetAttribute ("y")) or 0
 	text:SetPosition (x, y)
 	
-	local fontSize = tonumber (element:GetAttribute ("font-size")) or 12
+	local fontSize = tonumber (xmlElement:GetAttribute ("font-size")) or 12
 	text:SetFont (text:GetFont ():WithSize (fontSize))
 	
-	local fill = element:GetAttribute ("fill") or "#000"
+	local fill = xmlElement:GetAttribute ("fill") or "#000"
 	text:SetColor (Color.FromHTMLColor (fill))
 	
-	local textAnchor = element:GetAttribute ("text-anchor") or "start"
+	local textAnchor = xmlElement:GetAttribute ("text-anchor") or "start"
 	textAnchor = string.lower (textAnchor)
 	
 	if textAnchor == "start" then
@@ -46,8 +46,8 @@ function self:ctor (x, y, color)
 end
 
 -- Element
-function self:Render (render2d, x, y)
-	render2d:GetTextRenderer ():DrawTextAligned (self.Text, self.Font, self.Color, self.X + x, self.Y + y, self.HorizontalAlignment, Glass.VerticalAlignment.Bottom)
+function self:RenderContents (render2d, resolution)
+	render2d:GetTextRenderer ():DrawTextAligned (self.Text, self.Font, self.Color, self.X, self.Y, self.HorizontalAlignment, Glass.VerticalAlignment.Bottom)
 end
 
 -- Text
