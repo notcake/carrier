@@ -41,7 +41,7 @@ function self:Receive (length)
 end
 
 function self:ReceiveLine (terminator)
-	local terminator = "\n"
+	local terminator = terminator or "\n"
 	local line = ""
 	while true do
 		local data = self:Receive (1)
