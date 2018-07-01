@@ -51,13 +51,13 @@ end
 
 function self:RemoveHook (eventName, id)
 	self:Remove (self.Hooks, eventName, id)
-	hook.Remove (eventName, id, f)
+	hook.Remove (eventName, id)
 end
 
 function self:RemovePostHook (eventName, id)
-	self:Remove (self.PostHooks, eventName, id)
+	local wasLastHook = self:Remove (self.PostHooks, eventName, id)
 	if wasLastHook then
-		self:UninstallPostHook (eventName)
+		self:UpdatePrePostHook (eventName)
 	end
 end
 
@@ -75,9 +75,9 @@ end
 function self:Remove (hookTable, eventName, id)
 	if not hookTable [eventName] then return false end
 	
-	hookTable [eventName] [id] = f
+	hookTable [eventName] [id] = nil
 	
-	return next (hookTable [eventName] == nil)
+	return next (hookTable [eventName]) == nil
 end
 
 function self:Dispatch (hookTable, eventName, ...)
@@ -112,14 +112,14 @@ function self:AddPrePostHook (eventName)
 			
 			if self.InstalledPrePostHooks [eventName] and
 			   next (hook.GetTable () [eventName]) ~= self.PreHookName then
-				self:AssertPrePostHook ()
+				self:AssertPrePostHook (eventName)
 			end
 		end
 	)
 	
 	local hookTable = hook.GetTable () [eventName]
 	if next (hookTable) ~= self.PreHookName then
-		self:AssertPrePostHook ()
+		self:AssertPrePostHook (eventName)
 	end
 	
 	self.InstalledPrePostHooks [eventName] = true
