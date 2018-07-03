@@ -178,9 +178,9 @@ if package and signature then
 end
 
 -- Workaround for HTTP failed - ISteamHTTP isn't available!
-hook.Add ("Tick", "Carrier.Preboostrap",
+hook.Add ("Tick", "Carrier.Prebootstrap",
 	function ()
-		hook.Remove ("Tick", "Carrier.Preboostrap")
+		hook.Remove ("Tick", "Carrier.Prebootstrap")
 		
 		Fetch ("https://garrysmod.io/api/packages/v1/bootstrap",
 			function (success, data)
