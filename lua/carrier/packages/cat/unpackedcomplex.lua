@@ -1,3 +1,12 @@
+local tostring   = tostring
+
+local math_atan2 = math.atan2
+local math_cos   = math.cos
+local math_exp   = math.exp
+local math_log   = math.log
+local math_sin   = math.sin
+local math_sqrt  = math.sqrt
+
 Cat.UnpackedComplex = Table.Callable (
 	function (a, b)
 		return a, b
@@ -43,11 +52,11 @@ end
 
 -- Other
 function Cat.UnpackedComplex.Abs (ar, ai)
-	return math.sqrt (ar * ar + ai * ai)
+	return math_sqrt (ar * ar + ai * ai)
 end
 
 function Cat.UnpackedComplex.Arg (ar, ai)
-	return math.atan2 (ai, ar)
+	return math_atan2 (ai, ar)
 end
 
 function Cat.UnpackedComplex.Conjugate (ar, ai)
@@ -56,10 +65,23 @@ end
 
 function Cat.UnpackedComplex.Exp (ar, ai)
 	-- e^(ar + i ai) = e^ar e^(i ai)
-	local k = math.exp (ar)
-	return k * math.cos (ai), k * math.sin (ai)
+	local k = math_exp (ar)
+	return k * math_cos (ai), k * math_sin (ai)
 end
 
 function Cat.UnpackedComplex.Log (ar, ai)
-	return math.log (Cat.UnpackedComplex.Abs (ar, ai)), Cat.UnpackedComplex.Arg (ar, ai)
+	return math_log (Cat.UnpackedComplex.Abs (ar, ai)), Cat.UnpackedComplex.Arg (ar, ai)
+end
+
+-- Utility
+function Cat.UnpackedComplex.Clone (ar, ai)
+	return ar, ai
+end
+
+function Cat.UnpackedComplex.Equals (ar, ai, br, bi)
+	return ar == br and ai == bi
+end
+
+function Cat.UnpackedComplex.ToString (ar, ai)
+	return tostring (ar) .. " + " .. tostring (ai) .. "i"
 end
