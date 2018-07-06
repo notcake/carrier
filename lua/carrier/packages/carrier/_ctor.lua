@@ -36,6 +36,7 @@ end
 
 local debugColor = Color (192, 192, 192)
 function Carrier.Debug (message)
+	if not Carrier.IsLocalDeveloperEnabled () then return end
 	MsgC (debugColor, "Carrier: " .. message .. "\n")
 end
 
