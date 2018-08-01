@@ -907,6 +907,10 @@ function self:FlatMap (f)
 end
 self.MapAsync = self.FlatMap
 
+function self:IsResolved ()
+	return self.Resolved
+end
+
 function self:Resolve (...)
 	assert (not self.Resolved, "Future resolved twice!")
 	
@@ -943,12 +947,13 @@ function self:Await ()
 	return coroutine.yield ()
 end
 
-self.map      = self.Map
-self.flatMap  = self.FlatMap
-self.mapAsync = self.MapAsync
-self.resolve  = self.Resolve
-self.await    = self.Await
-self.wait     = self.Wait
+self.map        = self.Map
+self.flatMap    = self.FlatMap
+self.mapAsync   = self.MapAsync
+self.isResolved = self.IsResolved
+self.resolve    = self.Resolve
+self.await      = self.Await
+self.wait       = self.Wait
 
 function Future.Resolved (...)
 	local future = Future ()
@@ -1229,6 +1234,28 @@ function self:ctor ()
 	self.Buffer = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 end
 
+function self:Clone (out)
+	local out = out or Crypto.MD5 ()
+	
+	for i = 1, 8 do
+		out.State [i] = self.State [i]
+	end
+	
+	out.Length = self.Length
+	for i = 1, 16 do
+		out.Buffer [i] = self.Buffer [i]
+	end
+	
+	return out
+end
+
+function self:Reset ()
+	self.State [1], self.State [2], self.State [3], self.State [4], self.State [5], self.State [6], self.State [7], self.State [8] = 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+	
+	self.Length = 0
+	for i = 1, 16 do self.Buffer [i] = 0 end
+end
+
 local blockSize = 16
 function self:Update (data)
 	if #data == 0 then return self end
@@ -1383,6 +1410,26 @@ function self:ctor ()
 	
 	self.Length = 0
 	self.Buffer = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+end
+
+function self:Clone (out)
+	local out = out or Crypto.MD5 ()
+	
+	out.A, out.B, out.C, out.D = self.A, self.B, self.C, self.D
+	
+	out.Length = self.Length
+	for i = 1, 16 do
+		out.Buffer [i] = self.Buffer [i]
+	end
+	
+	return out
+end
+
+function self:Reset ()
+	self.A, self.B, self.C, self.D = 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
+	
+	self.Length = 0
+	for i = 1, 16 do self.Buffer [i] = 0 end
 end
 
 local blockSize = 16
@@ -1666,6 +1713,7 @@ end
 
 local UInt24 = {}
 
+
 local bit_band   = bit.band
 local math_floor = math.floor
 local math_log   = math.log
@@ -1732,6 +1780,7 @@ local UInt24 = UInt24
 
 local self = {}
 local BigInteger = OOP.Class (self)
+
 
 local tonumber      = tonumber
 
@@ -1919,9 +1968,9 @@ function self:ctor ()
 end
 
 function self:GetBitCount ()
-	local leadingBitCount = 1 + math_floor (math_log (self [#self - 1]) / math_log (2))
+	local leadingBitCount = 1 + math_floor (math_log (self [#self - 1] or 0) / math_log (2))
 	leadingBitCount = math_max (0, leadingBitCount)
-	local bitCount = (#self - 2) * UInt24_BitCount
+	local bitCount = math_max (0, #self - 2) * UInt24_BitCount
 	return bitCount + leadingBitCount
 end
 
@@ -1999,8 +2048,10 @@ function self:Add (b, out)
 	for i = 1, math_min(#a, #b) do
 		out [i], cf = UInt24_AddWithCarry (a [i], b [i], cf)
 	end
-	for i = #a + 1, #b do out [i], cf = UInt24_AddWithCarry (a [#a], b [i], cf) end
-	for i = #b + 1, #a do out [i], cf = UInt24_AddWithCarry (a [i], b [#b], cf) end
+	local sign = a [#a]
+	for i = #a + 1, #b do out [i], cf = UInt24_AddWithCarry (sign, b [i], cf) end
+	local sign = b [#b]
+	for i = #b + 1, #a do out [i], cf = UInt24_AddWithCarry (a [i], sign, cf) end
 	out:Truncate (math_max (#a, #b))
 	if out [#out] ~= Sign_Positive and
 	   out [#out] ~= Sign_Negative then
@@ -2019,8 +2070,10 @@ function self:Subtract (b, out)
 	for i = 1, math_min (#a, #b) do
 		out [i], cf = UInt24_SubtractWithBorrow (a [i], b [i], cf)
 	end
-	for i = #a + 1, #b do out [i], cf = UInt24_SubtractWithBorrow (a [#a], b [i], cf) end
-	for i = #b + 1, #a do out [i], cf = UInt24_SubtractWithBorrow (a [i], b [#b], cf) end
+	local sign = a [#a]
+	for i = #a + 1, #b do out [i], cf = UInt24_SubtractWithBorrow (sign, b [i], cf) end
+	local sign = b [#b]
+	for i = #b + 1, #a do out [i], cf = UInt24_SubtractWithBorrow (a [i], sign, cf) end
 	out:Truncate (math_max (#a, #b))
 	if out [#out] ~= Sign_Positive and
 	   out [#out] ~= Sign_Negative then
@@ -2309,6 +2362,50 @@ function self:Not (out)
 	
 	return out
 end
+
+function self:ShiftLeft (n, out)
+	local out = out or BigInteger ()
+	
+	local elementCount = math_floor (n / UInt24_BitCount)
+	local k1 = bit_lshift (1, n % UInt24_BitCount)
+	local k2 = 1 / bit_lshift (1, UInt24_BitCount - n % UInt24_BitCount)
+	local mod = UInt24_Maximum + 1
+	
+	local n = #self
+	local sign = self [n]
+	out:Truncate (n + elementCount + 1)
+	out [n + elementCount + 1] = (sign * k1 + math_floor (self [n] * k2)) % mod
+	for i = n + elementCount, elementCount + 2, -1 do
+		out [i] = (self [i - elementCount] * k1 + math_floor (self [i - elementCount - 1] * k2)) % mod
+	end
+	out [elementCount + 1] = self [1] * k1 % mod
+	for i = elementCount, 1, -1 do
+		out [i] = 0
+	end
+	
+	out:Normalize ()
+	
+	return out
+end
+
+function self:ShiftRight (n, out)
+	local out = out or BigInteger ()
+	
+	local elementCount = math_floor (n / UInt24_BitCount)
+	local k1 = bit_lshift (1, UInt24_BitCount - n % UInt24_BitCount)
+	local k2 = 1 / bit_lshift (1, n % UInt24_BitCount)
+	local mod = UInt24_Maximum + 1
+	
+	for i = 1, #self - elementCount - 1 do
+		out [i] = (self [i + elementCount + 1] * k1 + math_floor (self [i + elementCount] * k2)) % mod
+	end
+	out [math_max (0, #self - elementCount)] = self [#self]
+	
+	out:Truncate (math_max (1, #self - elementCount))
+	out:Normalize ()
+	
+	return out
+end
 function self:GCD (b)
 	local a = self
 	
@@ -2348,7 +2445,7 @@ function self:Root (n)
 	local temp1 = BigInteger ()
 	local temp2 = BigInteger ()
 	local lowerBound = one:Clone ()
-	local upperBound = two:Exponentiate (BigInteger.FromDouble (self:GetBitCount ()) / n + 1)
+	local upperBound = one:ShiftLeft (BigInteger.FromDouble (self:GetBitCount ()) / n + 1)
 	local mid = BigInteger ()
 	while not lowerBound:Equals (upperBound) do
 		temp1 = lowerBound:Add (upperBound, temp1)
@@ -2371,7 +2468,7 @@ function self:Root (n)
 end
 function self:ToBlob ()
 	local t = {}
-	local x = self [#self - 1]
+	local x = self [#self - 1] or self [#self]
 	local c0 = bit_rshift (x, 16)
 	local c1 = bit_band (bit_rshift (x, 8), 0xFF)
 	local c2 = bit_band (x, 0xFF)
@@ -2414,20 +2511,26 @@ function self:ToDecimal ()
 end
 
 function self:ToHex (digitCount)
-	if #self == 1 then return string_rep (self [#self] == UInt24_Zero and "0" or "f", digitCount or 2) end
+	if #self == 1 then
+		return string_rep (self [#self] == UInt24_Zero and "0" or "f", digitCount or 2)
+	end
 	
 	local t = {}
-	if digitCount then
-		digitCount = math_max (0, digitCount - 6 * (#self - 2))
+	local leadingDigitCount = digitCount and math_max (0, digitCount - 6 * (#self - 2)) or nil
+	if leadingDigitCount then
+		if leadingDigitCount > 6 then
+			t [#t + 1] = string_rep (self:IsNegative () and "f" or "0", leadingDigitCount - 6)
+			leadingDigitCount = 6
+		end
+		t [#t + 1] = string_format ("%0" .. leadingDigitCount .. "x", self [#self - 1])
 	else
-		digitCount = 2
+		local s = string_format ("%x", self [#self - 1])
+		if #s % 2 == 1 then
+			t [#t + 1] = self:IsNegative () and "f" or "0"
+		end
+		
+		t [#t + 1] = s
 	end
-	if self:IsNegative () and digitCount > 6 then
-		t [#t + 1] = string_rep ("f", digitCount - 6)
-		digitCount = 6
-	end
-	
-	t [#t + 1] = string_format ("%0" .. digitCount .. "x", self [#self - 1])
 	for i = #self - 2, 1, -1 do
 		t [#t + 1] = string_format ("%06x", self [i])
 	end
@@ -2462,12 +2565,12 @@ function self:TruncateAndZero (elementCount)
 	BigInteger_Truncate (self, elementCount)
 end
 
-function self:MontgomeryReduce (m′, m, out, temp)
+function self:MontgomeryReduce (m2, m, out, temp)
 	out = out or BigInteger ()
 	out:TruncateAndZero (#m + #m - 1)
 	for i = 1, #self do out [i] = self [i] end
 	for i = 1, #m - 1 do
-		local u = UInt24_Multiply (out [i], m′ [1])
+		local u = UInt24_Multiply (out [i], m2 [1])
 		
 		local high = 0
 		for j = 1, #m - 1 do
@@ -2501,8 +2604,8 @@ function self:MontgomeryExponentiateMod (exponent, m)
 	end
 	temp2 [#m] = 0x00000001
 	temp2 [#m + 1] = Sign_Positive
-	local m′ = m:ModularInverse (temp1)
-	m′ [1] = -m′ [1] + 0x01000000
+	local m2 = m:ModularInverse (temp1)
+	m2 [1] = -m2 [1] + 0x01000000
 	local out = temp2:Mod (m, BigInteger (), temp1)
 	local factor = self:Multiply (out, temp1):Mod (m, BigInteger (), temp2)
 	for i = 1, #exponent - 1 do
@@ -2510,16 +2613,16 @@ function self:MontgomeryExponentiateMod (exponent, m)
 		for j = 1, UInt24_BitCount do
 			if bit_band (exponent [i], mask) ~= 0 then
 				temp1 = out:Multiply (factor, temp1)
-				out, temp2 = temp1:MontgomeryReduce (m′, m, out, temp2)
+				out, temp2 = temp1:MontgomeryReduce (m2, m, out, temp2)
 			end
 			
 			mask = mask * 2
 			temp1 = factor:Square (temp1)
-			factor, temp2 = temp1:MontgomeryReduce (m′, m, factor, temp2)
+			factor, temp2 = temp1:MontgomeryReduce (m2, m, factor, temp2)
 		end
 	end
 	
-	return out:MontgomeryReduce (m′, m, temp1, temp2)
+	return out:MontgomeryReduce (m2, m, temp1, temp2)
 end
 
 function self:__unm ()
@@ -2580,6 +2683,7 @@ local BigInteger = BigInteger
 
 
 local BitConverter = {}
+
 
 local bit_band   = bit.band
 local bit_lshift = bit.lshift
@@ -4211,6 +4315,8 @@ end
 
 local debugColor = Color (192, 192, 192)
 function Carrier.Debug (message)
+	if not Carrier.IsLocalDeveloperEnabled () then return end
+	
 	MsgC (debugColor, "Carrier: " .. message .. "\n")
 end
 

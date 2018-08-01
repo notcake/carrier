@@ -51,6 +51,28 @@ function self:ctor ()
 	self.Buffer = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 end
 
+function self:Clone (out)
+	local out = out or Crypto.MD5 ()
+	
+	for i = 1, 8 do
+		out.State [i] = self.State [i]
+	end
+	
+	out.Length = self.Length
+	for i = 1, 16 do
+		out.Buffer [i] = self.Buffer [i]
+	end
+	
+	return out
+end
+
+function self:Reset ()
+	self.State [1], self.State [2], self.State [3], self.State [4], self.State [5], self.State [6], self.State [7], self.State [8] = 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+	
+	self.Length = 0
+	for i = 1, 16 do self.Buffer [i] = 0 end
+end
+
 local blockSize = 16
 function self:Update (data)
 	if #data == 0 then return self end
@@ -546,7 +568,7 @@ function self:TruncateAndZero (elementCount)
 end
 function self:ToBlob ()
 	local t = {}
-	local x = self [#self - 1]
+	local x = self [#self - 1] or self [#self]
 	local c0 = bit_rshift (x, 16)
 	local c1 = bit_band (bit_rshift (x, 8), 0xFF)
 	local c2 = bit_band (x, 0xFF)
@@ -679,9 +701,9 @@ if package and signature then
 end
 
 -- Workaround for HTTP failed - ISteamHTTP isn't available!
-hook.Add ("Tick", "Carrier.Preboostrap",
+hook.Add ("Tick", "Carrier.Prebootstrap",
 	function ()
-		hook.Remove ("Tick", "Carrier.Preboostrap")
+		hook.Remove ("Tick", "Carrier.Prebootstrap")
 		
 		Fetch ("https://garrysmod.io/api/packages/v1/bootstrap",
 			function (success, data)
