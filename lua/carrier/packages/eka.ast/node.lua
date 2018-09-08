@@ -102,8 +102,8 @@ function self:ReplaceVisit (preReplacer, postReplacer)
 		function (childNode)
 			local replacement = preReplacer (childNode)
 			local childNode = replacement or childNode
-			childNode:ReplaceChildren (preReplacer, postReplacer)
-			return postReplacer (childNode)
+			childNode:ReplaceVisit (preReplacer, postReplacer)
+			return postReplacer (childNode) or replacement
 		end
 	)
 end
