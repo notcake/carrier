@@ -31,6 +31,10 @@ function self:EvaluateConstant (cachingEvaluator)
 	return inner and self.Operator:Evaluate (inner) or nil
 end
 
+function self:IsConstant ()
+	return self.InnerExpression:IsConstant ()
+end
+
 function self:IsOperatorExpression ()
 	return true
 end

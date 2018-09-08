@@ -37,6 +37,10 @@ function self:EvaluateConstant (cachingEvaluator)
 	return (left and right) and self.Operator:Evaluate (left, right) or nil
 end
 
+function self:IsConstant ()
+	return self.LeftExpression:IsConstant () and self.RightExpression:IsConstant ()
+end
+
 function self:IsOperatorExpression ()
 	return true
 end
