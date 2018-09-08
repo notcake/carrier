@@ -95,3 +95,13 @@ function self:InsertStatements (insertionIndex, statements)
 		table.insert (self.Statements, insertionIndex + i - 1, statements [i])
 	end
 end
+
+function self:RemoveStatement (index)
+	self:RemoveStatements (index, 1)
+end
+
+function self:RemoveStatements (index, length)
+	for i = index, #self.Statements do
+		self.Statements [i] = self.Statements [i + length]
+	end
+end

@@ -11,3 +11,12 @@ self.ChildrenFieldNames = { "Identifier" }
 function self:ToString ()
 	return self.Identifier:ToString ()
 end
+
+-- VariableAccess
+function self:GetIdentifier ()
+	return self.Identifier
+end
+
+function self:SetIdentifier (identifier)
+	self.Identifier = identifier
+end
