@@ -7,11 +7,7 @@ function self:ctor (accessExpression, expression)
 end
 
 -- Node
-function self:GetChildEnumerator ()
-	coroutine.yield (self.AccessExpression)
-	coroutine.yield (self.Expression)
-end
-self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
+self.ChildrenFieldNames = { "AccessExpression", "Expression" }
 
 function self:ToString ()
 	return self.AccessExpression:ToString () .. " = " .. self.Expression:ToString ()

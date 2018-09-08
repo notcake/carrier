@@ -9,11 +9,7 @@ function self:ctor (operator, leftExpression, rightExpression)
 end
 
 -- Node
-function self:GetChildEnumerator ()
-	coroutine.yield (self.LeftExpression)
-	coroutine.yield (self.RightExpression)
-end
-self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
+self.ChildrenFieldNames = { "LeftExpression", "RightExpression" }
 
 function self:ToString ()
 	local leftExpression  = self.LeftExpression:ToString ()

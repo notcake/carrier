@@ -6,9 +6,7 @@ function self:ctor (expression)
 end
 
 -- Node
-function self:GetChildEnumerator ()
-	return SingleValueEnumerator (self.Expression)
-end
+self.ChildrenFieldNames = { "Expression" }
 
 function self:ToString ()
 	return self.Expression:ToString () .. ";"

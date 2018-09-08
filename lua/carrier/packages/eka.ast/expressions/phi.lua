@@ -1,5 +1,5 @@
 local self = {}
-AST.Expressions.Phi = Class (self)
+AST.Expressions.Phi = Class (self, AST.Node)
 
 function AST.Expressions.Phi.Union (expression1, value1, expression2, value2)
 	local phi = AST.Expressions.Phi ()
@@ -21,12 +21,24 @@ function self:ctor ()
 end
 
 -- Node
+function self:IsPhi ()
+	return true
+end
+
 function self:GetChildEnumerator ()
 	return KeyEnumerator (self.Expressions)
 end
 
-function self:IsPhi ()
-	return true
+function self:ReplaceChildren (replacer)
+	local replacements = {}
+	for node, value in pairs (self.Expressions) do
+		replacements [node] = replacer (node)
+	end
+	
+	for node, replacement in pairs (replacements) do
+		self.Expressions [replacement] = self.Expressions [node]
+		self.Expressions [node] = nil
+	end
 end
 
 function self:ToString ()

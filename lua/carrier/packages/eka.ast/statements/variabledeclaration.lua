@@ -7,11 +7,7 @@ function self:ctor (identifier, expression)
 end
 
 -- Node
-function self:GetChildEnumerator ()
-	coroutine.yield (self.Identifier)
-	coroutine.yield (self.Expression)
-end
-self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
+self.ChildrenFieldNames = { "Identifier", "Expression" }
 
 function self:ToString ()
 	if self.Expression then

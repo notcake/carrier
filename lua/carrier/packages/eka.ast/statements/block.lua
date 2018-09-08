@@ -10,6 +10,12 @@ function self:GetChildEnumerator ()
 	return ArrayEnumerator (self.Statements)
 end
 
+function self:ReplaceChildren (replacer)
+	for i = 1, #self.Statements do
+		self.Statements [i] = replacer (self.Statements [i]) or self.Statements [i]
+	end
+end
+
 function self:ToString ()
 	if #self.Statements == 0 then return "{}"
 	elseif #self.Statements == 1 and self.Statements [1]:IsControlFlowDiscontinuity () then

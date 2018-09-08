@@ -6,9 +6,7 @@ function self:ctor (identifier)
 end
 
 -- Node
-function self:GetChildEnumerator ()
-	return SingleValueEnumerator (self.Identifier)
-end
+self.ChildrenFieldNames = { "Identifier" }
 
 function self:ToString ()
 	return self.Identifier:ToString () .. ":"

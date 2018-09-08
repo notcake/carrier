@@ -5,6 +5,10 @@ function self:ctor ()
 end
 
 -- Node
+function self:IsPhi ()
+	return false
+end
+
 function self:Clone (cachingCloner)
 	local clone = self:GetType () ()
 	for k, v in pairs (self) do
@@ -14,19 +18,70 @@ function self:Clone (cachingCloner)
 	return clone
 end
 
+self.ChildrenFieldNames = {}
 function self:GetChildEnumerator ()
-	return NullEnumerator ()
+	local i = 0
+	return function ()
+		i = i + 1
+		return self [self.ChildrenFieldNames [i]]
+	end
 end
 
-function self:IsPhi ()
-	return false
+function self:ReplaceChildren (replacer)
+	for i = 1, #self.ChildrenFieldNames do
+		local fieldName = self.ChildrenFieldNames [i]
+		local childNode = self [fieldName]
+		if childNode then
+			self [fieldName] = replacer (childNode) or childNode
+		end
+	end
+end
+
+-- Visitors
+function self:VisitChildren (visitor)
+	for childNode in self:GetChildEnumerator () do
+		visitor (childNode)
+	end
 end
 
 function self:PreVisit (visitor)
 	visitor (self)
 	
-	for childNode in self:GetChildEnumerator () do
-		childNode:Visit (visitor)
-	end
+	self:VisitChildren (
+		function (childNode)
+			return childNode:PreVisit (visitor)
+		end
+	)
 end
 self.Visit = self.PreVisit
+
+function self:PostVisit (visitor)
+	self:VisitChildren (
+		function (childNode)
+			return childNode:PostVisit (visitor)
+		end
+	)
+	
+	visitor (self)
+end
+
+function self:PreReplaceVisit (replacer)
+	self:ReplaceChildren (
+		function (childNode)
+			local replacement = replacer (childNode)
+			local childNode = replacement or childNode
+			childNode:PreReplace (replacer)
+			return replacement
+		end
+	)
+end
+self.ReplaceVisit = self.PreReplaceVisit
+
+function self:PostReplaceVisit (replacer)
+	self:ReplaceChildren (
+		function (childNode)
+			childNode:PostReplace (replacer)
+			return replacer (childNode)
+		end
+	)
+end

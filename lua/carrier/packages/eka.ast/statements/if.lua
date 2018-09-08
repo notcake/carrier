@@ -8,12 +8,7 @@ function self:ctor (condition, body, elseStatement)
 end
 
 -- Node
-function self:GetChildEnumerator ()
-	coroutine.yield (self.Condition)
-	coroutine.yield (self.Body)
-	coroutine.yield (self.Else)
-end
-self.GetChildEnumerator = YieldEnumeratorFactory (self.GetChildEnumerator)
+self.ChildrenFieldNames = { "Condition", "Body", "Else" }
 
 function self:ToString ()
 	local s = "if (" .. self.Condition:ToString () .. ") "

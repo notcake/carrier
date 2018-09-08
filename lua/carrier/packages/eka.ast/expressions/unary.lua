@@ -8,9 +8,7 @@ function self:ctor (operator, innerExpression)
 end
 
 -- Node
-function self:GetChildEnumerator ()
-	return SingleValueEnumerator (self.InnerExpression)
-end
+self.ChildrenFieldNames = { "InnerExpression" }
 
 function self:ToString ()
 	local innerExpression = self.InnerExpression:ToString ()
