@@ -53,7 +53,6 @@ function self:PreVisit (visitor)
 		end
 	)
 end
-self.Visit = self.PreVisit
 
 function self:PostVisit (visitor)
 	self:VisitChildren (
@@ -63,6 +62,18 @@ function self:PostVisit (visitor)
 	)
 	
 	visitor (self)
+end
+
+function self:Visit (preVisitor, postVisitor)
+	preVisitor (self)
+	
+	self:VisitChildren (
+		function (childNode)
+			return childNode:Visit (preVisitor, postVisitor)
+		end
+	)
+	
+	postVisitor (self)
 end
 
 function self:PreReplaceVisit (replacer)
@@ -82,6 +93,17 @@ function self:PostReplaceVisit (replacer)
 		function (childNode)
 			childNode:PostReplaceVisit (replacer)
 			return replacer (childNode)
+		end
+	)
+end
+
+function self:ReplaceVisit (preReplacer, postReplacer)
+	self:ReplaceChildren (
+		function (childNode)
+			local replacement = preReplacer (childNode)
+			local childNode = replacement or childNode
+			childNode:ReplaceChildren (preReplacer, postReplacer)
+			return postReplacer (childNode)
 		end
 	)
 end
