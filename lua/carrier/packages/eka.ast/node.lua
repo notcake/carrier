@@ -70,7 +70,7 @@ function self:PreReplaceVisit (replacer)
 		function (childNode)
 			local replacement = replacer (childNode)
 			local childNode = replacement or childNode
-			childNode:PreReplace (replacer)
+			childNode:PreReplaceVisit (replacer)
 			return replacement
 		end
 	)
@@ -80,7 +80,7 @@ self.ReplaceVisit = self.PreReplaceVisit
 function self:PostReplaceVisit (replacer)
 	self:ReplaceChildren (
 		function (childNode)
-			childNode:PostReplace (replacer)
+			childNode:PostReplaceVisit (replacer)
 			return replacer (childNode)
 		end
 	)
