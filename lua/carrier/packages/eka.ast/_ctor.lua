@@ -21,6 +21,9 @@ include ("statements/goto.lua")
 include ("statements/variabledeclaration.lua")
 include ("statements/expression.lua")
 
+include ("statements/destructuringvariabledeclaration.lua")
+include ("statements/destructuringassignment.lua")
+
 include ("comment.lua")
 include ("label.lua")
 
