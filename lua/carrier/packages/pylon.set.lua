@@ -25,10 +25,21 @@ function Set.Intersect (a, b, out)
 end
 Set.intersect = Set.Intersect
 
-function Set.IntersectArray (array)
-	if #array == 0 then return {} end
+function Set.Intersects (a, b)
+	for k, _ in pairs (a) do
+		if b [k] then return true
+	end
 	
-	local out = Set.Copy (array [1])
+	return false
+end
+Set.intersects = Set.Intersects
+
+function Set.IntersectArray (array, out)
+	local out = out or {}
+	
+	if #array == 0 then return out end
+	
+	local out = Set.Copy (array [1], out)
 	
 	for i = 2, #array do
 		for k, _ in pairs (out) do
@@ -66,8 +77,8 @@ function Set.UnionArray (array, out)
 	return out
 end
 
-function Set.Filter (set, f)
-	local out = {}
+function Set.Filter (set, f, out)
+	local out = out or {}
 	for item, _ in pairs (set) do
 		if f (item) then
 			out [item] = true
@@ -77,8 +88,8 @@ function Set.Filter (set, f)
 end
 Set.filter = Set.Filter
 
-function Set.FlatMap (set, f)
-	local out = {}
+function Set.FlatMap (set, f, out)
+	local out = out or {}
 	for item, _ in pairs (set) do
 		for item, _ in pairs (f (item)) do
 			out [item] = true
@@ -95,8 +106,8 @@ function Set.ForEach (set, f)
 end
 Set.forEach = Set.ForEach
 
-function Set.Map (set, f)
-	local out = {}
+function Set.Map (set, f, out)
+	local out = out or {}
 	for item, _ in pairs (set) do
 		out [f (item)] = true
 	end
