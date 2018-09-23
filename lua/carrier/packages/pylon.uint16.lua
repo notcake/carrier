@@ -67,12 +67,21 @@ function UInt16.CountLeadingZeros (x)
 	return 16 - math_max (0, math_floor (1 + math_log(x) / k))
 end
 
-UInt16.add = UInt16.Add
-UInt16.adc = UInt16.AddWithCarry
-UInt16.sub = UInt16.Subtract
-UInt16.sbb = UInt16.SubtractWithBorrow
-UInt16.mul = UInt16.Multiply
-UInt16.div = UInt16.Divide
-UInt16.clz = UInt16.CountLeadingZeros
+function UInt16.PopCount (x)
+	x = bit_band (x, 0x5555) + bit_band (bit_rshift (x, 1), 0x5555)
+	x = bit_band (x, 0x3333) + bit_band (bit_rshift (x, 2), 0x3333)
+	x = bit_band (x, 0x0f0f) + bit_band (bit_rshift (x, 4), 0x0f0f)
+	x = bit_band (x, 0x00ff) +           bit_rshift (x, 8)
+	return x
+end
+
+UInt16.add    = UInt16.Add
+UInt16.adc    = UInt16.AddWithCarry
+UInt16.sub    = UInt16.Subtract
+UInt16.sbb    = UInt16.SubtractWithBorrow
+UInt16.mul    = UInt16.Multiply
+UInt16.div    = UInt16.Divide
+UInt16.clz    = UInt16.CountLeadingZeros
+UInt16.popcnt = UInt16.PopCount
 
 return UInt16

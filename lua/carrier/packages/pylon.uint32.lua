@@ -105,16 +105,26 @@ function UInt32.Divide (low, high, divisor)
 end
 
 local k = math_log (2)
-function UInt24.CountLeadingZeros (x)
+function UInt32.CountLeadingZeros (x)
 	return 32 - math_max (0, math_floor (1 + math_log (x) / k))
 end
 
-UInt32.add = UInt32.Add
-UInt32.adc = UInt32.AddWithCarry
-UInt32.sub = UInt32.Subtract
-UInt32.sbb = UInt32.SubtractWithBorrow
-UInt32.mul = UInt32.Multiply
-UInt32.div = UInt32.Divide
-UInt32.clz = UInt32.CountLeadingZeros
+function UInt32.PopCount (x)
+	x = bit_band (x, 0x55555555) + bit_band (bit_rshift (x,  1), 0x55555555)
+	x = bit_band (x, 0x33333333) + bit_band (bit_rshift (x,  2), 0x33333333)
+	x = bit_band (x, 0x0f0f0f0f) + bit_band (bit_rshift (x,  4), 0x0f0f0f0f)
+	x = bit_band (x, 0x00ff00ff) + bit_band (bit_rshift (x,  8), 0x00ff00ff)
+	x = bit_band (x, 0x0000ffff) +           bit_rshift (x, 16)
+	return x
+end
+
+UInt32.add    = UInt32.Add
+UInt32.adc    = UInt32.AddWithCarry
+UInt32.sub    = UInt32.Subtract
+UInt32.sbb    = UInt32.SubtractWithBorrow
+UInt32.mul    = UInt32.Multiply
+UInt32.div    = UInt32.Divide
+UInt32.clz    = UInt32.CountLeadingZeros
+UInt32.popcnt = UInt32.PopCount
 
 return UInt32

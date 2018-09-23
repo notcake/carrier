@@ -46,6 +46,7 @@ local UInt24_MultiplyAdd2       = UInt24.MultiplyAdd2
 local UInt24_Subtract           = UInt24.Subtract
 local UInt24_SubtractWithBorrow = UInt24.SubtractWithBorrow
 local UInt24_CountLeadingZeros  = UInt24.CountLeadingZeros
+local UInt24_PopCount           = UInt24.PopCount
 
 local Sign_Negative = UInt24_Maximum
 local Sign_Positive = UInt24_Zero
@@ -231,6 +232,14 @@ function self:GetBitCount ()
 	leadingBitCount = math_max (0, leadingBitCount)
 	local bitCount = math_max (0, #self - 2) * UInt24_BitCount
 	return bitCount + leadingBitCount
+end
+
+function self:GetPopCount ()
+	local popCount = 0
+	for i = 1, #self - 1 do
+		popCount = popCount + UInt24_PopCount (self [i])
+	end
+	return popCount
 end
 
 function self:IsPositive ()
