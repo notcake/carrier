@@ -18,6 +18,16 @@ function self:Clone (cachingCloner)
 	return clone
 end
 
+function self:ContainsDescendant (descendantNode)
+	for childNode in self:GetChildEnumerator () do
+		if childNode == descendantNode then return true end
+		
+		if childNode:ContainsDescendant (descendantNode) then return true end
+	end
+	
+	return false
+end
+
 self.ChildrenFieldNames = {}
 function self:GetChildEnumerator ()
 	local i = 0
