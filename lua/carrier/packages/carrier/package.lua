@@ -168,8 +168,9 @@ function self:Load (packageReleaseVersion)
 	self.LoadExports, self.LoadDestructor = packageRelease:Load (self.LoadEnvironment)
 	
 	local dt = Clock () - t0
-	Carrier.Log (string.format ("Load: %s %s took %.2f ms", self.Name, packageReleaseVersion, dt * 1000))
-	
+	if dt > 0.1 then
+		Carrier.Log (string.format ("Load: %s %s took %.2f ms!", self.Name, packageReleaseVersion, dt * 1000))
+	end
 	return self.LoadExports
 end
 
