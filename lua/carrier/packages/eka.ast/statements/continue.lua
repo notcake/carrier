@@ -1,15 +1,15 @@
 local self = {}
-AST.Statements.Continue = Class (self, AST.Statement)
+AST.Statements.Continue = Class(self, AST.Statement)
 
-function self:ctor ()
+function self:ctor()
 end
 
 -- Node
-function self:ToString ()
+function self:ToString()
 	return "continue;"
 end
 
 -- Statement
-function self:IsControlFlowDiscontinuity ()
+function self:IsControlFlowDiscontinuity()
 	return true
 end

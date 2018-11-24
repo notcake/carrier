@@ -1,15 +1,15 @@
 local self = {}
-Analysis.ControlFlowGraph.ILink = Interface (self)
+Analysis.ControlFlowGraph.ILink = Interface(self)
 
-function self:ctor (sourceBlock, destinationBlock)
+function self:ctor(sourceBlock, destinationBlock)
 	self.SourceBlock      = sourceBlock
 	self.DestinationBlock = destinationBlock
 end
 
-function self:GetSourceBlock ()
+function self:GetSourceBlock()
 	return self.SourceBlock
 end
 
-function self:GetDestinationBlock ()
+function self:GetDestinationBlock()
 	return self.DestinationBlock
 end

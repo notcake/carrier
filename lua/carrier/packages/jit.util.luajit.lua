@@ -1,3 +1,3 @@
 -- PACKAGE jit.util.LuaJIT
 
-return require ("jit.util")
+return require("jit.util")

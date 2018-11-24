@@ -1,10 +1,10 @@
 local self = {}
-AST.LeftUnaryOperator = Class (self, AST.UnaryOperator)
+AST.LeftUnaryOperator = Class(self, AST.UnaryOperator)
 
-function self:ctor (symbol, precedence, f)
+function self:ctor(symbol, precedence, f)
 end
 
 -- IOperator
-function self:GetAssociativity ()
+function self:GetAssociativity()
 	return AST.Associativity.Right
 end

@@ -2,29 +2,29 @@
 
 IO = {}
 
-Error = require ("Pylon.Error")
-OOP   = require ("Pylon.OOP")
-OOP.Initialize (_ENV)
-BitConverter = require ("Pylon.BitConverter")
+Error = require("Pylon.Error")
+OOP   = require("Pylon.OOP")
+OOP.Initialize(_ENV)
+BitConverter = require("Pylon.BitConverter")
 
-include ("ibasestream.lua")
-include ("iinputstream.lua")
-include ("ioutputstream.lua")
+include("ibasestream.lua")
+include("iinputstream.lua")
+include("ioutputstream.lua")
 
-include ("endianness.lua")
-include ("istreamreader.lua")
-include ("istreamwriter.lua")
+include("endianness.lua")
+include("istreamreader.lua")
+include("istreamwriter.lua")
 
-include ("streamreader.lua")
-include ("streamwriter.lua")
+include("streamreader.lua")
+include("streamwriter.lua")
 
-include ("bufferedstreamreader.lua")
-include ("bufferedstreamwriter.lua")
+include("bufferedstreamreader.lua")
+include("bufferedstreamwriter.lua")
 
-include ("stringinputstream.lua")
-include ("stringoutputstream.lua")
+include("stringinputstream.lua")
+include("stringoutputstream.lua")
 
-function IO.Initialize (destinationTable)
+function IO.Initialize(destinationTable)
 	destinationTable = destinationTable or {}
 	
 	destinationTable.IBaseStream          = IO.IBaseStream

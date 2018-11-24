@@ -1,14 +1,14 @@
 local self = {}
-AST.Statement = Class (self, AST.Node)
+AST.Statement = Class(self, AST.Node)
 
-function self:ctor ()
+function self:ctor()
 end
 
 -- Statement
-function self:IsControlFlowStructure ()
+function self:IsControlFlowStructure()
 	return false
 end
 
-function self:IsControlFlowDiscontinuity ()
+function self:IsControlFlowDiscontinuity()
 	return false
 end

@@ -1,2 +1,2 @@
 -- PACKAGE Pylon.CRC32.Lua
-return require ("Pylon.CRC32")
+return require("Pylon.CRC32")

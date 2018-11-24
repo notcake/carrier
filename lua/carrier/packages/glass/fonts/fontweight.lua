@@ -1,4 +1,4 @@
-Glass.FontWeight = Enum (
+Glass.FontWeight = Enum(
 	{
 		Thin       = 100,
 		UltraLight = 200,

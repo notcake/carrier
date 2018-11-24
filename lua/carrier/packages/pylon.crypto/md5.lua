@@ -1,5 +1,5 @@
 local self = {}
-Crypto.MD5 = Class (self)
+Crypto.MD5 = Class(self)
 
 local bit_band      = bit.band
 local bit_bnot      = bit.bnot
@@ -12,131 +12,131 @@ local math_floor    = math.floor
 local string_byte   = string.byte
 local string_format = string.format
 
-function Crypto.MD5.Compute (x)
-	return Crypto.MD5 ():Update (x):Finish ()
+function Crypto.MD5.Compute(x)
+	return Crypto.MD5():Update(x):Finish()
 end
 
-function self:ctor ()
+function self:ctor()
 	self.A, self.B, self.C, self.D = 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
 	
 	self.Length = 0
 	self.Buffer = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 end
 
-function self:Clone (out)
-	local out = out or Crypto.MD5 ()
+function self:Clone(out)
+	local out = out or Crypto.MD5()
 	
 	out.A, out.B, out.C, out.D = self.A, self.B, self.C, self.D
 	
 	out.Length = self.Length
 	for i = 1, 16 do
-		out.Buffer [i] = self.Buffer [i]
+		out.Buffer[i] = self.Buffer[i]
 	end
 	
 	return out
 end
 
-function self:Reset ()
+function self:Reset()
 	self.A, self.B, self.C, self.D = 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
 	
 	self.Length = 0
-	for i = 1, 16 do self.Buffer [i] = 0 end
+	for i = 1, 16 do self.Buffer[i] = 0 end
 end
 
 local blockSize = 16
-function self:Update (data)
+function self:Update(data)
 	if #data == 0 then return self end
 	
 	local dataLength = #data
-	local bufferIndex = math_floor (self.Length / 4) % blockSize + 1
+	local bufferIndex = math_floor(self.Length / 4) % blockSize + 1
 	local index = ((4 - self.Length) % 4) + 1
 	
 	-- Fill in last uint32
 	if index == 1 then
 	elseif index == 2 then
-		local a = string_byte (data, 1)
-		self.Buffer [bufferIndex] = self.Buffer [bufferIndex] +
-		                             (a or 0) * 0x01000000
+		local a = string_byte(data, 1)
+		self.Buffer[bufferIndex] = self.Buffer[bufferIndex] +
+		                            (a or 0) * 0x01000000
 		if #data >= 1 then bufferIndex = bufferIndex + 1 end
 	elseif index == 3 then
-		local a, b = string_byte (data, 1, 2)
-		self.Buffer [bufferIndex] = self.Buffer [bufferIndex] +
-		                             (a or 0) * 0x00010000 +
-		                             (b or 0) * 0x01000000
+		local a, b = string_byte(data, 1, 2)
+		self.Buffer[bufferIndex] = self.Buffer[bufferIndex] +
+		                            (a or 0) * 0x00010000 +
+		                            (b or 0) * 0x01000000
 		if #data >= 2 then bufferIndex = bufferIndex + 1 end
 	elseif index == 4 then
-		local a, b, c = string_byte (data, 1, 3)
-		self.Buffer [bufferIndex] = self.Buffer [bufferIndex] +
-		                             (a or 0) * 0x00000100 +
-		                             (b or 0) * 0x00010000 +
-		                             (c or 0) * 0x01000000
+		local a, b, c = string_byte(data, 1, 3)
+		self.Buffer[bufferIndex] = self.Buffer[bufferIndex] +
+		                            (a or 0) * 0x00000100 +
+		                            (b or 0) * 0x00010000 +
+		                            (c or 0) * 0x01000000
 		if #data >= 3 then bufferIndex = bufferIndex + 1 end
 	end
 	
 	-- Fill to end of block
 	while #data - index + 1 >= (blockSize - bufferIndex + 1) * 4 do
 		for i = bufferIndex, blockSize do
-			local a, b, c, d = string_byte (data, index, index + 3)
-			self.Buffer [i] = a + b * 0x00000100 + c * 0x00010000 + d * 0x01000000
+			local a, b, c, d = string_byte(data, index, index + 3)
+			self.Buffer[i] = a + b * 0x00000100 + c * 0x00010000 + d * 0x01000000
 			index = index + 4
 		end
 		
-		self:Block (self.Buffer)
+		self:Block(self.Buffer)
 		bufferIndex = 1
 	end
 	
 	-- Fill remainder
 	while index <= #data - 3 do
-		local a, b, c, d = string_byte (data, index, index + 3)
-		self.Buffer [bufferIndex] = a + b * 0x00000100 + c * 0x00010000 + d * 0x01000000
+		local a, b, c, d = string_byte(data, index, index + 3)
+		self.Buffer[bufferIndex] = a + b * 0x00000100 + c * 0x00010000 + d * 0x01000000
 		bufferIndex = bufferIndex + 1
 		index = index + 4
 	end
 	
 	if index <= #data then
-		local a, b, c = string_byte (data, index, index + 2)
-		self.Buffer [bufferIndex] = a + (b or 0) * 0x00000100 + (c or 0) * 0x00010000
+		local a, b, c = string_byte(data, index, index + 2)
+		self.Buffer[bufferIndex] = a + (b or 0) * 0x00000100 + (c or 0) * 0x00010000
 	end
 	
 	self.Length = self.Length + #data
 	return self
 end
 
-function self:Finish ()
-	local bufferIndex = math_floor (self.Length / 4) % blockSize + 1
+function self:Finish()
+	local bufferIndex = math_floor(self.Length / 4) % blockSize + 1
 	local bytesFilled = self.Length % 4
 	
 	-- Cap with 0x01
 	if bytesFilled == 0 then
-		self.Buffer [bufferIndex] = 0x00000080
+		self.Buffer[bufferIndex] = 0x00000080
 	elseif bytesFilled == 1 then
-		self.Buffer [bufferIndex] = self.Buffer [bufferIndex] + 0x00008000
+		self.Buffer[bufferIndex] = self.Buffer[bufferIndex] + 0x00008000
 	elseif bytesFilled == 2 then
-		self.Buffer [bufferIndex] = self.Buffer [bufferIndex] + 0x00800000
+		self.Buffer[bufferIndex] = self.Buffer[bufferIndex] + 0x00800000
 	elseif bytesFilled == 3 then
-		self.Buffer [bufferIndex] = self.Buffer [bufferIndex] + 0x80000000
+		self.Buffer[bufferIndex] = self.Buffer[bufferIndex] + 0x80000000
 	end
 	bufferIndex = bufferIndex + 1
 	
 	-- Zero fill rest of buffer
 	for i = bufferIndex, blockSize do
-		self.Buffer [i] = 0
+		self.Buffer[i] = 0
 	end
 	
 	if blockSize - bufferIndex + 1 < 2 then
-		self:Block (self.Buffer)
+		self:Block(self.Buffer)
 		bufferIndex = 1
 		
 		for i = 1, blockSize do
-			self.Buffer [i] = 0
+			self.Buffer[i] = 0
 		end
 	end
 	
-	self.Buffer [blockSize - 1] = (self.Length * 8) % 4294967296
-	self.Buffer [blockSize]     = math_floor ((self.Length * 8) / 4294967296)
-	self:Block (self.Buffer)
+	self.Buffer[blockSize - 1] = (self.Length * 8) % 4294967296
+	self.Buffer[blockSize]     = math_floor((self.Length * 8) / 4294967296)
+	self:Block(self.Buffer)
 	
-	return string_format ("%08x%08x%08x%08x", bit_bswap (self.A) % 4294967296, bit_bswap (self.B) % 4294967296, bit_bswap (self.C) % 4294967296, bit_bswap (self.D) % 4294967296)
+	return string_format("%08x%08x%08x%08x", bit_bswap(self.A) % 4294967296, bit_bswap(self.B) % 4294967296, bit_bswap(self.C) % 4294967296, bit_bswap(self.D) % 4294967296)
 end
 
 -- Internal
@@ -173,29 +173,29 @@ local g =
 	6, 9, 12, 15,  2,  5,  8, 11, 14,  1,  4,  7, 10, 13, 16,  3,
 	1, 8, 15,  6, 13,  4, 11,  2,  9, 16,  7, 14,  5, 12,  3, 10
 }
-function self:Block (block)
+function self:Block(block)
 	local M = block
 	local a, b, c, d = self.A, self.B, self.C, self.D
 	for i = 1, 16 do
-		local F = bit_bor (bit_band (b, c), bit_band (bit_bnot (b), d))
-		F = F + a + K [i] + M [g [i]]
-		a, b, c, d = d, b + bit_rol (F, s [i]), b, c
+		local F = bit_bor(bit_band(b, c), bit_band(bit_bnot(b), d))
+		F = F + a + K[i] + M[g[i]]
+		a, b, c, d = d, b + bit_rol(F, s[i]), b, c
 	end
 	for i = 17, 32 do
-		local F = bit_bor (bit_band (d, b), bit_band (bit_bnot (d), c))
-		F = F + a + K [i] + M [g [i]]
-		a, b, c, d = d, b + bit_rol (F, s [i]), b, c
+		local F = bit_bor(bit_band(d, b), bit_band(bit_bnot(d), c))
+		F = F + a + K[i] + M[g[i]]
+		a, b, c, d = d, b + bit_rol(F, s[i]), b, c
 	end
 	for i = 33, 48 do
-		local F = bit_bxor (b, c, d)
-		F = F + a + K [i] + M [g [i]]
-		a, b, c, d = d, b + bit_rol (F, s [i]), b, c
+		local F = bit_bxor(b, c, d)
+		F = F + a + K[i] + M[g[i]]
+		a, b, c, d = d, b + bit_rol(F, s[i]), b, c
 	end
 	for i = 49, 64 do
-		local F = bit_bxor (c, bit_bor (b, bit_bnot (d)))
-		F = F + a + K [i] + M [g [i]]
-		a, b, c, d = d, b + bit_rol (F, s [i]), b, c
+		local F = bit_bxor(c, bit_bor(b, bit_bnot(d)))
+		F = F + a + K[i] + M[g[i]]
+		a, b, c, d = d, b + bit_rol(F, s[i]), b, c
 	end
 	
-	self.A, self.B, self.C, self.D = bit_tobit (self.A + a), bit_tobit (self.B + b), bit_tobit (self.C + c), bit_tobit (self.D + d)
+	self.A, self.B, self.C, self.D = bit_tobit(self.A + a), bit_tobit(self.B + b), bit_tobit(self.C + c), bit_tobit(self.D + d)
 end

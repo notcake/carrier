@@ -1,3 +1,3 @@
 if Carrier then return end
 
-include ("carrier/bootstrap.garrysmod.lua")
+include("carrier/bootstrap.garrysmod.lua")

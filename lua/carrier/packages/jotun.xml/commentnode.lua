@@ -1,20 +1,20 @@
 local self = {}
-Xml.CommentNode = Class (self, Xml.Node)
+Xml.CommentNode = Class(self, Xml.Node)
 
-function self:ctor (text)
+function self:ctor(text)
 	self.Text = text
 end
 
 -- Node
-function self:GetNodeType ()
+function self:GetNodeType()
 	return Xml.NodeType.Comment
 end
 
-function self:ToString ()
+function self:ToString()
 	return "<!-- " .. self.Text .. " -->"
 end
 
 -- CommentNode
-function self:GetText ()
+function self:GetText()
 	return self.Text
 end

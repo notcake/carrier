@@ -1,4 +1,4 @@
-Xml.TagType = Enum (
+Xml.TagType = Enum(
 	{
 		Opening     = 1,
 		Closing     = 2,

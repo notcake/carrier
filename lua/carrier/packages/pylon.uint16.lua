@@ -2,7 +2,7 @@
 
 local UInt16 = {}
 
-local bit = require_provider ("bit")
+local bit = require_provider("bit")
 
 local bit_band   = bit.band
 local bit_rshift = bit.rshift
@@ -17,61 +17,61 @@ UInt16.MostSignificantBit = 0x8000
 UInt16.BitCount           = 16
 
 -- ~11 ns
-function UInt16.Add (a, b)
+function UInt16.Add(a, b)
 	local c = a + b
-	return bit_band (c, 0xFFFF), bit_rshift (c, 16)
+	return bit_band(c, 0xFFFF), bit_rshift(c, 16)
 end
 
 -- ~13 ns
-function UInt16.AddWithCarry (a, b, cf)
+function UInt16.AddWithCarry(a, b, cf)
 	local c = a + b + cf
-	return bit_band (c, 0xFFFF), bit_rshift (c, 16)
+	return bit_band(c, 0xFFFF), bit_rshift(c, 16)
 end
 
 -- ~11 ns
-function UInt16.Subtract (a, b)
+function UInt16.Subtract(a, b)
 	local c = a - b
-	return bit_band (c, 0xFFFF), bit_band (bit_rshift (c, 16), 1)
+	return bit_band(c, 0xFFFF), bit_band(bit_rshift(c, 16), 1)
 end
 
 -- ~13 ns
-function UInt16.SubtractWithBorrow (a, b, cf)
+function UInt16.SubtractWithBorrow(a, b, cf)
 	local c = a - b - cf
-	return bit_band (c, 0xFFFF), bit_band (bit_rshift (c, 16), 1)
+	return bit_band(c, 0xFFFF), bit_band(bit_rshift(c, 16), 1)
 end
 
 -- ~12 ns
-function UInt16.Multiply (a, b)
+function UInt16.Multiply(a, b)
 	local c = a * b
-	return bit_band (c, 0xFFFF), bit_rshift (c, 16)
+	return bit_band(c, 0xFFFF), bit_rshift(c, 16)
 end
 
-function UInt16.MultiplyAdd1 (a, b, c)
+function UInt16.MultiplyAdd1(a, b, c)
 	local c = a * b + c
-	return bit_band (c, 0xFFFF), bit_rshift (c, 16)
+	return bit_band(c, 0xFFFF), bit_rshift(c, 16)
 end
 UInt16.MultiplyAdd = UInt16.MultiplyAdd1
 
-function UInt16.MultiplyAdd2 (a, b, c, d)
+function UInt16.MultiplyAdd2(a, b, c, d)
 	local c = a * b + c + d
-	return bit_band (c, 0xFFFF), bit_rshift (c, 16)
+	return bit_band(c, 0xFFFF), bit_rshift(c, 16)
 end
 
-function UInt16.Divide (low, high, divisor)
+function UInt16.Divide(low, high, divisor)
 	local a = low + 0x00010000 * high
-	return math_floor (a / divisor), a % divisor
+	return math_floor(a / divisor), a % divisor
 end
 
-local k = math_log (2)
-function UInt16.CountLeadingZeros (x)
-	return 16 - math_max (0, math_floor (1 + math_log(x) / k))
+local k = math_log(2)
+function UInt16.CountLeadingZeros(x)
+	return 16 - math_max(0, math_floor(1 + math_log(x) / k))
 end
 
-function UInt16.PopCount (x)
-	x = bit_band (x, 0x5555) + bit_band (bit_rshift (x, 1), 0x5555)
-	x = bit_band (x, 0x3333) + bit_band (bit_rshift (x, 2), 0x3333)
-	x = bit_band (x, 0x0f0f) + bit_band (bit_rshift (x, 4), 0x0f0f)
-	x = bit_band (x, 0x00ff) +           bit_rshift (x, 8)
+function UInt16.PopCount(x)
+	x = bit_band(x, 0x5555) + bit_band(bit_rshift(x, 1), 0x5555)
+	x = bit_band(x, 0x3333) + bit_band(bit_rshift(x, 2), 0x3333)
+	x = bit_band(x, 0x0f0f) + bit_band(bit_rshift(x, 4), 0x0f0f)
+	x = bit_band(x, 0x00ff) +           bit_rshift(x, 8)
 	return x
 end
 

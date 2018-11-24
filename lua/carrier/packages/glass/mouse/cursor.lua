@@ -1,4 +1,4 @@
-Glass.Cursor = Enum (
+Glass.Cursor = Enum(
 	{
 		None                   = 0,
 		Default                = 1,

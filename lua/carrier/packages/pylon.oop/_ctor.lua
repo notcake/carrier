@@ -2,59 +2,59 @@
 
 OOP = {}
 
-Error      = require ("Pylon.Error")
-Algorithms = require ("Pylon.Algorithms")
+Error      = require("Pylon.Error")
+Algorithms = require("Pylon.Algorithms")
 
-function OOP.Class (methodTable)
-	return function (...)
+function OOP.Class(methodTable)
+	return function(...)
 		local object = {}
-		setmetatable (object,
+		setmetatable(object,
 			{
 				__index = methodTable,
 				__call  = methodTable.__call
 			}
 		)
 		
-		object:ctor (...)
+		object:ctor(...)
 		
 		return object
 	end
 end
 -- OOP.Class0  = function<method table -> function<... -> object>>
 
-include ("class.lua")
+include("class.lua")
 -- OOP.Class1  = function<... -> OOP.Class2>
 
-include ("object.lua")
-include ("class.lua")
+include("object.lua")
+include("class.lua")
 -- OOP.Object0 = OOP.Class2<OOP.Object0>
 -- OOP.Class3  = OOP.Class2<OOP.Class3:OOP.Object0>
 
-OOP.Class:Assimilate (OOP.Object)
-OOP.Class:Assimilate (OOP.Class )
+OOP.Class:Assimilate(OOP.Object)
+OOP.Class:Assimilate(OOP.Class )
 -- OOP.Object0 = OOP.Class3:OOP.Object0<OOP.Object0>
 -- OOP.Class3  = OOP.Class3:OOP.Object0<OOP.Class3:OOP.Object0>
 
 OOP.Interface = OOP.Class
 
-include ("enum.lua")
-include ("flags.lua")
+include("enum.lua")
+include("flags.lua")
 
-include ("icloneable.lua")
-include ("event.lua")
-include ("property.lua")
-include ("idisposable.lua")
-include ("iserializable.lua")
-include ("iserializer.lua")
+include("icloneable.lua")
+include("event.lua")
+include("property.lua")
+include("idisposable.lua")
+include("iserializable.lua")
+include("iserializer.lua")
 
-include ("serializableserializer.lua")
-include ("serializerserializable.lua")
+include("serializableserializer.lua")
+include("serializerserializable.lua")
 
-function OOP.WeakTable      () return setmetatable ({}, { __mode = "kv" }) end
-function OOP.WeakKeyTable   () return setmetatable ({}, { __mode = "k"  }) end
-function OOP.WeakValueTable () return setmetatable ({}, { __mode = "v"  }) end
+function OOP.WeakTable     () return setmetatable({}, { __mode = "kv" }) end
+function OOP.WeakKeyTable  () return setmetatable({}, { __mode = "k"  }) end
+function OOP.WeakValueTable() return setmetatable({}, { __mode = "v"  }) end
 
-function OOP.Initialize (destinationTable)
+function OOP.Initialize(destinationTable)
 	destinationTable = destinationTable or {}
 	
 	destinationTable.Object         = OOP.Object

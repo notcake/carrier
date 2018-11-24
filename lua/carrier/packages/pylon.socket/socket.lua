@@ -1,4 +1,4 @@
-local ffi = require ("ffi")
+local ffi = require("ffi")
 
 Socket = {}
 Socket.AF_INET  =  2
@@ -13,25 +13,25 @@ Socket.SOCK_SEQPACKET = 5
 Socket.IPPROTO_TCP =  6
 Socket.IPPROTO_UDP = 17
 
-ffi.cdef ("typedef uint32_t socklen_t;")
-ffi.cdef ("typedef unsigned short int sa_family_t;")
-ffi.cdef ("typedef uint16_t in_port_t;")
-ffi.cdef ("typedef uint32_t in_addr_t;")
+ffi.cdef("typedef uint32_t socklen_t;")
+ffi.cdef("typedef unsigned short int sa_family_t;")
+ffi.cdef("typedef uint16_t in_port_t;")
+ffi.cdef("typedef uint32_t in_addr_t;")
 
-ffi.cdef ([[
+ffi.cdef([[
 	typedef struct sockaddr {
 		sa_family_t sin_family;
 		char sa_data[14];
 	} sockaddr;
 ]])
 
-ffi.cdef ([[
+ffi.cdef([[
 	typedef struct in_addr {
 		in_addr_t s_addr;
 	} in_addr;
 ]])
 
-ffi.cdef ([[
+ffi.cdef([[
 	typedef struct sockaddr_in {
 		sa_family_t sin_family;
 		in_port_t sin_port;
@@ -45,7 +45,7 @@ ffi.cdef ([[
 	} sockaddr_in;
 ]])
 
-ffi.cdef ([[
+ffi.cdef([[
 	typedef struct addrinfo {
 		int              ai_flags;
 		int              ai_family;
@@ -58,30 +58,30 @@ ffi.cdef ([[
 	} addrinfo;
 ]])
 
-ffi.cdef ("uint16_t htons(uint16_t hostshort);")
+ffi.cdef("uint16_t htons(uint16_t hostshort);")
 
-ffi.cdef ("int getaddrinfo (const char *nodename, const char *servname, const addrinfo *hints, const addrinfo **res);")
-ffi.cdef ("in_addr_t inet_addr(const char *);")
+ffi.cdef("int getaddrinfo(const char *nodename, const char *servname, const addrinfo *hints, const addrinfo **res);")
+ffi.cdef("in_addr_t inet_addr(const char *);")
 
-ffi.cdef ("int socket(int af, int type, int protocol);")
-ffi.cdef ("int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);")
-ffi.cdef ("int close(int fd);")
+ffi.cdef("int socket(int af, int type, int protocol);")
+ffi.cdef("int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);")
+ffi.cdef("int close(int fd);")
 
-ffi.cdef ("typedef int ssize_t;")
-ffi.cdef ("ssize_t read(int fd, void *buf, size_t count);")
-ffi.cdef ("ssize_t write(int fd, const void *buf, size_t count);")
+ffi.cdef("typedef int ssize_t;")
+ffi.cdef("ssize_t read(int fd, void *buf, size_t count);")
+ffi.cdef("ssize_t write(int fd, const void *buf, size_t count);")
 
 Socket.htons   = ffi.C.htons
 
-function Socket.getaddrinfo (host)
-	local result = ffi.new ("const addrinfo *[1]")
-	local ret = ffi.C.getaddrinfo (host, nil, nil, result)
+function Socket.getaddrinfo(host)
+	local result = ffi.new("const addrinfo *[1]")
+	local ret = ffi.C.getaddrinfo(host, nil, nil, result)
 	if ret < 0 then return nil end
 	
 	local result = result[0]
 	while result ~= ffi.NULL do
 		if result.ai_family == Socket.AF_INET then
-			return ffi.cast ("sockaddr_in *", result.ai_addr).sin_addr.s_addr;
+			return ffi.cast("sockaddr_in *", result.ai_addr).sin_addr.s_addr;
 		end
 		result = result.ai_next
 	end
@@ -95,18 +95,18 @@ Socket.socket    = ffi.C.socket
 Socket.connect   = ffi.C.connect
 Socket.close     = ffi.C.close
 
-function Socket.read (socket, buffer, length)
-	if type (buffer) == "number" or buffer == nil then
+function Socket.read(socket, buffer, length)
+	if type(buffer) == "number" or buffer == nil then
 		local length = buffer or 4096
-		local buffer = ffi.new ("char[?]", length)
-		local length = ffi.C.read (socket, buffer, length)
-		return ffi.string (buffer, length)
+		local buffer = ffi.new("char[?]", length)
+		local length = ffi.C.read(socket, buffer, length)
+		return ffi.string(buffer, length)
 	else
-		return ffi.C.read (socket, buffer, length)
+		return ffi.C.read(socket, buffer, length)
 	end
 end
 
-function Socket.write (socket, buffer, length)
+function Socket.write(socket, buffer, length)
 	local length = length or #buffer
-	return ffi.C.write (socket, buffer, length)
+	return ffi.C.write(socket, buffer, length)
 end

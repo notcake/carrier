@@ -2,19 +2,19 @@
 
 Crypto = {}
 
-bit = require ("bit")
+bit = require("bit")
 
-Error = require ("Pylon.Error")
+Error = require("Pylon.Error")
 
-OOP = require ("Pylon.OOP")
-OOP.Initialize (_ENV)
+OOP = require("Pylon.OOP")
+OOP.Initialize(_ENV)
 
-include ("md5.lua")
-include ("sha256.lua")
+include("md5.lua")
+include("sha256.lua")
 
 Crypto.AES = {}
-include ("aes.sbox.lua")
+include("aes.sbox.lua")
 
-include ("photon128.lua")
+include("photon128.lua")
 
 return Crypto

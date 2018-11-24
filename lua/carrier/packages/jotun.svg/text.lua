@@ -1,38 +1,38 @@
 local self = {}
-Svg.Text = Class (self, Svg.Element)
+Svg.Text = Class(self, Svg.Element)
 
-local defaultFont = Glass.Font ("Times New Roman", 12)
+local defaultFont = Glass.Font("Times New Roman", 12)
 
-function Svg.Text.FromXmlElement (xmlElement)
-	local text = Svg.Text ()
+function Svg.Text.FromXmlElement(xmlElement)
+	local text = Svg.Text()
 	
-	text:SetText (xmlElement:GetInnerText ())
+	text:SetText(xmlElement:GetInnerText())
 	
-	local x = tonumber (xmlElement:GetAttribute ("x")) or 0
-	local y = tonumber (xmlElement:GetAttribute ("y")) or 0
-	text:SetPosition (x, y)
+	local x = tonumber(xmlElement:GetAttribute("x")) or 0
+	local y = tonumber(xmlElement:GetAttribute("y")) or 0
+	text:SetPosition(x, y)
 	
-	local fontSize = tonumber (xmlElement:GetAttribute ("font-size")) or 12
-	text:SetFont (text:GetFont ():WithSize (fontSize))
+	local fontSize = tonumber(xmlElement:GetAttribute("font-size")) or 12
+	text:SetFont(text:GetFont():WithSize(fontSize))
 	
-	local fill = xmlElement:GetAttribute ("fill") or "#000"
-	text:SetColor (Color.FromHTMLColor (fill))
+	local fill = xmlElement:GetAttribute("fill") or "#000"
+	text:SetColor(Color.FromHTMLColor(fill))
 	
-	local textAnchor = xmlElement:GetAttribute ("text-anchor") or "start"
-	textAnchor = string.lower (textAnchor)
+	local textAnchor = xmlElement:GetAttribute("text-anchor") or "start"
+	textAnchor = string.lower(textAnchor)
 	
 	if textAnchor == "start" then
-		text:SetHorizontalAlignment (Glass.HorizontalAlignment.Left)
+		text:SetHorizontalAlignment(Glass.HorizontalAlignment.Left)
 	elseif textAnchor == "middle" then
-		text:SetHorizontalAlignment (Glass.HorizontalAlignment.Center)
+		text:SetHorizontalAlignment(Glass.HorizontalAlignment.Center)
 	elseif textAnchor == "end" then
-		text:SetHorizontalAlignment (Glass.HorizontalAlignment.Right)
+		text:SetHorizontalAlignment(Glass.HorizontalAlignment.Right)
 	end
 	
 	return text
 end
 
-function self:ctor (x, y, color)
+function self:ctor(x, y, color)
 	self.X = x or 0
 	self.Y = y or 0
 	
@@ -46,64 +46,64 @@ function self:ctor (x, y, color)
 end
 
 -- Element
-function self:RenderContents (render2d, resolution)
-	render2d:GetTextRenderer ():DrawTextAligned (self.Text, self.Font, self.Color, self.X, self.Y, self.HorizontalAlignment, Glass.VerticalAlignment.Bottom)
+function self:RenderContents(render2d, resolution)
+	render2d:GetTextRenderer():DrawTextAligned(self.Text, self.Font, self.Color, self.X, self.Y, self.HorizontalAlignment, Glass.VerticalAlignment.Bottom)
 end
 
 -- Text
-function self:GetPosition ()
+function self:GetPosition()
 	return self.X, self.Y
 end
 
-function self:GetX ()
+function self:GetX()
 	return self.X
 end
 
-function self:GetY ()
+function self:GetY()
 	return self.Y
 end
 
-function self:SetPosition (x, y)
+function self:SetPosition(x, y)
 	self.X = x
 	self.Y = y
 end
 
-function self:SetX (x)
+function self:SetX(x)
 	self.X = x
 end
 
-function self:SetY (y)
+function self:SetY(y)
 	self.Y = y
 end
 
-function self:GetText ()
+function self:GetText()
 	return self.Text
 end
 
-function self:SetText (text)
+function self:SetText(text)
 	self.Text = text
 end
 
-function self:GetFont ()
+function self:GetFont()
 	return self.Font
 end
 
-function self:SetFont (font)
+function self:SetFont(font)
 	self.Font = font
 end
 
-function self:GetColor ()
+function self:GetColor()
 	return self.Color
 end
 
-function self:SetColor (color)
+function self:SetColor(color)
 	self.Color = color
 end
 
-function self:GetHorizontalAlignment ()
+function self:GetHorizontalAlignment()
 	return self.HorizontalAlignment
 end
 
-function self:SetHorizontalAlignment (horizontalAlignment)
+function self:SetHorizontalAlignment(horizontalAlignment)
 	self.HorizontalAlignment = horizontalAlignment
 end

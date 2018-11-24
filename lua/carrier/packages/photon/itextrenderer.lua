@@ -1,17 +1,17 @@
 local self = {}
-Photon.ITextRenderer = Interface (self)
+Photon.ITextRenderer = Interface(self)
 
-function self:ctor ()
+function self:ctor()
 end
 
-function self:GetTextSize (text, font)
-	Error ("ITextRenderer:GetTextSize : Not implemented.")
+function self:GetTextSize(text, font)
+	Error("ITextRenderer:GetTextSize : Not implemented.")
 end
 
-function self:DrawText (text, font, x, y)
-	Error ("ITextRenderer:DrawText : Not implemented.")
+function self:DrawText(text, font, x, y)
+	Error("ITextRenderer:DrawText : Not implemented.")
 end
 
-function self:DrawTextAligned (text, font, x, y, horizontalAlignment, verticalAlignment)
-	Error ("ITextRenderer:DrawText : Not implemented.")
+function self:DrawTextAligned(text, font, x, y, horizontalAlignment, verticalAlignment)
+	Error("ITextRenderer:DrawText : Not implemented.")
 end

@@ -2,6 +2,6 @@
 
 Algorithms = {}
 
-include ("depthfirstsearch.lua")
+include("depthfirstsearch.lua")
 
 return Algorithms

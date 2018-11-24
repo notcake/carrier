@@ -1,7 +1,7 @@
 local self = {}
-Util.Autosaver = Class (self, Util.ISavable)
+Util.Autosaver = Class(self, Util.ISavable)
 
-function self:ctor (savable)
+function self:ctor(savable)
 	self.Savable                = savable
 	
 	self.Enabled                = true
@@ -11,150 +11,150 @@ function self:ctor (savable)
 	
 	self.SaveDelay              =  5 -- Delay between invalidation and a write
 	self.SaveInterval           = 30 -- Maximum duration a write can be pushed back
-	self.LastSaveTime           = SysTime ()
+	self.LastSaveTime           = SysTime()
 	self.TimerCreated           = false
 	
 	self.InvalidationSuppressed = 0
 	
-	self.ChangeListenables      = WeakKeyTable ()
+	self.ChangeListenables      = WeakKeyTable()
 end
 
-function self:dtor ()
-	if not self:IsEnabled () then return end
+function self:dtor()
+	if not self:IsEnabled() then return end
 	
-	if self:IsSaveNeeded () then
-		self:Save ()
+	if self:IsSaveNeeded() then
+		self:Save()
 	end
 	
-	self:DestroyTimer ()
+	self:DestroyTimer()
 end
 
 -- ISavable
-function self:Save ()
-	self:Validate ()
+function self:Save()
+	self:Validate()
 	
-	self.Savable:Save ()
+	self.Savable:Save()
 end
 
-function self:Load ()
-	self:SuppressInvalidation ()
-	self.Savable:Load ()
-	self:UnsuppressInvalidation ()
+function self:Load()
+	self:SuppressInvalidation()
+	self.Savable:Load()
+	self:UnsuppressInvalidation()
 end
 
 -- Autosaver
-function self:IsEnabled ()
+function self:IsEnabled()
 	return self.Enabled
 end
 
-function self:SetEnabled (enabled)
+function self:SetEnabled(enabled)
 	if self.Enabled == enabled then return end
 	
 	self.Enabled = enabled
 	
 	if self.Enabled then
-		if self:IsSaveNeeded () then
-			self:CreateTimer ()
+		if self:IsSaveNeeded() then
+			self:CreateTimer()
 		end
 	else
-		self:DestroyTimer ()
+		self:DestroyTimer()
 	end
 end
 
-function self:RegisterChild (object)
-	self.ChangeListenables [object] = true
-	self:AddChangeListeners (object)
+function self:RegisterChild(object)
+	self.ChangeListenables[object] = true
+	self:AddChangeListeners(object)
 end
 
-function self:UnregisterChild (object)
-	self.ChangeListenables [object] = nil
-	self:RemoveChangeListeners (object)
+function self:UnregisterChild(object)
+	self.ChangeListenables[object] = nil
+	self:RemoveChangeListeners(object)
 end
 
-function self:Invalidate ()
+function self:Invalidate()
 	if self.InvalidationSuppressed > 0 then return end
 	
 	if self.SaveNeeded then
-		if not self:IsEnabled () then return end
+		if not self:IsEnabled() then return end
 		
-		if SysTime () - self.SaveNeededStartTime + self.SaveDelay < self.SaveInterval then
+		if SysTime() - self.SaveNeededStartTime + self.SaveDelay < self.SaveInterval then
 			-- Delay save unless it's already been delayed for too long
-			self:DelayTimer ()
+			self:DelayTimer()
 		end
 	else
 		self.SaveNeeded = true
-		self.SaveNeededStartTime = SysTime ()
+		self.SaveNeededStartTime = SysTime()
 		
-		if not self:IsEnabled () then return end
-		self:CreateTimer ()
+		if not self:IsEnabled() then return end
+		self:CreateTimer()
 	end
 end
 
-function self:Validate ()
+function self:Validate()
 	if not self.SaveNeeded then return end
 	
 	self.SaveNeeded = false
-	self:DestroyTimer ()
+	self:DestroyTimer()
 end
 
-function self:IsSaveNeeded ()
+function self:IsSaveNeeded()
 	return self.SaveNeeded
 end
 
-function self:SuppressInvalidation ()
+function self:SuppressInvalidation()
 	self.InvalidationSuppressed = self.InvalidationSuppressed + 1
 end
 
-function self:UnsuppressInvalidation ()
+function self:UnsuppressInvalidation()
 	self.InvalidationSuppressed = self.InvalidationSuppressed - 1
 end
 
 -- Internal
 -- Timer
-function self:CreateTimer ()
+function self:CreateTimer()
 	if self.TimerCreated then return end
 	
 	self.TimerCreated = true
 	
-	timer.Create ("Autosaver." .. self:GetHashCode (), self.SaveDelay, 1,
-		function ()
-			self:Save ()
+	timer.Create("Autosaver." .. self:GetHashCode(), self.SaveDelay, 1,
+		function()
+			self:Save()
 		end
 	)
 end
 
-function self:DelayTimer ()
+function self:DelayTimer()
 	if not self.TimerCreated then return end
 	
-	timer.Adjust ("Autosaver." .. self:GetHashCode (), self.SaveDelay, 1,
-		function ()
-			self:Save ()
-			self:DestroyTimer ()
+	timer.Adjust("Autosaver." .. self:GetHashCode(), self.SaveDelay, 1,
+		function()
+			self:Save()
+			self:DestroyTimer()
 		end
 	)
 end
 
-function self:DestroyTimer ()
+function self:DestroyTimer()
 	if not self.TimerCreated then return end
 	
 	self.TimerCreated = false
 	
-	timer.Destroy ("Autosaver." .. self:GetHashCode ())
+	timer.Destroy("Autosaver." .. self:GetHashCode())
 end
 
 -- Change listeners
-function self:AddChangeListeners (object)
+function self:AddChangeListeners(object)
 	if not object then return end
 	
-	object.Changed:AddListener ("Autosaver." .. self:GetHashCode (),
-		function ()
-			self:Invalidate ()
+	object.Changed:AddListener("Autosaver." .. self:GetHashCode(),
+		function()
+			self:Invalidate()
 		end
 	)
 end
 
-function self:RemoveChangeListeners (object)
+function self:RemoveChangeListeners(object)
 	if not object then return end
 	
-	object.Changed:RemoveListener ("Autosaver." .. self:GetHashCode ())
+	object.Changed:RemoveListener("Autosaver." .. self:GetHashCode())
 end

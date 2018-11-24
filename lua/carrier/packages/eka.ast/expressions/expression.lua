@@ -1,18 +1,18 @@
 local self = {}
-AST.Expression = Class (self, AST.Node)
+AST.Expression = Class(self, AST.Node)
 
-function self:ctor ()
+function self:ctor()
 end
 
 -- Expression
-function self:EvaluateConstant (cachingEvaluator)
+function self:EvaluateConstant(cachingEvaluator)
 	return nil
 end
 
-function self:IsConstant ()
+function self:IsConstant()
 	return false
 end
 
-function self:IsOperatorExpression ()
+function self:IsOperatorExpression()
 	return false
 end

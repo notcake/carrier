@@ -2,9 +2,9 @@
 
 local Functional = {}
 
-function Functional.Curry (f, x)
-	return function (...)
-		return f (x, ...)
+function Functional.Curry(f, x)
+	return function(...)
+		return f(x, ...)
 	end
 end
 

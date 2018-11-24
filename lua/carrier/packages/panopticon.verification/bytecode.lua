@@ -37,52 +37,52 @@ local normalizeOpcodeMap =
 }
 
 local normalizeStripOpcodeReplacementMap = {}
-for opcode, replacement in pairs (normalizeStripOpcodeMap) do
-	normalizeStripOpcodeReplacementMap [string_char (opcode)] = string_char (replacement, 0, 0, 0)
+for opcode, replacement in pairs(normalizeStripOpcodeMap) do
+	normalizeStripOpcodeReplacementMap[string_char(opcode)] = string_char(replacement, 0, 0, 0)
 end
 local normalizedOpcodeReplacementMap = {}
-for opcode, replacement in pairs (normalizeOpcodeMap) do
-	normalizedOpcodeReplacementMap [string_char (opcode)] = string_char (replacement)
+for opcode, replacement in pairs(normalizeOpcodeMap) do
+	normalizedOpcodeReplacementMap[string_char(opcode)] = string_char(replacement)
 end
 
-function Verification.NormalizedBytecodeFromBytecodeDump (bytecode)
-	return string_gsub (bytecode, "(.)(...)",
-		function (instruction, operands)
-			if normalizeStripOpcodeReplacementMap [instruction] then
-				return normalizeStripOpcodeReplacementMap [instruction]
+function Verification.NormalizedBytecodeFromBytecodeDump(bytecode)
+	return string_gsub(bytecode, "(.)(...)",
+		function(instruction, operands)
+			if normalizeStripOpcodeReplacementMap[instruction] then
+				return normalizeStripOpcodeReplacementMap[instruction]
 			end
 			
-			if normalizedOpcodeReplacementMap [instruction] then
-				return normalizedOpcodeReplacementMap [instruction] .. operands
+			if normalizedOpcodeReplacementMap[instruction] then
+				return normalizedOpcodeReplacementMap[instruction] .. operands
 			end
 		end
 	)
 end
 
-function Verification.NormalizedBytecodeFromFunction (f, instructionCount)
+function Verification.NormalizedBytecodeFromFunction(f, instructionCount)
 	local t = {}
 	
 	-- Skip the function header pseudo-instruction
-	instructionCount = instructionCount or jit_util_funcinfo (f).bytecodes
+	instructionCount = instructionCount or jit_util_funcinfo(f).bytecodes
 	instructionCount = instructionCount - 1
 	
 	for i = 1, instructionCount do
-		local instruction = jit_util_funcbc (f, i)
-		local opcode      = bit_band (instruction, 0xFF)
+		local instruction = jit_util_funcbc(f, i)
+		local opcode      = bit_band(instruction, 0xFF)
 		
-		if normalizeStripOpcodeMap [opcode] then
+		if normalizeStripOpcodeMap[opcode] then
 			-- Strip off operands
-			instruction = normalizeStripOpcodeMap [opcode]
+			instruction = normalizeStripOpcodeMap[opcode]
 		end
 		
-		if normalizeOpcodeMap [opcode] then
+		if normalizeOpcodeMap[opcode] then
 			-- Remap opcode only
 			instruction = instruction - opcode
-			instruction = instruction + normalizeOpcodeMap [opcode]
+			instruction = instruction + normalizeOpcodeMap[opcode]
 		end
 		
-		t [#t + 1] = string_char (instruction % 256, math_floor (instruction * (1 / 256)) % 256, math_floor (instruction * (1 / 65536)) % 256, math_floor (instruction * (1 / 16777216)) % 256)
+		t[#t + 1] = string_char(instruction % 256, math_floor(instruction * (1 / 256)) % 256, math_floor(instruction * (1 / 65536)) % 256, math_floor(instruction * (1 / 16777216)) % 256)
 	end
 	
-	return table_concat (t)
+	return table_concat(t)
 end

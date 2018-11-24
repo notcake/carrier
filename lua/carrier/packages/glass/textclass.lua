@@ -1,4 +1,4 @@
-Glass.TextClass = Enum (
+Glass.TextClass = Enum(
 	{
 		Default  = 0,
 		Body     = 1,

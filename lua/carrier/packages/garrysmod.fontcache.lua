@@ -1,34 +1,34 @@
 -- PACKAGE GarrysMod.FontCache
 
-OOP = require ("Pylon.OOP")
+OOP = require("Pylon.OOP")
 
-Glass = require ("Glass")
+Glass = require("Glass")
 
 local self = {}
-FontCache = OOP.Class (self)
+FontCache = OOP.Class(self)
 
-function self:ctor ()
-	self.FontIds = setmetatable ({}, { __mode = "k" })
-	self.IdFonts = setmetatable ({}, { __mode = "v" })
+function self:ctor()
+	self.FontIds = setmetatable({}, { __mode = "k" })
+	self.IdFonts = setmetatable({}, { __mode = "v" })
 end
 
-function self:GetFont (id)
-	return self.IdFonts [id]
+function self:GetFont(id)
+	return self.IdFonts[id]
 end
 
-function self:GetFontId (font)
-	local id = self.FontIds [font]
+function self:GetFontId(font)
+	local id = self.FontIds[font]
 	if id then return id end
 	
-	local id = "GarrysMod.FontCache_" .. font:GetName () .. "_" .. font:GetSize () .. "_" .. font:GetWeight ()
-	self.FontIds [font] = id
-	self.IdFonts [id] = font
+	local id = "GarrysMod.FontCache_" .. font:GetName() .. "_" .. font:GetSize() .. "_" .. font:GetWeight()
+	self.FontIds[font] = id
+	self.IdFonts[id] = font
 	
-	surface.CreateFont (id,
+	surface.CreateFont(id,
 		{
-			font     = font:GetName (),
-			size     = font:GetSize (),
-			weight   = font:GetWeight (),
+			font     = font:GetName(),
+			size     = font:GetSize(),
+			weight   = font:GetWeight(),
 			extended = true
 		}
 	)
@@ -36,6 +36,6 @@ function self:GetFontId (font)
 	return id
 end
 
-FontCache = FontCache ()
+FontCache = FontCache()
 
 return FontCache

@@ -1,4 +1,4 @@
-Glass.TableViewColumnType = Enum (
+Glass.TableViewColumnType = Enum(
 	{
 		None           = 0,
 		Text           = 1,

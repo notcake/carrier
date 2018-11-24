@@ -1,13 +1,13 @@
 local self = {}
-Carrier.PackageRelease = Class (self, Carrier.IPackageRelease, ISerializable)
+Carrier.PackageRelease = Class(self, Carrier.IPackageRelease, ISerializable)
 
-function Carrier.PackageRelease.FromJson (info, name)
+function Carrier.PackageRelease.FromJson(info, name)
 	local version = info.version
-	local packageRelease = Carrier.PackageRelease (name, version)
-	return packageRelease:FromJson (info)
+	local packageRelease = Carrier.PackageRelease(name, version)
+	return packageRelease:FromJson(info)
 end
 
-function self:ctor (name, version)
+function self:ctor(name, version)
 	self.Version    = version
 	self.Timestamp  = 0
 	
@@ -18,109 +18,109 @@ function self:ctor (name, version)
 end
 
 -- ISerializable
-function self:Serialize (streamWriter)
-	streamWriter:UInt64  (self.Timestamp)
-	streamWriter:Boolean (self.Deprecated)
-	streamWriter:UInt64  (self.Size)
+function self:Serialize(streamWriter)
+	streamWriter:UInt64 (self.Timestamp)
+	streamWriter:Boolean(self.Deprecated)
+	streamWriter:UInt64 (self.Size)
 	
-	streamWriter:UInt32 (self.DependencyCount)
-	for dependencyName, dependencyVersion in self:GetDependencyEnumerator () do
-		streamWriter:StringN8 (dependencyName)
-		streamWriter:StringN8 (dependencyVersion)
+	streamWriter:UInt32(self.DependencyCount)
+	for dependencyName, dependencyVersion in self:GetDependencyEnumerator() do
+		streamWriter:StringN8(dependencyName)
+		streamWriter:StringN8(dependencyVersion)
 	end
 end
 
-function self:Deserialize (streamReader)
-	self.Timestamp  = streamReader:UInt64  ()
-	self.Deprecated = streamReader:Boolean ()
-	self.Size       = streamReader:UInt64  ()
+function self:Deserialize(streamReader)
+	self.Timestamp  = streamReader:UInt64 ()
+	self.Deprecated = streamReader:Boolean()
+	self.Size       = streamReader:UInt64 ()
 	
-	local dependencyCount = streamReader:UInt32 ()
+	local dependencyCount = streamReader:UInt32()
 	for i = 1, dependencyCount do
-		local dependencyName    = streamReader:StringN8 ()
-		local dependencyVersion = streamReader:StringN8 ()
-		self:AddDependency (dependencyName, dependencyVersion)
+		local dependencyName    = streamReader:StringN8()
+		local dependencyVersion = streamReader:StringN8()
+		self:AddDependency(dependencyName, dependencyVersion)
 	end
 	
-	self:UpdateFileName ()
+	self:UpdateFileName()
 end
 
 -- IPackageRelease
-function self:GetVersion ()
+function self:GetVersion()
 	return self.Version
 end
 
-function self:GetTimestamp ()
+function self:GetTimestamp()
 	return self.Timestamp
 end
 
-function self:IsDeprecated ()
+function self:IsDeprecated()
 	return self.Deprecated
 end
 
-function self:IsDeveloper ()
+function self:IsDeveloper()
 	return false
 end
 
 -- Loading
-function self:IsAvailable ()
-	return file.Exists (Carrier.Packages.CacheDirectory .. "/" .. self.FileName, "DATA")
+function self:IsAvailable()
+	return file.Exists(Carrier.Packages.CacheDirectory .. "/" .. self.FileName, "DATA")
 end
 
-function self:Load (environment)
-	local inputStream = IO.FileInputStream.FromPath (Carrier.Packages.CacheDirectory .. "/" .. self.FileName, "DATA")
+function self:Load(environment)
+	local inputStream = IO.FileInputStream.FromPath(Carrier.Packages.CacheDirectory .. "/" .. self.FileName, "DATA")
 	if not inputStream then
-		Carrier.Warning ("Package file for " .. self.Name .. " " .. self.Version .. " missing!")
+		Carrier.Warning("Package file for " .. self.Name .. " " .. self.Version .. " missing!")
 		return
 	end
 	
-	local packageFile = PackageFile.Deserialize (inputStream, PublicKey.Exponent, PublicKey.Modulus)
-	inputStream:Close ()
+	local packageFile = PackageFile.Deserialize(inputStream, PublicKey.Exponent, PublicKey.Modulus)
+	inputStream:Close()
 	
-	if packageFile:GetName () ~= self.Name or
-	   packageFile:GetVersion () ~= self.Version then
-		Carrier.Warning ("Package file for " .. self.Name .. " " .. self.Version .. " has incorrect name or version (" .. packageFile:GetName () .. " " .. packageFile:GetVersion () .. ")!")
-		file.Delete (Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
+	if packageFile:GetName() ~= self.Name or
+	   packageFile:GetVersion() ~= self.Version then
+		Carrier.Warning("Package file for " .. self.Name .. " " .. self.Version .. " has incorrect name or version(" .. packageFile:GetName() .. " " .. packageFile:GetVersion() .. ")!")
+		file.Delete(Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
 		return
 	end
 	
-	if not packageFile:GetSection ("code") then
-		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has no code section!")
+	if not packageFile:GetSection("code") then
+		Carrier.Warning("Package file " .. self.Name .. " " .. self.Version .. " has no code section!")
 		return
-	elseif not packageFile:GetSection ("code"):IsVerified () then
-		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for code section!")
-		file.Delete (Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
+	elseif not packageFile:GetSection("code"):IsVerified() then
+		Carrier.Warning("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for code section!")
+		file.Delete(Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
 		return
-	elseif not packageFile:GetSection ("luahashes") then
-		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has no Lua hashes section!")
+	elseif not packageFile:GetSection("luahashes") then
+		Carrier.Warning("Package file " .. self.Name .. " " .. self.Version .. " has no Lua hashes section!")
 		return
-	elseif not packageFile:GetSection ("luahashes"):IsVerified () then
-		Carrier.Warning ("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for Lua hashes section!")
-		file.Delete (Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
+	elseif not packageFile:GetSection("luahashes"):IsVerified() then
+		Carrier.Warning("Package file " .. self.Name .. " " .. self.Version .. " has invalid signature for Lua hashes section!")
+		file.Delete(Carrier.Packages.CacheDirectory .. "/" .. self.FileName)
 		return
 	end
 	
-	local codeSection = packageFile:GetSection ("code")
-	environment.loadfile = function (path)
-		local file = codeSection:GetFile (path)
+	local codeSection = packageFile:GetSection("code")
+	environment.loadfile = function(path)
+		local file = codeSection:GetFile(path)
 		if not file then
-			Carrier.Warning (self.Name .. " " .. self.Version .. ": " .. path .. " not found.")
+			Carrier.Warning(self.Name .. " " .. self.Version .. ": " .. path .. " not found.")
 			return nil, nil
 		end
 		
-		local f = CompileString (file:GetData (), string.lower (self.Name) .. "/" .. path, false)
+		local f = CompileString(file:GetData(), string.lower(self.Name) .. "/" .. path, false)
 		
-		if type (f) == "string" then
-			Carrier.Warning (self.Name .. " " .. self.Version .. ": " .. f)
+		if type(f) == "string" then
+			Carrier.Warning(self.Name .. " " .. self.Version .. ": " .. f)
 			return nil, nil
 		end
 		
-		setfenv (f, environment)
+		setfenv(f, environment)
 		return f
 	end
 	
 	-- ctor
-	local f = environment.loadfile ("_ctor.lua")
+	local f = environment.loadfile("_ctor.lua")
 	if not f then
 		environment.loadfile = nil
 		environment.include  = nil
@@ -128,14 +128,14 @@ function self:Load (environment)
 	end
 	
 	-- dtor
-	local file = codeSection:GetFile ("_dtor.lua")
-	local destructor = file and environment.loadfile ("_dtor.lua")
+	local file = codeSection:GetFile("_dtor.lua")
+	local destructor = file and environment.loadfile("_dtor.lua")
 	
-	local success, exports = xpcall (f, debug.traceback)
+	local success, exports = xpcall(f, debug.traceback)
 	environment.loadfile = nil
 	environment.include  = nil
 	if not success then
-		Carrier.Warning (exports)
+		Carrier.Warning(exports)
 		return nil, destructor
 	end
 	
@@ -143,32 +143,32 @@ function self:Load (environment)
 end
 
 -- PackageRelease
-function self:GetSize ()
+function self:GetSize()
 	return self.Size
 end
 
-function self:GetFileName ()
+function self:GetFileName()
 	return self.FileName
 end
 
-function self:SetDeprecated (deprecated)
+function self:SetDeprecated(deprecated)
 	self.Deprecated = deprecated
 end
 
-function self:FromJson (info)
+function self:FromJson(info)
 	self.Timestamp = info.timestamp
 	self.Size      = info.size
 	
-	for dependencyName, dependencyVersion in pairs (info.dependencies) do
-		self:AddDependency (dependencyName, dependencyVersion)
+	for dependencyName, dependencyVersion in pairs(info.dependencies) do
+		self:AddDependency(dependencyName, dependencyVersion)
 	end
 	
-	self:UpdateFileName ()
+	self:UpdateFileName()
 	
 	return self
 end
 
 -- Internal
-function self:UpdateFileName ()
-	self.FileName = "release-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp) .. "-" .. Carrier.ToFileName (self.Version) .. ".dat"
+function self:UpdateFileName()
+	self.FileName = "release-" .. Carrier.ToFileName(self.Name) .. "-" .. string.format("%08x", self.Timestamp) .. "-" .. Carrier.ToFileName(self.Version) .. ".dat"
 end

@@ -1,17 +1,17 @@
 local self = {}
-Glass.IKeyboard = Class (self)
+Glass.IKeyboard = Class(self)
 
-function self:ctor ()
+function self:ctor()
 end
 
-function self:IsControlDown ()
-	Error ("IKeyboard:IsControlDown : Not implemented.")
+function self:IsControlDown()
+	Error("IKeyboard:IsControlDown : Not implemented.")
 end
 
-function self:IsShiftDown ()
-	Error ("IKeyboard:IsShiftDown : Not implemented.")
+function self:IsShiftDown()
+	Error("IKeyboard:IsShiftDown : Not implemented.")
 end
 
-function self:IsAltDown ()
-	Error ("IKeyboard:IsAltDown : Not implemented.")
+function self:IsAltDown()
+	Error("IKeyboard:IsAltDown : Not implemented.")
 end

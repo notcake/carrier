@@ -1,10 +1,10 @@
 local self = {}
-Glass.IListViewDataSource = Interface (self)
+Glass.IListViewDataSource = Interface(self)
 
-self.Reloaded      = Event ()
-self.ItemsInserted = Event ()
-self.ItemsRemoved  = Event ()
-self.ItemsMoved    = Event ()
+self.Reloaded      = Event()
+self.ItemsInserted = Event()
+self.ItemsRemoved  = Event()
+self.ItemsMoved    = Event()
 
 --[[
 	ListViewItem lifecycle
@@ -27,40 +27,40 @@ self.ItemsMoved    = Event ()
 		- return ListViewItem for CreateItem
 ]]
 
-function self:ctor ()
+function self:ctor()
 end
 
-function self:GetItemCount ()
-	Error ("IListViewDataSource:GetItemCount : Not implemented.")
+function self:GetItemCount()
+	Error("IListViewDataSource:GetItemCount : Not implemented.")
 end
 
-function self:GetItemType (i)
+function self:GetItemType(i)
 	return nil
 end
 
-function self:CreateItem (type)
-	Error ("IListViewDataSource:CreateItem : Not implemented.")
+function self:CreateItem(type)
+	Error("IListViewDataSource:CreateItem : Not implemented.")
 end
 
-function self:DestroyItem (type, listViewItem)
-	listViewItem:dtor ()
+function self:DestroyItem(type, listViewItem)
+	listViewItem:dtor()
 end
 
-function self:BindItem (i, listViewItem)
-	Error ("IListViewDataSource:BindItem : Not implemented.")
+function self:BindItem(i, listViewItem)
+	Error("IListViewDataSource:BindItem : Not implemented.")
 end
 
-function self:UnbindItem (i, listViewItem)
+function self:UnbindItem(i, listViewItem)
 end
 
-function self:GetTotalHeight (width)
-	return self:GetRangeHeight (1, self:GetItemCount (), width)
+function self:GetTotalHeight(width)
+	return self:GetRangeHeight(1, self:GetItemCount(), width)
 end
 
-function self:GetRangeHeight (startIndex, count, width)
-	Error ("IListViewDataSource:GetRangeHeight : Not implemented.")
+function self:GetRangeHeight(startIndex, count, width)
+	Error("IListViewDataSource:GetRangeHeight : Not implemented.")
 end
 
-function self:GetItemHeight (i, width)
-	Error ("IListViewDataSource:GetItemHeight : Not implemented.")
+function self:GetItemHeight(i, width)
+	Error("IListViewDataSource:GetItemHeight : Not implemented.")
 end

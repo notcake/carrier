@@ -1,7 +1,7 @@
 local self = {}
-AST.Expressions.Unary = Class (self, AST.Expression)
+AST.Expressions.Unary = Class(self, AST.Expression)
 
-function self:ctor (operator, innerExpression)
+function self:ctor(operator, innerExpression)
 	self.Operator        = operator
 	
 	self.InnerExpression = innerExpression
@@ -10,48 +10,48 @@ end
 -- Node
 self.ChildrenFieldNames = { "InnerExpression" }
 
-function self:ToString ()
-	local innerExpression = self.InnerExpression:ToString ()
-	if self.InnerExpression:IsOperatorExpression () and
-	   self.InnerExpression:GetOperator ():GetPrecedence () >= self.Operator:GetPrecedence () and
-	   self.InnerExpression:GetOperator ():GetAssociativity () ~= self.Operator:GetAssociativity () then
+function self:ToString()
+	local innerExpression = self.InnerExpression:ToString()
+	if self.InnerExpression:IsOperatorExpression() and
+	   self.InnerExpression:GetOperator():GetPrecedence() >= self.Operator:GetPrecedence() and
+	   self.InnerExpression:GetOperator():GetAssociativity() ~= self.Operator:GetAssociativity() then
 		innerExpression = "(" .. innerExpression .. ")"
 	end
 	
-	if self.Operator:GetAssociativity () == AST.Associativity.Left then
-		return innerExpression .. self.Operator:GetSymbol ()
-	elseif self.Operator:GetAssociativity () == AST.Associativity.Right then
-		return self.Operator:GetSymbol () .. innerExpression
+	if self.Operator:GetAssociativity() == AST.Associativity.Left then
+		return innerExpression .. self.Operator:GetSymbol()
+	elseif self.Operator:GetAssociativity() == AST.Associativity.Right then
+		return self.Operator:GetSymbol() .. innerExpression
 	end
 end
 
 -- Expression
-function self:EvaluateConstant (cachingEvaluator)
-	local inner = cachingEvaluator (self.InnerExpression)
-	return inner and self.Operator:Evaluate (inner) or nil
+function self:EvaluateConstant(cachingEvaluator)
+	local inner = cachingEvaluator(self.InnerExpression)
+	return inner and self.Operator:Evaluate(inner) or nil
 end
 
-function self:IsConstant ()
-	return self.InnerExpression:IsConstant ()
+function self:IsConstant()
+	return self.InnerExpression:IsConstant()
 end
 
-function self:IsOperatorExpression ()
+function self:IsOperatorExpression()
 	return true
 end
 
 -- Unary
-function self:GetOperator ()
+function self:GetOperator()
 	return self.Operator
 end
 
-function self:SetOperator (operator)
+function self:SetOperator(operator)
 	self.Operator = operator
 end
 
-function self:GetInnerExpression ()
+function self:GetInnerExpression()
 	return self.InnerExpression
 end
 
-function self:SetInnerExpression (innerExpression)
+function self:SetInnerExpression(innerExpression)
 	self.InnerExpression = innerExpression
 end

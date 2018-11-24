@@ -2,30 +2,30 @@ local math_abs  = math.abs
 local math_max  = math.max
 local math_sqrt = math.sqrt
 
-Cat.LinearAlgebra.UnpackedMatrix2x2d = Table.Callable (
-	function (m00, m01, m10, m11)
+Cat.LinearAlgebra.UnpackedMatrix2x2d = Table.Callable(
+	function(m00, m01, m10, m11)
 		return m00, m01,
 		       m10, m11
 	end
 )
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Identity ()
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Identity()
 	return 1, 0,
 	       0, 1
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Zero ()
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Zero()
 	return 0, 0,
 	       0, 0
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Equals (a00, a01, a10, a11, b00, b01, b10, b11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Equals(a00, a01, a10, a11, b00, b01, b10, b11)
 	return a00 == b00 and a01 == b01 and
 	       a10 == b10 and a11 == b11
 end
 
 -- Elements
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Get (m00, m01, m10, m11, y, x)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Get(m00, m01, m10, m11, y, x)
 	local i = y * 2 + x
 	if     i == 0 then return m00
 	elseif i == 1 then return m01
@@ -33,7 +33,7 @@ function Cat.LinearAlgebra.UnpackedMatrix2x2d.Get (m00, m01, m10, m11, y, x)
 	else               return m11 end
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Set (m00, m01, m10, m11, y, x, value)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Set(m00, m01, m10, m11, y, x, value)
 	local i = y * 2 + x
 	if     i == 0 then m00 = value
 	elseif i == 1 then m01 = value
@@ -45,14 +45,14 @@ function Cat.LinearAlgebra.UnpackedMatrix2x2d.Set (m00, m01, m10, m11, y, x, val
 end
 
 -- Norms
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.L1Norm (m00, m01, m10, m11)
-	return math_max (
-		math_abs (m00) + math_abs (m10),
-		math_abs (m01) + math_abs (m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.L1Norm(m00, m01, m10, m11)
+	return math_max(
+		math_abs(m00) + math_abs(m10),
+		math_abs(m01) + math_abs(m11)
 	)
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.L2Norm (m00, m01, m10, m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.L2Norm(m00, m01, m10, m11)
 	-- A A'
 	local a00, a01 = m00 * m00 + m01 * m01, m00 * m10 + m01 * m11
 	local a10, a11 = m10 * m00 + m11 * m01, m10 * m10 + m11 * m11
@@ -64,85 +64,85 @@ function Cat.LinearAlgebra.UnpackedMatrix2x2d.L2Norm (m00, m01, m10, m11)
 	local c = a00 * a11 - a10 * a01
 	
 	-- Take largest eigenvalue to get largest singular value
-	local l1 = 0.5 * (b + math_sqrt (b * b - 4 * c))
-	return math_sqrt (l1)
+	local l1 = 0.5 * (b + math_sqrt(b * b - 4 * c))
+	return math_sqrt(l1)
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.LInfinityNorm (m00, m01, m10, m11)
-	return math_max (
-		math_abs (m00) + math_abs (m01),
-		math_abs (m10) + math_abs (m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.LInfinityNorm(m00, m01, m10, m11)
+	return math_max(
+		math_abs(m00) + math_abs(m01),
+		math_abs(m10) + math_abs(m11)
 	)
 end
 
 -- Arithmetic
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Add (a00, a01, a10, a11, b00, b01, b10, b11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Add(a00, a01, a10, a11, b00, b01, b10, b11)
 	return a00 + b00, a01 + b01,
 	       a10 + b10, a11 + b11
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Subtract (a00, a01, a10, a11, b00, b01, b10, b11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Subtract(a00, a01, a10, a11, b00, b01, b10, b11)
 	return a00 - b00, a01 - b01,
 	       a10 - b10, a11 - b11
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Negate (m00, m01, m10, m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Negate(m00, m01, m10, m11)
 	return -m00, -m01,
 	       -m10, -m11
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.ScalarMultiply (m00, m01, m10, m11, k)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.ScalarMultiply(m00, m01, m10, m11, k)
 	return m00 * k, m01 * k,
 	       m10 * k, m11 * k
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.ScalarDivide (m00, m01, m10, m11, k)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.ScalarDivide(m00, m01, m10, m11, k)
 	return m00 / k, m01 / k,
 	       m10 / k, m11 / k
 end
 
 -- Products
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.MatrixMultiply (a00, a01, a10, a11, b00, b01, b10, b11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.MatrixMultiply(a00, a01, a10, a11, b00, b01, b10, b11)
 	return a00 * b00 + a01 * b10, a00 * b01 + a01 * b11,
 	       a10 * b00 + a11 * b10, a10 * b01 + a11 * b11
 end
 
 Cat.LinearAlgebra.UnpackedMatrix2x2d.Multiply = Cat.LinearAlgebra.UnpackedMatrix2x2d.MatrixMultiply
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.VectorMultiply (m00, m01, m10, m11, v0, v1)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.VectorMultiply(m00, m01, m10, m11, v0, v1)
 	return m00 * v0 + m01 * v1,
 	       m10 * v0 + m11 * v1
 end
 
 -- Matrix operations
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Determinant (m00, m01, m10, m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Determinant(m00, m01, m10, m11)
 	return m00 * m11 - m01 * m10
 end
 
 local Cat_LinearAlgebra_UnpackedMatrix2x2d_Determinant = Cat.LinearAlgebra.UnpackedMatrix2x2d.Determinant
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Invert (m00, m01, m10, m11)
-	local k = 1 / Cat_LinearAlgebra_UnpackedMatrix2x2d_Determinant (m00, m01, m10, m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Invert(m00, m01, m10, m11)
+	local k = 1 / Cat_LinearAlgebra_UnpackedMatrix2x2d_Determinant(m00, m01, m10, m11)
 	return  k * m11, -k * m10,
 	       -k * m01,  k * m00
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Transpose (m00, m01, m10, m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Transpose(m00, m01, m10, m11)
 	return m00, m10,
 	       m01, m11
 end
 
 -- Rows and columns
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.GetColumn (m00, m01, m10, m11, column)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.GetColumn(m00, m01, m10, m11, column)
 	if column == 0 then return m00, m10
 	else                return m01, m11 end
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.GetRow (m00, m01, m10, m11, row)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.GetRow(m00, m01, m10, m11, row)
 	if row == 0 then return m00, m01
 	else             return m10, m11 end
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.SetColumn (m00, m01, m10, m11, column, v0, v1)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.SetColumn(m00, m01, m10, m11, column, v0, v1)
 	if column == 0 then m00, m10 = v0, v1
 	else                m01, m11 = v0, v1 end
 	
@@ -150,7 +150,7 @@ function Cat.LinearAlgebra.UnpackedMatrix2x2d.SetColumn (m00, m01, m10, m11, col
 	       m10, m11
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.SetRow (m00, m01, m10, m11, row, v0, v1)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.SetRow(m00, m01, m10, m11, row, v0, v1)
 	if row == 0 then m00, m01 = v0, v1
 	else             m10, m11 = v0, v1 end
 	
@@ -159,12 +159,12 @@ function Cat.LinearAlgebra.UnpackedMatrix2x2d.SetRow (m00, m01, m10, m11, row, v
 end
 
 -- Utility
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.Clone (m00, m01, m10, m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.Clone(m00, m01, m10, m11)
 	return m00, m01,
 	       m10, m11
 end
 
-function Cat.LinearAlgebra.UnpackedMatrix2x2d.ToString (m00, m01, m10, m11)
+function Cat.LinearAlgebra.UnpackedMatrix2x2d.ToString(m00, m01, m10, m11)
 	return "[" .. m00 .. ", " .. m01 .. "]\n" ..
 	       "[" .. m10 .. ", " .. m11 .. "]"
 end

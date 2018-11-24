@@ -1,7 +1,7 @@
 local self = {}
-Glass.Font = Class (self, IFont)
+Glass.Font = Class(self, IFont)
 
-function self:ctor (name, size, weight)
+function self:ctor(name, size, weight)
 	local weight = weight or Glass.FontWeight.Regular
 	
 	self.Name   = name
@@ -9,26 +9,26 @@ function self:ctor (name, size, weight)
 	self.Weight = weight
 end
 
-function self:GetName ()
+function self:GetName()
 	return self.Name
 end
 
-function self:GetHeight ()
+function self:GetHeight()
 	return self.Size
 end
 
-function self:GetSize ()
+function self:GetSize()
 	return self.Size
 end
 
-function self:GetWeight ()
+function self:GetWeight()
 	return self.Weight
 end
 
-function self:WithSize (size)
-	return Glass.Font (self:GetName (), size, self:GetWeight ())
+function self:WithSize(size)
+	return Glass.Font(self:GetName(), size, self:GetWeight())
 end
 
-function self:WithWeight (weight)
-	return Glass.Font (self:GetName (), self:GetSize (), weight)
+function self:WithWeight(weight)
+	return Glass.Font(self:GetName(), self:GetSize(), weight)
 end

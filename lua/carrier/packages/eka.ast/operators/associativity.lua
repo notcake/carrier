@@ -1,4 +1,4 @@
-AST.Associativity = Enum (
+AST.Associativity = Enum(
 	{
 		None        = 0,
 		Left        = 1,

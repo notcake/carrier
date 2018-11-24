@@ -1,239 +1,239 @@
 local self = {}
-Cat.GF2Matrix = Class (self)
+Cat.GF2Matrix = Class(self)
 
 local string_byte  = string.byte
 local string_char  = string.char
 local table_concat = table.concat
 
-function Cat.GF2Matrix.Identity (size)
-	local m = Cat.GF2Matrix (size, size)
+function Cat.GF2Matrix.Identity(size)
+	local m = Cat.GF2Matrix(size, size)
 	for i = 0, size - 1 do
-		m [i * size + i] = 1
+		m[i * size + i] = 1
 	end
 	return m
 end
 
-function Cat.GF2Matrix.Zero (h, w)
-	return Cat.GF2Matrix (h, w)
+function Cat.GF2Matrix.Zero(h, w)
+	return Cat.GF2Matrix(h, w)
 end
 
-function Cat.GF2Matrix.ColumnFromBlob (blob, out)
-	local out = out or Cat.GF2Matrix (0, 0)
+function Cat.GF2Matrix.ColumnFromBlob(blob, out)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = 1, #blob * 8
 	for i = 1, #blob do
-		local c = string_byte (blob, i)
+		local c = string_byte(blob, i)
 		for j = 0, 7 do
 			local b = c % 2
-			out [(i - 1) * 8 + j] = b
+			out[(i - 1) * 8 + j] = b
 			c = (c - b) * 0.5
 		end
 	end
 	return out
 end
 
-function Cat.GF2Matrix.ColumnFromUInt32 (x, out)
-	local out = out or Cat.GF2Matrix (0, 0)
+function Cat.GF2Matrix.ColumnFromUInt32(x, out)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = 1, 32
 	for i = 0, 31 do
 		local b = x % 2
-		out [i] = b
+		out[i] = b
 		x = (x - b) * 0.5
 	end
 	return out
 end
 
-function Cat.GF2Matrix.RowFromBlob (x, out)
-	local out = Cat.GF2Matrix.ColumnFromBlob (x, out)
+function Cat.GF2Matrix.RowFromBlob(x, out)
+	local out = Cat.GF2Matrix.ColumnFromBlob(x, out)
 	out.w, out.h = out.h, out.w
 	return out
 end
 
-function Cat.GF2Matrix.RowFromUInt32 (x, out)
-	local out = Cat.GF2Matrix.ColumnFromUInt32 (x, out)
+function Cat.GF2Matrix.RowFromUInt32(x, out)
+	local out = Cat.GF2Matrix.ColumnFromUInt32(x, out)
 	out.w, out.h = out.h, out.w
 	return out
 end
 
-function self:ctor (h, w, ...)
+function self:ctor(h, w, ...)
 	self.h = h
 	self.w = w
 	
 	for i = 0, w * h - 1 do
-		self [i] = 0
+		self[i] = 0
 	end
 	
 	if ... then
 		local elements = {...}
-		for i = 1, math.min (self.w * self.h, #elements) do
-			self [i - 1] = elements [i]
+		for i = 1, math.min(self.w * self.h, #elements) do
+			self[i - 1] = elements[i]
 		end
 	end
 end
 
-function self:Clone (out)
-	if rawequal (out, self) then return self end
+function self:Clone(out)
+	if rawequal(out, self) then return self end
 	
-	local out = out or Cat.GF2Matrix (0, 0)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = self.w, self.h
 	for i = 0, self.w * self.h - 1 do
-		out [i] = self [i]
+		out[i] = self[i]
 	end
 	return out
 end
 
-function self:Equals (b)
+function self:Equals(b)
 	local a = self
 	if a.w ~= b.w then return false end
 	if a.h ~= b.h then return false end
 	
 	for i = 0, a.w * a.h - 1 do
-		if a [i] ~= b [i] then return false end
+		if a[i] ~= b[i] then return false end
 	end
 	
 	return true
 end
 
 -- Elements
-function self:Get (y, x)
-	return self [y * self.w + x]
+function self:Get(y, x)
+	return self[y * self.w + x]
 end
 
-function self:Set (y, x, value)
-	self [y * self.w + x] = value
+function self:Set(y, x, value)
+	self[y * self.w + x] = value
 	return self
 end
 
 -- Arithmetic
-function self:Add (b, out)
+function self:Add(b, out)
 	local a = self
-	assert (a.w == b.w)
-	assert (a.h == b.h)
+	assert(a.w == b.w)
+	assert(a.h == b.h)
 	
-	local out = out or Cat.GF2Matrix (0, 0)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = a.w, a.h
 	
 	for i = 0, a.w * a.h - 1 do
-		out [i] = a [i] * (1 - b [i]) + (1 - a [i]) * b [i]
+		out[i] = a[i] * (1 - b[i]) + (1 - a[i]) * b[i]
 	end
 	return out
 end
 
-function self:Subtract (b, out)
-	return self:Add (b, out)
+function self:Subtract(b, out)
+	return self:Add(b, out)
 end
 
-function self:Multiply (b, out)
+function self:Multiply(b, out)
 	local a = self
-	assert (a.w == b.h)
+	assert(a.w == b.h)
 	
-	local out = out or Cat.GF2Matrix (0, 0)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = b.w, a.h
 	
 	for y = 0, a.h - 1 do
 		for x = 0, b.w - 1 do
 			local sum = 0
 			for k = 0, a.w - 1 do
-				sum = sum + a [y * a.w + k] * b [k * b.w + x]
+				sum = sum + a[y * a.w + k] * b[k * b.w + x]
 			end
-			out [y * out.w + x] = sum % 2
+			out[y * out.w + x] = sum % 2
 		end
 	end
 	
 	return out
 end
 
-function self:Negate (out)
-	return out and self:Clone (out) or self
+function self:Negate(out)
+	return out and self:Clone(out) or self
 end
 
 -- Matrix operations
-function self:Invert (out)
-	assert (self.w == self.h)
+function self:Invert(out)
+	assert(self.w == self.h)
 	
-	local out = out or Cat.GF2Matrix (0, 0)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = self.w, self.h
 	
-	local rref = Cat.GF2Matrix (0, 0)
+	local rref = Cat.GF2Matrix(0, 0)
 	rref.w, rref.h = self.w * 2, self.h
 	
 	-- rref = [self 0]
 	for y = 0, self.h - 1 do
 		for x = 0, self.w - 1 do
-			rref [y * rref.w + x] = self [y * self.w + x]
-			rref [y * rref.w + self.w + x] = 0
+			rref[y * rref.w + x] = self[y * self.w + x]
+			rref[y * rref.w + self.w + x] = 0
 		end
 	end
 	
 	-- Fill diagonal with 1s
 	for i = 0, self.w - 1 do
-		rref [i * rref.w + self.w + i] = 1
+		rref[i * rref.w + self.w + i] = 1
 	end
 	
-	rref = rref:ReducedRowEchelonForm (rref)
+	rref = rref:ReducedRowEchelonForm(rref)
 	
 	-- rref = [I self^-1]
 	for y = 0, out.h - 1 do
 		for x = 0, out.w - 1 do
-			out [y * out.w + x] = rref [y * rref.w + self.w + x]
+			out[y * out.w + x] = rref[y * rref.w + self.w + x]
 		end
 	end
 	
 	return out
 end
 
-function self:NullSpace ()
+function self:NullSpace()
 	-- Assume we are already in reduced row echelon form
 	local nullSpace = {}
 	local xs = {}
 	
 	local y = 0
 	for x = 0, self.w - 1 do
-		if y < self.h and self [y * self.w + x] ~= 0 then
+		if y < self.h and self[y * self.w + x] ~= 0 then
 			-- Found a 1
-			xs [y] = x
+			xs[y] = x
 			y = y + 1
 		else
-			local v = Cat.GF2Matrix (self.w, 1)
+			local v = Cat.GF2Matrix(self.w, 1)
 			for y0 = 0, y - 1 do
-				v [xs [y0]] = self [y0 * self.w + x]
+				v[xs[y0]] = self[y0 * self.w + x]
 			end
-			v [x] = 1
-			nullSpace [#nullSpace + 1] = v
+			v[x] = 1
+			nullSpace[#nullSpace + 1] = v
 		end
 	end
 	
 	return nullSpace
 end
 
-function self:ReducedRowEchelonForm (out)
-	local out = self:Clone (out)
+function self:ReducedRowEchelonForm(out)
+	local out = self:Clone(out)
 	
 	local x = 0
 	for y = 0, out.h - 1 do
 		while x < out.w do
 			-- Ensure row y starts with a 1
-			if out [y * out.w + x] == 0 then
+			if out[y * out.w + x] == 0 then
 				-- Find a row with non-zero element x to borrow
 				for y1 = y + 1, out.h - 1 do
-					if out [y1 * out.w + x] ~= 0 then
+					if out[y1 * out.w + x] ~= 0 then
 						-- Found one
 						-- Add row y1 to row y
 						for x = x, out.w - 1 do
-							out [y * out.w + x] = out [y * out.w + x] * (1 - out [y1 * out.w + x]) + (1 - out [y * out.w + x]) * out [y1 * out.w + x]
+							out[y * out.w + x] = out[y * out.w + x] * (1 - out[y1 * out.w + x]) + (1 - out[y * out.w + x]) * out[y1 * out.w + x]
 						end
 						break
 					end
 				end
 			end
 			
-			if out [y * out.w + x] ~= 0 then
+			if out[y * out.w + x] ~= 0 then
 				-- Now use row y to clear element x of all the other rows
 				for y1 = 0, out.h - 1 do
 					if y1 ~= y then
-						if out [y1 * out.w + x] ~= 0 then
+						if out[y1 * out.w + x] ~= 0 then
 							-- Add row y to row y1
 							for x = x, out.w - 1 do
-								out [y1 * out.w + x] = out [y1 * out.w + x] * (1 - out [y * out.w + x]) + (1 - out [y1 * out.w + x]) * out [y * out.w + x]
+								out[y1 * out.w + x] = out[y1 * out.w + x] * (1 - out[y * out.w + x]) + (1 - out[y1 * out.w + x]) * out[y * out.w + x]
 							end
 						end
 					end
@@ -251,66 +251,66 @@ function self:ReducedRowEchelonForm (out)
 	return out
 end
 
-function self:Solve (b, out)
-	assert (b.w == 1)
-	assert (self.h == b.h)
+function self:Solve(b, out)
+	assert(b.w == 1)
+	assert(self.h == b.h)
 	
-	local out = out or Cat.GF2Matrix (0, 0)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = self.w, self.h
 	
-	local rref = Cat.GF2Matrix (0, 0)
+	local rref = Cat.GF2Matrix(0, 0)
 	rref.w, rref.h = self.w + 1, self.h
 	
 	-- rref = [self b]
 	for y = 0, self.h - 1 do
 		for x = 0, self.w - 1 do
-			rref [y * rref.w + x] = self [y * self.w + x]
-			rref [y * rref.w + self.w + x] = 0
+			rref[y * rref.w + x] = self[y * self.w + x]
+			rref[y * rref.w + self.w + x] = 0
 		end
 		
-		rref [y * rref.w + self.w] = b [y]
+		rref[y * rref.w + self.w] = b[y]
 	end
 	
-	rref = rref:ReducedRowEchelonForm (rref)
+	rref = rref:ReducedRowEchelonForm(rref)
 	
 	-- Find first solution and null space
-	local x0 = Cat.GF2Matrix (self.w, 1)
+	local x0 = Cat.GF2Matrix(self.w, 1)
 	local nullSpace = {}
 	local xs = {}
 	
 	local y = 0
 	for x = 0, rref.w - 2 do
-		if y < rref.h and rref [y * rref.w + x] ~= 0 then
+		if y < rref.h and rref[y * rref.w + x] ~= 0 then
 			-- Found a 1
-			xs [y] = x
-			x0 [x] = rref [y * rref.w + self.w]
+			xs[y] = x
+			x0[x] = rref[y * rref.w + self.w]
 			
 			y = y + 1
 		else
 			-- Null space vector
-			local v = Cat.GF2Matrix (rref.w - 1, 1)
+			local v = Cat.GF2Matrix(rref.w - 1, 1)
 			for y0 = 0, y - 1 do
-				v [xs [y0]] = rref [y0 * rref.w + x]
+				v[xs[y0]] = rref[y0 * rref.w + x]
 			end
-			v [x] = 1
-			nullSpace [#nullSpace + 1] = v
+			v[x] = 1
+			nullSpace[#nullSpace + 1] = v
 		end
 	end
 	
 	for y = y, rref.h - 1 do
-		if rref [y * rref.w + self.w] ~= 0 then return nil, nullSpace end
+		if rref[y * rref.w + self.w] ~= 0 then return nil, nullSpace end
 	end
 	
 	return x0, nullSpace
 end
 
-function self:Transpose (out)
-	local out = out or Cat.GF2Matrix (0, 0)
+function self:Transpose(out)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = self.h, self.w
 	
 	for y = 0, self.h - 1 do
 		for x = 0, self.w - 1 do
-			out [x * out.w + y] = self [y * self.w + x];
+			out[x * out.w + y] = self[y * self.w + x];
 		end
 	end
 	
@@ -318,100 +318,100 @@ function self:Transpose (out)
 end
 
 -- Rows and columns
-function self:GetColumn (x, out)
-	local out = out or Cat.GF2Matrix (0, 0)
+function self:GetColumn(x, out)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = 1, self.h
 	
 	for y = 0, self.h - 1 do
-		out [y] = self [y * self.w + x]
+		out[y] = self[y * self.w + x]
 	end
 	
 	return out
 end
 
-function self:GetRow (y, out)
-	local out = out or Cat.GF2Matrix (0, 0)
+function self:GetRow(y, out)
+	local out = out or Cat.GF2Matrix(0, 0)
 	out.w, out.h = self.w, 1
 	
 	for x = 0, self.w - 1 do
-		out [x] = self [y * self.w + x]
+		out[x] = self[y * self.w + x]
 	end
 	
 	return out
 end
 
-function self:SetColumn (x, column)
-	assert (column.w == 1)
-	assert (self.h == column.h)
+function self:SetColumn(x, column)
+	assert(column.w == 1)
+	assert(self.h == column.h)
 	
 	for y = 0, self.h - 1 do
-		self [y * self.w + x] = column [y]
+		self[y * self.w + x] = column[y]
 	end
 	
 	return self
 end
 
-function self:SetRow (y, row)
-	assert (row.h == 1)
-	assert (self.w == row.w)
+function self:SetRow(y, row)
+	assert(row.h == 1)
+	assert(self.w == row.w)
 	
 	for x = 0, self.w - 1 do
-		self [y * self.w + x] = row [x]
+		self[y * self.w + x] = row[x]
 	end
 	
 	return self
 end
 
 -- Conversions
-function self:ColumnToBlob ()
-	assert (self.w == 1 or self.h == 1)
-	assert (self.w * self.h % 8 == 0)
+function self:ColumnToBlob()
+	assert(self.w == 1 or self.h == 1)
+	assert(self.w * self.h % 8 == 0)
 	
 	local t = {}
 	local length = self.w * self.h * 0.125
 	for i = 1, length do
 		local c = 0
 		for j = 7, 0, -1 do
-			c = c * 2 + self [(i - 1) * 8 + j]
+			c = c * 2 + self[(i - 1) * 8 + j]
 		end
-		t [#t + 1] = string_char (c)
+		t[#t + 1] = string_char(c)
 	end
 	
-	return table_concat (t)
+	return table_concat(t)
 end
 
-function self:ColumnToUInt32 ()
-	assert (self.w == 1 or self.h == 1)
-	assert (self.w * self.h == 32)
+function self:ColumnToUInt32()
+	assert(self.w == 1 or self.h == 1)
+	assert(self.w * self.h == 32)
 	
 	local x = 0
 	for i = 31, 0, -1 do
-		x = x * 2 + self [i]
+		x = x * 2 + self[i]
 	end
 	
 	return x
 end
 
-function self:RowToBlob ()
-	return self:ColumnToBlob ()
+function self:RowToBlob()
+	return self:ColumnToBlob()
 end
 
-function self:RowToUInt32 ()
-	return self:ColumnToUInt32 ()
+function self:RowToUInt32()
+	return self:ColumnToUInt32()
 end
 
-function self:ToString ()
+function self:ToString()
 	local rows = {}
 	for y = 0, self.h - 1 do
 		local column = {}
 		for x = 0, self.w - 1 do
-			column [#column + 1] = self [y * self.w + x]
+			column[#column + 1] = self[y * self.w + x]
 		end
 		
-		rows [#rows + 1] = "[ " .. table.concat (column) .. " ]"
+		rows[#rows + 1] = "[ " .. table.concat(column) .. " ]"
 	end
 	
-	return table.concat (rows, "\n")
+	return table.concat(rows, "\n")
 end
 
 self.__eq  = self.Equals

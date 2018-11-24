@@ -2,39 +2,39 @@
 
 HTTP = {}
 
-Error = require ("Pylon.Error")
+Error = require("Pylon.Error")
 
-OOP = require ("Pylon.OOP")
-OOP.Initialize (_ENV)
+OOP = require("Pylon.OOP")
+OOP.Initialize(_ENV)
 
-include ("httpcodes.lua")
-include ("httpresponse.lua")
+include("httpcodes.lua")
+include("httpresponse.lua")
 
 local encodeMap = {}
 local decodeMap = {}
 for i = 0, 255 do
-	encodeMap [string.char (i)] = string.format ("%%%02X", i)
-	decodeMap [string.format ("%%%02x", i)] = string.char (i)
-	decodeMap [string.format ("%%%02X", i)] = string.char (i)
+	encodeMap[string.char(i)] = string.format("%%%02X", i)
+	decodeMap[string.format("%%%02x", i)] = string.char(i)
+	decodeMap[string.format("%%%02X", i)] = string.char(i)
 end
 
-function HTTP.EncodeUriComponent (s)
-	return string.gsub (s, "[^A-Za-z0-9%-_%.!~%*'%(%)]", encodeMap)
+function HTTP.EncodeUriComponent(s)
+	return string.gsub(s, "[^A-Za-z0-9%-_%.!~%*'%(%)]", encodeMap)
 end
 
-function HTTP.DecodeUriComponent (s)
-	return string.gsub (s, "%%[a-fA-F0-9][a-fA-F0-9]", decodeMap)
+function HTTP.DecodeUriComponent(s)
+	return string.gsub(s, "%%[a-fA-F0-9][a-fA-F0-9]", decodeMap)
 end
 
-function HTTP.Get (url)
-	Error ("HTTP.Get : Not implemented.")
+function HTTP.Get(url)
+	Error("HTTP.Get : Not implemented.")
 end
 
-function HTTP.Post (url, parameters)
-	Error ("HTTP.Post : Not implemented.")
+function HTTP.Post(url, parameters)
+	Error("HTTP.Post : Not implemented.")
 end
 
-function HTTP.Initialize (destinationTable)
+function HTTP.Initialize(destinationTable)
 	destinationTable = destinationTable or {}
 	
 	destinationTable.HTTPCodes          = HTTP.HTTPCodes

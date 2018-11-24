@@ -1,4 +1,4 @@
-Svg.PathCommand = Enum (
+Svg.PathCommand = Enum(
 	{
 		MoveTo                         = "M",
 		

@@ -1,12 +1,12 @@
 local self = {}
-Glass.ListView.InternalDataSource = Class (self, Glass.IListViewDataSource)
+Glass.ListView.InternalDataSource = Class(self, Glass.IListViewDataSource)
 
-self.Reloaded      = Event ()
-self.ItemsInserted = Event ()
-self.ItemsRemoved  = Event ()
-self.ItemsMoved    = Event ()
+self.Reloaded      = Event()
+self.ItemsInserted = Event()
+self.ItemsRemoved  = Event()
+self.ItemsMoved    = Event()
 
-function self:ctor (canvas)
+function self:ctor(canvas)
 	self.Canvas = canvas
 	
 	self.DataSource = nil
@@ -15,126 +15,126 @@ function self:ctor (canvas)
 	self.Items     = {}
 end
 
-function self:dtor ()
-	self:SetDataSource (nil)
+function self:dtor()
+	self:SetDataSource(nil)
 end
 
 -- IListViewDataSource
-function self:GetItemCount ()
+function self:GetItemCount()
 	return self.ItemCount
 end
 
-function self:GetItemType (i)
+function self:GetItemType(i)
 	if not self.DataSource then return nil end
 	
-	return self.DataSource:GetItemType (i)
+	return self.DataSource:GetItemType(i)
 end
 
-function self:CreateItem (type)
+function self:CreateItem(type)
 	if not self.DataSource then return end
 	
-	return self.DataSource:CreateItem (type)
+	return self.DataSource:CreateItem(type)
 end
 
-function self:DestroyItem (type, listViewItem)
+function self:DestroyItem(type, listViewItem)
 	if not self.DataSource then return end
 	
-	return self.DataSource:DestroyItem (type)
+	return self.DataSource:DestroyItem(type)
 end
 
-function self:BindItem (i, listViewItem)
+function self:BindItem(i, listViewItem)
 	if not self.DataSource then return end
 	
-	return self.DataSource:BindItem (i, listViewItem)
+	return self.DataSource:BindItem(i, listViewItem)
 end
 
-function self:UnbindItem (i, listViewItem)
+function self:UnbindItem(i, listViewItem)
 	if not self.DataSource then return end
 	
-	return self.DataSource:UnbindItem (i, listViewItem)
+	return self.DataSource:UnbindItem(i, listViewItem)
 end
 
-function self:GetTotalHeight (width)
+function self:GetTotalHeight(width)
 	if not self.DataSource then return 0 end
 	
-	return self.DataSource:GetTotalHeight (width)
+	return self.DataSource:GetTotalHeight(width)
 end
 
-function self:GetRangeHeight (startIndex, count, width)
+function self:GetRangeHeight(startIndex, count, width)
 	if not self.DataSource then return 0 end
 	
-	return self.DataSource:GetRangeHeight (startIndex, count, width)
+	return self.DataSource:GetRangeHeight(startIndex, count, width)
 end
 
-function self:GetItemHeight (i, width)
+function self:GetItemHeight(i, width)
 	if not self.DataSource then return 0 end
 	
-	return self.DataSource:GetItemHeight (i, width)
+	return self.DataSource:GetItemHeight(i, width)
 end
 
 -- ListViewInternalDataSource
-function self:AddItem (listViewItem)
+function self:AddItem(listViewItem)
 	self.ItemCount = self.ItemCount + 1
-	self.Items [self.ItemCount] = listViewItem
+	self.Items[self.ItemCount] = listViewItem
 	
-	self.ItemsInserted:Dispatch (self.ItemCount, 1)
+	self.ItemsInserted:Dispatch(self.ItemCount, 1)
 end
 
-function self:GetDataSource ()
+function self:GetDataSource()
 	return self.DataSource
 end
 
-function self:SetDataSource (dataSource)
+function self:SetDataSource(dataSource)
 	if self.DataSource == dataSource then return end
 	
 	if self.DataSource then
-		self:UnbindDataSource (self.DataSource)
+		self:UnbindDataSource(self.DataSource)
 	end
 	
 	self.DataSource = dataSource
 	
 	if self.DataSource then
-		self:BindDataSource (self.DataSource)
+		self:BindDataSource(self.DataSource)
 	end
 end
 
 -- Internal
-function self:BindDataSource (dataSource)
-	self.DataSource.Reloaded:AddListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode (),
-		function ()
-			self.ItemCount = self.DataSource:GetItemCount ()
+function self:BindDataSource(dataSource)
+	self.DataSource.Reloaded:AddListener("Glass.ListView.InternalDataSource." .. self:GetHashCode(),
+		function()
+			self.ItemCount = self.DataSource:GetItemCount()
 			
-			self.Reloaded:Dispatch ()
+			self.Reloaded:Dispatch()
 			
 			-- Visible range invalidated?
 		end
 	)
 	
-	self.DataSource.ItemsInserted:AddListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode (),
-		function (startIndex, count)
+	self.DataSource.ItemsInserted:AddListener("Glass.ListView.InternalDataSource." .. self:GetHashCode(),
+		function(startIndex, count)
 			self.ItemCount = self.ItemCount + count
 			
-			self.ItemsInserted:Dispatch (startIndex, count)
+			self.ItemsInserted:Dispatch(startIndex, count)
 			
 			-- Outside visible range -> no op, update some accounting
 			-- Inside visible range  -> eek
 		end
 	)
 	
-	self.DataSource.ItemsRemoved:AddListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode (),
-		function (startIndex, count)
+	self.DataSource.ItemsRemoved:AddListener("Glass.ListView.InternalDataSource." .. self:GetHashCode(),
+		function(startIndex, count)
 			self.ItemCount = self.ItemCount - count
 			
-			self.ItemsRemoved:Dispatch (startIndex, count)
+			self.ItemsRemoved:Dispatch(startIndex, count)
 			
 			-- Outside visible range -> no op, update some accounting
 			-- Inside visible range  -> eek
 		end
 	)
 	
-	self.DataSource.ItemsMoved:AddListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode (),
-		function (sourceIndex, destinationIndex, count)
-			self.ItemsMoved:Dispatch (sourceIndex, destinationIndex, count)
+	self.DataSource.ItemsMoved:AddListener("Glass.ListView.InternalDataSource." .. self:GetHashCode(),
+		function(sourceIndex, destinationIndex, count)
+			self.ItemsMoved:Dispatch(sourceIndex, destinationIndex, count)
 			
 			-- Outside visible range -> no op, update some accounting
 			-- Inside visible range  -> eek
@@ -142,9 +142,9 @@ function self:BindDataSource (dataSource)
 	)
 end
 
-function self:UnbindDataSource (dataSource)
-	self.DataSource.Reloaded     :RemoveListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode ())
-	self.DataSource.ItemsInserted:RemoveListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode ())
-	self.DataSource.ItemsRemoved :RemoveListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode ())
-	self.DataSource.ItemsMoved   :RemoveListener ("Glass.ListView.InternalDataSource." .. self:GetHashCode ())
+function self:UnbindDataSource(dataSource)
+	self.DataSource.Reloaded     :RemoveListener("Glass.ListView.InternalDataSource." .. self:GetHashCode())
+	self.DataSource.ItemsInserted:RemoveListener("Glass.ListView.InternalDataSource." .. self:GetHashCode())
+	self.DataSource.ItemsRemoved :RemoveListener("Glass.ListView.InternalDataSource." .. self:GetHashCode())
+	self.DataSource.ItemsMoved   :RemoveListener("Glass.ListView.InternalDataSource." .. self:GetHashCode())
 end

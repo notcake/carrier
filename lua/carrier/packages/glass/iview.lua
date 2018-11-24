@@ -1,266 +1,266 @@
 local self = {}
-Glass.IView = Interface (self)
+Glass.IView = Interface(self)
 
-self.Layout         = Event ()
-self.VisibleChanged = Event ()
+self.Layout         = Event()
+self.VisibleChanged = Event()
 
-self.MouseDown      = Event ()
-self.MouseMove      = Event ()
-self.MouseUp        = Event ()
-self.MouseWheel     = Event ()
-self.MouseEnter     = Event ()
-self.MouseLeave     = Event ()
+self.MouseDown      = Event()
+self.MouseMove      = Event()
+self.MouseUp        = Event()
+self.MouseWheel     = Event()
+self.MouseEnter     = Event()
+self.MouseLeave     = Event()
 
-self.Click          = Event ()
-self.DoubleClick    = Event ()
+self.Click          = Event()
+self.DoubleClick    = Event()
 
-function self:ctor ()
+function self:ctor()
 end
 
 -- Environment
-function self:GetEnvironment ()
-	Error ("IView:GetEnvironment : Not implemented.")
+function self:GetEnvironment()
+	Error("IView:GetEnvironment : Not implemented.")
 end
 
-function self:CreateHandle ()
-	Error ("IView:CreateHandle : Not implemented.")
+function self:CreateHandle()
+	Error("IView:CreateHandle : Not implemented.")
 end
 
-function self:DestroyHandle ()
-	Error ("IView:DestroyHandle : Not implemented.")
+function self:DestroyHandle()
+	Error("IView:DestroyHandle : Not implemented.")
 end
 
-function self:GetHandle ()
-	Error ("IView:GetHandle : Not implemented.")
+function self:GetHandle()
+	Error("IView:GetHandle : Not implemented.")
 end
 
-function self:IsHandleCreated ()
-	Error ("IView:IsHandleCreated : Not implemented.")
+function self:IsHandleCreated()
+	Error("IView:IsHandleCreated : Not implemented.")
 end
 
 -- Skin
-function self:GetSkin ()
-	Error ("IView:GetSkin : Not implemented.")
+function self:GetSkin()
+	Error("IView:GetSkin : Not implemented.")
 end
 
 -- Hierarchy
-function self:AddChild (view)
-	Error ("IView:AddChild : Not implemented.")
+function self:AddChild(view)
+	Error("IView:AddChild : Not implemented.")
 end
 
-function self:RemoveChild (view)
-	Error ("IView:RemoveChild : Not implemented.")
+function self:RemoveChild(view)
+	Error("IView:RemoveChild : Not implemented.")
 end
 
-function self:GetParent ()
-	Error ("IView:GetParent : Not implemented.")
+function self:GetParent()
+	Error("IView:GetParent : Not implemented.")
 end
 
-function self:SetParent (view)
-	Error ("IView:SetParent : Not implemented.")
+function self:SetParent(view)
+	Error("IView:SetParent : Not implemented.")
 end
 
-function self:BringChildToFront (view)
-	Error ("IView:BringChildToFront : Not implemented.")
+function self:BringChildToFront(view)
+	Error("IView:BringChildToFront : Not implemented.")
 end
 
-function self:SendChildToBack (view)
-	Error ("IView:SendChildToBack : Not implemented.")
+function self:SendChildToBack(view)
+	Error("IView:SendChildToBack : Not implemented.")
 end
 
 -- Layout
-function self:GetRectangle ()
-	local x, y = self:GetPosition ()
-	local w, h = self:GetSize ()
+function self:GetRectangle()
+	local x, y = self:GetPosition()
+	local w, h = self:GetSize()
 	return x, y, w, h
 end
 
-function self:SetRectangle (x, y, w, h, animation)
-	Error ("IView:SetRectangle : Not implemented.")
+function self:SetRectangle(x, y, w, h, animation)
+	Error("IView:SetRectangle : Not implemented.")
 end
 
-function self:GetPosition ()
-	Error ("IView:GetPosition : Not implemented.")
+function self:GetPosition()
+	Error("IView:GetPosition : Not implemented.")
 end
 
-function self:SetPosition (x, y, animation)
-	Error ("IView:SetPosition : Not implemented.")
+function self:SetPosition(x, y, animation)
+	Error("IView:SetPosition : Not implemented.")
 end
 
-function self:GetX ()
-	local x, _ = self:GetPosition ()
+function self:GetX()
+	local x, _ = self:GetPosition()
 	return x
 end
 
-function self:GetY ()
-	local _, y = self:GetPosition ()
+function self:GetY()
+	local _, y = self:GetPosition()
 	return y
 end
 
-function self:SetX (x, animation)
-	self:SetPosition (x, self:GetY (), animation)
+function self:SetX(x, animation)
+	self:SetPosition(x, self:GetY(), animation)
 end
 
-function self:SetY (y, animation)
-	self:SetPosition (self:GetX (), y, animation)
+function self:SetY(y, animation)
+	self:SetPosition(self:GetX(), y, animation)
 end
 
-function self:GetSize ()
-	Error ("IView:GetSize : Not implemented.")
+function self:GetSize()
+	Error("IView:GetSize : Not implemented.")
 end
 
-function self:SetSize (w, h, animation)
-	Error ("IView:SetSize : Not implemented.")
+function self:SetSize(w, h, animation)
+	Error("IView:SetSize : Not implemented.")
 end
 
-function self:GetWidth ()
-	local w, _ = self:GetSize ()
+function self:GetWidth()
+	local w, _ = self:GetSize()
 	return w
 end
 
-function self:GetHeight ()
-	local _, h = self:GetSize ()
+function self:GetHeight()
+	local _, h = self:GetSize()
 	return h
 end
 
-function self:SetWidth (w, animation)
-	self:SetSize (w, self:GetHeight (), animation)
+function self:SetWidth(w, animation)
+	self:SetSize(w, self:GetHeight(), animation)
 end
 
-function self:SetHeight (h, animation)
-	self:SetSize (self:GetWidth (), h, animation)
+function self:SetHeight(h, animation)
+	self:SetSize(self:GetWidth(), h, animation)
 end
 
-function self:Center (animation)
-	local parent = self:GetParent ()
+function self:Center(animation)
+	local parent = self:GetParent()
 	if not parent then return end
 	
-	local parentWidth, parentHeight = parent:GetSize ()
-	local w, h = self:GetSize ()
-	self:SetPosition (0.5 * (parentWidth - w), 0.5 * (parentHeight - h), animation)
+	local parentWidth, parentHeight = parent:GetSize()
+	local w, h = self:GetSize()
+	self:SetPosition(0.5 * (parentWidth - w), 0.5 * (parentHeight - h), animation)
 end
 
-function self:BringToFront ()
-	self:GetParent ():BringChildToFront (self)
+function self:BringToFront()
+	self:GetParent():BringChildToFront(self)
 end
 
-function self:SendToBack ()
-	self:GetParent ():SendChildToBack (self)
+function self:SendToBack()
+	self:GetParent():SendChildToBack(self)
 end
 
 -- Content layout
-function self:GetPreferredSize (maximumWidth, maximumHeight)
-	return self:GetSize ()
+function self:GetPreferredSize(maximumWidth, maximumHeight)
+	return self:GetSize()
 end
 
-function self:InvalidateLayout ()
-	Error ("IView:InvalidateLayout : Not implemented.")
+function self:InvalidateLayout()
+	Error("IView:InvalidateLayout : Not implemented.")
 end
 
 -- Children layout
-function self:GetContainerPosition ()
+function self:GetContainerPosition()
 	return 0, 0
 end
 
-function self:GetContainerSize ()
-	return self:GetSize ()
+function self:GetContainerSize()
+	return self:GetSize()
 end
 
-function self:GetContainerRectangle ()
-	local x, y = self:GetContainerPosition ()
-	return x, y, self:GetContainerSize ()
+function self:GetContainerRectangle()
+	local x, y = self:GetContainerPosition()
+	return x, y, self:GetContainerSize()
 end
 
 -- Appearance
-function self:IsVisible ()
-	Error ("IView:IsVisible : Not implemented.")
+function self:IsVisible()
+	Error("IView:IsVisible : Not implemented.")
 end
 
-function self:SetVisible (visible)
-	Error ("IView:SetVisible : Not implemented.")
+function self:SetVisible(visible)
+	Error("IView:SetVisible : Not implemented.")
 end
 
 -- Mouse
-function self:GetCursor ()
-	Error ("IView:GetCursor : Not implemented.")
+function self:GetCursor()
+	Error("IView:GetCursor : Not implemented.")
 end
 
-function self:SetCursor (cursor)
-	Error ("IView:SetCursor : Not implemented.")
+function self:SetCursor(cursor)
+	Error("IView:SetCursor : Not implemented.")
 end
 
-function self:GetMousePosition ()
-	Error ("IView:GetMousePosition : Not implemented.")
+function self:GetMousePosition()
+	Error("IView:GetMousePosition : Not implemented.")
 end
 
-function self:IsMouseOver ()
-	Error ("IView:IsMouseOver : Not implemented.")
+function self:IsMouseOver()
+	Error("IView:IsMouseOver : Not implemented.")
 end
 
-function self:CaptureMouse ()
-	Error ("IView:CaptureMouse : Not implemented.")
+function self:CaptureMouse()
+	Error("IView:CaptureMouse : Not implemented.")
 end
 
-function self:ReleaseMouse ()
-	Error ("IView:ReleaseMouse : Not implemented.")
+function self:ReleaseMouse()
+	Error("IView:ReleaseMouse : Not implemented.")
 end
 
-function self:IsMouseEventConsumer ()
-	Error ("IView:IsMouseEventConsumer : Not implemented.")
+function self:IsMouseEventConsumer()
+	Error("IView:IsMouseEventConsumer : Not implemented.")
 end
 
-function self:SetConsumesMouseEvents (consumesMouseEvents)
-	Error ("IView:SetConsumesMouseEvents : Not implemented.")
+function self:SetConsumesMouseEvents(consumesMouseEvents)
+	Error("IView:SetConsumesMouseEvents : Not implemented.")
 end
 
 -- Animations
-function self:AddAnimation (animation)
-	Error ("IView:AddAnimation : Not implemented.")
+function self:AddAnimation(animation)
+	Error("IView:AddAnimation : Not implemented.")
 end
 
--- updater (t0, t)
-function self:CreateAnimation (updater)
-	Error ("IView:CreateAnimation : Not implemented.")
+-- updater(t0, t)
+function self:CreateAnimation(updater)
+	Error("IView:CreateAnimation : Not implemented.")
 end
 
--- updater (t)
-function self:CreateAnimator (interpolator, duration, updater)
-	Error ("IView:CreateAnimator : Not implemented.")
+-- updater(t)
+function self:CreateAnimator(interpolator, duration, updater)
+	Error("IView:CreateAnimator : Not implemented.")
 end
 
-function self:GetAnimationCount ()
-	Error ("IView:GetAnimationCount : Not implemented.")
+function self:GetAnimationCount()
+	Error("IView:GetAnimationCount : Not implemented.")
 end
 
-function self:GetAnimationEnumerator ()
-	Error ("IView:GetAnimationEnumerator : Not implemented.")
+function self:GetAnimationEnumerator()
+	Error("IView:GetAnimationEnumerator : Not implemented.")
 end
 
-function self:RemoveAnimation (animation)
-	Error ("IView:RemoveAnimation : Not implemented.")
+function self:RemoveAnimation(animation)
+	Error("IView:RemoveAnimation : Not implemented.")
 end
 
-function self:UpdateAnimations (t)
-	Error ("IView:UpdateAnimations : Not implemented.")
+function self:UpdateAnimations(t)
+	Error("IView:UpdateAnimations : Not implemented.")
 end
 
 -- Internal
-function self:OnSkinChanged (skin) end
+function self:OnSkinChanged(skin) end
 
-function self:OnLayout (contentWidth, contentHeight) end
+function self:OnLayout(contentWidth, contentHeight) end
 
-function self:OnMouseDown (mouseButtons, x, y) end
-function self:OnMouseMove (mouseButtons, x, y) end
-function self:OnMouseUp   (mouseButtons, x, y) end
+function self:OnMouseDown(mouseButtons, x, y) end
+function self:OnMouseMove(mouseButtons, x, y) end
+function self:OnMouseUp  (mouseButtons, x, y) end
 
-function self:OnMouseWheel (delta) end
+function self:OnMouseWheel(delta) end
 
-function self:OnMouseEnter () end
-function self:OnMouseLeave () end
+function self:OnMouseEnter() end
+function self:OnMouseLeave() end
 
-function self:OnClick () end
-function self:OnDoubleClick () end
+function self:OnClick() end
+function self:OnDoubleClick() end
 
-function self:OnVisibleChanged (visible) end
+function self:OnVisibleChanged(visible) end
 
-function self:Render (w, h, render2d) end
+function self:Render(w, h, render2d) end
