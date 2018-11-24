@@ -1,4 +1,4 @@
-Xml.NodeType = Enum (
+Xml.NodeType = Enum(
 	{
 		Element = 1,
 		Comment = 4,

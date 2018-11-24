@@ -1,7 +1,7 @@
 local self = {}
-AST.Statements.VariableDeclaration = Class (self, AST.Statement)
+AST.Statements.VariableDeclaration = Class(self, AST.Statement)
 
-function self:ctor (identifier, expression)
+function self:ctor(identifier, expression)
 	self.Identifier = identifier
 	self.Expression = expression
 end
@@ -9,27 +9,27 @@ end
 -- Node
 self.ChildrenFieldNames = { "Identifier", "Expression" }
 
-function self:ToString ()
+function self:ToString()
 	if self.Expression then
-		return "var " .. self.Identifier:ToString () .. " = " .. self.Expression:ToString () .. ";"
+		return "var " .. self.Identifier:ToString() .. " = " .. self.Expression:ToString() .. ";"
 	else
-		return "var " .. self.Identifier:ToString () .. ";"
+		return "var " .. self.Identifier:ToString() .. ";"
 	end
 end
 
 -- VariableDeclaration
-function self:GetIdentifier ()
+function self:GetIdentifier()
 	return self.Identifier
 end
 
-function self:GetExpression ()
+function self:GetExpression()
 	return self.Expression
 end
 
-function self:SetIdentifier (identifier)
+function self:SetIdentifier(identifier)
 	self.Identifier = identifier
 end
 
-function self:SetExpression (expression)
+function self:SetExpression(expression)
 	self.Expression = expression
 end

@@ -2,10 +2,10 @@
 
 LuaJIT = {}
 
-Error = require ("Pylon.Error")
+Error = require("Pylon.Error")
 
-require ("Pylon.OOP").Initialize (_ENV)
-require ("Pylon.Enumeration").Initialize (_ENV)
+require("Pylon.OOP").Initialize(_ENV)
+require("Pylon.Enumeration").Initialize(_ENV)
 
 
 

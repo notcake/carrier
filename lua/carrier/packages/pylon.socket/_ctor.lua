@@ -2,16 +2,16 @@
 
 Socket = {}
 
-Error = require ("Pylon.Error")
-OOP   = require ("Pylon.OOP")
-OOP.Initialize (_ENV)
+Error = require("Pylon.Error")
+OOP   = require("Pylon.OOP")
+OOP.Initialize(_ENV)
 
 if jit.os == "Windows" or jit.os == "POSIX" then
-	include ("winsock.lua")
+	include("winsock.lua")
 elseif jit.os == "Linux" then
-	include ("socket.lua")
+	include("socket.lua")
 end
 
-include ("tcp.lua")
+include("tcp.lua")
 
 return Socket

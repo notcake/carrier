@@ -1,2 +1,2 @@
-GarrysMod.Desktop:dtor ()
-MouseEventRouter:dtor ()
+GarrysMod.Desktop:dtor()
+MouseEventRouter:dtor()

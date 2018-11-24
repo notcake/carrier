@@ -1,31 +1,31 @@
 local self = {}
-DesktopItem = Class (self)
+DesktopItem = Class(self)
 
-self.Click = Event ()
+self.Click = Event()
 
-function self:ctor (desktop, text, icon)
+function self:ctor(desktop, text, icon)
 	self.Desktop = desktop
 	
 	self.Text = text
 	self.Icon = icon or "error"
 end
 
-function self:dtor ()
-	self.Desktop:RemoveItem (self)
+function self:dtor()
+	self.Desktop:RemoveItem(self)
 end
 
-function self:GetIcon ()
+function self:GetIcon()
 	return self.Icon
 end
 
-function self:GetId ()
-	return string.format ("Glass.GarrysMod.DesktopItem_%p", self)
+function self:GetId()
+	return string.format("Glass.GarrysMod.DesktopItem_%p", self)
 end
 
-function self:GetText ()
+function self:GetText()
 	return self.Text
 end
 
-function self:Remove ()
-	self:dtor ()
+function self:Remove()
+	self:dtor()
 end

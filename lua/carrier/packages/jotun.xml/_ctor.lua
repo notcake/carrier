@@ -2,21 +2,21 @@
 
 Xml = {}
 
-Error = require ("Pylon.Error")
+Error = require("Pylon.Error")
 
-require ("Pylon.OOP").Initialize (_ENV)
+require("Pylon.OOP").Initialize(_ENV)
 
-require ("Pylon.Enumeration").Initialize (_ENV)
+require("Pylon.Enumeration").Initialize(_ENV)
 
-StringParser = require ("Eka.StringParser")
+StringParser = require("Eka.StringParser")
 
-include ("nodetype.lua")
-include ("tagtype.lua")
-include ("node.lua")
-include ("elementnode.lua")
-include ("commentnode.lua")
-include ("textnode.lua")
-include ("parser.lua")
+include("nodetype.lua")
+include("tagtype.lua")
+include("node.lua")
+include("elementnode.lua")
+include("commentnode.lua")
+include("textnode.lua")
+include("parser.lua")
 
 local escapes =
 {
@@ -26,22 +26,22 @@ local escapes =
 	["\""] = "&quot;"
 }
 
-function Xml.Escape (str)
-	return string.gsub (str, "[&<>\"]", escapes)
+function Xml.Escape(str)
+	return string.gsub(str, "[&<>\"]", escapes)
 end
 
-function Xml.Parse (str)
-	return Xml.ParseDom (str)
+function Xml.Parse(str)
+	return Xml.ParseDom(str)
 end
 
-function Xml.ParseDom (str)
-	local parser = Parser (str)
-	return parser:GetDocument ()
+function Xml.ParseDom(str)
+	local parser = Parser(str)
+	return parser:GetDocument()
 end
 
-function Xml.ParseSax (str, yield)
-	Parser (str, yield)
+function Xml.ParseSax(str, yield)
+	Parser(str, yield)
 end
-Xml.ParseSax = YieldEnumeratorFactory (Xml.ParseSax)
+Xml.ParseSax = YieldEnumeratorFactory(Xml.ParseSax)
 
 return Xml

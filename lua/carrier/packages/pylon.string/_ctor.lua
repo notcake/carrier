@@ -2,7 +2,7 @@
 
 String = {}
 
-include ("string.lua")
-include ("ascii.lua")
+include("string.lua")
+include("ascii.lua")
 
 return String

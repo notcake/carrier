@@ -1,15 +1,15 @@
 local self = {}
-AST.Statements.Break = Class (self, AST.Statement)
+AST.Statements.Break = Class(self, AST.Statement)
 
-function self:ctor ()
+function self:ctor()
 end
 
 -- Node
-function self:ToString ()
+function self:ToString()
 	return "break;"
 end
 
 -- Statement
-function self:IsControlFlowDiscontinuity ()
+function self:IsControlFlowDiscontinuity()
 	return true
 end

@@ -2,24 +2,24 @@
 
 Enumeration = {}
 
-Error = require ("Pylon.Error")
+Error = require("Pylon.Error")
 
-OOP = require ("Pylon.OOP")
-OOP.Initialize (_ENV)
+OOP = require("Pylon.OOP")
+OOP.Initialize(_ENV)
 
-CompactList = require ("Pylon.Containers.CompactList")
+CompactList = require("Pylon.Containers.CompactList")
 
-include ("ienumerator.lua")
-include ("ienumerable.lua")
+include("ienumerator.lua")
+include("ienumerable.lua")
 
-include ("ienumeratorextension.lua")
+include("ienumeratorextension.lua")
 
-include ("functionenumerator.lua")
-include ("enumerators.lua")
+include("functionenumerator.lua")
+include("enumerators.lua")
 
-include ("enumeratorfunctionextension.lua")
+include("enumeratorfunctionextension.lua")
 
-function Enumeration.Initialize (destinationTable)
+function Enumeration.Initialize(destinationTable)
 	destinationTable.IEnumerator            = Enumeration.IEnumerator
 	destinationTable.IEnumerable            = Enumeration.IEnumerable
 	

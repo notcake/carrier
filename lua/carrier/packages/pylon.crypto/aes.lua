@@ -1,4 +1,4 @@
-local bit         = require_provider ("bit")
+local bit         = require_provider("bit")
 local bit_bxor    = bit.bxor
 
 local string_byte = string.byte
@@ -124,77 +124,77 @@ local mul14 =
 	      0xd7, 0xd9, 0xcb, 0xc5, 0xef, 0xe1, 0xf3, 0xfd, 0xa7, 0xa9, 0xbb, 0xb5, 0x9f, 0x91, 0x83, 0x8d
 }
 
-local function AddRoundKey (state, roundKey, out)
+local function AddRoundKey(state, roundKey, out)
 	for i = 0, 15 do
-		out [i] = bit_bxor (state [i], roundKey [i])
+		out[i] = bit_bxor(state[i], roundKey[i])
 	end
 	return out
 end
 
-local function SubBytes (state, out)
+local function SubBytes(state, out)
 	for i = 0, 15 do
-		out [i] = Crypto.AES.SBox [state [i]]
+		out[i] = Crypto.AES.SBox[state[i]]
 	end
 	return out
 end
 
-local function ShiftRows (state, out)
-	out [ 0], out [ 1], out [ 2], out [ 3] = state [ 0], state [ 1], state [ 2], state [ 3]
-	out [ 4], out [ 5], out [ 6], out [ 7] = state [ 5], state [ 6], state [ 7], state [ 4]
-	out [ 8], out [ 9], out [10], out [11] = state [10], state [11], state [ 8], state [ 9]
-	out [12], out [13], out [14], out [15] = state [15], state [12], state [13], state [14]
+local function ShiftRows(state, out)
+	out[ 0], out[ 1], out[ 2], out[ 3] = state[ 0], state[ 1], state[ 2], state[ 3]
+	out[ 4], out[ 5], out[ 6], out[ 7] = state[ 5], state[ 6], state[ 7], state[ 4]
+	out[ 8], out[ 9], out[10], out[11] = state[10], state[11], state[ 8], state[ 9]
+	out[12], out[13], out[14], out[15] = state[15], state[12], state[13], state[14]
 	return out
 end
 
-local function MixColumn (uint80, uint81, uint82, uint83)
-	return bit_bxor (mul2 [uint80],      uint81,        uint82,  mul3 [uint83]),
-	       bit_bxor (mul3 [uint80], mul2[uint81],       uint82,        uint83),
-	       bit_bxor (      uint80,  mul3[uint81], mul2 [uint82],       uint83),
-	       bit_bxor (      uint80,       uint81,  mul3 [uint82], mul2 [uint83])
+local function MixColumn(uint80, uint81, uint82, uint83)
+	return bit_bxor(mul2[uint80],      uint81,        uint82,  mul3[uint83]),
+	       bit_bxor(mul3[uint80], mul2[uint81],       uint82,        uint83),
+	       bit_bxor(      uint80,  mul3[uint81], mul2[uint82],       uint83),
+	       bit_bxor(      uint80,       uint81,  mul3[uint82], mul2[uint83])
 end
 
-local function InverseMixColumn (uint80, uint81, uint82, uint83)
-	return bit_bxor (mul14 [uint80], mul9  [uint81], mul13 [uint82], mul11 [uint83]),
-	       bit_bxor (mul11 [uint80], mul14 [uint81], mul9  [uint82], mul13 [uint83]),
-	       bit_bxor (mul13 [uint80], mul11 [uint81], mul14 [uint82], mul9  [uint83]),
-	       bit_bxor (mul9  [uint80], mul13 [uint81], mul11 [uint82], mul14 [uint83])
+local function InverseMixColumn(uint80, uint81, uint82, uint83)
+	return bit_bxor(mul14[uint80], mul9 [uint81], mul13[uint82], mul11[uint83]),
+	       bit_bxor(mul11[uint80], mul14[uint81], mul9 [uint82], mul13[uint83]),
+	       bit_bxor(mul13[uint80], mul11[uint81], mul14[uint82], mul9 [uint83]),
+	       bit_bxor(mul9 [uint80], mul13[uint81], mul11[uint82], mul14[uint83])
 end
 
-local function MixColumns (state, out)
-	out [0], out [4], out [ 8], out [12] = MixColumn (state [0], state [4], state [ 8], state [12])
-	out [1], out [5], out [ 9], out [13] = MixColumn (state [1], state [5], state [ 9], state [13])
-	out [2], out [6], out [10], out [14] = MixColumn (state [2], state [6], state [10], state [14])
-	out [3], out [7], out [11], out [15] = MixColumn (state [3], state [7], state [11], state [15])
+local function MixColumns(state, out)
+	out[0], out[4], out[ 8], out[12] = MixColumn(state[0], state[4], state[ 8], state[12])
+	out[1], out[5], out[ 9], out[13] = MixColumn(state[1], state[5], state[ 9], state[13])
+	out[2], out[6], out[10], out[14] = MixColumn(state[2], state[6], state[10], state[14])
+	out[3], out[7], out[11], out[15] = MixColumn(state[3], state[7], state[11], state[15])
 end
 
-local function InverseMixColumns (state, out)
-	out [0], out [4], out [ 8], out [12] = InverseMixColumn (state [0], state [4], state [ 8], state [12])
-	out [1], out [5], out [ 9], out [13] = InverseMixColumn (state [1], state [5], state [ 9], state [13])
-	out [2], out [6], out [10], out [14] = InverseMixColumn (state [2], state [6], state [10], state [14])
-	out [3], out [7], out [11], out [15] = InverseMixColumn (state [3], state [7], state [11], state [15])
+local function InverseMixColumns(state, out)
+	out[0], out[4], out[ 8], out[12] = InverseMixColumn(state[0], state[4], state[ 8], state[12])
+	out[1], out[5], out[ 9], out[13] = InverseMixColumn(state[1], state[5], state[ 9], state[13])
+	out[2], out[6], out[10], out[14] = InverseMixColumn(state[2], state[6], state[10], state[14])
+	out[3], out[7], out[11], out[15] = InverseMixColumn(state[3], state[7], state[11], state[15])
 end
 
-local function EncryptBlock (state, key)
-	state = AddRoundKey (state, key, state)
+local function EncryptBlock(state, key)
+	state = AddRoundKey(state, key, state)
 	
 	for i = 1, 9 do
-		state = SubBytes (state, state)
-		state = ShiftRows (state, state)
-		state = MixColumns (state, state)
-		state = AddRoundKey (state, key, state)
+		state = SubBytes(state, state)
+		state = ShiftRows(state, state)
+		state = MixColumns(state, state)
+		state = AddRoundKey(state, key, state)
 	end
 	
-	state = SubBytes (state, state)
-	state = ShiftRows (state, state)
-	state = AddRoundKey (state, key, state)
+	state = SubBytes(state, state)
+	state = ShiftRows(state, state)
+	state = AddRoundKey(state, key, state)
 	
 	return state
 end
 
-local function ToBlock (s)
-	return { [0] string_byte (s, 1), string_byte (s, 2, 16) }
+local function ToBlock(s)
+	return { [0] string_byte(s, 1), string_byte(s, 2, 16) }
 end
 
-local function ToString (block)
-	return string_char (unpack (block, 0, 15))
+local function ToString(block)
+	return string_char(unpack(block, 0, 15))
 end

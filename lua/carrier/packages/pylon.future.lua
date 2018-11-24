@@ -1,36 +1,36 @@
 -- PACKAGE Pylon.Future
 
-local OOP = require ("Pylon.OOP")
+local OOP = require("Pylon.OOP")
 
-local CompactList = require ("Pylon.Containers.CompactList")
+local CompactList = require("Pylon.Containers.CompactList")
 
 local self = {}
-local Future = OOP.Class (self)
+local Future = OOP.Class(self)
 
-function self:ctor ()
+function self:ctor()
 	self.Resolved = false
 	
-	self.ReturnCount, self.Returns = CompactList.Clear ()
-	self.WaiterCount, self.Waiters = CompactList.Clear ()
+	self.ReturnCount, self.Returns = CompactList.Clear()
+	self.WaiterCount, self.Waiters = CompactList.Clear()
 end
 
-function self:Map (f)
-	local future = Future ()
-	self:Wait (
-		function (...)
-			future:Resolve (f (...))
+function self:Map(f)
+	local future = Future()
+	self:Wait(
+		function(...)
+			future:Resolve(f(...))
 		end
 	)
 	return future
 end
 
-function self:FlatMap (f)
-	local future = Future ()
-	self:Wait (
-		function (...)
-			f (...):Wait (
-				function (...)
-					future:Resolve (...)
+function self:FlatMap(f)
+	local future = Future()
+	self:Wait(
+		function(...)
+			f(...):Wait(
+				function(...)
+					future:Resolve(...)
 				end
 			)
 		end
@@ -39,44 +39,44 @@ function self:FlatMap (f)
 end
 self.MapAsync = self.FlatMap
 
-function self:IsResolved ()
+function self:IsResolved()
 	return self.Resolved
 end
 
-function self:Resolve (...)
-	assert (not self.Resolved, "Future resolved twice!")
+function self:Resolve(...)
+	assert(not self.Resolved, "Future resolved twice!")
 	
 	self.Resolved = true
-	self.ReturnCount, self.Returns = CompactList.Pack (...)
+	self.ReturnCount, self.Returns = CompactList.Pack(...)
 	
-	for f in CompactList.Enumerator (self.WaiterCount, self.Waiters) do
-		f (CompactList.Unpack (self.ReturnCount, self.Returns))
+	for f in CompactList.Enumerator(self.WaiterCount, self.Waiters) do
+		f(CompactList.Unpack(self.ReturnCount, self.Returns))
 	end
 	
-	self.WaiterCount, self.Waiters = CompactList.Clear (self.WaiterCount, self.Waiters)
+	self.WaiterCount, self.Waiters = CompactList.Clear(self.WaiterCount, self.Waiters)
 end
 
-function self:Wait (f)
+function self:Wait(f)
 	if self.Resolved then
-		f (CompactList.Unpack (self.ReturnCount, self.Returns))
+		f(CompactList.Unpack(self.ReturnCount, self.Returns))
 	else
-		self.WaiterCount, self.Waiters = CompactList.Append (self.WaiterCount, self.Waiters, f)
+		self.WaiterCount, self.Waiters = CompactList.Append(self.WaiterCount, self.Waiters, f)
 	end
 end
 
-function self:Await ()
+function self:Await()
 	if self.Resolved then
-		return CompactList.Unpack (self.ReturnCount, self.Returns)
+		return CompactList.Unpack(self.ReturnCount, self.Returns)
 	else
-		local thread = coroutine.running ()
-		self:Wait (
-			function (...)
-				coroutine.resume (thread, ...)
+		local thread = coroutine.running()
+		self:Wait(
+			function(...)
+				coroutine.resume(thread, ...)
 			end
 		)
 	end
 	
-	return coroutine.yield ()
+	return coroutine.yield()
 end
 
 self.map        = self.Map
@@ -87,36 +87,36 @@ self.resolve    = self.Resolve
 self.await      = self.Await
 self.wait       = self.Wait
 
-function Future.Resolved (...)
-	local future = Future ()
-	future:Resolve (...)
+function Future.Resolved(...)
+	local future = Future()
+	future:Resolve(...)
 	return future
 end
 
-function Future.Join (...)
-	local count = select ("#", ...)
-	return Future.JoinArray ({...}):Map (
-		function (array)
-			return unpack (array, 1, count)
+function Future.Join(...)
+	local count = select("#", ...)
+	return Future.JoinArray({...}):Map(
+		function(array)
+			return unpack(array, 1, count)
 		end
 	)
 end
 
-function Future.JoinArray (array)
+function Future.JoinArray(array)
 	local count = #array
-	if count == 0 then return Future.resolved () end
+	if count == 0 then return Future.resolved() end
 	
-	local future = Future ()
+	local future = Future()
 	local results = {}
 	local i = 0
-	for k, f in ipairs (array) do
-		f:Wait (
-			function (...)
-				results[k] = select ("#", ...) > 1 and {...} or ...
+	for k, f in ipairs(array) do
+		f:Wait(
+			function(...)
+				results[k] = select("#", ...) > 1 and {...} or ...
 			
 				i = i + 1
 				if i == count then
-					future:Resolve (results)
+					future:Resolve(results)
 				end
 			end
 		)

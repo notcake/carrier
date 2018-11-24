@@ -1,19 +1,19 @@
 local self = {}
-PackageFile.Section = Class (self, ISerializable)
+PackageFile.Section = Class(self, ISerializable)
 
-function self:ctor ()
+function self:ctor()
 	self.Verified = nil
 end
 
 -- Section
-function self:GetName ()
-	Error ("ISection:GetName : Not implemented.")
+function self:GetName()
+	Error("ISection:GetName : Not implemented.")
 end
 
-function self:IsVerified ()
+function self:IsVerified()
 	return self.Verified
 end
 
-function self:SetVerified (verified)
+function self:SetVerified(verified)
 	self.Verified = verified
 end

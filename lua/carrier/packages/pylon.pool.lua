@@ -1,11 +1,11 @@
 -- PACKAGE Pylon.Pool
 
-local OOP = require ("Pylon.OOP")
+local OOP = require("Pylon.OOP")
 
 local self = {}
-Pool = OOP.Class (self)
+Pool = OOP.Class(self)
 
-function self:ctor (factory, initializer, scrubber, destroyer)
+function self:ctor(factory, initializer, scrubber, destroyer)
 	self.Factory     = factory
 	self.Initializer = initializer
 	self.Scrubber    = scrubber
@@ -15,61 +15,61 @@ function self:ctor (factory, initializer, scrubber, destroyer)
 	self.Pool = {}
 end
 
-function self:dtor ()
+function self:dtor()
 	if self.Destroyer then
-		self:Clear ()
+		self:Clear()
 	end
 end
 
-function self:Alloc (...)
+function self:Alloc(...)
 	if #self.Pool > 0 then
-		local object = self.Pool [#self.Pool]
-		self.Pool [#self.Pool] = nil
+		local object = self.Pool[#self.Pool]
+		self.Pool[#self.Pool] = nil
 		
 		if self.Initializer then
-			self.Initializer (object, ...)
+			self.Initializer(object, ...)
 		end
 		
 		return object
 	else
-		local object = self.Factory (self)
+		local object = self.Factory(self)
 		
 		self.TotalSize = self.TotalSize + 1
 		
 		if self.Initializer then
-			self.Initializer (object, ...)
+			self.Initializer(object, ...)
 		end
 		
 		return object
 	end
 end
 
-function self:Clear ()
+function self:Clear()
 	self.TotalSize = self.TotalSize - #self.Pool
 	
 	if self.Destroyer then
 		for i = #self.Pool, 1, -1 do
-			self.Destroyer (self.Pool [i])
-			self.Pool [i] = nil
+			self.Destroyer(self.Pool[i])
+			self.Pool[i] = nil
 		end
 	else
 		self.Pool = {}
 	end
 end
 
-function self:Free (object)
+function self:Free(object)
 	if self.Scrubber then
-		self.Scrubber (object)
+		self.Scrubber(object)
 	end
 	
-	self.Pool [#self.Pool + 1] = object
+	self.Pool[#self.Pool + 1] = object
 end
 
-function self:GetAvailableCount ()
+function self:GetAvailableCount()
 	return #self.Pool
 end
 
-function self:GetTotalSize ()
+function self:GetTotalSize()
 	return self.TotalSize
 end
 

@@ -5,55 +5,55 @@ local CompactList = {}
 local select = select
 local unpack = unpack
 
-function CompactList.Append (n, data, x)
+function CompactList.Append(n, data, x)
 	if n == 0 then
 		return 1, x
 	elseif n == 1 then
 		return 2, { data, x }
 	else
-		data [n + 1] = x
+		data[n + 1] = x
 		return n + 1, data
 	end
 end
 
-function CompactList.Clear (n, data)
+function CompactList.Clear(n, data)
 	return 0, nil
 end
 
-function CompactList.Count (n, data)
+function CompactList.Count(n, data)
 	return n
 end
 
-function CompactList.Enumerator (n, data)
+function CompactList.Enumerator(n, data)
 	if n == 0 then
-		return function () return nil end
+		return function() return nil end
 	elseif n == 1 then
 		local i = 0
-		return function ()
+		return function()
 			i = i + 1
 			return i == 1 and data or nil
 		end
 	else
 		local i = 0
-		return function ()
+		return function()
 			i = i + 1
-			return data [i]
+			return data[i]
 		end
 	end
 end
 
-function CompactList.Get (n, data, i)
+function CompactList.Get(n, data, i)
 	if n == 0 then
 		return nil
 	elseif n == 1 then
 		return i == 1 and data or nil
 	else
-		return data [i]
+		return data[i]
 	end
 end
 
-function CompactList.Pack (...)
-	local n = select ("#", ...)
+function CompactList.Pack(...)
+	local n = select("#", ...)
 	if n == 0 then
 		return 0, nil
 	elseif n == 1 then
@@ -64,13 +64,13 @@ function CompactList.Pack (...)
 	end
 end
 
-function CompactList.Unpack (n, data)
+function CompactList.Unpack(n, data)
 	if n == 0 then
 		return
 	elseif n == 1 then
 		return data
 	else
-		return unpack (data, 1, n)
+		return unpack(data, 1, n)
 	end
 end
 

@@ -1,14 +1,14 @@
 local self = {}
-Analysis.SET.Node = Class (self)
+Analysis.SET.Node = Class(self)
 
-function self:ctor ()
+function self:ctor()
 end
 
 -- Node
-function self:ContainsBlock (block)
+function self:ContainsBlock(block)
 	return false
 end
 
-function self:GetBlockEnumerator ()
-	return NullEnumerator ()
+function self:GetBlockEnumerator()
+	return NullEnumerator()
 end

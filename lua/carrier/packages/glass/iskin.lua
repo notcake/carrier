@@ -1,44 +1,44 @@
 local self = {}
-Glass.ISkin = Interface (self)
+Glass.ISkin = Interface(self)
 
-function self:ctor ()
+function self:ctor()
 end
 
 -- Colors
-function self:GetBackgroundColor ()
-	Error ("ISkin:GetBackgroundColor : Not implemented.")
+function self:GetBackgroundColor()
+	Error("ISkin:GetBackgroundColor : Not implemented.")
 end
 
-function self:GetTextColor ()
-	Error ("ISkin:GetTextColor : Not implemented.")
+function self:GetTextColor()
+	Error("ISkin:GetTextColor : Not implemented.")
 end
 
 -- Fonts
-function self:GetFont (textClass)
-	Error ("ISkin:GetFont : Not implemented.")
+function self:GetFont(textClass)
+	Error("ISkin:GetFont : Not implemented.")
 end
 
-function self:GetDefaultFont ()
-	Error ("ISkin:GetDefaultFont : Not implemented.")
+function self:GetDefaultFont()
+	Error("ISkin:GetDefaultFont : Not implemented.")
 end
 
-function self:GetBodyFont ()
-	Error ("ISkin:GetBodyFont : Not implemented.")
+function self:GetBodyFont()
+	Error("ISkin:GetBodyFont : Not implemented.")
 end
 
-function self:GetCaptionFont ()
-	Error ("ISkin:GetCaptionFont : Not implemented.")
+function self:GetCaptionFont()
+	Error("ISkin:GetCaptionFont : Not implemented.")
 end
 
-function self:GetHeadlineFont ()
-	Error ("ISkin:GetHeadlineFont : Not implemented.")
+function self:GetHeadlineFont()
+	Error("ISkin:GetHeadlineFont : Not implemented.")
 end
 
-function self:GetTitleFont ()
-	Error ("ISkin:GetTitleFont : Not implemented.")
+function self:GetTitleFont()
+	Error("ISkin:GetTitleFont : Not implemented.")
 end
 
 -- Metrics
-function self:GetScrollbarThickness ()
-	Error ("ISkin:GetScrollbarThickness : Not implemented.")
+function self:GetScrollbarThickness()
+	Error("ISkin:GetScrollbarThickness : Not implemented.")
 end

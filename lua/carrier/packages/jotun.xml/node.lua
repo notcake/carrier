@@ -1,32 +1,32 @@
 local self = {}
-Xml.Node = Class (self)
+Xml.Node = Class(self)
 
-function self:ctor ()
+function self:ctor()
 	self.Parent = nil
 end
 
-function self:GetNodeType ()
-	Error ("Node:GetNodeType : Not implemented.")
+function self:GetNodeType()
+	Error("Node:GetNodeType : Not implemented.")
 end
 
-function self:GetParent ()
+function self:GetParent()
 	return self.Parent
 end
 
-function self:SetParent (element)
+function self:SetParent(element)
 	if self.Parent == element then return end
 	
 	local previousParent = self.Parent
 	self.Parent = element
 	
 	if previousParent then
-		previousParent:RemoveChild (self)
+		previousParent:RemoveChild(self)
 	end
 	if self.Parent then
-		self.Parent:AddChild (self)
+		self.Parent:AddChild(self)
 	end
 end
 
-function self:ToString ()
-	Error ("Node:ToString : Not implemented.")
+function self:ToString()
+	Error("Node:ToString : Not implemented.")
 end

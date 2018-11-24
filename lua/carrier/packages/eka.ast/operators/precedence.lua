@@ -1,4 +1,4 @@
-AST.Precedence = Enum (
+AST.Precedence = Enum(
 	{
 		Atomic         = 0x0000,
 		

@@ -16,7 +16,7 @@ local Interface = Class
 -- INCLUDE Pylon.Containers.CompactList
 local Enumeration = {}
 local EnumeratorFunction = {}
-function EnumeratorFunction:RegisterFunction (f) return f end
+function EnumeratorFunction:RegisterFunction(f) return f end
 -- INCLUDE carrier/packages/pylon.enumeration/enumerators.lua
 local ValueEnumerator = Enumeration.ValueEnumerator
 local KeyValueEnumerator = Enumeration.KeyValueEnumerator
@@ -27,11 +27,11 @@ local f = Functional
 -- INCLUDE Pylon.Task
 
 local HTTP = {}
-function HTTP.Initialize () end
+function HTTP.Initialize() end
 -- SED Pylon.HTTP /local.-\nend/
 -- SED Pylon.HTTP /function HTTP.EncodeUriComponent.-\nend/
 HTTP.HTTPCodes = {}
-function HTTP.HTTPCodes.ToMessage () return "" end
+function HTTP.HTTPCodes.ToMessage() return "" end
 -- INCLUDE carrier/packages/pylon.http/httpresponse.lua
 -- INCLUDE Pylon.HTTP.GarrysMod
 HTTP.Get  = GarrysMod.Get
@@ -92,68 +92,68 @@ local Carrier = {}
 -- INCLUDE carrier/packages/carrier/localdeveloperpackagerelease.lua
 -- INCLUDE carrier/packages/carrier/remotedeveloperpackagerelease.lua
 
-Carrier.Packages = Carrier.Packages ()
+Carrier.Packages = Carrier.Packages()
 
-local function WithJIT (f, ...)
-	local hook = { debug.gethook () }
-	debug.sethook ()
+local function WithJIT(f, ...)
+	local hook = { debug.gethook() }
+	debug.sethook()
 	return (
-		function (...)
-			debug.sethook (unpack (hook))
+		function(...)
+			debug.sethook(unpack(hook))
 			return ...
 		end
-	) (f (...))
+	)(f(...))
 end
 
-return Task.Run (
-	function ()
+return Task.Run(
+	function()
 		if _G.Carrier and
-		   type (_G.Carrier.Uninitialize) == "function" then
-			_G.Carrier.Uninitialize ()
+		   type(_G.Carrier.Uninitialize) == "function" then
+			_G.Carrier.Uninitialize()
 		end
 		
 		local carrier = nil
-		local developerRelease = Carrier.Packages:GetLocalDeveloperRelease ("Carrier")
-		if Carrier.IsLocalDeveloperEnabled () and developerRelease then
-			carrier = Carrier.Packages:Load ("Carrier", developerRelease:GetVersion ())
+		local developerRelease = Carrier.Packages:GetLocalDeveloperRelease("Carrier")
+		if Carrier.IsLocalDeveloperEnabled() and developerRelease then
+			carrier = Carrier.Packages:Load("Carrier", developerRelease:GetVersion())
 		else
-			Carrier.Packages:LoadMetadata ()
-			local downloadRequired = not Carrier.Packages:IsPackageReleaseAvailableRecursive ("Carrier")
+			Carrier.Packages:LoadMetadata()
+			local downloadRequired = not Carrier.Packages:IsPackageReleaseAvailableRecursive("Carrier")
 			
 			if downloadRequired then
-				Carrier.Packages:Update ():Await ()
-				Carrier.Packages:Download ("Carrier"):Await ()
+				Carrier.Packages:Update():Await()
+				Carrier.Packages:Download("Carrier"):Await()
 			end
 			
-			carrier = WithJIT (Carrier.Packages.Load, Carrier.Packages, "Carrier")
+			carrier = WithJIT(Carrier.Packages.Load, Carrier.Packages, "Carrier")
 			
 			-- Update and retry on failure
 			if not carrier and not downloadRequired then
-				Carrier.Packages:Update ():Await ()
-				Carrier.Packages:Download ("Carrier"):Await ()
-				carrier = WithJIT (Carrier.Packages.Load, Carrier.Packages, "Carrier")
+				Carrier.Packages:Update():Await()
+				Carrier.Packages:Download("Carrier"):Await()
+				carrier = WithJIT(Carrier.Packages.Load, Carrier.Packages, "Carrier")
 			end
 		end
 		
 		if not carrier then return false end
 		
 		-- Load package listing
-		carrier.Packages:LoadMetadata ()
+		carrier.Packages:LoadMetadata()
 		
 		-- Assimilate existing packages
-		for packageName, bootstrapPackage in pairs (Carrier.Packages.LoadedPackages) do
-			local package = carrier.Packages:GetPackage (packageName)
-			bootstrapPackage:AssimilateInto (carrier.Packages, package)
+		for packageName, bootstrapPackage in pairs(Carrier.Packages.LoadedPackages) do
+			local package = carrier.Packages:GetPackage(packageName)
+			bootstrapPackage:AssimilateInto(carrier.Packages, package)
 		end
 		
 		-- Initialize
-		carrier.Packages:Initialize ()
+		carrier.Packages:Initialize()
 		
 		_G.Carrier = _G.Carrier or {}
-		_G.Carrier.Uninitialize = function () carrier.Packages:Uninitialize () end
-		_G.Carrier.Require   = function (packageName) return carrier.Packages:Load     (packageName) end
-		_G.Carrier.Unrequire = function (packageName) return carrier.Packages:Unload   (packageName) end
-		_G.Carrier.Download  = function (packageName) return carrier.Packages:Download (packageName) end
+		_G.Carrier.Uninitialize = function() carrier.Packages:Uninitialize() end
+		_G.Carrier.Require   = function(packageName) return carrier.Packages:Load    (packageName) end
+		_G.Carrier.Unrequire = function(packageName) return carrier.Packages:Unload  (packageName) end
+		_G.Carrier.Download  = function(packageName) return carrier.Packages:Download(packageName) end
 		_G.Carrier.require   = _G.Carrier.Require
 		_G.Carrier.unrequire = _G.Carrier.Unrequire
 		

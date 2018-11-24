@@ -1,11 +1,11 @@
 local self = {}
-Carrier.LocalDeveloperPackageRelease = Class (self, Carrier.IPackageRelease)
+Carrier.LocalDeveloperPackageRelease = Class(self, Carrier.IPackageRelease)
 
-function self:ctor (name, basePath, constructorPath, destructorPath, pathId)
-	self.Timestamp       = file.Time (basePath, pathId)
-	self.Version         = "dev-local-" .. string.format ("%08x", self.Timestamp)
+function self:ctor(name, basePath, constructorPath, destructorPath, pathId)
+	self.Timestamp       = file.Time(basePath, pathId)
+	self.Version         = "dev-local-" .. string.format("%08x", self.Timestamp)
 	
-	self.FileName        = "dev-local-" .. Carrier.ToFileName (self.Name) .. "-" .. string.format ("%08x", self.Timestamp) .. ".dat"
+	self.FileName        = "dev-local-" .. Carrier.ToFileName(self.Name) .. "-" .. string.format("%08x", self.Timestamp) .. ".dat"
 	
 	self.PathId          = pathId
 	self.BasePath        = basePath
@@ -14,60 +14,60 @@ function self:ctor (name, basePath, constructorPath, destructorPath, pathId)
 end
 
 -- IPackageRelease
-function self:GetVersion ()
+function self:GetVersion()
 	return self.Version
 end
 
-function self:GetTimestamp ()
+function self:GetTimestamp()
 	return self.Timestamp
 end
 
-function self:IsDeprecated ()
+function self:IsDeprecated()
 	return false
 end
 
-function self:IsDeveloper ()
+function self:IsDeveloper()
 	return true
 end
 
 -- Loading
-function self:IsAvailable ()
+function self:IsAvailable()
 	return true
 end
 
-function self:Load (environment)
-	environment.loadfile = function (path)
+function self:Load(environment)
+	environment.loadfile = function(path)
 		path = self.BasePath .. "/" .. path
 		
-		local f = CompileFile (path)
+		local f = CompileFile(path)
 		
 		if not f then
-			Carrier.Warning (path .. " not found or has syntax error.")
+			Carrier.Warning(path .. " not found or has syntax error.")
 			return nil, nil
 		end
 		
-		setfenv (f, environment)
+		setfenv(f, environment)
 		return f
 	end
 	
 	-- ctor
-	local f = CompileFile (self.ConstructorPath)
+	local f = CompileFile(self.ConstructorPath)
 	if not f then
-		Carrier.Warning (self.ConstructorPath .. " not found or has syntax error.")
+		Carrier.Warning(self.ConstructorPath .. " not found or has syntax error.")
 		return nil, nil
 	end
 	
-	setfenv (f, environment)
+	setfenv(f, environment)
 	
 	-- dtor
-	local destructor = self.DestructorPath and CompileFile (self.DestructorPath)
+	local destructor = self.DestructorPath and CompileFile(self.DestructorPath)
 	if destructor then
-		setfenv (destructor, environment)
+		setfenv(destructor, environment)
 	end
 	
-	local success, exports = xpcall (f, debug.traceback)
+	local success, exports = xpcall(f, debug.traceback)
 	if not success then
-		Carrier.Warning (exports)
+		Carrier.Warning(exports)
 		return nil, destructor
 	end
 	
@@ -75,10 +75,10 @@ function self:Load (environment)
 end
 
 -- LocalDeveloperPackageRelease
-function self:IsLocal ()
+function self:IsLocal()
 	return true
 end
 
-function self:IsRemote ()
+function self:IsRemote()
 	return false
 end

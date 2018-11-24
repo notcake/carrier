@@ -2,42 +2,42 @@
 
 GarrysMod = {}
 
-require ("Pylon.OOP").Initialize (_ENV)
+require("Pylon.OOP").Initialize(_ENV)
 
-Color = require ("Pylon.Color")
+Color = require("Pylon.Color")
 
-Photon = require ("Photon")
-Photon.Initialize (GarrysMod)
+Photon = require("Photon")
+Photon.Initialize(GarrysMod)
 
-Cat = require ("Cat")
+Cat = require("Cat")
 
-Glass = require ("Glass")
+Glass = require("Glass")
 
-FontCache = require ("GarrysMod.FontCache")
+FontCache = require("GarrysMod.FontCache")
 
-include ("polygonbuffer.lua")
+include("polygonbuffer.lua")
 
-include ("graphicscontext.lua")
-include ("render2d.lua")
-include ("render3d.lua")
-include ("textrenderer.lua")
+include("graphicscontext.lua")
+include("render2d.lua")
+include("render3d.lua")
+include("textrenderer.lua")
 
-include ("texture.lua")
-include ("rendertarget.lua")
+include("texture.lua")
+include("rendertarget.lua")
 
-include ("glyphrenderer.lua")
+include("glyphrenderer.lua")
 
 if CLIENT then
-	GarrysMod.GraphicsContext = GraphicsContext ()
+	GarrysMod.GraphicsContext = GraphicsContext()
 	GarrysMod.Render2d        = GarrysMod.GraphicsContext.Render2d
 	GarrysMod.Render3d        = GarrysMod.GraphicsContext.Render3d
 	GarrysMod.TextRenderer    = GarrysMod.GraphicsContext.TextRenderer
 end
 
-function GarrysMod.Initialize (destinationTable)
+function GarrysMod.Initialize(destinationTable)
 	destinationTable = destinationTable or {}
 	
-	Photon.Initialize (destinationTable)
+	Photon.Initialize(destinationTable)
 	
 	destinationTable.GraphicsContext = GarrysMod.GraphicsContext
 	destinationTable.Render2d        = GarrysMod.Render2d

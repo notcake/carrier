@@ -1,6 +1,6 @@
 if Carrier and
-   type (Carrier.Uninitialize) == "function" then
-	Carrier.Uninitialize ()
+   type(Carrier.Uninitialize) == "function" then
+	Carrier.Uninitialize()
 end
 
 Carrier = {}
@@ -8,7 +8,7 @@ Carrier = {}
 local packages        = {}
 local orderedPackages = {} -- Package names ordered by load completion times
 
-function Carrier.Package (name)
+function Carrier.Package(name)
 	local package =
 	{
 		Name         = name,
@@ -20,106 +20,106 @@ function Carrier.Package (name)
 	
 	package.Environment._ENV = package.Environment
 	
-	setmetatable (
+	setmetatable(
 		package.Environment,
 		{
-			__index = getfenv ()
+			__index = getfenv()
 		}
 	)
 	
 	return package
 end
 
-local sv_allowcslua = GetConVar ("sv_allowcslua")
+local sv_allowcslua = GetConVar("sv_allowcslua")
 
 -- Package existence cache
 Carrier.PackageCache = {}
-function Carrier.InvalidatePackageCache ()
-	if not next (Carrier.PackageCache) then return end
+function Carrier.InvalidatePackageCache()
+	if not next(Carrier.PackageCache) then return end
 	Carrier.PackageCache = {}
 end
 
-function Carrier.RebuildPackageCache (pathId)
-	Carrier.PackageCache [pathId] = {}
-	Carrier.PackageCache [pathId].Files       = {}
-	Carrier.PackageCache [pathId].Directories = {}
+function Carrier.RebuildPackageCache(pathId)
+	Carrier.PackageCache[pathId] = {}
+	Carrier.PackageCache[pathId].Files       = {}
+	Carrier.PackageCache[pathId].Directories = {}
 	
-	local files, folders = file.Find ("carrier/packages/*", pathId)
-	for _, file in ipairs (files) do
-		Carrier.PackageCache [pathId].Files [string.lower (file)] = true
+	local files, folders = file.Find("carrier/packages/*", pathId)
+	for _, file in ipairs(files) do
+		Carrier.PackageCache[pathId].Files[string.lower(file)] = true
 	end
-	for _, folder in ipairs (folders) do
-		Carrier.PackageCache [pathId].Directories [string.lower (folder)] = true
+	for _, folder in ipairs(folders) do
+		Carrier.PackageCache[pathId].Directories[string.lower(folder)] = true
 	end
 end
 
-function Carrier.PackageEntityExists (entityType, fileName, pathId)
-	if not Carrier.PackageCache [pathId] then
-		Carrier.RebuildPackageCache (pathId)
+function Carrier.PackageEntityExists(entityType, fileName, pathId)
+	if not Carrier.PackageCache[pathId] then
+		Carrier.RebuildPackageCache(pathId)
 	end
 	
-	return Carrier.PackageCache [pathId] [entityType] [fileName] ~= nil
+	return Carrier.PackageCache[pathId] [entityType] [fileName] ~= nil
 end
 
-function Carrier.PackageFileExists (fileName, pathId)
-	return Carrier.PackageEntityExists ("Files", fileName, pathId)
+function Carrier.PackageFileExists(fileName, pathId)
+	return Carrier.PackageEntityExists("Files", fileName, pathId)
 end
 
-function Carrier.PackageDirectoryExists (fileName, pathId)
-	return Carrier.PackageEntityExists ("Directories", fileName, pathId)
+function Carrier.PackageDirectoryExists(fileName, pathId)
+	return Carrier.PackageEntityExists("Directories", fileName, pathId)
 end
 
-function Carrier.LuaEntityExists (oracle, name)
-	if oracle (name, "LUA") then return true end
-	if sv_allowcslua:GetBool () then
-		return oracle (name, "LCL")
+function Carrier.LuaEntityExists(oracle, name)
+	if oracle(name, "LUA") then return true end
+	if sv_allowcslua:GetBool() then
+		return oracle(name, "LCL")
 	else
 		return false
 	end
 end
 
-function Carrier.LuaFileFind (path)
+function Carrier.LuaFileFind(path)
 	local resultSet = {}
 	
-	for _, v in ipairs (file.Find (path, "LUA")) do
-		resultSet [v] = true
+	for _, v in ipairs(file.Find(path, "LUA")) do
+		resultSet[v] = true
 	end
-	if sv_allowcslua:GetBool () then
-		for _, v in ipairs (file.Find (path, "LCL")) do
-			resultSet [v] = true
+	if sv_allowcslua:GetBool() then
+		for _, v in ipairs(file.Find(path, "LCL")) do
+			resultSet[v] = true
 		end
 	end
 	
 	return resultSet
 end
 
-function Carrier.Warning (message)
-	print ("Carrier: Warning: " .. message)
+function Carrier.Warning(message)
+	print("Carrier: Warning: " .. message)
 end
 
-function Carrier.LoadPackage (packageName)
-	if packages [packageName] then
-		return packages [packageName].Exports
+function Carrier.LoadPackage(packageName)
+	if packages[packageName] then
+		return packages[packageName].Exports
 	end
 	
-	local t0 = SysTime ()
+	local t0 = SysTime()
 	
 	-- Resolve ctor
-	local fileName = string.lower (packageName)
+	local fileName = string.lower(packageName)
 	local ctorPath1 = "carrier/packages/" .. fileName .. ".lua"
 	local ctorPath2 = "carrier/packages/" .. fileName .. "/_ctor.lua"
 	local dtorPath1 = nil
 	local dtorPath2 = "carrier/packages/" .. fileName .. "/_dtor.lua"
-	local ctorPath1Exists = Carrier.LuaEntityExists (Carrier.PackageFileExists,      fileName .. ".lua")
-	local ctorPath2Exists = Carrier.LuaEntityExists (Carrier.PackageDirectoryExists, fileName)
+	local ctorPath1Exists = Carrier.LuaEntityExists(Carrier.PackageFileExists,      fileName .. ".lua")
+	local ctorPath2Exists = Carrier.LuaEntityExists(Carrier.PackageDirectoryExists, fileName)
 	
 	local includePath = nil
 	local ctorPath    = nil
 	local dtorPath    = nil
 	if ctorPath1Exists and ctorPath2Exists then
-		Carrier.Warning ("Package " .. packageName .. " has both a loadable file and a directory.")
+		Carrier.Warning("Package " .. packageName .. " has both a loadable file and a directory.")
 	elseif not ctorPath1Exists and not ctorPath2Exists then
-		Carrier.Warning ("Package " .. packageName .. " has no loadable file or directory.")
+		Carrier.Warning("Package " .. packageName .. " has no loadable file or directory.")
 		return nil
 	end
 	
@@ -134,125 +134,125 @@ function Carrier.LoadPackage (packageName)
 	end
 	
 	-- Register package
-	local package = Carrier.Package (packageName)
-	packages [packageName] = package
-	package.Environment.include = function (path)
+	local package = Carrier.Package(packageName)
+	packages[packageName] = package
+	package.Environment.include = function(path)
 		path = includePath .. path
-		local t0 = SysTime ()
-		local f = CompileFile (path)
-		local dt = SysTime () - t0
-		print (string.format ("Carrier.LoadPackage : CompileFile %s took %.2f ms", path, dt * 1000))
+		local t0 = SysTime()
+		local f = CompileFile(path)
+		local dt = SysTime() - t0
+		print(string.format("Carrier.LoadPackage : CompileFile %s took %.2f ms", path, dt * 1000))
 		if not f then
-			Carrier.Warning (path .. " not found or has syntax error.")
+			Carrier.Warning(path .. " not found or has syntax error.")
 			return
 		end
-		setfenv (f, package.Environment)
-		return f ()
+		setfenv(f, package.Environment)
+		return f()
 	end
-	package.Environment.require = function (packageName)
-		package.Dependencies [packageName] = true
-		return Carrier.LoadPackage (packageName)
+	package.Environment.require = function(packageName)
+		package.Dependencies[packageName] = true
+		return Carrier.LoadPackage(packageName)
 	end
-	package.Environment.require_provider = function (packageName)
+	package.Environment.require_provider = function(packageName)
 		local packageName = packageName .. ".GarrysMod"
-		package.Dependencies [packageName] = true
-		return Carrier.LoadPackage (packageName)
+		package.Dependencies[packageName] = true
+		return Carrier.LoadPackage(packageName)
 	end
 	
 	-- ctor
-	local f = CompileFile (ctorPath)
+	local f = CompileFile(ctorPath)
 	if f then
-		setfenv (f, package.Environment)
-		package.Exports = f ()
+		setfenv(f, package.Environment)
+		package.Exports = f()
 	else
-		Carrier.Warning (ctorPath .. " not found or has syntax error.")
+		Carrier.Warning(ctorPath .. " not found or has syntax error.")
 		return
 	end
 	
 	-- dtor
 	if dtorPath and
-	   Carrier.LuaEntityExists (file.Exists, dtorPath) then
-		local f = CompileFile (dtorPath)
+	   Carrier.LuaEntityExists(file.Exists, dtorPath) then
+		local f = CompileFile(dtorPath)
 		if f then
-			setfenv (f, package.Environment)
+			setfenv(f, package.Environment)
 			package.Destructor = f
 		end
 	end
 	
-	orderedPackages [#orderedPackages + 1] = packageName
+	orderedPackages[#orderedPackages + 1] = packageName
 	
-	local dt = SysTime () - t0
-	print (string.format ("Carrier.LoadPackage : %s took %.2f ms", packageName, dt * 1000))
+	local dt = SysTime() - t0
+	print(string.format("Carrier.LoadPackage : %s took %.2f ms", packageName, dt * 1000))
 	
 	return package.Exports
 end
 
-function Carrier.UnloadPackage (packageName)
-	if not packages [packageName] then return end
+function Carrier.UnloadPackage(packageName)
+	if not packages[packageName] then return end
 	
-	print ("Carrier.UnloadPackage : " .. packageName)
+	print("Carrier.UnloadPackage : " .. packageName)
 	
-	if packages [packageName].Destructor then
-		packages [packageName].Destructor ()
+	if packages[packageName].Destructor then
+		packages[packageName].Destructor()
 	end
 end
 
-function Carrier.Reload ()
-	include ("carrier/bootstrap.garrysmod.lua")
+function Carrier.Reload()
+	include("carrier/bootstrap.garrysmod.lua")
 end
 
-function Carrier.Initialize ()
-	hook.Add ("OnReloaded", "Carrier", Carrier.InvalidatePackageCache)
-	hook.Add ("ShutDown",   "Carrier", Carrier.Uninitialize)
+function Carrier.Initialize()
+	hook.Add("OnReloaded", "Carrier", Carrier.InvalidatePackageCache)
+	hook.Add("ShutDown",   "Carrier", Carrier.Uninitialize)
 	
-	local carrier = Carrier.LoadPackage ("Carrier")
-	for packageName, packageInfo in pairs (packages) do
-		local package = carrier.Packages:GetPackage (packageName)
-		local packageRelease = package and package:GetLocalDeveloperRelease ()
-		carrier.Packages:Assimilate (package, packageRelease, packageInfo.Environment, packageInfo.Exports, packageInfo.Destructor)
+	local carrier = Carrier.LoadPackage("Carrier")
+	for packageName, packageInfo in pairs(packages) do
+		local package = carrier.Packages:GetPackage(packageName)
+		local packageRelease = package and package:GetLocalDeveloperRelease()
+		carrier.Packages:Assimilate(package, packageRelease, packageInfo.Environment, packageInfo.Exports, packageInfo.Destructor)
 	end
 	
-	carrier.Packages:Initialize ()
+	carrier.Packages:Initialize()
 	
-	Carrier.Require   = function (packageName) return carrier.Packages:Load     (packageName) end
-	Carrier.Unrequire = function (packageName) return carrier.Packages:Unload   (packageName) end
-	Carrier.Download  = function (packageName) return carrier.Packages:Download (packageName) end
+	Carrier.Require   = function(packageName) return carrier.Packages:Load    (packageName) end
+	Carrier.Unrequire = function(packageName) return carrier.Packages:Unload  (packageName) end
+	Carrier.Download  = function(packageName) return carrier.Packages:Download(packageName) end
 	Carrier.require   = Carrier.Require
 	Carrier.unrequire = Carrier.Unrequire
 end
 
-function Carrier.Uninitialize ()
-	packages ["Carrier"].Exports.Packages:Uninitialize ()
+function Carrier.Uninitialize()
+	packages["Carrier"].Exports.Packages:Uninitialize()
 	
-	hook.Remove ("OnReloaded", "Carrier")
-	hook.Remove ("ShutDown",   "Carrier")
+	hook.Remove("OnReloaded", "Carrier")
+	hook.Remove("ShutDown",   "Carrier")
 end
 
 if SERVER then
-	concommand.Add ("carrier_reload",
-		function (ply)
-			if ply:IsValid () and not ply:IsAdmin () then return end
+	concommand.Add("carrier_reload",
+		function(ply)
+			if ply:IsValid() and not ply:IsAdmin() then return end
 			
-			Carrier.Reload ()
+			Carrier.Reload()
 		end
 	)
 	
-	concommand.Add ("carrier_reload_sv",
-		function (ply)
-			if ply:IsValid () and not ply:IsAdmin () then return end
+	concommand.Add("carrier_reload_sv",
+		function(ply)
+			if ply:IsValid() and not ply:IsAdmin() then return end
 			
-			Carrier.Reload ()
+			Carrier.Reload()
 		end
 	)
 elseif CLIENT then
-	concommand.Add ("carrier_reload",    Carrier.Reload)
-	concommand.Add ("carrier_reload_cl", Carrier.Reload)
+	concommand.Add("carrier_reload",    Carrier.Reload)
+	concommand.Add("carrier_reload_cl", Carrier.Reload)
 end
 
 Carrier.Require   = Carrier.LoadPackage
 Carrier.Unrequire = Carrier.UnloadPackage
-Carrier.Download  = function (packageName) end
+Carrier.Download  = function(packageName) end
 Carrier.require   = Carrier.LoadPackage
 Carrier.unrequire = Carrier.UnloadPackage
 
-Carrier.Initialize ()
+Carrier.Initialize()

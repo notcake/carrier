@@ -1,13 +1,13 @@
 local self = {}
-IO.IOutputStream = Interface (self, IO.IBaseStream)
+IO.IOutputStream = Interface(self, IO.IBaseStream)
 
-function self:ctor ()
+function self:ctor()
 end
 
-function self:Write (data, length)
-	Error ("IOutputStream:Write : Not implemented.")
+function self:Write(data, length)
+	Error("IOutputStream:Write : Not implemented.")
 end
 
-function self:ToStreamWriter ()
-	return IO.BufferedStreamWriter (self)
+function self:ToStreamWriter()
+	return IO.BufferedStreamWriter(self)
 end

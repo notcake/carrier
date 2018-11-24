@@ -2,11 +2,11 @@
 
 local Table = {}
 
-function Table.Callable (f)
-	return setmetatable ({},
+function Table.Callable(f)
+	return setmetatable({},
 		{
-			__call = function (_, ...)
-				return f (...)
+			__call = function(_, ...)
+				return f(...)
 			end
 		}
 	)

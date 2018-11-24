@@ -1,13 +1,13 @@
 local self = {}
-Glass.IAnimation = Interface (self)
+Glass.IAnimation = Interface(self)
 
-function self:ctor ()
+function self:ctor()
 end
 
-function self:IsCompleted ()
-	Error ("IAnimation:IsCompleted : Not implemented.")
+function self:IsCompleted()
+	Error("IAnimation:IsCompleted : Not implemented.")
 end
 
-function self:Update (t)
-	Error ("IAnimation:Update : Not implemented.")
+function self:Update(t)
+	Error("IAnimation:Update : Not implemented.")
 end

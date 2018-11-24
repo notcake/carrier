@@ -1,30 +1,30 @@
 local self = {}
-Bytecode.IOpcodeReader = Class (self, IDisposable)
+Bytecode.IOpcodeReader = Class(self, IDisposable)
 
-function self:ctor ()
+function self:ctor()
 end
 
-function self:GetOpcodeInfo ()
-	Error ("IOpcodeReader:GetOpcodeInfo : Not implemented.")
+function self:GetOpcodeInfo()
+	Error("IOpcodeReader:GetOpcodeInfo : Not implemented.")
 end
 
-function self:GetPosition ()
-	Error ("IOpcodeReader:GetPosition : Not implemented.")
+function self:GetPosition()
+	Error("IOpcodeReader:GetPosition : Not implemented.")
 end
 
-function self:IsEndOfStream ()
-	Error ("IOpcodeReader:IsEndOfStream : Not implemented.")
+function self:IsEndOfStream()
+	Error("IOpcodeReader:IsEndOfStream : Not implemented.")
 end
 
-function self:SeekAbsolute (seekPos)
-	Error ("IOpcodeReader:SeekAbsolute : Not implemented.")
+function self:SeekAbsolute(seekPos)
+	Error("IOpcodeReader:SeekAbsolute : Not implemented.")
 end
 
-function self:SeekRelative (relativeSeekPos)
-	self:SeekAbsolute (self:GetPosition () + relativeSeekPos)
+function self:SeekRelative(relativeSeekPos)
+	self:SeekAbsolute(self:GetPosition() + relativeSeekPos)
 end
 
 -- :(uint8[]) -> uint64 opcode, ...
-function self:Decode ()
-	Error ("IOpcodeReader:Decode : Not implemented.")
+function self:Decode()
+	Error("IOpcodeReader:Decode : Not implemented.")
 end

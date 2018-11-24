@@ -2,17 +2,17 @@
 
 Text = {}
 
-Error = require ("Pylon.Error")
+Error = require("Pylon.Error")
 
-OOP = require ("Pylon.OOP")
-OOP.Initialize (_ENV)
+OOP = require("Pylon.OOP")
+OOP.Initialize(_ENV)
 
-include ("itextsink.lua")
-include ("icoloredtextsink.lua")
+include("itextsink.lua")
+include("icoloredtextsink.lua")
 
-include ("nulltextsink.lua")
+include("nulltextsink.lua")
 
-function Text.Initialize (destinationTable)
+function Text.Initialize(destinationTable)
 	destinationTable = destinationTable or {}
 	
 	destinationTable.ITextSink        = Text.ITextSink

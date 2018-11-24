@@ -1,4 +1,4 @@
-Bytecode.BranchType = Enum (
+Bytecode.BranchType = Enum(
 	{
 		Fallthrough   = 0x00,
 		Unconditional = 0x01,

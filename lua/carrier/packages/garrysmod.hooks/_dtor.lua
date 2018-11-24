@@ -1,1 +1,1 @@
-HookSystem:dtor ()
+HookSystem:dtor()

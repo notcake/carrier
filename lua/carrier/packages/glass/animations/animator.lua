@@ -1,7 +1,7 @@
 local self = {}
-Glass.Animator = Class (self, Glass.IAnimator)
+Glass.Animator = Class(self, Glass.IAnimator)
 
-function self:ctor (t0, interpolator, duration, updater)
+function self:ctor(t0, interpolator, duration, updater)
 	self.StartTime = t0
 	self.Duration  = duration
 	
@@ -11,12 +11,12 @@ function self:ctor (t0, interpolator, duration, updater)
 end
 
 -- IAnimation
-function self:IsCompleted ()
+function self:IsCompleted()
 	return self.Completed
 end
 
-function self:Update (t)
-	self.Updated:Dispatch (self:GetParameter (t))
+function self:Update(t)
+	self.Updated:Dispatch(self:GetParameter(t))
 	
 	if t >= self.StartTime + self.Duration then
 		self.Completed = true
@@ -26,24 +26,24 @@ function self:Update (t)
 end
 
 -- IAnimator
-function self:GetStartTime ()
+function self:GetStartTime()
 	return self.StartTime
 end
 
-function self:GetEndTime ()
+function self:GetEndTime()
 	return self.StartTime + self.Duration
 end
 
-function self:GetDuration ()
+function self:GetDuration()
 	return self.Duration
 end
 
-function self:GetInterpolator ()
+function self:GetInterpolator()
 	return self.Interpolator
 end
 
-function self:GetParameter (t)
+function self:GetParameter(t)
 	local t = (t - self.StartTime) / self.Duration
-	t = math.max (0, math.min (1, t))
-	return self.Interpolator (t)
+	t = math.max(0, math.min(1, t))
+	return self.Interpolator(t)
 end

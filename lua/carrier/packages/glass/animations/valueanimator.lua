@@ -1,9 +1,9 @@
 local self = {}
-Glass.ValueAnimator = Class (self, Glass.IAnimation)
+Glass.ValueAnimator = Class(self, Glass.IAnimation)
 
-self.Updated = Event ()
+self.Updated = Event()
 
-function self:ctor (value)
+function self:ctor(value)
 	self.Completed = false
 	
 	self.InitialValue = value
@@ -13,20 +13,20 @@ function self:ctor (value)
 end
 
 -- IAnimation
-function self:IsCompleted ()
+function self:IsCompleted()
 	return self.Completed
 end
 
-function self:Update (t)
+function self:Update(t)
 	if self.Completed then return end
 	
-	local value = self:GetValue (t)
+	local value = self:GetValue(t)
 	
-	local completed = not self.Animator and true or self.Animator:IsCompleted ()
+	local completed = not self.Animator and true or self.Animator:IsCompleted()
 	
 	if completed then self.Animator = nil end
 	
-	self.Updated:Dispatch (value)
+	self.Updated:Dispatch(value)
 	
 	self.Completed = completed
 	
@@ -34,17 +34,17 @@ function self:Update (t)
 end
 
 -- ValueAnimator
-function self:GetValue (t)
+function self:GetValue(t)
 	local x0 = self.InitialValue
 	local x1 = self.FinalValue
 	
-	local t = self.Animator and self.Animator:GetParameter (t) or 1
+	local t = self.Animator and self.Animator:GetParameter(t) or 1
 	
 	return x0 + t * (x1 - x0)
 end
 
-function self:SetValue (t, value, animator)
-	self.InitialValue = self:GetValue (t)
+function self:SetValue(t, value, animator)
+	self.InitialValue = self:GetValue(t)
 	self.FinalValue   = value
 	
 	self.Animator = animator

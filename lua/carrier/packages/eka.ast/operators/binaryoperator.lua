@@ -1,7 +1,7 @@
 local self = {}
-AST.BinaryOperator = Class (self, AST.IBinaryOperator)
+AST.BinaryOperator = Class(self, AST.IBinaryOperator)
 
-function self:ctor (symbol, precedence, associativity, commutative, f)
+function self:ctor(symbol, precedence, associativity, commutative, f)
 	self.Function      = f
 	self.Symbol        = symbol
 	self.Precedence    = precedence
@@ -10,27 +10,27 @@ function self:ctor (symbol, precedence, associativity, commutative, f)
 end
 
 -- IOperator
-function self:GetAssociativity ()
+function self:GetAssociativity()
 	return self.Associativity
 end
 
-function self:GetPrecedence ()
+function self:GetPrecedence()
 	return self.Precedence
 end
 
-function self:GetSymbol ()
+function self:GetSymbol()
 	return self.Symbol
 end
 
 -- IBinaryOperator
-function self:Evaluate (left, right)
-	return self.Function (left, right)
+function self:Evaluate(left, right)
+	return self.Function(left, right)
 end
 
-function self:IsAssociative ()
+function self:IsAssociative()
 	return self.Associativity == AST.Associativity.Associative
 end
 
-function self:IsCommutative ()
+function self:IsCommutative()
 	return self.Commutative
 end

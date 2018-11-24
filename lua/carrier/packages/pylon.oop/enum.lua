@@ -1,23 +1,23 @@
 local self = {}
-OOP.Enum = OOP.Class (self)
+OOP.Enum = OOP.Class(self)
 
-function self:ctor (enum)
-	if not next (enum) then
-		Error ("Pylon.OOP.Enum : This enum appears to be empty!")
+function self:ctor(enum)
+	if not next(enum) then
+		Error("Pylon.OOP.Enum : This enum appears to be empty!")
 	end
 	
 	self.Names = {}
 	
-	for key, value in pairs (enum) do
-		self [key] = value
-		self.Names [value] = key
+	for key, value in pairs(enum) do
+		self[key] = value
+		self.Names[value] = key
 	end
 end
 
-function self:GetName (value)
-	return self.Names [value]
+function self:GetName(value)
+	return self.Names[value]
 end
 
-function self:ToString (value)
-	return self.Names [value] or string.format ("0x%08x", value)
+function self:ToString(value)
+	return self.Names[value] or string.format("0x%08x", value)
 end

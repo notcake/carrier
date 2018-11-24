@@ -1,7 +1,7 @@
 local self = {}
-Photon.Polygon = Class (self, ICloneable)
+Photon.Polygon = Class(self, ICloneable)
 
-function self:ctor ()
+function self:ctor()
 	self.PointCount = 0
 	self.Xs = {}
 	self.Ys = {}
@@ -14,10 +14,10 @@ function self:ctor ()
 end
 
 -- ICloneable
-function self:Copy (source)
+function self:Copy(source)
 	for i = 1, source.PointCount do
-		self.Xs [i] = source.Xs [i]
-		self.Ys [i] = source.Ys [i]
+		self.Xs[i] = source.Xs[i]
+		self.Ys[i] = source.Ys[i]
 	end
 	self.PointCount = source.PointCount
 	
@@ -29,28 +29,28 @@ function self:Copy (source)
 end
 
 -- Polygon
-function self:AddPoint (x, y)
+function self:AddPoint(x, y)
 	self.PointCount = self.PointCount + 1
-	self.Xs [self.PointCount] = x
-	self.Ys [self.PointCount] = y
+	self.Xs[self.PointCount] = x
+	self.Ys[self.PointCount] = y
 	
 	self.BoundsValid = false
 end
 
-function self:Clear ()
+function self:Clear()
 	self.PointCount = 0
 	self.BoundsValid = false
 end
 
-function self:GetPoint (i)
-	return self.Xs [i], self.Ys [i]
+function self:GetPoint(i)
+	return self.Xs[i], self.Ys[i]
 end
 
-function self:GetPointCount ()
+function self:GetPointCount()
 	return self.PointCount
 end
 
-function self:GetBoundingRectangle ()
+function self:GetBoundingRectangle()
 	if not self.BoundsValid then
 		local x0 =  math.huge
 		local y0 =  math.huge
@@ -58,10 +58,10 @@ function self:GetBoundingRectangle ()
 		local y1 = -math.huge
 		
 		for i = 1, self.PointCount do
-			x0 = math.min (x0, self.Xs [i])
-			x1 = math.max (x1, self.Xs [i])
-			y0 = math.min (y0, self.Ys [i])
-			y1 = math.max (y1, self.Ys [i])
+			x0 = math.min(x0, self.Xs[i])
+			x1 = math.max(x1, self.Xs[i])
+			y0 = math.min(y0, self.Ys[i])
+			y1 = math.max(y1, self.Ys[i])
 		end
 		
 		self.MinimumX = x0
@@ -73,26 +73,26 @@ function self:GetBoundingRectangle ()
 	return self.MinimumX, self.MinimumY, self.MaximumX - self.MinimumX, self.MaximumY - self.MinimumY
 end
 
-function self:Rotate (rad, x0, y0)
+function self:Rotate(rad, x0, y0)
 	local x0, y0 = x0 or 0, y0 or 0
 	
 	for i = 1, self.PointCount do
-		local x, y = self.Xs [i] - x0, self.Ys [i] - y0
+		local x, y = self.Xs[i] - x0, self.Ys[i] - y0
 		
-		local x1 = x * math.cos (rad) - y * math.sin (rad)
-		local y1 = x * math.sin (rad) + y * math.cos (rad)
+		local x1 = x * math.cos(rad) - y * math.sin(rad)
+		local y1 = x * math.sin(rad) + y * math.cos(rad)
 		
-		self.Xs [i] = x0 + x1
-		self.Ys [i] = y0 + y1
+		self.Xs[i] = x0 + x1
+		self.Ys[i] = y0 + y1
 	end
 	
 	self.BoundsValid = false
 end
 
-function self:Translate (dx, dy)
+function self:Translate(dx, dy)
 	for i = 1, self.PointCount do
-		self.Xs [i] = self.Xs [i] + dx
-		self.Ys [i] = self.Ys [i] + dy
+		self.Xs[i] = self.Xs[i] + dx
+		self.Ys[i] = self.Ys[i] + dy
 	end
 	
 	self.MinimumX = self.MinimumX + dx

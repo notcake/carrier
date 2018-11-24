@@ -1,40 +1,40 @@
-local utf8 = require ("utf8")
+local utf8 = require("utf8")
 
 local self = {}
-TextRenderer = Class (self, Photon.ITextRenderer)
+TextRenderer = Class(self, Photon.ITextRenderer)
 
-function self:ctor ()
+function self:ctor()
 end
 
-function self:GetTextSize (text, font)
-	local text = self:Delocalize (text)
+function self:GetTextSize(text, font)
+	local text = self:Delocalize(text)
 	
-	surface.SetFont (FontCache:GetFontId (font))
-	return surface.GetTextSize (text)
+	surface.SetFont(FontCache:GetFontId(font))
+	return surface.GetTextSize(text)
 end
 
-function self:DrawText (text, font, color, x, y)
-	local text = self:Delocalize (text)
+function self:DrawText(text, font, color, x, y)
+	local text = self:Delocalize(text)
 	
-	surface.SetFont (FontCache:GetFontId (font))
-	surface.SetTextColor (Color.ToRGBA8888 (color))
-	surface.SetTextPos (x, y)
-	surface.DrawText (text)
+	surface.SetFont(FontCache:GetFontId(font))
+	surface.SetTextColor(Color.ToRGBA8888(color))
+	surface.SetTextPos(x, y)
+	surface.DrawText(text)
 end
 
-function self:DrawTextAligned (text, font, color, x, y, horizontalAlignment, verticalAlignment)
+function self:DrawTextAligned(text, font, color, x, y, horizontalAlignment, verticalAlignment)
 	if horizontalAlignment == Glass.HorizontalAlignment.Left and
 	   verticalAlignment == Glass.VerticalAlignment.Top then
-		self:DrawText (text, font, color, x, y)
+		self:DrawText(text, font, color, x, y)
 		return
 	end
 	
-	local text = self:Delocalize (text)
+	local text = self:Delocalize(text)
 	
-	surface.SetFont (FontCache:GetFontId (font))
-	surface.SetTextColor (Color.ToRGBA8888 (color))
+	surface.SetFont(FontCache:GetFontId(font))
+	surface.SetTextColor(Color.ToRGBA8888(color))
 	
-	local w, h = surface.GetTextSize (text)
+	local w, h = surface.GetTextSize(text)
 	if horizontalAlignment == Glass.HorizontalAlignment.Center then
 		x = x - 0.5 * w
 	elseif horizontalAlignment == Glass.HorizontalAlignment.Right then
@@ -46,17 +46,17 @@ function self:DrawTextAligned (text, font, color, x, y, horizontalAlignment, ver
 		y = y - h
 	end
 	
-	surface.SetTextPos (x, y)
-	surface.DrawText (text)
+	surface.SetTextPos(x, y)
+	surface.DrawText(text)
 end
 
 -- Internal
 -- Hack to avoid localization
-local hash = string.byte ("#")
-local zeroWidthSpace = utf8.char (0x200B)
-function self:Delocalize (text)
-	if string.byte (text) == hash and
-	   language.GetPhrase (text) ~= text then
+local hash = string.byte("#")
+local zeroWidthSpace = utf8.char(0x200B)
+function self:Delocalize(text)
+	if string.byte(text) == hash and
+	   language.GetPhrase(text) ~= text then
 		text = zeroWidthSpace .. text
 	end
 	

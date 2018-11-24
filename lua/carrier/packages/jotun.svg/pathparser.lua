@@ -1,31 +1,31 @@
 local self = {}
-PathParser = Class (self, StringParser)
+PathParser = Class(self, StringParser)
 
 local tonumber = tonumber
 
-function self:ctor (input)
+function self:ctor(input)
 end
 
-function self:AcceptCoordinatePair ()
-	local x = self:AcceptNumber () or 0
-	self:AcceptCommaWhitespace ()
-	local y = self:AcceptNumber () or 0
+function self:AcceptCoordinatePair()
+	local x = self:AcceptNumber() or 0
+	self:AcceptCommaWhitespace()
+	local y = self:AcceptNumber() or 0
 	return x, y
 end
 
-function self:AcceptOptionalCoordinatePair ()
-	local x = self:AcceptNumber ()
+function self:AcceptOptionalCoordinatePair()
+	local x = self:AcceptNumber()
 	if not x then return nil, nil end
-	self:AcceptCommaWhitespace ()
-	local y = self:AcceptNumber () or 0
+	self:AcceptCommaWhitespace()
+	local y = self:AcceptNumber() or 0
 	return x, y
 end
 
-function self:AcceptNumber ()
-	return tonumber (self:AcceptPattern ("[%+%-]?%d*%.?%d*[eE][%+%-]?%d+")) or
-	       tonumber (self:AcceptPattern ("[%+%-]?%d*%.?%d*"))
+function self:AcceptNumber()
+	return tonumber(self:AcceptPattern("[%+%-]?%d*%.?%d*[eE][%+%-]?%d+")) or
+	       tonumber(self:AcceptPattern("[%+%-]?%d*%.?%d*"))
 end
 
-function self:AcceptCommaWhitespace ()
-	return self:AcceptPattern ("%s*,?%s*")
+function self:AcceptCommaWhitespace()
+	return self:AcceptPattern("%s*,?%s*")
 end

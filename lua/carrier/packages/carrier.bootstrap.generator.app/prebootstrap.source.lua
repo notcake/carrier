@@ -1,13 +1,13 @@
 ﻿-- Hand-crafted code preloader, computer-generated with ❤
 
 -- Artisanal prime numbers, do not steal
--- EVAL "local publicKeyExponent = \"" .. require ("Carrier.PublicKey").Exponent:ToDecimal () .. "\""
--- EVAL "local publicKeyModulus  = \"" .. require ("Carrier.PublicKey").Modulus :ToDecimal () .. "\""
+-- EVAL "local publicKeyExponent = \"" .. require("Carrier.PublicKey").Exponent:ToDecimal() .. "\""
+-- EVAL "local publicKeyModulus  = \"" .. require("Carrier.PublicKey").Modulus :ToDecimal() .. "\""
 
 local OOP = {}
 -- SED Pylon.OOP /function OOP%.Class.-\nend/
-local function Class (methodTable)
-	return setmetatable ({}, { __call = OOP.Class (methodTable) })
+local function Class(methodTable)
+	return setmetatable({}, { __call = OOP.Class(methodTable) })
 end
 
 -- TODO: better crypto
@@ -41,7 +41,7 @@ local UInt24 = {}
 -- SED Pylon.UInt24 /function UInt24%.CountLeadingZeros.-\nend/
 
 local self = {}
-local BigInteger = Class (self)
+local BigInteger = Class(self)
 -- SED Pylon.BigInteger /local tonumber[^\r\n]*/
 -- SED Pylon.BigInteger /local bit_band[^\r\n]*/
 -- SED Pylon.BigInteger /local bit_rshift[^\r\n]*/
@@ -84,126 +84,126 @@ local BigInteger = Class (self)
 local Carrier = {}
 -- INCLUDE carrier/packages/carrier/developer.lua
 
-local publicKeyExponent = BigInteger.FromDecimal (publicKeyExponent)
-local publicKeyModulus  = BigInteger.FromDecimal (publicKeyModulus)
+local publicKeyExponent = BigInteger.FromDecimal(publicKeyExponent)
+local publicKeyModulus  = BigInteger.FromDecimal(publicKeyModulus)
 
-local function Log (message)
-	print ("Carrier prebootstrap: " .. message)
+local function Log(message)
+	print("Carrier prebootstrap: " .. message)
 end
 
-local warningColor = Color (255, 192, 64)
-local function Warning (message)
-	MsgC (warningColor, "Carrier prebootstrap: " .. message .. "\n")
+local warningColor = Color(255, 192, 64)
+local function Warning(message)
+	MsgC(warningColor, "Carrier prebootstrap: " .. message .. "\n")
 end
 
-local function Reset ()
-	file.Delete ("garrysmod.io/carrier/bootstrap.dat")
-	file.Delete ("garrysmod.io/carrier/bootstrap.signature.dat")
-	Warning ("Flushed cached bootstrap code.")
+local function Reset()
+	file.Delete("garrysmod.io/carrier/bootstrap.dat")
+	file.Delete("garrysmod.io/carrier/bootstrap.signature.dat")
+	Warning("Flushed cached bootstrap code.")
 end
 
-local function ValidateSignature (data, signature)
-	local hook = { debug.gethook () }
-	debug.sethook ()
-	local sha256a = string.sub (BigInteger.FromBlob(signature):ExponentiateMod (publicKeyExponent, publicKeyModulus):ToBlob (), -32, -1)
-	local sha256b = String.FromHex (Crypto.SHA256.Compute (data))
-	debug.sethook (unpack (hook))
+local function ValidateSignature(data, signature)
+	local hook = { debug.gethook() }
+	debug.sethook()
+	local sha256a = string.sub(BigInteger.FromBlob(signature):ExponentiateMod(publicKeyExponent, publicKeyModulus):ToBlob(), -32, -1)
+	local sha256b = String.FromHex(Crypto.SHA256.Compute(data))
+	debug.sethook(unpack(hook))
 	return sha256a == sha256b
 end
 
-local function RunBootstrap (package, signature)
-	if not ValidateSignature (package, signature) then return false, "Invalid bootstrap code signature!" end
+local function RunBootstrap(package, signature)
+	if not ValidateSignature(package, signature) then return false, "Invalid bootstrap code signature!" end
 	
-	local code = string.match (package, "%-%- BEGIN CARRIER BOOTSTRAP.-%-%- END CARRIER BOOTSTRAP\r?\n")
+	local code = string.match(package, "%-%- BEGIN CARRIER BOOTSTRAP.-%-%- END CARRIER BOOTSTRAP\r?\n")
 	if not code then return false, "Bootstrap code not found!" end
 	
-	local f = CompileString (code, "carrier.bootstrap/carrier.bootstrap.lua", false)
-	if type (f) == "string" then return false, f end
+	local f = CompileString(code, "carrier.bootstrap/carrier.bootstrap.lua", false)
+	if type(f) == "string" then return false, f end
 	
-	local success, future = xpcall (f, debug.traceback)
+	local success, future = xpcall(f, debug.traceback)
 	if not success then return false, future end
 	if not future  then return false, "Bootstrap didn't return a future!" end
 	
-	future:Wait (
-		function (success)
+	future:Wait(
+		function(success)
 			if success then return end
 			
-			Warning ("Bootstrap failed!")
-			Reset ()
+			Warning("Bootstrap failed!")
+			Reset()
 		end
 	)
 	
 	return true
 end
 
-local function Fetch (url, f, n)
+local function Fetch(url, f, n)
 	local n = n or 1
-	http.Fetch (url,
-		function (data)
-			Log ("Fetched " .. url .. ".")
-			f (true, data)
+	http.Fetch(url,
+		function(data)
+			Log("Fetched " .. url .. ".")
+			f(true, data)
 		end,
-		function (err)
-			if n == 10 then f (false) return end
+		function(err)
+			if n == 10 then f(false) return end
 			
-			local delay = 1 * math.pow (2, n - 1)
-			Warning ("Failed to fetch from " .. url .. ", retrying in " .. delay .. " second(s)...")
-			timer.Simple (delay, function () Fetch (url, f, n + 1) end)
+			local delay = 1 * math.pow(2, n - 1)
+			Warning("Failed to fetch from " .. url .. ", retrying in " .. delay .. " second(s)...")
+			timer.Simple(delay, function() Fetch(url, f, n + 1) end)
 		end
 	)
 end
 
-if Carrier.IsLocalDeveloperEnabled () then
-	if file.Exists ("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua", CLIENT and "LCL" or "LSV") then
-		include ("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua")
+if Carrier.IsLocalDeveloperEnabled() then
+	if file.Exists("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua", CLIENT and "LCL" or "LSV") then
+		include("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua")
 		return
 	end
 end
 
-if Carrier.IsServerDeveloperEnabled () then
-	if file.Exists ("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua", "LUA") then
-		include ("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua")
+if Carrier.IsServerDeveloperEnabled() then
+	if file.Exists("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua", "LUA") then
+		include("carrier/packages/carrier.bootstrap/carrier.bootstrap.lua")
 		return
 	end
 end
 
-local package   = file.Read ("garrysmod.io/carrier/bootstrap.dat", "DATA")
-local signature = file.Read ("garrysmod.io/carrier/bootstrap.signature.dat", "DATA")
+local package   = file.Read("garrysmod.io/carrier/bootstrap.dat", "DATA")
+local signature = file.Read("garrysmod.io/carrier/bootstrap.signature.dat", "DATA")
 if package and signature then
-	local success, err = RunBootstrap (package, signature)
+	local success, err = RunBootstrap(package, signature)
 	if success then return end
 	
-	Warning (err)
-	Reset ()
+	Warning(err)
+	Reset()
 end
 
 -- Workaround for HTTP failed - ISteamHTTP isn't available!
-hook.Add ("Tick", "Carrier.Prebootstrap",
-	function ()
-		hook.Remove ("Tick", "Carrier.Prebootstrap")
+hook.Add("Tick", "Carrier.Prebootstrap",
+	function()
+		hook.Remove("Tick", "Carrier.Prebootstrap")
 		
-		Fetch ("https://garrysmod.io/api/packages/v1/bootstrap",
-			function (success, data)
+		Fetch("https://garrysmod.io/api/packages/v1/bootstrap",
+			function(success, data)
 				if not success then
-					Warning ("Failed to fetch bootstrap code, aborting!")
+					Warning("Failed to fetch bootstrap code, aborting!")
 					return
 				end
 				
-				local json = util.JSONToTable (data)
+				local json = util.JSONToTable(data)
 				if not json then
-					Warning ("Bad response (" .. string.gsub (string.sub (data, 1, 128), "[\r\n]+", " ") .. ")")
+					Warning("Bad response(" .. string.gsub(string.sub(data, 1, 128), "[\r\n]+", " ") .. ")")
 					return
 				end
 				
-				local package, signature = Base64.Decode (json.package), Base64.Decode (json.signature)
-				file.CreateDir ("garrysmod.io/carrier")
-				file.Write ("garrysmod.io/carrier/bootstrap.dat",           package)
-				file.Write ("garrysmod.io/carrier/bootstrap.signature.dat", signature)
+				local package, signature = Base64.Decode(json.package), Base64.Decode(json.signature)
+				file.CreateDir("garrysmod.io/carrier")
+				file.Write("garrysmod.io/carrier/bootstrap.dat",           package)
+				file.Write("garrysmod.io/carrier/bootstrap.signature.dat", signature)
 				
-				local success, err = RunBootstrap (package, signature)
+				local success, err = RunBootstrap(package, signature)
 				if not success then
-					Warning (err)
-					Reset ()
+					Warning(err)
+					Reset()
 				end
 			end
 		)

@@ -2,20 +2,20 @@
 
 local Hooks = {}
 
-Error = require ("Pylon.Error")
+Error = require("Pylon.Error")
 
-require ("Pylon.OOP").Initialize (_ENV)
-require ("Pylon.Enumeration").Initialize (_ENV)
+require("Pylon.OOP").Initialize(_ENV)
+require("Pylon.Enumeration").Initialize(_ENV)
 
-include ("hooksystem.lua")
+include("hooksystem.lua")
 
-HookSystem = HookSystem ()
+HookSystem = HookSystem()
 
-for _, action in ipairs ({ "Add", "Remove" }) do
-	for _, type in ipairs ({ "Pre", "", "Post" }) do
+for _, action in ipairs({ "Add", "Remove" }) do
+	for _, type in ipairs({ "Pre", "", "Post" }) do
 		local methodName = action .. type .. "Hook"
-		Hooks [methodName] = function (...)
-			HookSystem [methodName] (HookSystem, ...)
+		Hooks[methodName] = function(...)
+			HookSystem[methodName](HookSystem, ...)
 		end
 	end
 end

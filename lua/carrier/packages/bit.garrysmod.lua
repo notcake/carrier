@@ -1,3 +1,3 @@
 -- PACKAGE bit.GarrysMod
 
-return require ("bit.LuaJIT")
+return require("bit.LuaJIT")
