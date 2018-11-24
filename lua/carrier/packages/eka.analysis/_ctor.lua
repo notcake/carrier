@@ -20,4 +20,10 @@ include ("controlflowgraph/controlflowgraph.link.lua")
 
 include ("dataflow/dataflowgraph.lua")
 
+Analysis.SET = {}
+include ("set/node.lua")
+include ("set/sequence.lua")
+include ("set/if.lua")
+include ("set/while.lua")
+
 return Analysis
