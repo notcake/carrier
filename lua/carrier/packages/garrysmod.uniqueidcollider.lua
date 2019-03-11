@@ -5,6 +5,8 @@ local Cat   = require("Cat")
 
 local formats = { "STEAM_0:0:0", "STEAM_0:0:00", "STEAM_0:0:000", "STEAM_0:0:0000", "STEAM_0:0:00000", "STEAM_0:0:000000", "STEAM_0:0:0000000", "STEAM_0:0:00000000", "STEAM_0:0:000000000", "STEAM_0:0:0000000000" }
 local masks   = { "        1 9", "        1 99", "        1 999", "        1 9999", "        1 99999", "        1 999999", "        1 9999999", "        1 99999999", "        1 999999999", "        1 9999999999" }
+local y0s     = {}
+local As      = {}
 
 local maskMapping = { [" "] = "\x00", ["1"] = "\x01", ["9"] = "\x0F", ["A"] = "\x20" }
 for i = 1, #masks do
@@ -15,30 +17,9 @@ local unpack = unpack
 local string_byte = string.byte
 local string_char = string.char
 
-local function permute(format0, mask, v)
-	local s = {}
-	local x = 0
-	for i = 1, #mask do
-		local mask = string_byte(mask, i)
-		local c    = string_byte(format0, i)
-		local dc = 1
-		for j = 1, 8 do
-			local b = mask % 2
-			if b > 0 then
-				c = c + v[x] * dc * b
-				x = x + b
-			end
-			mask = (mask - b) * 0.5
-			dc = dc * 2
-		end
-		s[#s + 1] = c
-	end
-	return string_char(unpack(s))
-end
-
-local function collide(crc32, format, mask, out)
-	local out = out or {}
-	
+local function ComputeNormalizedFormat(format, mask)
+	-- Compute the normalized format, format0
+	-- Compute the number of free bits, w
 	local w = 0
 	local format0 = ""
 	for i = 1, #mask do
@@ -51,8 +32,11 @@ local function collide(crc32, format, mask, out)
 		end
 	end
 	
+	return format0, w
+end
+
+local function ComputeDifferential(format0, mask, w)
 	local y0 = Cat.GF2Matrix.ColumnFromUInt32(tonumber(CRC32("gm_" .. format0 .. "_gm")))
-	local b = Cat.GF2Matrix.ColumnFromUInt32(crc32) - y0
 	local y = Cat.GF2Matrix(32, 1)
 	local A = Cat.GF2Matrix(32, w)
 	
@@ -75,6 +59,34 @@ local function collide(crc32, format, mask, out)
 		end
 	end
 	
+	return A, y0
+end
+
+local function Permute(format0, mask, v)
+	local s = {}
+	local x = 0
+	for i = 1, #mask do
+		local mask = string_byte(mask, i)
+		local c    = string_byte(format0, i)
+		local dc = 1
+		for j = 1, 8 do
+			local b = mask % 2
+			if b > 0 then
+				c = c + v[x] * dc * b
+				x = x + b
+			end
+			mask = (mask - b) * 0.5
+			dc = dc * 2
+		end
+		s[#s + 1] = c
+	end
+	return string_char(unpack(s))
+end
+
+local function Collide(crc32, format0, mask, A, y0, out)
+	local out = out or {}
+	
+	local b = Cat.GF2Matrix.ColumnFromUInt32(crc32) - y0
 	local x0, nullSpace = A:Solve(b)
 	
 	if x0 then
@@ -87,7 +99,7 @@ local function collide(crc32, format, mask, out)
 				end
 			end
 			
-			out[#out + 1] = permute(format0, mask, x)
+			out[#out + 1] = Permute(format0, mask, x)
 		end
 	end
 	
@@ -97,7 +109,13 @@ end
 return function(uniqueId)
 	local collisions = {}
 	for i = 1, #formats do
-		local unfilteredCollisions = collide(uniqueId, formats[i], masks[i])
+		if not As[i] then
+			local format0, w = ComputeNormalizedFormat(formats[i], masks[i])
+			As[i], y0s[i] = ComputeDifferential(formats[i], masks[i], w)
+			formats[i] = format0
+		end
+		
+		local unfilteredCollisions = Collide(uniqueId, formats[i], masks[i], As[i], y0s[i])
 		for i = 1, #unfilteredCollisions do
 			local x = string.match(unfilteredCollisions[i], "^STEAM_0:%d:(%d+)$")
 			if x and
