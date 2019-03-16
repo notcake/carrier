@@ -11,7 +11,7 @@ end
 self.ChildrenFieldNames = { "Condition", "Body", "Else" }
 
 function self:ToString()
-	local s = "if(" .. self.Condition:ToString() .. ") "
+	local s = "if (" .. self.Condition:ToString() .. ") "
 	local body = self.Body:ToString()
 	s = s .. body
 	
