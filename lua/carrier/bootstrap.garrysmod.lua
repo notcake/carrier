@@ -58,7 +58,7 @@ function Carrier.PackageEntityExists(entityType, fileName, pathId)
 		Carrier.RebuildPackageCache(pathId)
 	end
 	
-	return Carrier.PackageCache[pathId] [entityType] [fileName] ~= nil
+	return Carrier.PackageCache[pathId][entityType][fileName] ~= nil
 end
 
 function Carrier.PackageFileExists(fileName, pathId)

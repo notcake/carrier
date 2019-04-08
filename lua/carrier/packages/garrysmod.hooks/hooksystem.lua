@@ -67,7 +67,7 @@ function self:Add(hookTable, eventName, id, f)
 	
 	hookTable[eventName] = hookTable[eventName] or {}
 	local isFirstHook = next(hookTable[eventName]) == nil
-	hookTable[eventName] [id] = f
+	hookTable[eventName][id] = f
 	
 	return isFirstHook
 end
@@ -75,7 +75,7 @@ end
 function self:Remove(hookTable, eventName, id)
 	if not hookTable[eventName] then return false end
 	
-	hookTable[eventName] [id] = nil
+	hookTable[eventName][id] = nil
 	
 	return next(hookTable[eventName]) == nil
 end
@@ -90,7 +90,7 @@ end
 
 function self:UpdatePrePostHook(eventName)
 	local needsHook = (self.PreHooks [eventName] and next(self.PreHooks [eventName]) ~= nil) or
-	                 (self.PostHooks[eventName] and next(self.PostHooks[eventName]) ~= nil)
+	                  (self.PostHooks[eventName] and next(self.PostHooks[eventName]) ~= nil)
 	if needsHook == (self.InstalledPrePostHooks[eventName] or false) then return end
 	
 	if needsHook then

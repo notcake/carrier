@@ -112,7 +112,7 @@ local function Permute(state1, state2)
 		for x = 0, 5 do
 			local column = bit_tobit(0)
 			for y = 0, 5 do
-				column = bit_bxor(column, sboxMixColumnsLookup[y] [state1[y * 6 + x]])
+				column = bit_bxor(column, sboxMixColumnsLookup[y][state1[y * 6 + x]])
 			end
 			for y = 0, 5 do
 				state2[y * 6 + x] = bit_band(column, 0x0F)

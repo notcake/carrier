@@ -49,8 +49,8 @@ function self:AddLink(sourceBlock, destinationBlock)
 	self.BlockPredecessors[destinationBlock] = self.BlockPredecessors[destinationBlock] or {}
 	self.BlockSuccessors  [sourceBlock]      = self.BlockSuccessors  [sourceBlock]      or {}
 	
-	if self.BlockSuccessors[sourceBlock] [destinationBlock] then
-		return self.BlockSuccessors[sourceBlock] [destinationBlock]
+	if self.BlockSuccessors[sourceBlock][destinationBlock] then
+		return self.BlockSuccessors[sourceBlock][destinationBlock]
 	else
 		local link = self.Link(sourceBlock, destinationBlock)
 		
@@ -61,7 +61,7 @@ function self:AddLink(sourceBlock, destinationBlock)
 			self.BlockSuccessors[sourceBlock] = Map.Copy(self.BlockSuccessors[sourceBlock])
 		end
 
-		self.BlockPredecessors[destinationBlock] [sourceBlock]      = link
+		self.BlockPredecessors[destinationBlock][sourceBlock]      = link
 		self.BlockSuccessors  [sourceBlock]     [destinationBlock] = link
 		
 		return link
@@ -70,7 +70,7 @@ end
 
 function self:GetLink(sourceBlock, destinationBlock)
 	if not self.BlockSuccessors[sourceBlock] then return nil end
-	return self.BlockSuccessors[sourceBlock] [destinationBlock]
+	return self.BlockSuccessors[sourceBlock][destinationBlock]
 end
 
 function self:RemoveLink(sourceBlock, destinationBlock)
@@ -81,6 +81,6 @@ function self:RemoveLink(sourceBlock, destinationBlock)
 	
 	if not self.BlockSuccessors[sourceBlock] then return end
 	
-	self.BlockPredecessors[destinationBlock] [sourceBlock]      = nil
+	self.BlockPredecessors[destinationBlock][sourceBlock]      = nil
 	self.BlockSuccessors  [sourceBlock]     [destinationBlock] = nil
 end

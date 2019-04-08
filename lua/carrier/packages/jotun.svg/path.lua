@@ -280,17 +280,17 @@ function self:RenderContents(render2d, resolution)
 			for command, x, y, cx1, cy1, cx2, cy2, clockwise in self:GetEnumerator() do
 				if command == Svg.PathCommand.MoveTo then
 					polygonCount = polygonCount + 1
-					polygon = self.GeometryCache[ds] [polygonCount] or Photon.Polygon()
+					polygon = self.GeometryCache[ds][polygonCount] or Photon.Polygon()
 					polygon:Clear()
-					self.GeometryCache[ds] [polygonCount] = polygon
+					self.GeometryCache[ds][polygonCount] = polygon
 					polygon:AddPoint(x, y)
 					x0, y0 = x, y
 				elseif command == Svg.PathCommand.LineTo then
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.GeometryCache[ds] [polygonCount] or Photon.Polygon()
+						polygon = self.GeometryCache[ds][polygonCount] or Photon.Polygon()
 						polygon:Clear()
-						self.GeometryCache[ds] [polygonCount] = polygon
+						self.GeometryCache[ds][polygonCount] = polygon
 						polygon:AddPoint(x0, y0)
 					end
 					
@@ -298,9 +298,9 @@ function self:RenderContents(render2d, resolution)
 				elseif command == Svg.PathCommand.QuadraticBezierCurveTo then
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.GeometryCache[ds] [polygonCount] or Photon.Polygon()
+						polygon = self.GeometryCache[ds][polygonCount] or Photon.Polygon()
 						polygon:Clear()
-						self.GeometryCache[ds] [polygonCount] = polygon
+						self.GeometryCache[ds][polygonCount] = polygon
 						polygon:AddPoint(x0, y0)
 					end
 					
@@ -314,9 +314,9 @@ function self:RenderContents(render2d, resolution)
 				elseif command == Svg.PathCommand.CubicBezierCurveTo then
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.GeometryCache[ds] [polygonCount] or Photon.Polygon()
+						polygon = self.GeometryCache[ds][polygonCount] or Photon.Polygon()
 						polygon:Clear()
-						self.GeometryCache[ds] [polygonCount] = polygon
+						self.GeometryCache[ds][polygonCount] = polygon
 						polygon:AddPoint(x0, y0)
 					end
 					
@@ -330,9 +330,9 @@ function self:RenderContents(render2d, resolution)
 				elseif command == Svg.PathCommand.ArcTo then
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.GeometryCache[ds] [polygonCount] or Photon.Polygon()
+						polygon = self.GeometryCache[ds][polygonCount] or Photon.Polygon()
 						polygon:Clear()
-						self.GeometryCache[ds] [polygonCount] = polygon
+						self.GeometryCache[ds][polygonCount] = polygon
 						polygon:AddPoint(x0, y0)
 					end
 					
@@ -391,9 +391,9 @@ function self:RenderContents(render2d, resolution)
 				else
 					if not polygon then
 						polygonCount = polygonCount + 1
-						polygon = self.GeometryCache[ds] [polygonCount] or Photon.Polygon()
+						polygon = self.GeometryCache[ds][polygonCount] or Photon.Polygon()
 						polygon:Clear()
-						self.GeometryCache[ds] [polygonCount] = polygon
+						self.GeometryCache[ds][polygonCount] = polygon
 						polygon:AddPoint(x0, y0)
 					end
 					

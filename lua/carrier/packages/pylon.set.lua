@@ -43,7 +43,7 @@ function Set.IntersectArray(array, out)
 	
 	for i = 2, #array do
 		for k, _ in pairs(out) do
-			if not array[i] [k] then
+			if not array[i][k] then
 				out[k] = nil
 			end
 		end
