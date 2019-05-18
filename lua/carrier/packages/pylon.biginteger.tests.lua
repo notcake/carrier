@@ -12,5 +12,11 @@ return function()
 	
 	assert(BigInteger.FromDouble(10) - BigInteger.FromDouble(12) == BigInteger.FromDouble(-2))
 	
+	assert(BigInteger.FromHex("AAAAAABBBBBBCCCCCC") * BigInteger.FromHex("DDDDDD")       == BigInteger.FromHex("93E93E0ECA8641FDB8B4E81C"))
+	assert(BigInteger.FromHex("AAAAAABBBBBBCCCCCC") * BigInteger.FromHex("DDDDDDEEEEEE") == BigInteger.FromHex("93E93EAE147A51EB845E6F80740DA8"))
+	
+	assert(BigInteger.FromDouble( 0x01FFFFFF) * BigInteger.FromDouble( 0x01FFFFFF) == BigInteger.FromHex("3FFFFFC000001"))
+	assert(BigInteger.FromDouble(-0x01FFFFFF) * BigInteger.FromDouble(-0x01FFFFFF) == BigInteger.FromHex("3FFFFFC000001"))
+	
 	return true
 end

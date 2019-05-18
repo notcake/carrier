@@ -13,6 +13,8 @@ local BigInteger = OOP.Class(self)
 
 local bit = require_provider("bit")
 
+local assert        = assert
+local rawequal      = rawequal
 local tonumber      = tonumber
 
 local bit_band      = bit.band
@@ -409,29 +411,40 @@ function self:Multiply(b, out)
 	local out = out or BigInteger()
 	local a = self
 	
+	assert(not rawequal(out, a))
+	assert(not rawequal(out, b))
+	
 	-- Prepare for convolution
+	-- The result will have #a + #b - 1 elements, including the sign element
 	out:TruncateAndZero(#a + #b - 1)
 	
-	-- Multiply
+	-- Multiply sign-extended operands,
+	-- mod a power of two to get enough elements out
 	for i = 1, #a do
 		local high = 0
 		for j = 1, #b do
 			out[i + j - 1], high = UInt24_MultiplyAdd2(a[i], b[j], out[i + j - 1], high)
 		end
 		
-		-- Carry
-		for j = i + #b, #a + #b - 1 do
-			if high == 0 then break end
-			out[j], high = UInt24_Add(out[j], high)
+		-- Sign-extended part of b
+		for j = #b + 1, #a + #b - i do
+			if b[#b] == Sign_Positive and high == 0 then break end
+			out[i + j - 1], high = UInt24_MultiplyAdd2(a[i], b[#b], out[i + j - 1], high)
 		end
 	end
 	
-	-- Clear junk
-	out:Truncate(math_max(1, #a - 1 + #b - 1))
+	-- Sign-extended part of a
+	if a[#a] ~= Sign_Positive then
+		for i = #a + 1, #a + #b - 1 do
+			local high = 0
+			for j = 1, #a + #b - i do
+				out[i + j - 1], high = UInt24_MultiplyAdd2(a[#a], b[j], out[i + j - 1], high)
+			end
+		end
+	end
 	
-	-- Sign
-	out[#out + 1] = (a:IsZero() or b:IsZero()) and Sign_Positive or bit_bxor(a[#a], b[#b])
-		
+	assert(out[#a + #b] == nil)
+	
 	-- Normalize
 	out:Normalize()
 	
