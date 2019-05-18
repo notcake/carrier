@@ -39,7 +39,7 @@ function Async.AwaitQuota(maximumDuration)
 	local thread = coroutine.running()
 	local t0 = quotaStartTimes[thread] or -math.huge
 	if Clock() - t0 > maximumDuration then
-		async.waitTick():wait(
+		Async.WaitTick():wait(
 			function()
 				quotaStartTimes[thread] = Clock()
 				coroutine.resume(thread)
