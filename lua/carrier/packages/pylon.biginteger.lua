@@ -890,6 +890,10 @@ function self:Root(n)
 	return temp1:Equals(self), lowerBound
 end
 
+function self:SquareRoot()
+	return self:Root(2)
+end
+
 -- Conversions
 function self:ToBlob()
 	local t = {}
