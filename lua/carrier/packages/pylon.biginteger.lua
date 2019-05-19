@@ -456,15 +456,20 @@ function self:Square(out)
 	local a = self
 	
 	-- Prepare for convolution
+	-- The result will have #a * 2 - 1 elements, including the sign element
 	out:TruncateAndZero(#a * 2 - 1)
 	
-	-- Multiply
+	-- Multiply sign-extended operands,
+	-- mod a power of two to get enough elements out
 	--    | x0  x1  x2  x3
-	-- ---+----------------
-	-- x0 | x00 x01 x02 x03
-	-- x1 | x10 x11 x12 x13
-	-- x2 | x20 x21 x22 x23
+	-- ---+----------------------------
+	-- x0 | x00 x01 x02 x03 x04 x05 x06
+	-- x1 | x10 x11 x12 x13 x14 x15
+	-- x2 | x20 x21 x22 x23 x24
 	-- x3 | x30 x31 x32 x33
+	--    | x40 x41 x42
+	--    | x50 x51
+	--    | x60
 	-- Contributions are symmetric about the diagonal
 	for i = 1, #a do
 		local high = 0
@@ -473,9 +478,19 @@ function self:Square(out)
 		end
 		
 		-- Carry
-		for j = i * 2 - 1, #a * 2 - 1 do
+		for j = i, #a * 2 - i do
 			if high == 0 then break end
-			out[j], high = UInt24_Add(out[j], high)
+			out[i + j - 1], high = UInt24_Add(out[i + j - 1], high)
+		end
+	end
+	
+	-- Sign-extended part of a
+	if a[#a] ~= Sign_Positive then
+		for i = #a + 1, #a * 2 - 1 do
+			local high = 0
+			for j = 1, #a * 2 - i do
+				out[i + j - 1], high = UInt24_MultiplyAdd2(a[#a], a[j], out[i + j - 1], high)
+			end
 		end
 	end
 	
@@ -491,12 +506,10 @@ function self:Square(out)
 		out[i + i - 1], high = UInt24_MultiplyAdd2(a[i], a[i], out[i + i - 1], high)
 		out[i + i], high = UInt24_Add(out[i + i], high)
 	end
-
-	-- Clear junk
-	out:Truncate(math_max(1, #a * 2 - 2))
+	out[#a * 2 - 1], high = UInt24_MultiplyAdd2(a[#a], a[#a], out[#a * 2 - 1], high)
 	
-	-- Sign
-	out[#out + 1] = Sign_Positive
+	assert(out[#a * 2 - 1] == Sign_Positive)
+	assert(out[#a * 2] == nil)
 	
 	-- Normalize
 	out:Normalize()
