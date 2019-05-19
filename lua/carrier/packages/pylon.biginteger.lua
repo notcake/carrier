@@ -978,7 +978,7 @@ function self:ToHex(digitCount)
 end
 
 function self:ToUInt32()
-	return self[1] + bit_lshift(bit_band(self[2] or 0, 0xFF), UInt24_BitCount)
+	return self[1] + bit_band(self[2] or 0, 0xFF) * (UInt24_Maximum + 1)
 end
 
 -- Internal
