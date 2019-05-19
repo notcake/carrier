@@ -755,6 +755,10 @@ function self:Not(out)
 end
 
 function self:ShiftLeft(n, out)
+	if type(n) == "table" then n = n:ToDouble() end
+	
+	assert(n >= 0)
+	
 	local out = out or BigInteger()
 	
 	local elementCount = math_floor(n / UInt24_BitCount)
@@ -780,6 +784,10 @@ function self:ShiftLeft(n, out)
 end
 
 function self:ShiftRight(n, out)
+	if type(n) == "table" then n = n:ToDouble() end
+	
+	assert(n >= 0)
+	
 	local out = out or BigInteger()
 	
 	local elementCount = math_floor(n / UInt24_BitCount)
@@ -845,6 +853,8 @@ function self:ModularInverse(m)
 end
 
 function self:Root(n)
+	if type(n) == "number" then n = BigInteger.FromDouble(n) end
+	
 	if self:IsNegative() then return false, nil end
 	if not n:IsPositive() then return false, nil end
 	if self:IsZero() then return true, self end
@@ -858,7 +868,7 @@ function self:Root(n)
 	local temp1 = BigInteger()
 	local temp2 = BigInteger()
 	local lowerBound = one:Clone()
-	local upperBound = one:ShiftLeft(BigInteger.FromDouble(self:GetBitCount()) / n + 1)
+	local upperBound = one:ShiftLeft(self:GetBitCount() / n + 1)
 	local mid = BigInteger()
 	while not lowerBound:Equals(upperBound) do
 		temp1 = lowerBound:Add(upperBound, temp1)
@@ -1090,48 +1100,66 @@ function self:__unm()
 end
 
 function self:__add(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:Add(b)
+	return a:Add(b)
 end
 
 function self:__sub(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:Subtract(b)
+	return a:Subtract(b)
 end
 
 function self:__mul(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:Multiply(b)
+	return a:Multiply(b)
 end
 
 function self:__div(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:Divide(b)
+	return a:Divide(b)
 end
 
 function self:__mod(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:Mod(b)
+	return a:Mod(b)
 end
 
 function self:__pow(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:Exponentiate(b)
+	return a:Exponentiate(b)
 end
 
 function self:__eq(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:Equals(b)
+	return a:Equals(b)
 end
 
 function self:__lt(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:IsLessThan(b)
+	return a:IsLessThan(b)
 end
 
 function self:__le(b)
+	local a = self
+	if type(a) == "number" then a = BigInteger.FromDouble(a) end
 	if type(b) == "number" then b = BigInteger.FromDouble(b) end
-	return self:IsLessThanOrEqual(b)
+	return a:IsLessThanOrEqual(b)
 end
 
 function self:__tostring()
