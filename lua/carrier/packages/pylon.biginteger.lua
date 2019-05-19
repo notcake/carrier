@@ -935,6 +935,15 @@ function self:ToDecimal()
 	return table_concat(t)
 end
 
+function self:ToDouble()
+	local n = self:IsNegative() and -1 or 0
+	for i = #self - 1, 1, -1 do
+		n = n * (UInt24_Maximum + 1) + self[i]
+	end
+	
+	return n
+end
+
 function self:ToHex(digitCount)
 	if #self == 1 then
 		return string_rep(self[#self] == UInt24_Zero and "0" or "f", digitCount or 2)
