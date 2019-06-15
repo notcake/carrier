@@ -1,5 +1,3 @@
-local utf8 = require("utf8")
-
 local self = {}
 TextRenderer = Class(self, Photon.ITextRenderer)
 

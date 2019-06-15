@@ -2,6 +2,8 @@
 
 GarrysMod = {}
 
+utf8 = require("utf8")
+
 require("Pylon.OOP").Initialize(_ENV)
 
 Color = require("Pylon.Color")
