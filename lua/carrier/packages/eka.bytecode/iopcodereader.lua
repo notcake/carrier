@@ -24,7 +24,7 @@ function self:SeekRelative(relativeSeekPos)
 	self:SeekAbsolute(self:GetPosition() + relativeSeekPos)
 end
 
--- :(uint8[]) -> uint64 opcode, ...
+-- :() -> uint64 opcode, ...
 function self:Decode()
 	Error("IOpcodeReader:Decode : Not implemented.")
 end
